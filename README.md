@@ -8,7 +8,9 @@ Base técnica e estética reaproveitadas do app Zuno (auditoria em [docs/ZUNO_AU
 
 ## Como rodar
 
-Requisitos: Node 20+ e o app **Expo Go** no celular (ou um simulador iOS/Android).
+Requisitos: Node 20+ e o app **Expo Go** atualizado (SDK 58) no celular, ou um simulador iOS/Android.
+
+Em redes de empresa/faculdade que isolam aparelhos, use `npm start -- --tunnel`.
 
 ```bash
 npm install            # instala as dependências
@@ -17,14 +19,9 @@ npm start              # abre o Metro; leia o QR com o Expo Go
 npm run typecheck      # checagem de tipos
 ```
 
-> **Ponte temporária (pouco espaço em disco):** sem espaço para o `npm install`, rode
-> `npm run link:zuno`. O script cria `node_modules/` com links para os pacotes já instalados
-> no Zuno (mesmas versões do Expo e do RN), sem alterar nada no Zuno. Quando houver espaço:
-> `rm -rf node_modules && npm install`.
-
 ## Stack
 
-Expo SDK 57 · React Native 0.86 · React 19 · TypeScript strict · React Navigation 7 ·
+Expo SDK 58 · React Native 0.88 · React 19.3 · TypeScript strict · React Navigation 7 ·
 `Animated` nativo (respeita "reduzir movimento") · react-native-svg · expo-linear-gradient.
 Fontes: Inter (texto) e Barlow Condensed (títulos e placares), licença OFL, em `assets/fonts`.
 

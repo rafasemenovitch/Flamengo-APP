@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, type ImageStyle, type TextStyle, type ViewStyle } from 'react-native';
 
 import { useTheme, type Theme } from './ThemeProvider';
 
@@ -9,7 +9,9 @@ import { useTheme, type Theme } from './ThemeProvider';
  *   const useStyles = makeStyles((t) => ({ card: { backgroundColor: t.colors.surface } }));
  *   const styles = useStyles();
  */
-export function makeStyles<T extends StyleSheet.NamedStyles<T>>(factory: (theme: Theme) => T) {
+type NamedStyles = Record<string, ViewStyle | TextStyle | ImageStyle>;
+
+export function makeStyles<T extends NamedStyles>(factory: (theme: Theme) => T) {
   return function useStyles(): T {
     const theme = useTheme();
     return useMemo(() => StyleSheet.create(factory(theme)), [theme]);

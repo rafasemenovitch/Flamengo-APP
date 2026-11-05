@@ -7,7 +7,9 @@
     "userInterfaceStyle": "automatic",
     "scheme": "flamengoapp",
     "backgroundColor": "#0A0A0C",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.example.flamengoapp"
@@ -15,6 +17,9 @@
     "android": {
       "package": "com.example.flamengoapp"
     },
-    "plugins": ["expo-font"]
+    "plugins": [
+      "expo-font",
+      "expo-status-bar"
+    ]
   }
 }
