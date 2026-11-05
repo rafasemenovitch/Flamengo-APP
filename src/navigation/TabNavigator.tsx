@@ -28,13 +28,14 @@ const TABS: Array<{
   { name: 'Perfil', title: 'Perfil', icon: 'person-circle-outline', iconActive: 'person-circle' },
 ];
 
-const SCREENS = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const SCREENS: Record<keyof TabParamList, React.ComponentType<any>> = {
   Inicio: HomeScreen,
   Jogos: MatchesScreen,
   Ingressos: TicketsScreen,
   Nacao: NationScreen,
   Perfil: ProfileScreen,
-} as const;
+};
 
 /** Tab bar padrão que informa a própria altura (para posicionar o FAB acima dela). */
 function MeasuredTabBar({ onHeight, ...props }: BottomTabBarProps & { onHeight: (h: number) => void }) {
