@@ -26,7 +26,10 @@ const quizAnswers = new Map<string, Quiz['answered']>();
 const groups: CommunityGroup[] = structuredCloneSafe(COMMUNITY_GROUPS);
 
 function levelFor(p: number) {
-  const idx = LEVELS.findLastIndex((l) => p >= l.minPoints);
+  let idx = 0;
+  LEVELS.forEach((l, i) => {
+    if (p >= l.minPoints) idx = i;
+  });
   return { level: LEVELS[idx]!, nextLevel: LEVELS[idx + 1] };
 }
 

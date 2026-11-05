@@ -48,18 +48,22 @@ export function formatRelative(iso: string, now = Date.now()) {
   return days === 1 ? 'ontem' : `há ${days} dias`;
 }
 
-const currency = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+/** 1234.5 → "R$ 1.234,50" (formatação própria, independente do suporte a Intl do aparelho). */
 export function formatCurrency(value: number) {
-  return currency.format(value);
+  const [int, dec] = Math.abs(value).toFixed(2).split('.');
+  return `${value < 0 ? '-' : ''}R$ ${int!.replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${dec}`;
 }
 
-const compact = new Intl.NumberFormat('pt-BR', { notation: 'compact', maximumFractionDigits: 1 });
+/** 1_204_000 → "1,2 mi" · 98_500 → "98,5 mil" (sem Intl compact, que nem todo Hermes suporta). */
 export function formatCompact(value: number) {
-  return compact.format(value);
+  const fmt = (n: number) => (Math.round(n * 10) / 10).toString().replace('.', ',');
+  if (value >= 1_000_000) return `${fmt(value / 1_000_000)} mi`;
+  if (value >= 1_000) return `${fmt(value / 1_000)} mil`;
+  return String(value);
 }
 
 export function formatNumber(value: number) {
-  return value.toLocaleString('pt-BR');
+  return String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
 
 /** 312 → "5:12" */

@@ -83,5 +83,13 @@ Tudo no modo `demo`. Na interface, os itens simulados levam o selo **DEMO**:
 
 - [x] Fase 0: auditoria do Zuno
 - [x] Fase 1: fundação (design system, serviços, dados demo e navegação completa)
-- [ ] Fase 2: Home completa
-- [ ] Fase 3: abas Jogos, Ingressos, Nação, Perfil e Assistente
+- [x] Fase 2: Home completa (card de jogo em 3 estados, seletor de cenário em dev, atalhos, banner do Modo Maracanã, notícias, FlaTV, Para você, classificação, palpite, enquete e quiz)
+- [x] Fase 3: Jogos, Ingressos + Modo Maracanã, Nação (loja, sócio, gamificação, rankings, Passaporte, comunidade), Perfil, Configurações e Assistente Fla
+
+### Roteiro de demonstração
+1. Home: use o seletor amarelo **Dev · estado do jogo** para alternar entre pré-jogo, dia de jogo, ao vivo e pós-jogo.
+   No modo **Ao vivo**, o relógio avança (1 min de jogo a cada 4 s) e o 3º gol, aos 83', dispara o alerta de gol.
+2. Comprar ingresso: escolha o setor no mapa → "Compra simulada" → carteira com QR DEMONSTRATIVO.
+3. Modo Maracanã: portão, horário de chegada, mapa com serviços, filas e transporte.
+4. Assistente Fla (botão vermelho): "Qual portão do meu setor?", "Quando é o próximo jogo?", e algo fora da base para ver o "não sei".
+5. Perfil: favorite jogadores e veja o "Para você" da Home mudar.
