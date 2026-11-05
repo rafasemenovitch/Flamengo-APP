@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "Flamengo App",
+    "slug": "flamengo-app",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "scheme": "flamengoapp",
+    "backgroundColor": "#0A0A0C",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.example.flamengoapp"
+    },
+    "android": {
+      "package": "com.example.flamengoapp"
+    },
+    "plugins": ["expo-font"]
+  }
+}
