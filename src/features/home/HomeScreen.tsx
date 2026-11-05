@@ -1,100 +1,145 @@
 import { useNavigation } from '@react-navigation/native';
+import { useCallback } from 'react';
 import { View } from 'react-native';
 
-import {
-  Badge,
-  Card,
-  ClubCrest,
-  DemoBadge,
-  ErrorState,
-  ListGroup,
-  ListItem,
-  Screen,
-  SectionHeader,
-  Skeleton,
-  TeamCrest,
-  Text,
-  useTheme,
-} from '@/design-system';
+import { Card, EmptyState, ErrorState, Screen, SectionHeader, Skeleton, useTheme } from '@/design-system';
+import { HList, NewsCard, VideoCard } from '@/features/shared/ContentCards';
+import { PollCard, PredictionCard, QuizCard } from '@/features/shared/Engagement';
+import { StandingsTable } from '@/features/shared/MatchUI';
 import { useAsync } from '@/hooks/useAsync';
-import { IS_DEMO, services } from '@/services';
-import { formatMatchDate } from '@/utils/format';
+import { useDemoScenario, useLiveMatch } from '@/hooks/useMatch';
+import { services } from '@/services';
+import { useAppState } from '@/state/AppStateProvider';
+import { DevScenarioSwitcher, HomeHeader, MatchdayBanner, QuickActions } from './HomeParts';
+import { HeroMatchCard } from './HeroMatchCard';
 
-/**
- * Home da FASE 1: valida a fundação (tema, serviços, rotas). A Home completa
- * (hero com 3 estados, atalhos, notícias, FlaTV...) chega na Fase 2.
- */
+function isToday(iso: string) {
+  const d = new Date(iso);
+  const n = new Date();
+  return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth() && d.getDate() === n.getDate();
+}
+
 export function HomeScreen() {
   const navigation = useNavigation();
   const { spacing, layout } = useTheme();
-  const featured = useAsync(() => services.matches.getFeaturedMatch());
+  const { profile } = useAppState();
+  const [scenario, setScenario] = useDemoScenario();
 
-  const routes: Array<{ title: string; icon: Parameters<typeof ListItem>[0]['icon']; go: () => void }> = [
-    { title: 'Detalhe da partida', icon: 'stats-chart-outline', go: () => navigation.navigate('MatchDetail', { matchId: 'm-bra-33' }) },
-    { title: 'Perfil de jogador', icon: 'person-outline', go: () => navigation.navigate('PlayerProfile', { playerId: 'p10' }) },
-    { title: 'Notícia', icon: 'newspaper-outline', go: () => navigation.navigate('NewsDetail', { articleId: 'n1' }) },
-    { title: 'Vídeo (FlaTV)', icon: 'play-circle-outline', go: () => navigation.navigate('VideoDetail', { videoId: 'v1' }) },
-    { title: 'Carteira de ingressos', icon: 'wallet-outline', go: () => navigation.navigate('TicketWallet') },
-    { title: 'Modo Maracanã', icon: 'location-outline', go: () => navigation.navigate('StadiumMode') },
-    { title: 'Loja', icon: 'bag-handle-outline', go: () => navigation.navigate('Store') },
-    { title: 'Produto', icon: 'shirt-outline', go: () => navigation.navigate('Product', { productId: 'pr1' }) },
-    { title: 'Carrinho', icon: 'cart-outline', go: () => navigation.navigate('Cart') },
-    { title: 'Sócio-Torcedor', icon: 'card-outline', go: () => navigation.navigate('Membership') },
-    { title: 'Rankings', icon: 'podium-outline', go: () => navigation.navigate('Rankings') },
-    { title: 'Passaporte Rubro-Negro', icon: 'book-outline', go: () => navigation.navigate('Passport') },
-    { title: 'Configurações', icon: 'settings-outline', go: () => navigation.navigate('Settings') },
-  ];
+  const featured = useLiveMatch(() => services.matches.getFeaturedMatch(), [scenario], { alerts: true });
+  const news = useAsync(() => services.news.getLatest(6));
+  const videos = useAsync(() => services.flatv.getFeatured(6));
+  const standings = useAsync(() => services.matches.getStandings('brasileirao'), [featured.data?.status === 'finished']);
+  const notifications = useAsync(() => services.profile.getNotifications());
+  const forYou = useAsync(
+    () => services.recommendations.getForYou({ favoritePlayerIds: profile?.favoritePlayerIds ?? [], interests: profile?.interests ?? [] }),
+    [profile?.favoritePlayerIds.join(','), profile?.interests.join(',')]
+  );
 
-  const m = featured.data;
+  const match = featured.data;
+  const matchday = !!match && match.status === 'scheduled' && isToday(match.kickoff);
+  const plan = useAsync(async () => (matchday && match ? services.stadium.getMatchDayPlan(match.id) : undefined), [matchday, match?.id]);
+
+  const refreshing = featured.refreshing || news.refreshing || videos.refreshing;
+  const onRefresh = useCallback(() => {
+    featured.refresh();
+    news.refresh();
+    videos.refresh();
+    standings.refresh();
+    forYou.refresh();
+    notifications.refresh();
+  }, [featured, news, videos, standings, forYou, notifications]);
+
+  const unread = notifications.data?.filter((n) => !n.read).length ?? 0;
+  const section = { marginTop: spacing.xxl };
 
   return (
-    <Screen reserveFab refreshing={featured.refreshing} onRefresh={featured.refresh}>
-      <View style={{ paddingHorizontal: layout.gutter, paddingTop: spacing.xl, gap: spacing.sm }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
-          <ClubCrest size={40} />
-          <Text variant="display">Flamengo App</Text>
+    <Screen reserveFab refreshing={refreshing} onRefresh={onRefresh}>
+      <HomeHeader unread={unread} />
+      <DevScenarioSwitcher value={scenario} onChange={setScenario} />
+
+      {featured.error ? (
+        <View style={{ paddingHorizontal: layout.gutter }}>
+          <Card>
+            <ErrorState compact title="Não carregamos o próximo jogo" onRetry={featured.reload} />
+          </Card>
         </View>
-        <View style={{ flexDirection: 'row', gap: spacing.sm }}>
-          <Badge label="Fase 1 · Fundação" tone="brand" />
-          {IS_DEMO && <DemoBadge label="Modo demo" />}
-        </View>
+      ) : (
+        <HeroMatchCard match={match} loading={featured.loading} />
+      )}
+
+      <View style={{ marginTop: spacing.xl }}>
+        <QuickActions matchday={matchday} />
       </View>
 
-      <View style={{ paddingHorizontal: layout.gutter, marginTop: spacing.xl }}>
-        {featured.loading ? (
-          <Skeleton height={120} radius={20} />
-        ) : featured.error || !m ? (
-          <Card>
-            <ErrorState compact onRetry={featured.reload} />
-          </Card>
+      {matchday && match && (
+        <View style={{ marginTop: spacing.xl }}>
+          <MatchdayBanner match={match} plan={plan.data} />
+        </View>
+      )}
+
+      {match?.status === 'finished' && match.manOfTheMatchPollId && (
+        <View style={[section, { paddingHorizontal: layout.gutter }]}>
+          <PollCard pollId={match.manOfTheMatchPollId} />
+        </View>
+      )}
+
+      <View style={section}>
+        <SectionHeader title="Últimas notícias" onAction={() => navigation.navigate('NewsDetail', { articleId: news.data?.[0]?.id ?? 'n1' })} actionLabel="Ler" />
+        {news.error ? (
+          <ErrorState compact onRetry={news.reload} />
         ) : (
-          <Card variant="elevated" onPress={() => navigation.navigate('MatchDetail', { matchId: m.id })} accessibilityLabel="Próximo jogo">
-            <View style={{ gap: spacing.md }}>
-              <Text variant="overline" tone="brand">
-                {m.stage} · teste do MatchesService
-              </Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                <TeamCrest shortName={m.homeTeam.code} color={m.homeTeam.color} size={44} />
-                <Text variant="h2">
-                  {m.score ? `${m.score.home} × ${m.score.away}` : '×'}
-                </Text>
-                <TeamCrest shortName={m.awayTeam.code} color={m.awayTeam.color} size={44} />
-              </View>
-              <Text variant="caption" tone="secondary" align="center">
-                {m.homeTeam.shortName} × {m.awayTeam.shortName} · {formatMatchDate(m.kickoff)} · {m.venue.name}
-              </Text>
-            </View>
-          </Card>
+          <HList data={news.data} loading={news.loading} itemWidth={280} keyOf={(n) => n.id} renderItem={(n) => <NewsCard article={n} onPress={() => navigation.navigate('NewsDetail', { articleId: n.id })} />} />
         )}
       </View>
 
-      <View style={{ marginTop: spacing.xxl }}>
-        <SectionHeader title="Rotas internas" subtitle="Todas já navegáveis; conteúdo completo nas Fases 2 e 3" />
-        <ListGroup>
-          {routes.map((r) => (
-            <ListItem key={r.title} title={r.title} icon={r.icon} onPress={r.go} />
-          ))}
-        </ListGroup>
+      <View style={section}>
+        <SectionHeader title="FlaTV" subtitle="Vídeos em destaque" />
+        {videos.error ? (
+          <ErrorState compact onRetry={videos.reload} />
+        ) : (
+          <HList data={videos.data} loading={videos.loading} itemWidth={260} keyOf={(v) => v.id} renderItem={(v) => <VideoCard video={v} onPress={() => navigation.navigate('VideoDetail', { videoId: v.id })} />} />
+        )}
+      </View>
+
+      <View style={section}>
+        <SectionHeader title="Para você" subtitle="Com base nos seus jogadores favoritos e interesses" />
+        {forYou.data?.length === 0 ? (
+          <EmptyState compact title="Escolha seus favoritos" message="Siga jogadores no seu perfil para receber recomendações." actionLabel="Ir para o perfil" onAction={() => navigation.navigate('Tabs', { screen: 'Perfil' })} />
+        ) : (
+          <HList
+            data={forYou.data}
+            loading={forYou.loading}
+            itemWidth={240}
+            keyOf={(r) => `${r.kind}-${r.item.id}`}
+            renderItem={(r) =>
+              r.kind === 'video' ? (
+                <VideoCard video={r.item} reason={r.reason} onPress={() => navigation.navigate('VideoDetail', { videoId: r.item.id })} />
+              ) : (
+                <View style={{ gap: 6 }}>
+                  <NewsCard article={r.item} onPress={() => navigation.navigate('NewsDetail', { articleId: r.item.id })} />
+                </View>
+              )
+            }
+          />
+        )}
+      </View>
+
+      <View style={[section, { paddingHorizontal: layout.gutter }]}>
+        <View style={{ marginHorizontal: -layout.gutter }}>
+          <SectionHeader title="Brasileirão" subtitle="Classificação resumida" onAction={() => navigation.navigate('Standings', { competitionId: 'brasileirao' })} actionLabel="Tabela" />
+        </View>
+        <Card padding="sm">
+          {standings.loading || !standings.data ? <Skeleton height={220} /> : <StandingsTable table={standings.data} compact />}
+        </Card>
+      </View>
+
+      <View style={[section, { paddingHorizontal: layout.gutter, gap: spacing.lg }]}>
+        <View style={{ marginHorizontal: -layout.gutter, marginBottom: -spacing.sm }}>
+          <SectionHeader title="Jogue com a Nação" subtitle="Pontos virtuais, sem apostas" onAction={() => navigation.navigate('Gamification')} actionLabel="Meus pontos" />
+        </View>
+        {match && match.status === 'scheduled' && <PredictionCard match={match} />}
+        <PollCard />
+        <QuizCard />
       </View>
     </Screen>
   );

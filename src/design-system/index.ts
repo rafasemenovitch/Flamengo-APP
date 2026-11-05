@@ -13,6 +13,7 @@ export * from './components/IconButton';
 export * from './components/ListItem';
 export * from './components/LiveIndicator';
 export * from './components/PressableScale';
+export * from './components/ProgressBar';
 export * from './components/Screen';
 export * from './components/SectionHeader';
 export * from './components/SegmentedControl';

@@ -5,13 +5,16 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AlertHost, ClubCrest, fontFiles, palette, ThemeProvider, useTheme } from '@/design-system';
 import { RootNavigator } from '@/navigation/RootNavigator';
+import { AppStateProvider } from '@/state/AppStateProvider';
 
 function ThemedApp() {
   const { scheme } = useTheme();
   return (
     <AlertHost>
-      <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-      <RootNavigator />
+      <AppStateProvider>
+        <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+        <RootNavigator />
+      </AppStateProvider>
     </AlertHost>
   );
 }
