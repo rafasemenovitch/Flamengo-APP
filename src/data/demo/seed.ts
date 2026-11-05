@@ -1,0 +1,134 @@
+/**
+ * ARQUIVO CENTRAL DE NOMES DO MODO DEMO.
+ *
+ * Jogadores, técnico, adversários, competições, estádio e números ficam todos
+ * aqui para serem trocados num único lugar. Os jogadores do elenco são
+ * FICTÍCIOS (evita atribuir estatísticas inventadas a atletas reais);
+ * adversários e competições seguem a estrutura real do futebol brasileiro,
+ * com resultados simulados.
+ */
+import type { Competition, Team, Venue } from '@/types/match';
+import type { Player } from '@/types/player';
+
+export const CLUB: Team = {
+  id: 'fla',
+  name: 'Flamengo',
+  shortName: 'Flamengo',
+  code: 'FLA',
+  color: '#C8102E',
+  city: 'Rio de Janeiro',
+};
+
+export const HEAD_COACH = 'Ricardo Lemos';
+export const SEASON = '2026';
+
+export const VENUES = {
+  maracana: { id: 'maracana', name: 'Maracanã', city: 'Rio de Janeiro' },
+  allianz: { id: 'allianz', name: 'Arena Barueri', city: 'Barueri' },
+  mineirao: { id: 'mineirao', name: 'Mineirão', city: 'Belo Horizonte' },
+  arenaGremio: { id: 'arena-gremio', name: 'Arena do Grêmio', city: 'Porto Alegre' },
+  neoQuimica: { id: 'neo-quimica', name: 'Neo Química Arena', city: 'São Paulo' },
+  saoJanuario: { id: 'sao-januario', name: 'São Januário', city: 'Rio de Janeiro' },
+  morumbis: { id: 'morumbis', name: 'MorumBIS', city: 'São Paulo' },
+  cilindro: { id: 'cilindro', name: 'Estadio Presidente Perón', city: 'Avellaneda' },
+  centenario: { id: 'centenario', name: 'Estadio Centenario', city: 'Montevidéu' },
+  fonteNova: { id: 'fonte-nova', name: 'Arena Fonte Nova', city: 'Salvador' },
+} satisfies Record<string, Venue>;
+
+export const COMPETITIONS: Competition[] = [
+  { id: 'brasileirao', name: 'Campeonato Brasileiro Série A', shortName: 'Brasileirão', season: SEASON, format: 'league' },
+  { id: 'libertadores', name: 'CONMEBOL Libertadores', shortName: 'Libertadores', season: SEASON, format: 'groups+knockout' },
+  { id: 'copa-do-brasil', name: 'Copa do Brasil', shortName: 'Copa do Brasil', season: SEASON, format: 'knockout' },
+  { id: 'carioca', name: 'Campeonato Carioca', shortName: 'Carioca', season: SEASON, format: 'groups+knockout' },
+];
+
+function team(id: string, name: string, code: string, color: string, city: string): Team {
+  return { id, name, shortName: name, code, color, city };
+}
+
+export const TEAMS: Record<string, Team> = {
+  fla: CLUB,
+  pal: team('pal', 'Palmeiras', 'PAL', '#006437', 'São Paulo'),
+  bot: team('bot', 'Botafogo', 'BOT', '#2B2B2B', 'Rio de Janeiro'),
+  flu: team('flu', 'Fluminense', 'FLU', '#7A0026', 'Rio de Janeiro'),
+  vas: team('vas', 'Vasco', 'VAS', '#1F1F1F', 'Rio de Janeiro'),
+  sao: team('sao', 'São Paulo', 'SAO', '#D0021B', 'São Paulo'),
+  cor: team('cor', 'Corinthians', 'COR', '#3A3A3A', 'São Paulo'),
+  san: team('san', 'Santos', 'SAN', '#4A4A4A', 'Santos'),
+  gre: team('gre', 'Grêmio', 'GRE', '#0D80BF', 'Porto Alegre'),
+  int: team('int', 'Internacional', 'INT', '#C4161C', 'Porto Alegre'),
+  cam: team('cam', 'Atlético-MG', 'CAM', '#2E2E2E', 'Belo Horizonte'),
+  cru: team('cru', 'Cruzeiro', 'CRU', '#1B4FA0', 'Belo Horizonte'),
+  bah: team('bah', 'Bahia', 'BAH', '#0060A8', 'Salvador'),
+  for: team('for', 'Fortaleza', 'FOR', '#1D4F9C', 'Fortaleza'),
+  rbb: team('rbb', 'Bragantino', 'RBB', '#B5121B', 'Bragança Paulista'),
+  vit: team('vit', 'Vitória', 'VIT', '#D71920', 'Salvador'),
+  mir: team('mir', 'Mirassol', 'MIR', '#E8B500', 'Mirassol'),
+  cfc: team('cfc', 'Coritiba', 'CFC', '#00663C', 'Curitiba'),
+  cap: team('cap', 'Athletico-PR', 'CAP', '#C8102E', 'Curitiba'),
+  rem: team('rem', 'Remo', 'REM', '#14306B', 'Belém'),
+  rac: team('rac', 'Racing', 'RAC', '#5BB3E6', 'Avellaneda'),
+  nac: team('nac', 'Nacional', 'NAC', '#1B2A6B', 'Montevidéu'),
+};
+
+type SeedPlayer = Omit<Player, 'imageKey' | 'bio'> & { bio?: string };
+
+const p = (x: SeedPlayer): Player => ({
+  ...x,
+  imageKey: `player-${x.id}`,
+  bio:
+    x.bio ??
+    `${x.shortName} chegou ao clube em ${x.joinedYear} e se firmou como ${x.role.toLowerCase()} do elenco. Texto demonstrativo.`,
+});
+
+/** Elenco FICTÍCIO. */
+export const SQUAD: Player[] = [
+  p({ id: 'p01', name: 'Thiago Moura', shortName: 'Thiago Moura', number: 1, position: 'Goleiro', role: 'Goleiro', birthDate: '1995-03-14', nationality: 'Brasil', heightCm: 192, preferredFoot: 'Direito', joinedYear: 2022, season: { matches: 48, goals: 0, assists: 0, minutes: 4320, yellowCards: 2, redCards: 0, cleanSheets: 21 } }),
+  p({ id: 'p25', name: 'Caio Brandão', shortName: 'Caio', number: 25, position: 'Goleiro', role: 'Goleiro', birthDate: '2001-08-02', nationality: 'Brasil', heightCm: 190, preferredFoot: 'Direito', joinedYear: 2019, season: { matches: 6, goals: 0, assists: 0, minutes: 540, yellowCards: 0, redCards: 0, cleanSheets: 3 } }),
+  p({ id: 'p02', name: 'Lucas Valente', shortName: 'Valente', number: 2, position: 'Lateral', role: 'Lateral-direito', birthDate: '1998-11-21', nationality: 'Brasil', heightCm: 178, preferredFoot: 'Direito', joinedYear: 2024, season: { matches: 44, goals: 2, assists: 7, minutes: 3610, yellowCards: 8, redCards: 0 } }),
+  p({ id: 'p03', name: 'Rafael Antunes', shortName: 'Rafael Antunes', number: 3, position: 'Zagueiro', role: 'Zagueiro', birthDate: '1996-05-09', nationality: 'Brasil', heightCm: 187, preferredFoot: 'Direito', joinedYear: 2023, season: { matches: 46, goals: 4, assists: 1, minutes: 4010, yellowCards: 6, redCards: 1 } }),
+  p({ id: 'p04', name: 'Diego Sampaio', shortName: 'Sampaio', number: 4, position: 'Zagueiro', role: 'Zagueiro', birthDate: '1997-01-30', nationality: 'Brasil', heightCm: 185, preferredFoot: 'Esquerdo', joinedYear: 2021, season: { matches: 42, goals: 3, assists: 2, minutes: 3720, yellowCards: 7, redCards: 0 } }),
+  p({ id: 'p06', name: 'Mateus Rocha', shortName: 'Mateus Rocha', number: 6, position: 'Lateral', role: 'Lateral-esquerdo', birthDate: '1994-07-18', nationality: 'Brasil', heightCm: 176, preferredFoot: 'Esquerdo', joinedYear: 2023, season: { matches: 39, goals: 1, assists: 9, minutes: 3180, yellowCards: 5, redCards: 0 } }),
+  p({ id: 'p13', name: 'Henrique Lobo', shortName: 'Henrique', number: 13, position: 'Lateral', role: 'Lateral-direito', birthDate: '2003-02-11', nationality: 'Brasil', heightCm: 175, preferredFoot: 'Direito', joinedYear: 2022, season: { matches: 21, goals: 0, assists: 3, minutes: 1240, yellowCards: 3, redCards: 0 } }),
+  p({ id: 'p15', name: 'Breno Castilho', shortName: 'Breno', number: 15, position: 'Zagueiro', role: 'Zagueiro', birthDate: '2002-10-04', nationality: 'Brasil', heightCm: 189, preferredFoot: 'Direito', joinedYear: 2025, season: { matches: 18, goals: 1, assists: 0, minutes: 1310, yellowCards: 2, redCards: 0 } }),
+  p({ id: 'p05', name: 'André Pacheco', shortName: 'Pacheco', number: 5, position: 'Volante', role: 'Volante', birthDate: '1995-12-01', nationality: 'Brasil', heightCm: 181, preferredFoot: 'Direito', joinedYear: 2023, season: { matches: 45, goals: 2, assists: 4, minutes: 3850, yellowCards: 10, redCards: 0 } }),
+  p({ id: 'p08', name: 'Gabriel Tavares', shortName: 'Tavares', number: 8, position: 'Volante', role: 'Segundo volante', birthDate: '1999-04-25', nationality: 'Brasil', heightCm: 179, preferredFoot: 'Direito', joinedYear: 2024, season: { matches: 43, goals: 5, assists: 6, minutes: 3400, yellowCards: 6, redCards: 0 } }),
+  p({ id: 'p10', name: 'Felipe Arantes', shortName: 'Arantes', number: 10, position: 'Meia', role: 'Meia-armador', birthDate: '1996-09-12', nationality: 'Brasil', heightCm: 173, preferredFoot: 'Esquerdo', joinedYear: 2021, season: { matches: 47, goals: 11, assists: 14, minutes: 3900, yellowCards: 4, redCards: 0 }, bio: 'Camisa 10 e capitão, Arantes é o cérebro do time: lidera o elenco em assistências na temporada. Texto demonstrativo.' }),
+  p({ id: 'p18', name: 'Nicolás Ferreyra', shortName: 'Ferreyra', number: 18, position: 'Meia', role: 'Meia', birthDate: '1997-06-03', nationality: 'Argentina', heightCm: 177, preferredFoot: 'Direito', joinedYear: 2025, season: { matches: 38, goals: 6, assists: 8, minutes: 2650, yellowCards: 7, redCards: 0 } }),
+  p({ id: 'p20', name: 'João Pedro Lins', shortName: 'JP Lins', number: 20, position: 'Meia', role: 'Meia', birthDate: '2005-01-17', nationality: 'Brasil', heightCm: 172, preferredFoot: 'Direito', joinedYear: 2023, season: { matches: 26, goals: 3, assists: 4, minutes: 1380, yellowCards: 1, redCards: 0 }, bio: 'Revelado no Ninho, JP Lins é uma das apostas da base para os próximos anos. Texto demonstrativo.' }),
+  p({ id: 'p29', name: 'Renan Albuquerque', shortName: 'Renan', number: 29, position: 'Volante', role: 'Volante', birthDate: '2000-03-28', nationality: 'Brasil', heightCm: 183, preferredFoot: 'Direito', joinedYear: 2024, season: { matches: 24, goals: 0, assists: 1, minutes: 1450, yellowCards: 5, redCards: 1 } }),
+  p({ id: 'p07', name: 'Bruno Siqueira', shortName: 'Bruno Siqueira', number: 7, position: 'Atacante', role: 'Ponta-esquerda', birthDate: '1993-10-30', nationality: 'Brasil', heightCm: 180, preferredFoot: 'Direito', joinedYear: 2020, season: { matches: 44, goals: 14, assists: 7, minutes: 3120, yellowCards: 3, redCards: 0 } }),
+  p({ id: 'p09', name: 'Pedro Vasconcelos', shortName: 'Vasconcelos', number: 9, position: 'Atacante', role: 'Centroavante', birthDate: '1997-06-20', nationality: 'Brasil', heightCm: 185, preferredFoot: 'Direito', joinedYear: 2022, season: { matches: 46, goals: 23, assists: 5, minutes: 3600, yellowCards: 2, redCards: 0 }, bio: 'Artilheiro do time na temporada, Vasconcelos é referência na área e no jogo aéreo. Texto demonstrativo.' }),
+  p({ id: 'p11', name: 'Everton Duarte', shortName: 'Everton', number: 11, position: 'Atacante', role: 'Ponta-direita', birthDate: '1998-02-14', nationality: 'Brasil', heightCm: 174, preferredFoot: 'Esquerdo', joinedYear: 2024, season: { matches: 41, goals: 9, assists: 10, minutes: 2980, yellowCards: 2, redCards: 0 } }),
+  p({ id: 'p17', name: 'Kauã Medeiros', shortName: 'Kauã', number: 17, position: 'Atacante', role: 'Ponta', birthDate: '2006-05-08', nationality: 'Brasil', heightCm: 170, preferredFoot: 'Direito', joinedYear: 2024, season: { matches: 22, goals: 4, assists: 3, minutes: 980, yellowCards: 1, redCards: 0 } }),
+  p({ id: 'p19', name: 'Matías Olivera', shortName: 'Olivera', number: 19, position: 'Atacante', role: 'Centroavante', birthDate: '1996-11-11', nationality: 'Uruguai', heightCm: 183, preferredFoot: 'Direito', joinedYear: 2025, season: { matches: 30, goals: 8, assists: 2, minutes: 1620, yellowCards: 4, redCards: 0 } }),
+  p({ id: 'p27', name: 'Wesley Prado', shortName: 'Wesley', number: 27, position: 'Atacante', role: 'Atacante', birthDate: '2004-09-23', nationality: 'Brasil', heightCm: 176, preferredFoot: 'Esquerdo', joinedYear: 2023, season: { matches: 19, goals: 2, assists: 2, minutes: 760, yellowCards: 0, redCards: 0 } }),
+];
+
+export function playerById(id: string) {
+  return SQUAD.find((pl) => pl.id === id);
+}
+
+/** Nomes genéricos para escalações de adversários (fictícios). */
+export const OPPONENT_NAMES = [
+  'Gustavo Reis', 'Murilo Teles', 'Danilo Prates', 'Igor Fontes', 'Raul Nogueira', 'Samuel Bastos',
+  'Leandro Viana', 'Otávio Neri', 'Hugo Carvalhal', 'Fábio Lacerda', 'Rodrigo Paes', 'Vinícius Amaral',
+  'Alex Moraes', 'Cauê Ribeiro', 'Paulo Henrique Sá', 'Erick Matos', 'Tomás Agüero', 'Joel Cardoso',
+];
+
+export const OPPONENT_COACHES: Record<string, string> = {
+  pal: 'Martín Ibarra',
+  cru: 'Leonardo Sales',
+  vas: 'Fernando Dias',
+  bot: 'Artur Monteiro',
+  sao: 'Cláudio Mesquita',
+  gre: 'Eduardo Pinheiro',
+  cor: 'Marcos Bittencourt',
+  bah: 'Sérgio Vilela',
+  rac: 'Gonzalo Ríos',
+  nac: 'Diego Ferrand',
+};
+
+export const REFEREES = ['Paulo Roberto Assis', 'Wagner Lessa', 'Marcelo Paiva', 'Rogério Campelo'];
+
+export const BROADCASTERS = ['TV aberta', 'Streaming', 'Pay-per-view'];
