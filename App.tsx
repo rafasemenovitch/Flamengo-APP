@@ -5,6 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AlertHost, ClubCrest, fontFiles, palette, ThemeProvider, useTheme } from '@/design-system';
 import { RootNavigator } from '@/navigation/RootNavigator';
+import { OnboardingGate } from '@/features/onboarding/Onboarding';
 import { AppStateProvider } from '@/state/AppStateProvider';
 
 function ThemedApp() {
@@ -13,7 +14,9 @@ function ThemedApp() {
     <AlertHost>
       <AppStateProvider>
         <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-        <RootNavigator />
+        <OnboardingGate>
+          <RootNavigator />
+        </OnboardingGate>
       </AppStateProvider>
     </AlertHost>
   );

@@ -2,6 +2,7 @@ import { Alert, Switch, View } from 'react-native';
 
 import { ListGroup, ListItem, Screen, SectionHeader, SegmentedControl, Text, useTheme, useThemePreference, type ThemePreference } from '@/design-system';
 import { DATA_SOURCE, services } from '@/services';
+import { useOnboarding } from '@/features/onboarding/Onboarding';
 import { useAppState } from '@/state/AppStateProvider';
 import type { NotificationPrefs, PrivacyPrefs } from '@/types/fan';
 
@@ -25,6 +26,7 @@ export function SettingsScreen() {
   const { colors, spacing, layout } = useTheme();
   const { preference, setPreference } = useThemePreference();
   const { profile, updateProfile } = useAppState();
+  const { replay } = useOnboarding();
 
   const toggle = (value: boolean, onChange: (v: boolean) => void, label: string) => (
     <Switch
@@ -73,6 +75,8 @@ export function SettingsScreen() {
         <SectionHeader title="Sobre" />
         <ListGroup>
           <ListItem icon="information-circle-outline" title="Flamengo App · versão conceito" subtitle={`Fonte de dados: ${DATA_SOURCE === 'demo' ? 'demonstrativa' : 'integrações reais'}`} />
+          <ListItem icon="play-circle-outline" title="Rever boas-vindas" subtitle="Mostra de novo a apresentação inicial" onPress={replay} />
+          <ListItem icon="easel-outline" title="Modo apresentação" subtitle="Na Home, toque e segure a saudação para trocar o momento do jogo" />
           <ListItem icon="flask-outline" title="O que é demonstrativo" subtitle="Placares, ingressos, QR, pagamentos, carteirinha, benefícios e pontos são simulados. Escudo e fotos são placeholders." />
           <ListItem
             icon="log-out-outline"
