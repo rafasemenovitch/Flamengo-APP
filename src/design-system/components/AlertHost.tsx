@@ -4,6 +4,8 @@ import { Animated, Image, Modal, Pressable, StyleSheet, View } from 'react-nativ
 
 import { brandAssets } from '@assets/brand';
 import { useReduceMotion } from '@/hooks/useReduceMotion';
+import { haptic } from '@/utils/haptics';
+import { palette } from '../tokens/colors';
 import { useTheme } from '../theme/ThemeProvider';
 import { Button } from './Button';
 import { Text } from './Text';
@@ -99,6 +101,11 @@ function AlertModal({ alert, onClose }: { alert: QueuedAlert; onClose: (action?:
   const translateY = useRef(new Animated.Value(reduceMotion ? 0 : 24)).current;
 
   useEffect(() => {
+    if (alert.variant === 'goal') haptic.goal();
+    else if (alert.variant === 'achievement' || alert.variant === 'matchEnd') haptic.success();
+  }, [alert.variant]);
+
+  useEffect(() => {
     if (reduceMotion) return;
     Animated.parallel([
       Animated.timing(opacity, { toValue: 1, duration: motion.duration.base, useNativeDriver: true }),
@@ -112,6 +119,7 @@ function AlertModal({ alert, onClose }: { alert: QueuedAlert; onClose: (action?:
   return (
     <Modal visible transparent animationType="fade" onRequestClose={() => onClose()}>
       <Pressable style={[styles.backdrop, { backgroundColor: colors.overlay, padding: spacing.xl }]} onPress={() => onClose()} accessible={false}>
+        {alert.variant === 'goal' && !reduceMotion && <GoalBurst />}
         <Animated.View style={{ width: '100%', maxWidth: 380, opacity, transform: [{ translateY }] }} accessibilityViewIsModal>
           <Pressable onPress={() => undefined} accessible={false}>
             <View style={[styles.card, { backgroundColor: colors.surfaceElevated, borderRadius: radius.xl, padding: spacing.xl, gap: spacing.lg, borderColor: colors.border }]}>
@@ -142,6 +150,45 @@ function AlertModal({ alert, onClose }: { alert: QueuedAlert; onClose: (action?:
         </Animated.View>
       </Pressable>
     </Modal>
+  );
+}
+
+const CONFETTI = Array.from({ length: 28 }, (_, i) => ({
+  angle: (i / 28) * Math.PI * 2 + (i % 3) * 0.2,
+  distance: 140 + (i % 5) * 38,
+  color: [palette.red600, palette.ink950, palette.white, palette.red400][i % 4]!,
+  w: 6 + (i % 3) * 3,
+  h: 12 + (i % 4) * 4,
+  spin: (i % 2 ? 1 : -1) * (180 + (i % 5) * 90),
+}));
+
+/** Comemoração de gol: explosão de confetes rubro-negros atrás do card. */
+function GoalBurst() {
+  const t = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(t, { toValue: 1, duration: 1400, useNativeDriver: true }).start();
+  }, [t]);
+  return (
+    <View pointerEvents="none" style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center' }]}>
+      {CONFETTI.map((c, i) => (
+        <Animated.View
+          key={i}
+          style={{
+            position: 'absolute',
+            width: c.w,
+            height: c.h,
+            borderRadius: 2,
+            backgroundColor: c.color,
+            opacity: t.interpolate({ inputRange: [0, 0.1, 0.75, 1], outputRange: [0, 1, 1, 0] }),
+            transform: [
+              { translateX: t.interpolate({ inputRange: [0, 1], outputRange: [0, Math.cos(c.angle) * c.distance] }) },
+              { translateY: t.interpolate({ inputRange: [0, 0.6, 1], outputRange: [0, Math.sin(c.angle) * c.distance, Math.sin(c.angle) * c.distance + 80] }) },
+              { rotate: t.interpolate({ inputRange: [0, 1], outputRange: ['0deg', `${c.spin}deg`] }) },
+            ],
+          }}
+        />
+      ))}
+    </View>
   );
 }
 

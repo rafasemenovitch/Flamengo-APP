@@ -8,6 +8,7 @@ import { useReduceMotion } from '@/hooks/useReduceMotion';
 import type { RootScreenProps } from '@/navigation/types';
 import { useAppState } from '@/state/AppStateProvider';
 import { formatCurrency } from '@/utils/format';
+import { haptic } from '@/utils/haptics';
 
 /** Fim de qualquer fluxo de compra: SEMPRE "Compra simulada" (base: OrderConfirmation do Zuno). */
 export function CheckoutResultScreen({ route }: RootScreenProps<'CheckoutResult'>) {
@@ -20,8 +21,12 @@ export function CheckoutResultScreen({ route }: RootScreenProps<'CheckoutResult'
 
   useEffect(() => {
     refreshProgress();
+    haptic.success();
+  }, [refreshProgress]);
+
+  useEffect(() => {
     if (!reduceMotion) Animated.spring(scale, { toValue: 1, friction: 5, useNativeDriver: true }).start();
-  }, [scale, reduceMotion, refreshProgress]);
+  }, [scale, reduceMotion]);
 
   return (
     <Screen showBack={false} title="Compra simulada">

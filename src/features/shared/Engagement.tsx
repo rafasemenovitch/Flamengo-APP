@@ -8,12 +8,16 @@ import { useAppState } from '@/state/AppStateProvider';
 import type { Poll, Prediction, Quiz } from '@/types/gamification';
 import type { Match } from '@/types/match';
 import { formatNumber } from '@/utils/format';
+import { haptic } from '@/utils/haptics';
 
 function Stepper({ value, onChange, label }: { value: number; onChange: (n: number) => void; label: string }) {
   const { colors, spacing, layout } = useTheme();
   const btn = (icon: 'remove' | 'add', delta: number) => (
     <Pressable
-      onPress={() => onChange(Math.max(0, Math.min(9, value + delta)))}
+      onPress={() => {
+        haptic.select();
+        onChange(Math.max(0, Math.min(9, value + delta)));
+      }}
       accessibilityRole="button"
       accessibilityLabel={`${delta > 0 ? 'Aumentar' : 'Diminuir'} gols de ${label}`}
       style={({ pressed }) => [styles.stepBtn, { width: layout.minTouch, height: layout.minTouch, backgroundColor: colors.surfaceMuted, opacity: pressed ? 0.6 : 1 }]}
@@ -54,6 +58,7 @@ export function PredictionCard({ match }: { match: Match }) {
     setSaving(true);
     try {
       setSaved(await services.gamification.submitPrediction(match.id, home, away));
+      haptic.success();
       refreshProgress();
     } finally {
       setSaving(false);
@@ -123,6 +128,7 @@ export function PollCard({ pollId, onVoted }: { pollId?: string; onVoted?: () =>
   const voted = !!poll.userVoteId;
 
   const vote = async (optionId: string) => {
+    haptic.select();
     setPoll(await services.gamification.vote(poll.id, optionId));
     refreshProgress();
     onVoted?.();
@@ -178,7 +184,10 @@ export function QuizCard() {
   const a = quiz.answered;
 
   const answer = async (optionId: string) => {
-    setQuiz(await services.gamification.answerQuiz(quiz.id, optionId));
+    const answered = await services.gamification.answerQuiz(quiz.id, optionId);
+    if (answered.answered?.correct) haptic.success();
+    else haptic.select();
+    setQuiz(answered);
     refreshProgress();
   };
 

@@ -1,5 +1,6 @@
 import { Pressable, ScrollView, StyleSheet } from 'react-native';
 
+import { haptic } from '@/utils/haptics';
 import { useTheme } from '../theme/ThemeProvider';
 import { Text } from './Text';
 
@@ -35,7 +36,10 @@ export function SegmentedControl<K extends string>({
         return (
           <Pressable
             key={s.key}
-            onPress={() => onChange(s.key)}
+            onPress={() => {
+              if (s.key !== value) haptic.select();
+              onChange(s.key);
+            }}
             accessibilityRole="tab"
             accessibilityState={{ selected }}
             style={({ pressed }) => [

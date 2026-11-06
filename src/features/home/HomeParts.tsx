@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Badge, Card, IconButton, palette, PressableScale, Text, useTheme, withAlpha } from '@/design-system';
 import { DEMO_SCENARIOS, IS_DEMO, type DemoScenario } from '@/services';
@@ -8,25 +9,36 @@ import { useAppState } from '@/state/AppStateProvider';
 import type { MatchDayPlan } from '@/types/stadium';
 import type { MatchDetail } from '@/types/match';
 import { formatNumber, shiftTime } from '@/utils/format';
+import { haptic } from '@/utils/haptics';
 
 function greeting() {
   const h = new Date().getHours();
   return h < 5 ? 'Boa noite' : h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
 }
 
-export function HomeHeader({ unread }: { unread: number }) {
+export function HomeHeader({ unread, onSecretLongPress }: { unread: number; onSecretLongPress?: () => void }) {
   const navigation = useNavigation();
   const { profile, progress } = useAppState();
   const { spacing, layout, colors, radius } = useTheme();
   return (
     <View style={[styles.between, { paddingHorizontal: layout.gutter, paddingTop: spacing.md, paddingBottom: spacing.lg }]}>
       <View style={{ flex: 1, gap: 6 }}>
-        <Text variant="caption" tone="secondary">
-          {greeting()},
-        </Text>
-        <Text variant="h1" numberOfLines={1}>
-          {profile?.firstName ?? 'Torcedor'}
-        </Text>
+        {/* Toque longo na saudação = controles da demonstração (sem pista visual). */}
+        <Pressable
+          onLongPress={() => {
+            haptic.medium();
+            onSecretLongPress?.();
+          }}
+          delayLongPress={600}
+          accessible={false}
+        >
+          <Text variant="caption" tone="secondary">
+            {greeting()},
+          </Text>
+          <Text variant="h1" numberOfLines={1}>
+            {profile?.firstName ?? 'Torcedor'}
+          </Text>
+        </Pressable>
         {progress && (
           <Pressable
             onPress={() => navigation.navigate('Gamification')}
@@ -49,30 +61,58 @@ export function HomeHeader({ unread }: { unread: number }) {
   );
 }
 
-/** Seletor de estado do jogo — SÓ em desenvolvimento + modo demo (para a apresentação). */
-export function DevScenarioSwitcher({ value, onChange }: { value: DemoScenario; onChange: (s: DemoScenario) => void }) {
+const SCENARIO_HINT: Record<DemoScenario, string> = {
+  upcoming: 'Próximo jogo daqui a 2 dias, com contagem regressiva e venda aberta',
+  matchday: 'Jogo hoje: banner e atalho do Modo Maracanã aparecem',
+  live: 'Ao vivo a partir dos 67\'. O relógio anda e o 3º gol sai aos 83\'',
+  finished: 'Fim de jogo: resultado, melhores momentos e craque do jogo',
+};
+
+/**
+ * Painel ESCONDIDO de controle da demonstração (modo apresentação). Abre com
+ * toque longo na saudação da Home; só existe no modo demo. Na reunião, o app
+ * parece 100% real e o apresentador troca o estado do jogo discretamente.
+ */
+export function DemoControlsSheet({ visible, value, onChange, onClose }: { visible: boolean; value: DemoScenario; onChange: (s: DemoScenario) => void; onClose: () => void }) {
   const { colors, spacing, radius, layout } = useTheme();
-  if (!__DEV__ || !IS_DEMO) return null;
+  if (!IS_DEMO) return null;
   return (
-    <View style={{ marginHorizontal: layout.gutter, marginBottom: spacing.md, padding: spacing.sm, borderRadius: radius.md, borderWidth: 1, borderStyle: 'dashed', borderColor: colors.demo, gap: spacing.sm }}>
-      <Text variant="overline" tone="demo">Dev · estado do jogo</Text>
-      <View style={[styles.row, { gap: spacing.xs }]}>
-        {DEMO_SCENARIOS.map((s) => {
-          const active = s.key === value;
-          return (
-            <Pressable
-              key={s.key}
-              onPress={() => onChange(s.key)}
-              accessibilityRole="button"
-              accessibilityState={{ selected: active }}
-              style={{ flex: 1, minHeight: 36, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center', backgroundColor: active ? colors.demo : colors.demoSubtle }}
-            >
-              <Text variant="label" style={{ fontSize: 12, color: active ? colors.background : colors.demo }}>{s.label}</Text>
-            </Pressable>
-          );
-        })}
-      </View>
-    </View>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <Pressable style={{ flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' }} onPress={onClose} accessible={false}>
+        <Pressable onPress={() => undefined} accessible={false}>
+          <SafeAreaView edges={['bottom']} style={{ backgroundColor: colors.surfaceElevated, borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl, padding: layout.gutter, gap: spacing.md }}>
+            <View style={{ alignSelf: 'center', width: 40, height: 4, borderRadius: 2, backgroundColor: colors.borderStrong }} />
+            <View style={[styles.row, { gap: spacing.sm }]}>
+              <Ionicons name="easel-outline" size={20} color={colors.demo} />
+              <Text variant="h3" style={{ flex: 1 }}>Controles da demonstração</Text>
+            </View>
+            <Text variant="caption" tone="secondary">Escolha o momento do jogo em destaque. Visível só para quem apresenta.</Text>
+            {DEMO_SCENARIOS.map((s) => {
+              const active = s.key === value;
+              return (
+                <Pressable
+                  key={s.key}
+                  onPress={() => {
+                    haptic.select();
+                    onChange(s.key);
+                    onClose();
+                  }}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: active }}
+                  style={({ pressed }) => [styles.row, { gap: spacing.md, minHeight: 56, padding: spacing.md, borderRadius: radius.md, borderWidth: 1.5, borderColor: active ? colors.primary : colors.border, backgroundColor: active ? colors.primarySubtle : colors.surface, opacity: pressed ? 0.75 : 1 }]}
+                >
+                  <Ionicons name={active ? 'radio-button-on' : 'radio-button-off'} size={20} color={active ? colors.primaryText : colors.textTertiary} />
+                  <View style={{ flex: 1 }}>
+                    <Text variant="bodyStrong">{s.label}</Text>
+                    <Text variant="caption" tone="secondary">{SCENARIO_HINT[s.key]}</Text>
+                  </View>
+                </Pressable>
+              );
+            })}
+          </SafeAreaView>
+        </Pressable>
+      </Pressable>
+    </Modal>
   );
 }
 

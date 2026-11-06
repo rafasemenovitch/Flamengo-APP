@@ -8,6 +8,7 @@ import type { RootScreenProps } from '@/navigation/types';
 import { services } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
 import { formatCurrency } from '@/utils/format';
+import { haptic } from '@/utils/haptics';
 
 export function ProductScreen({ route }: RootScreenProps<'Product'>) {
   const navigation = useNavigation();
@@ -28,6 +29,7 @@ export function ProductScreen({ route }: RootScreenProps<'Product'>) {
     setAdding(true);
     try {
       setCart(await services.store.addToCart(p.id, size));
+      haptic.success();
       showAlert({
         id: `cart-${p.id}-${size}-${Date.now()}`,
         variant: 'info',

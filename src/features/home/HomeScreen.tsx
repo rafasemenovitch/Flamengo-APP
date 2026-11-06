@@ -1,5 +1,5 @@
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { View } from 'react-native';
 
 import { Card, EmptyState, ErrorState, Screen, SectionHeader, Skeleton, useTheme } from '@/design-system';
@@ -10,7 +10,7 @@ import { useAsync } from '@/hooks/useAsync';
 import { useDemoScenario, useLiveMatch } from '@/hooks/useMatch';
 import { services } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
-import { DevScenarioSwitcher, HomeHeader, MatchdayBanner, QuickActions } from './HomeParts';
+import { DemoControlsSheet, HomeHeader, MatchdayBanner, QuickActions } from './HomeParts';
 import { HeroMatchCard } from './HeroMatchCard';
 
 function isToday(iso: string) {
@@ -24,6 +24,7 @@ export function HomeScreen() {
   const { spacing, layout } = useTheme();
   const { profile } = useAppState();
   const [scenario, setScenario] = useDemoScenario();
+  const [demoPanel, setDemoPanel] = useState(false);
 
   const featured = useLiveMatch(() => services.matches.getFeaturedMatch(), [scenario], { alerts: true });
   const news = useAsync(() => services.news.getLatest(6));
@@ -62,8 +63,8 @@ export function HomeScreen() {
 
   return (
     <Screen reserveFab refreshing={refreshing} onRefresh={onRefresh}>
-      <HomeHeader unread={unread} />
-      <DevScenarioSwitcher value={scenario} onChange={setScenario} />
+      <HomeHeader unread={unread} onSecretLongPress={() => setDemoPanel(true)} />
+      <DemoControlsSheet visible={demoPanel} value={scenario} onChange={setScenario} onClose={() => setDemoPanel(false)} />
 
       {featured.error ? (
         <View style={{ paddingHorizontal: layout.gutter }}>
