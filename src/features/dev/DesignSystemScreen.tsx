@@ -69,6 +69,7 @@ export function DesignSystemScreen() {
   const { showAlert, showToast } = useAlerts();
   const [tab, setTab] = useState<'a' | 'b' | 'c'>('a');
   const [filter, setFilter] = useState<'x' | 'y' | 'z'>('x');
+  const [countdownTarget] = useState(() => new Date(Date.now() + 3 * 3600_000 + 25 * 60_000).toISOString());
   const pad = { paddingHorizontal: layout.gutter };
   const sample = (v: TypographyVariant) =>
     v.startsWith('display') || v === 'numericTable' ? '2 – 1 · 19h45' : 'Dia de Mengão';
@@ -171,7 +172,7 @@ export function DesignSystemScreen() {
 
       <View style={{ marginTop: 48, gap: 16 }}>
         <SectionTitle title="Contagem regressiva" />
-        <Countdown target={new Date(Date.now() + 3 * 3600_000 + 25 * 60_000).toISOString()} />
+        <Countdown target={countdownTarget} />
       </View>
 
       <View style={{ marginTop: 48, gap: 16 }}>
@@ -179,7 +180,7 @@ export function DesignSystemScreen() {
         <TreatedImage imageKey="catalogo" aspect="wide" overlay style={{ height: 200 }}>
           <View style={{ position: 'absolute', left: 20, bottom: 20 }}>
             <Text variant="titleL" tone="onMedia">
-              Fotografia "bandeirão"
+              Fotografia “bandeirão”
             </Text>
           </View>
         </TreatedImage>
