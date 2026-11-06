@@ -67,8 +67,9 @@ function OnboardingFlow({ onDone }: { onDone: () => void }) {
   const favs = profile?.favoritePlayerIds ?? [];
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <LinearGradient colors={[palette.red800, colors.background]} style={StyleSheet.absoluteFill} start={{ x: 0, y: 0 }} end={{ x: 0, y: 0.55 }} />
+    // Fundo sempre escuro (texto branco legível também no tema claro).
+    <View style={{ flex: 1, backgroundColor: palette.ink950 }}>
+      <LinearGradient colors={[palette.red800, palette.ink950]} style={StyleSheet.absoluteFill} start={{ x: 0, y: 0 }} end={{ x: 0, y: 0.55 }} />
       {/* Listras diagonais sutis */}
       <View pointerEvents="none" style={[StyleSheet.absoluteFill, { opacity: 0.06 }]}>
         {[0, 1, 2, 3, 4].map((i) => (
