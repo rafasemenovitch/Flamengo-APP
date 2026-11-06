@@ -3,23 +3,23 @@ import { useState } from 'react';
 import { View } from 'react-native';
 
 import {
-  Card,
   EmptyState,
   ErrorState,
+  Filters,
   Screen,
-  SegmentedControl,
   Skeleton,
-  Text,
+  TabHeader,
+  Tabs,
   useTheme,
 } from '@/design-system';
-import { MatchRow, StandingsTable } from '@/features/shared/MatchUI';
+import { MatchList, StandingsTable } from '@/features/shared/MatchUI';
 import { useAsync } from '@/hooks/useAsync';
 import { useDemoScenario } from '@/hooks/useMatch';
 import type { TabScreenProps } from '@/navigation/types';
 import { services } from '@/services';
 import type { CompetitionId } from '@/types/match';
 
-type View_ = 'proximos' | 'resultados' | 'tabela';
+type ViewKey = 'proximos' | 'resultados' | 'tabela';
 type Filter = 'todas' | CompetitionId;
 
 const FILTERS: { key: Filter; label: string }[] = [
@@ -29,10 +29,11 @@ const FILTERS: { key: Filter; label: string }[] = [
   { key: 'copa-do-brasil', label: 'Copa do Brasil' },
 ];
 
+/** Jogos (especificação 13.2): abas sublinhadas, filtros e linhas de calendário. */
 export function MatchesScreen({ route }: TabScreenProps<'Jogos'>) {
   const navigation = useNavigation();
-  const { spacing, layout } = useTheme();
-  const [view, setView] = useState<View_>(route.params?.initialTab === 'tabela' ? 'tabela' : 'proximos');
+  const { layout } = useTheme();
+  const [view, setView] = useState<ViewKey>(route.params?.initialTab === 'tabela' ? 'tabela' : 'proximos');
   const [filter, setFilter] = useState<Filter>('todas');
   const [scenario] = useDemoScenario();
 
@@ -44,75 +45,64 @@ export function MatchesScreen({ route }: TabScreenProps<'Jogos'>) {
   );
   const table = useAsync(() => services.matches.getStandings('brasileirao'), [scenario]);
 
-  const refreshing = view === 'tabela' ? table.refreshing : matches.refreshing;
-  const onRefresh = view === 'tabela' ? table.refresh : matches.refresh;
-
   return (
-    <Screen reserveFab refreshing={refreshing} onRefresh={onRefresh}>
-      <View style={{ paddingHorizontal: layout.gutter, paddingTop: spacing.xl, paddingBottom: spacing.lg }}>
-        <Text variant="display" accessibilityRole="header">
-          Jogos
-        </Text>
-        <Text variant="caption" tone="secondary">
-          Temporada 2026 · dados demonstrativos
-        </Text>
+    <Screen
+      reserveFab
+      refreshing={view === 'tabela' ? table.refreshing : matches.refreshing}
+      onRefresh={view === 'tabela' ? table.refresh : matches.refresh}
+    >
+      <TabHeader title="Jogos" subtitle="Temporada 2026 · dados demonstrativos" />
+
+      <View style={{ marginTop: 24 }}>
+        <Tabs
+          accessibilityLabel="Visualização"
+          segments={[
+            { key: 'proximos', label: 'Próximos' },
+            { key: 'resultados', label: 'Resultados' },
+            { key: 'tabela', label: 'Tabela' },
+          ]}
+          value={view}
+          onChange={setView}
+        />
       </View>
 
-      <SegmentedControl
-        accessibilityLabel="Visualização"
-        segments={[
-          { key: 'proximos', label: 'Próximos' },
-          { key: 'resultados', label: 'Resultados' },
-          { key: 'tabela', label: 'Tabela' },
-        ]}
-        value={view}
-        onChange={setView}
-      />
-
       {view !== 'tabela' && (
-        <View style={{ marginTop: spacing.md }}>
-          <SegmentedControl
-            accessibilityLabel="Competição"
-            segments={FILTERS}
-            value={filter}
-            onChange={setFilter}
-          />
+        <View style={{ marginTop: 12 }}>
+          <Filters accessibilityLabel="Competição" segments={FILTERS} value={filter} onChange={setFilter} />
         </View>
       )}
 
-      <View style={{ paddingHorizontal: layout.gutter, marginTop: spacing.lg, gap: spacing.md }}>
+      <View style={{ marginTop: 16 }}>
         {view === 'tabela' ? (
           table.loading || !table.data ? (
-            <Skeleton height={600} radius={20} />
+            <View style={{ paddingHorizontal: layout.gutter }}>
+              <Skeleton height={600} radius={8} />
+            </View>
           ) : table.error ? (
             <ErrorState compact onRetry={table.reload} />
           ) : (
-            <Card padding="sm">
-              <Text variant="h3" style={{ padding: spacing.md }}>
-                {table.data.title}
-              </Text>
-              <StandingsTable table={table.data} />
-            </Card>
+            <StandingsTable table={table.data} />
           )
         ) : matches.loading ? (
-          [0, 1, 2, 3].map((i) => <Skeleton key={i} height={128} radius={20} />)
+          <View style={{ paddingHorizontal: layout.gutter, gap: 16 }}>
+            {[0, 1, 2, 3].map((i) => (
+              <Skeleton key={i} height={80} radius={8} />
+            ))}
+          </View>
         ) : matches.error ? (
           <ErrorState compact onRetry={matches.reload} />
         ) : matches.data?.length === 0 ? (
           <EmptyState
             compact
-            icon="calendar-outline"
-            title="Nenhum jogo encontrado"
-            message="Tente outra competição."
+            pose="fan-no-matches"
+            title="Nada por aqui ainda."
+            message="Nenhum jogo nesta competição."
           />
         ) : (
-          matches.data?.map((m) => (
-            <MatchRow
-              key={m.id}
-              match={m}
-              onPress={() => navigation.navigate('MatchDetail', { matchId: m.id })}
-            />
-          ))
+          <MatchList
+            matches={matches.data ?? []}
+            onPress={(m) => navigation.navigate('MatchDetail', { matchId: m.id })}
+          />
         )}
       </View>
     </Screen>

@@ -3,7 +3,6 @@ import { View } from 'react-native';
 
 import {
   Button,
-  Card,
   ErrorState,
   MediaImage,
   Screen,
@@ -78,13 +77,13 @@ export function PlayerProfileScreen({ route }: RootScreenProps<'PlayerProfile'>)
           imageKey={p.imageKey}
           icon="person"
           scrim
-          style={{ height: 280, borderRadius: radius.xl, justifyContent: 'flex-end' }}
+          style={{ height: 280, borderRadius: 0, justifyContent: 'flex-end' }}
         >
           <View style={{ padding: spacing.xl, gap: 2 }}>
-            <Text variant="score" tone="onMedia" style={{ opacity: 0.9 }}>
+            <Text variant="displayXl" tone="onMedia" style={{ opacity: 0.9 }}>
               {p.number}
             </Text>
-            <Text variant="h1" tone="onMedia">
+            <Text variant="displayL" tone="onMedia">
               {p.name}
             </Text>
             <Text variant="callout" tone="onMedia" style={{ opacity: 0.8 }}>
@@ -102,23 +101,23 @@ export function PlayerProfileScreen({ route }: RootScreenProps<'PlayerProfile'>)
           accessibilityHint="Jogadores favoritos personalizam o Para você na Home"
         />
 
-        <Card>
+        <View style={{ paddingVertical: 8 }}>
           <Text variant="overline" tone="tertiary" style={{ marginBottom: spacing.md }}>
             Temporada 2026 · demo
           </Text>
           <View style={{ flexDirection: 'row' }}>
             {stats.map(([l, v]) => (
               <View key={l} style={{ flex: 1, alignItems: 'center', gap: 2 }}>
-                <Text variant="number">{v}</Text>
+                <Text variant="displayXl">{v}</Text>
                 <Text variant="footnote" tone="secondary" align="center">
                   {l}
                 </Text>
               </View>
             ))}
           </View>
-        </Card>
+        </View>
 
-        <Card>
+        <View style={{ paddingVertical: 8 }}>
           <View style={{ gap: spacing.sm }}>
             {[
               ['Idade', `${age(p.birthDate)} anos (${formatFullDate(p.birthDate)})`],
@@ -137,7 +136,7 @@ export function PlayerProfileScreen({ route }: RootScreenProps<'PlayerProfile'>)
               {p.bio}
             </Text>
           </View>
-        </Card>
+        </View>
       </View>
 
       {relatedNews.length > 0 && (

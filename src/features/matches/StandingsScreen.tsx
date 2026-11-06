@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 
-import { Card, ErrorState, Screen, Skeleton, Text, useTheme } from '@/design-system';
+import { ErrorState, Screen, Skeleton, Text, useTheme } from '@/design-system';
 import { StandingsTable } from '@/features/shared/MatchUI';
 import { useAsync } from '@/hooks/useAsync';
 import type { RootScreenProps } from '@/navigation/types';
@@ -23,9 +23,9 @@ export function StandingsScreen({ route }: RootScreenProps<'Standings'>) {
             <Text variant="caption" tone="secondary">
               Atualizado {formatRelative(q.data.updatedAt)} · dados demonstrativos
             </Text>
-            <Card padding="sm">
+            <View style={{ marginHorizontal: -20 }}>
               <StandingsTable table={q.data} />
-            </Card>
+            </View>
           </>
         )}
       </View>
