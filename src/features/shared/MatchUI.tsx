@@ -169,13 +169,13 @@ export function MatchList({
   trailing?: (m: Match) => ReactNode;
 }) {
   const { colors, layout } = useTheme();
-  let lastMonth = -1;
+  const monthOf = (m: Match) => new Date(m.kickoff).getMonth();
   return (
     <View>
       {matches.map((m, i) => {
-        const month = new Date(m.kickoff).getMonth();
-        const header = month !== lastMonth;
-        lastMonth = month;
+        const month = monthOf(m);
+        const prev = matches[i - 1];
+        const header = !prev || monthOf(prev) !== month;
         return (
           <Fragment key={m.id}>
             {header && (
