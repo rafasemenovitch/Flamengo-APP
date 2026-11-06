@@ -8,8 +8,14 @@ export interface FanProgress {
   points: number;
   level: FanLevel;
   nextLevel?: FanLevel;
-  /** Jogos seguidos com presença registrada (estádio ou check-in). */
-  attendanceStreak: number;
+  /**
+   * "Pé quente": vitórias seguidas do Flamengo nos jogos em que o torcedor
+   * esteve no estádio (calculado a partir do Passaporte).
+   */
+  luckyStreak: number;
+  bestLuckyStreak: number;
+  /** Pé quente dos amigos, para comparação. */
+  luckyFriends: { name: string; streak: number }[];
   weeklyPoints: number;
 }
 
@@ -76,6 +82,10 @@ export interface PredictionPool {
   members: number;
   userPosition: number;
   userPoints: number;
+  /** Próximo jogo do bolão. */
+  nextMatchLabel: string;
+  /** Topo do ranking do bolão (inclui o torcedor). */
+  leaderboard: { name: string; points: number; exactScores: number; isYou?: boolean }[];
 }
 
 export interface PassportStamp {

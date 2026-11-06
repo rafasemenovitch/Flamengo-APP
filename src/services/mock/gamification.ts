@@ -1,10 +1,10 @@
 import {
   COMMUNITY_GROUPS,
   DAILY_POLL,
-  FAN_ATTENDANCE_STREAK,
   FAN_POINTS,
   FAN_WEEKLY_POINTS,
   LEVELS,
+  LUCKY_FRIENDS,
   MEDALS,
   MOTM_POLL,
   PASSPORT,
@@ -33,6 +33,23 @@ function levelFor(p: number) {
   return { level: LEVELS[idx]!, nextLevel: LEVELS[idx + 1] };
 }
 
+/** Vitórias seguidas (mais recentes primeiro) e a maior sequência no Passaporte. */
+function luckyStreaks() {
+  const stamps = [...PASSPORT].sort((a, b) => b.date.localeCompare(a.date));
+  let current = 0;
+  for (const st of stamps) {
+    if (st.result !== 'Vitória') break;
+    current++;
+  }
+  let best = 0;
+  let run = 0;
+  for (const st of [...stamps].reverse()) {
+    run = st.result === 'Vitória' ? run + 1 : 0;
+    best = Math.max(best, run);
+  }
+  return { luckyStreak: current, bestLuckyStreak: best };
+}
+
 function publicQuiz(id: string): Quiz {
   const q = QUIZZES.find((x) => x.id === id);
   if (!q) throw new NotFoundError('Quiz', id);
@@ -51,7 +68,8 @@ export function createMockGamificationService(): GamificationService {
       return delay({
         points,
         ...levelFor(points),
-        attendanceStreak: FAN_ATTENDANCE_STREAK,
+        ...luckyStreaks(),
+        luckyFriends: LUCKY_FRIENDS,
         weeklyPoints: FAN_WEEKLY_POINTS,
       });
     },

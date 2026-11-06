@@ -45,7 +45,7 @@ export function PassportScreen() {
             {[
               [String(q.data?.length ?? '—'), 'Jogos'],
               [String(q.data?.filter((s) => s.result === 'Vitória').length ?? '—'), 'Vitórias'],
-              [String(progress?.attendanceStreak ?? '—'), 'Sequência'],
+              [String(progress?.luckyStreak ?? '—'), 'Pé quente'],
             ].map(([v, l]) => (
               <View key={l} style={{ flex: 1, alignItems: 'center' }}>
                 <Text variant="displayXl">{v}</Text>

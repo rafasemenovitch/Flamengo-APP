@@ -21,7 +21,6 @@ export const LEVELS: FanLevel[] = [
 
 export const FAN_POINTS = 3480;
 export const FAN_WEEKLY_POINTS = 240;
-export const FAN_ATTENDANCE_STREAK = 4;
 
 export const MEDALS: Medal[] = [
   {
@@ -152,8 +151,41 @@ export const RANKINGS: Record<'geral' | 'semanal' | 'estado' | 'amigos', Ranking
 };
 
 export const POOLS: PredictionPool[] = [
-  { id: 'pool1', name: 'Bolão da Família', members: 12, userPosition: 3, userPoints: 86 },
-  { id: 'pool2', name: 'Trabalho — Nação RJ', members: 38, userPosition: 9, userPoints: 74 },
+  {
+    id: 'pool1',
+    name: 'Bolão da Família',
+    members: 12,
+    userPosition: 3,
+    userPoints: 86,
+    nextMatchLabel: 'Flamengo × Palmeiras',
+    leaderboard: [
+      { name: 'Tio Marcos', points: 104, exactScores: 6 },
+      { name: 'Ana (prima)', points: 92, exactScores: 5 },
+      { name: 'Você', points: 86, exactScores: 4, isYou: true },
+      { name: 'Pai', points: 81, exactScores: 3 },
+    ],
+  },
+  {
+    id: 'pool2',
+    name: 'Trabalho — Nação RJ',
+    members: 38,
+    userPosition: 9,
+    userPoints: 74,
+    nextMatchLabel: 'Flamengo × Palmeiras',
+    leaderboard: [
+      { name: 'Carla R.', points: 131, exactScores: 8 },
+      { name: 'Diego M.', points: 118, exactScores: 7 },
+      { name: 'Paulo S.', points: 115, exactScores: 6 },
+      { name: 'Você', points: 74, exactScores: 3, isYou: true },
+    ],
+  },
+];
+
+/** Pé quente dos amigos (vitórias seguidas nos jogos em que foram ao estádio). */
+export const LUCKY_FRIENDS = [
+  { name: 'Bruno', streak: 5 },
+  { name: 'Lívia', streak: 2 },
+  { name: 'Marcos', streak: 1 },
 ];
 
 export const DAILY_POLL: Poll = {

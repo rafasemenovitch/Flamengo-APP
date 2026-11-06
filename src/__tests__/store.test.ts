@@ -1,5 +1,7 @@
 import { createMockStoreService } from '@/services/mock/commerce';
 
+import { createMockGamificationService } from '@/services/mock/gamification';
+
 describe('loja (mock)', () => {
   const store = createMockStoreService();
 
@@ -35,5 +37,14 @@ describe('loja (mock)', () => {
 
   it('não finaliza carrinho vazio', async () => {
     await expect(store.checkout()).rejects.toThrow('Carrinho vazio');
+  });
+});
+
+describe('pé quente (mock)', () => {
+  it('conta vitórias seguidas nos jogos do Passaporte', async () => {
+    const p = await createMockGamificationService().getProgress();
+    expect(p.luckyStreak).toBe(3);
+    expect(p.bestLuckyStreak).toBe(3);
+    expect(p.luckyFriends.some((f) => f.streak > p.luckyStreak)).toBe(true);
   });
 });

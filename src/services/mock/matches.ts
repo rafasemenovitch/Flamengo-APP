@@ -32,8 +32,7 @@ import {
   type TieSeed,
 } from '@/data/demo/competitions';
 import type { MatchesService } from '@/services/adapters';
-import type { CompetitionId } from '@/types/match';
-import type {
+import type { CompetitionId ,
   CompetitionOverview,
   KnockoutRound,
   HeadToHead,
