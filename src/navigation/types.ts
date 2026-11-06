@@ -48,6 +48,8 @@ export type RootStackParamList = {
   Community: undefined;
   // Perfil
   Settings: undefined;
+  Favorites: undefined;
+  History: undefined;
   // Dev
   DesignSystem: undefined;
   // Assistente

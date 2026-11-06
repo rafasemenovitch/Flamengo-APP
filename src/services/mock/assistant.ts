@@ -5,7 +5,7 @@ import { formatMatchDate } from '@/utils/format';
 import { delay, normalize } from './utils';
 
 const NOT_FOUND: AssistantReply = {
-  text: 'Não encontrei essa informação nas fontes oficiais que tenho disponíveis. Prefiro não arriscar uma resposta. Você pode tentar perguntar de outro jeito ou consultar os canais oficiais do clube.',
+  text: 'Não encontrei essa informação nos canais oficiais. Quer que eu te mostre onde procurar? Os canais oficiais do clube e a central do sócio são os melhores lugares.',
   sources: [],
   grounded: false,
 };
