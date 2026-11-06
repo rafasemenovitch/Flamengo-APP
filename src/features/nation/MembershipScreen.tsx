@@ -2,7 +2,20 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Alert, Linking, StyleSheet, View } from 'react-native';
 
-import { Badge, Button, Card, ClubCrest, DemoBadge, ErrorState, palette, Screen, SectionHeader, Skeleton, Text, useTheme } from '@/design-system';
+import {
+  Badge,
+  Button,
+  Card,
+  ClubCrest,
+  DemoBadge,
+  ErrorState,
+  palette,
+  Screen,
+  SectionHeader,
+  Skeleton,
+  Text,
+  useTheme,
+} from '@/design-system';
 import { useAsync } from '@/hooks/useAsync';
 import { services } from '@/services';
 import type { MembershipPlan } from '@/types/commerce';
@@ -27,8 +40,21 @@ export function MembershipScreen() {
     return { plans, membership, benefits, info };
   });
 
-  if (q.loading) return <Screen title="Sócio-Torcedor"><View style={{ padding: layout.gutter, gap: spacing.lg }}><Skeleton height={210} radius={radius.xl} /><Skeleton height={300} /></View></Screen>;
-  if (q.error || !q.data) return <Screen title="Sócio-Torcedor" scroll={false}><ErrorState onRetry={q.reload} /></Screen>;
+  if (q.loading)
+    return (
+      <Screen title="Sócio-Torcedor">
+        <View style={{ padding: layout.gutter, gap: spacing.lg }}>
+          <Skeleton height={210} radius={radius.xl} />
+          <Skeleton height={300} />
+        </View>
+      </Screen>
+    );
+  if (q.error || !q.data)
+    return (
+      <Screen title="Sócio-Torcedor" scroll={false}>
+        <ErrorState onRetry={q.reload} />
+      </Screen>
+    );
   const { plans, membership: m, benefits, info } = q.data;
   const plan = plans.find((p) => p.id === m?.planId);
 
@@ -36,31 +62,59 @@ export function MembershipScreen() {
     <Screen title="Sócio-Torcedor" refreshing={q.refreshing} onRefresh={q.refresh}>
       <View style={{ paddingHorizontal: layout.gutter, gap: spacing.lg }}>
         {m && plan && (
-          <LinearGradient colors={TIER_GRADIENT[plan.tier]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: radius.xl, padding: spacing.xl, aspectRatio: 1.586, justifyContent: 'space-between' }}>
+          <LinearGradient
+            colors={TIER_GRADIENT[plan.tier]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{
+              borderRadius: radius.xl,
+              padding: spacing.xl,
+              aspectRatio: 1.586,
+              justifyContent: 'space-between',
+            }}
+          >
             <View style={styles.between}>
               <ClubCrest size={44} />
               <DemoBadge label="Carteirinha demo" />
             </View>
             <View style={{ gap: 2 }}>
-              <Text variant="overline" tone="onMedia" style={{ opacity: 0.8 }}>Sócio-Torcedor · {plan.name}</Text>
-              <Text variant="h2" tone="onMedia">{m.holderName}</Text>
-              <Text variant="tabular" tone="onMedia" style={{ letterSpacing: 2 }}>{m.memberNumber}</Text>
+              <Text variant="overline" tone="onMedia" style={{ opacity: 0.8 }}>
+                Sócio-Torcedor · {plan.name}
+              </Text>
+              <Text variant="h2" tone="onMedia">
+                {m.holderName}
+              </Text>
+              <Text variant="tabular" tone="onMedia" style={{ letterSpacing: 2 }}>
+                {m.memberNumber}
+              </Text>
             </View>
             <View style={styles.between}>
-              <Text variant="footnote" tone="onMedia" style={{ opacity: 0.85 }}>Desde {formatFullDate(m.since)}</Text>
-              <Text variant="footnote" tone="onMedia" style={{ opacity: 0.85 }}>Válida até {formatFullDate(m.validUntil)}</Text>
+              <Text variant="footnote" tone="onMedia" style={{ opacity: 0.85 }}>
+                Desde {formatFullDate(m.since)}
+              </Text>
+              <Text variant="footnote" tone="onMedia" style={{ opacity: 0.85 }}>
+                Válida até {formatFullDate(m.validUntil)}
+              </Text>
             </View>
           </LinearGradient>
         )}
         {m && (
           <View style={{ flexDirection: 'row', gap: spacing.md }}>
             <Card style={{ flex: 1 }} padding="sm">
-              <Text variant="number" align="center">{formatNumber(m.priorityPoints)}</Text>
-              <Text variant="footnote" tone="secondary" align="center">Pontos de prioridade</Text>
+              <Text variant="number" align="center">
+                {formatNumber(m.priorityPoints)}
+              </Text>
+              <Text variant="footnote" tone="secondary" align="center">
+                Pontos de prioridade
+              </Text>
             </Card>
             <Card style={{ flex: 1 }} padding="sm">
-              <Text variant="number" align="center" tone="success">{m.status === 'active' ? 'Ativo' : 'Pendente'}</Text>
-              <Text variant="footnote" tone="secondary" align="center">Situação</Text>
+              <Text variant="number" align="center" tone="success">
+                {m.status === 'active' ? 'Ativo' : 'Pendente'}
+              </Text>
+              <Text variant="footnote" tone="secondary" align="center">
+                Situação
+              </Text>
             </Card>
           </View>
         )}
@@ -72,12 +126,35 @@ export function MembershipScreen() {
           {benefits.map((b) => (
             <Card key={b.id} padding="sm">
               <View style={[styles.row, { gap: spacing.md }]}>
-                <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: colors.primarySubtle, alignItems: 'center', justifyContent: 'center' }}>
-                  <Ionicons name={b.category === 'ingressos' ? 'ticket' : b.category === 'loja' ? 'bag-handle' : b.category === 'experiencias' ? 'star' : 'pricetag'} size={18} color={colors.primaryText} />
+                <View
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 12,
+                    backgroundColor: colors.primarySubtle,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Ionicons
+                    name={
+                      b.category === 'ingressos'
+                        ? 'ticket'
+                        : b.category === 'loja'
+                          ? 'bag-handle'
+                          : b.category === 'experiencias'
+                            ? 'star'
+                            : 'pricetag'
+                    }
+                    size={18}
+                    color={colors.primaryText}
+                  />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text variant="bodyStrong">{b.title}</Text>
-                  <Text variant="caption" tone="secondary">{b.partner} · {b.description}</Text>
+                  <Text variant="caption" tone="secondary">
+                    {b.partner} · {b.description}
+                  </Text>
                 </View>
               </View>
             </Card>
@@ -95,26 +172,51 @@ export function MembershipScreen() {
                 <View style={{ gap: spacing.md }}>
                   <View style={styles.between}>
                     <View style={[styles.row, { gap: spacing.sm }]}>
-                      <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: palette[p.tier === 'black' ? 'ink600' : p.tier === 'silver' ? 'silver' : p.tier] }} />
+                      <View
+                        style={{
+                          width: 12,
+                          height: 12,
+                          borderRadius: 6,
+                          backgroundColor:
+                            palette[p.tier === 'black' ? 'ink600' : p.tier === 'silver' ? 'silver' : p.tier],
+                        }}
+                      />
                       <Text variant="h2">{p.name}</Text>
                     </View>
-                    {current ? <Badge label="Seu plano" tone="solidBrand" /> : p.highlight ? <Badge label={p.highlight} tone="brand" /> : null}
+                    {current ? (
+                      <Badge label="Seu plano" tone="solidBrand" />
+                    ) : p.highlight ? (
+                      <Badge label={p.highlight} tone="brand" />
+                    ) : null}
                   </View>
                   <View style={{ gap: 2 }}>
                     <View style={[styles.row, { gap: spacing.sm, alignItems: 'baseline' }]}>
-                      <Text variant="number">{formatCurrency(p.monthlyPrice)}<Text variant="caption" tone="secondary">/mês</Text></Text>
+                      <Text variant="number">
+                        {formatCurrency(p.monthlyPrice)}
+                        <Text variant="caption" tone="secondary">
+                          /mês
+                        </Text>
+                      </Text>
                       {p.priceIsEstimate && <Badge label="Estimado" tone="warning" />}
                     </View>
-                    {p.audience && <Text variant="caption" tone="secondary">{p.audience}</Text>}
+                    {p.audience && (
+                      <Text variant="caption" tone="secondary">
+                        {p.audience}
+                      </Text>
+                    )}
                     <Text variant="caption" tone="secondary">
-                      {p.ticketDiscountPct > 0 ? `${p.ticketDiscountPct}% sobre a inteira · ` : ''}Prioridade {p.ticketPriority}{p.guests ? ` · ${p.guests}` : ''}
+                      {p.ticketDiscountPct > 0 ? `${p.ticketDiscountPct}% sobre a inteira · ` : ''}Prioridade{' '}
+                      {p.ticketPriority}
+                      {p.guests ? ` · ${p.guests}` : ''}
                     </Text>
                   </View>
                   <View style={{ gap: 6 }}>
                     {p.benefits.map((b) => (
                       <View key={b} style={[styles.row, { gap: spacing.sm }]}>
                         <Ionicons name="checkmark-circle" size={16} color={colors.success} />
-                        <Text variant="callout" style={{ flex: 1 }}>{b}</Text>
+                        <Text variant="callout" style={{ flex: 1 }}>
+                          {b}
+                        </Text>
                       </View>
                     ))}
                   </View>
@@ -122,7 +224,12 @@ export function MembershipScreen() {
                     <Button
                       label={`Mudar para ${p.name}`}
                       variant="secondary"
-                      onPress={() => Alert.alert('Demonstração', 'A troca de plano é apenas ilustrativa nesta versão. Nenhuma cobrança será feita.')}
+                      onPress={() =>
+                        Alert.alert(
+                          'Demonstração',
+                          'A troca de plano é apenas ilustrativa nesta versão. Nenhuma cobrança será feita.'
+                        )
+                      }
                     />
                   )}
                 </View>
@@ -133,11 +240,23 @@ export function MembershipScreen() {
             <View style={{ gap: spacing.sm }}>
               <View style={[styles.row, { gap: spacing.sm }]}>
                 <Ionicons name="information-circle" size={18} color={colors.info} />
-                <Text variant="label" style={{ flex: 1 }}>Sobre os valores</Text>
+                <Text variant="label" style={{ flex: 1 }}>
+                  Sobre os valores
+                </Text>
               </View>
-              <Text variant="caption" tone="secondary">{info.priceNote}</Text>
-              <Text variant="footnote" tone="tertiary">Fontes: {info.sources.join(' · ')}</Text>
-              <Button label="Conferir no site oficial" variant="ghost" icon="open-outline" size="sm" onPress={() => Linking.openURL(info.officialUrl).catch(() => undefined)} />
+              <Text variant="caption" tone="secondary">
+                {info.priceNote}
+              </Text>
+              <Text variant="footnote" tone="tertiary">
+                Fontes: {info.sources.join(' · ')}
+              </Text>
+              <Button
+                label="Conferir no site oficial"
+                variant="ghost"
+                icon="open-outline"
+                size="sm"
+                onPress={() => Linking.openURL(info.officialUrl).catch(() => undefined)}
+              />
             </View>
           </Card>
         </View>

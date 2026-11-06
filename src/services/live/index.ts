@@ -12,7 +12,9 @@ function notImplemented<T extends object>(domain: string): T {
   return new Proxy({} as T, {
     get(_target, method) {
       return () => {
-        throw new Error(`Integração live de "${domain}.${String(method)}" ainda não foi implementada. Use EXPO_PUBLIC_DATA_SOURCE=demo.`);
+        throw new Error(
+          `Integração live de "${domain}.${String(method)}" ainda não foi implementada. Use EXPO_PUBLIC_DATA_SOURCE=demo.`
+        );
       };
     },
   });

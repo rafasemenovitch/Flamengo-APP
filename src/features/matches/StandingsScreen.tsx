@@ -20,7 +20,9 @@ export function StandingsScreen({ route }: RootScreenProps<'Standings'>) {
           <ErrorState compact onRetry={q.reload} />
         ) : (
           <>
-            <Text variant="caption" tone="secondary">Atualizado {formatRelative(q.data.updatedAt)} · dados demonstrativos</Text>
+            <Text variant="caption" tone="secondary">
+              Atualizado {formatRelative(q.data.updatedAt)} · dados demonstrativos
+            </Text>
             <Card padding="sm">
               <StandingsTable table={q.data} />
             </Card>

@@ -1,5 +1,5 @@
 /** Classificação do Brasileirão após a 32ª rodada (simulada). [teamId, V, E, D] */
-export const BRASILEIRAO_TABLE: Array<[string, number, number, number]> = [
+export const BRASILEIRAO_TABLE: [string, number, number, number][] = [
   ['pal', 21, 5, 6],
   ['fla', 20, 7, 5],
   ['bot', 16, 10, 6],
@@ -28,7 +28,7 @@ export const GOALS_OVERRIDE: Record<string, [number, number]> = {
   pal: [58, 27],
 };
 
-export const FLA_FORM: Array<'W' | 'D' | 'L'> = ['W', 'W', 'D', 'W', 'W'];
+export const FLA_FORM: ('W' | 'D' | 'L')[] = ['W', 'W', 'D', 'W', 'W'];
 
 export const ZONES = {
   libertadores: [1, 4],

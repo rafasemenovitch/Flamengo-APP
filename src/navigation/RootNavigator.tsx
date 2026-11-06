@@ -1,4 +1,9 @@
-import { DarkTheme, DefaultTheme, NavigationContainer, type Theme as NavTheme } from '@react-navigation/native';
+import {
+  DarkTheme,
+  DefaultTheme,
+  NavigationContainer,
+  type Theme as NavTheme,
+} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useMemo } from 'react';
 
@@ -74,12 +79,20 @@ export function RootNavigator() {
         <Stack.Screen name="TicketPurchase" component={TicketPurchaseScreen} />
         <Stack.Screen name="TicketWallet" component={TicketWalletScreen} />
         <Stack.Screen name="TicketDetail" component={TicketDetailScreen} />
-        <Stack.Screen name="FaceEnrollment" component={FaceEnrollmentScreen} options={{ gestureEnabled: false }} />
+        <Stack.Screen
+          name="FaceEnrollment"
+          component={FaceEnrollmentScreen}
+          options={{ gestureEnabled: false }}
+        />
         <Stack.Screen name="StadiumMode" component={StadiumModeScreen} />
         <Stack.Screen name="Store" component={StoreScreen} />
         <Stack.Screen name="Product" component={ProductScreen} />
         <Stack.Screen name="Cart" component={CartScreen} />
-        <Stack.Screen name="CheckoutResult" component={CheckoutResultScreen} options={{ gestureEnabled: false }} />
+        <Stack.Screen
+          name="CheckoutResult"
+          component={CheckoutResultScreen}
+          options={{ gestureEnabled: false }}
+        />
         <Stack.Screen name="Membership" component={MembershipScreen} />
         <Stack.Screen name="Gamification" component={GamificationScreen} />
         <Stack.Screen name="Rankings" component={RankingsScreen} />

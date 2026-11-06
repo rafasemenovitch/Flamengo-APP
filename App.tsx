@@ -38,7 +38,9 @@ export default function App() {
   if (!ready) {
     // Splash mínimo enquanto as fontes carregam (fundo do tema escuro padrão).
     return (
-      <View style={{ flex: 1, backgroundColor: palette.ink950, alignItems: 'center', justifyContent: 'center' }}>
+      <View
+        style={{ flex: 1, backgroundColor: palette.ink950, alignItems: 'center', justifyContent: 'center' }}
+      >
         <ThemeProvider>
           <ClubCrest size={72} />
         </ThemeProvider>

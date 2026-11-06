@@ -36,17 +36,32 @@ function levelFor(p: number) {
 function publicQuiz(id: string): Quiz {
   const q = QUIZZES.find((x) => x.id === id);
   if (!q) throw new NotFoundError('Quiz', id);
-  return { id: q.id, question: q.question, options: q.options, points: q.points, answered: quizAnswers.get(q.id) };
+  return {
+    id: q.id,
+    question: q.question,
+    options: q.options,
+    points: q.points,
+    answered: quizAnswers.get(q.id),
+  };
 }
 
 export function createMockGamificationService(): GamificationService {
   return {
     async getProgress() {
-      return delay({ points, ...levelFor(points), attendanceStreak: FAN_ATTENDANCE_STREAK, weeklyPoints: FAN_WEEKLY_POINTS });
+      return delay({
+        points,
+        ...levelFor(points),
+        attendanceStreak: FAN_ATTENDANCE_STREAK,
+        weeklyPoints: FAN_WEEKLY_POINTS,
+      });
     },
     getMedals: async () => delay(MEDALS),
     getRanking: async (scope) =>
-      delay(RANKINGS[scope].map((r) => (r.isCurrentUser ? { ...r, points: scope === 'semanal' ? r.points : points } : r))),
+      delay(
+        RANKINGS[scope].map((r) =>
+          r.isCurrentUser ? { ...r, points: scope === 'semanal' ? r.points : points } : r
+        )
+      ),
     getPrediction: async (matchId) => delay(predictions.get(matchId) ?? null, 150),
     async submitPrediction(matchId, home, away) {
       const isNew = !predictions.has(matchId);
@@ -79,7 +94,12 @@ export function createMockGamificationService(): GamificationService {
       if (!q) throw new NotFoundError('Quiz', quizId);
       if (!quizAnswers.has(quizId)) {
         const correct = optionId === q.correctOptionId;
-        quizAnswers.set(quizId, { optionId, correct, correctOptionId: q.correctOptionId, explanation: q.explanation });
+        quizAnswers.set(quizId, {
+          optionId,
+          correct,
+          correctOptionId: q.correctOptionId,
+          explanation: q.explanation,
+        });
         if (correct) points += q.points;
       }
       return delay(publicQuiz(quizId), 300);

@@ -2,7 +2,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { View } from 'react-native';
 
-import { Card, ClubCrest, EmptyState, ErrorState, Screen, SectionHeader, Skeleton, Text, useTheme } from '@/design-system';
+import {
+  Card,
+  ClubCrest,
+  EmptyState,
+  ErrorState,
+  Screen,
+  SectionHeader,
+  Skeleton,
+  Text,
+  useTheme,
+} from '@/design-system';
 import { useAsync } from '@/hooks/useAsync';
 import { services } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
@@ -17,13 +27,22 @@ export function PassportScreen() {
   return (
     <Screen title="Passaporte Rubro-Negro" refreshing={q.refreshing} onRefresh={q.refresh}>
       <View style={{ paddingHorizontal: layout.gutter, gap: spacing.lg }}>
-        <LinearGradient colors={colors.heroGradient} style={{ borderRadius: radius.xl, padding: spacing.xl, gap: spacing.lg }}>
+        <LinearGradient
+          colors={colors.heroGradient}
+          style={{ borderRadius: radius.xl, padding: spacing.xl, gap: spacing.lg }}
+        >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
             <ClubCrest size={48} />
             <View style={{ flex: 1 }}>
-              <Text variant="overline" tone="onMedia" style={{ opacity: 0.8 }}>Passaporte</Text>
-              <Text variant="h2" tone="onMedia">{profile?.name ?? 'Torcedor'}</Text>
-              <Text variant="caption" tone="onMedia" style={{ opacity: 0.8 }}>Rubro-negro desde {profile?.fanSince ?? '—'}</Text>
+              <Text variant="overline" tone="onMedia" style={{ opacity: 0.8 }}>
+                Passaporte
+              </Text>
+              <Text variant="h2" tone="onMedia">
+                {profile?.name ?? 'Torcedor'}
+              </Text>
+              <Text variant="caption" tone="onMedia" style={{ opacity: 0.8 }}>
+                Rubro-negro desde {profile?.fanSince ?? '—'}
+              </Text>
             </View>
           </View>
           <View style={{ flexDirection: 'row' }}>
@@ -33,8 +52,12 @@ export function PassportScreen() {
               [String(progress?.attendanceStreak ?? '—'), 'Sequência'],
             ].map(([v, l]) => (
               <View key={l} style={{ flex: 1, alignItems: 'center' }}>
-                <Text variant="number" tone="onMedia">{v}</Text>
-                <Text variant="footnote" tone="onMedia" style={{ opacity: 0.8 }}>{l}</Text>
+                <Text variant="number" tone="onMedia">
+                  {v}
+                </Text>
+                <Text variant="footnote" tone="onMedia" style={{ opacity: 0.8 }}>
+                  {l}
+                </Text>
               </View>
             ))}
           </View>
@@ -43,22 +66,59 @@ export function PassportScreen() {
 
       <View style={{ marginTop: spacing.xxl }}>
         <SectionHeader title="Carimbos" subtitle="Presença registrada pelo ingresso (simulado)" />
-        <View style={{ paddingHorizontal: layout.gutter, flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md }}>
+        <View
+          style={{
+            paddingHorizontal: layout.gutter,
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: spacing.md,
+          }}
+        >
           {q.loading ? (
             <Skeleton height={300} radius={20} />
           ) : q.error ? (
             <ErrorState compact onRetry={q.reload} />
           ) : q.data?.length === 0 ? (
-            <EmptyState compact icon="book-outline" title="Nenhum carimbo ainda" message="Vá a um jogo com ingresso do app para ganhar o primeiro." />
+            <EmptyState
+              compact
+              icon="book-outline"
+              title="Nenhum carimbo ainda"
+              message="Vá a um jogo com ingresso do app para ganhar o primeiro."
+            />
           ) : (
             q.data?.map((s, i) => (
               <Card key={s.id} style={{ flexBasis: '47%', flexGrow: 1 }} padding="md">
-                <View style={{ alignItems: 'center', gap: spacing.sm, transform: [{ rotate: `${(i % 2 ? 1 : -1) * 2}deg` }] }}>
-                  <View style={{ width: 64, height: 64, borderRadius: 32, borderWidth: 2, borderStyle: 'dashed', borderColor: s.result === 'Vitória' ? colors.primary : colors.borderStrong, alignItems: 'center', justifyContent: 'center' }}>
-                    <Ionicons name={s.result === 'Vitória' ? 'trophy' : 'football'} size={26} color={s.result === 'Vitória' ? colors.primaryText : colors.textTertiary} />
+                <View
+                  style={{
+                    alignItems: 'center',
+                    gap: spacing.sm,
+                    transform: [{ rotate: `${(i % 2 ? 1 : -1) * 2}deg` }],
+                  }}
+                >
+                  <View
+                    style={{
+                      width: 64,
+                      height: 64,
+                      borderRadius: 32,
+                      borderWidth: 2,
+                      borderStyle: 'dashed',
+                      borderColor: s.result === 'Vitória' ? colors.primary : colors.borderStrong,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Ionicons
+                      name={s.result === 'Vitória' ? 'trophy' : 'football'}
+                      size={26}
+                      color={s.result === 'Vitória' ? colors.primaryText : colors.textTertiary}
+                    />
                   </View>
-                  <Text variant="label" align="center">{s.label}</Text>
-                  <Text variant="footnote" tone="tertiary" align="center">{s.venue} · {formatFullDate(s.date)}</Text>
+                  <Text variant="label" align="center">
+                    {s.label}
+                  </Text>
+                  <Text variant="footnote" tone="tertiary" align="center">
+                    {s.venue} · {formatFullDate(s.date)}
+                  </Text>
                 </View>
               </Card>
             ))

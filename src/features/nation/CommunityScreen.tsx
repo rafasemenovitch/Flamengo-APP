@@ -20,7 +20,10 @@ export function CommunityScreen() {
   return (
     <Screen title="Comunidade" refreshing={q.refreshing} onRefresh={q.refresh}>
       <View style={{ paddingHorizontal: layout.gutter, gap: spacing.md }}>
-        <Text variant="callout" tone="secondary">Encontre torcedores perto de você para ir ao estádio ou assistir aos jogos juntos. Grupos demonstrativos.</Text>
+        <Text variant="callout" tone="secondary">
+          Encontre torcedores perto de você para ir ao estádio ou assistir aos jogos juntos. Grupos
+          demonstrativos.
+        </Text>
         {q.loading ? (
           [0, 1, 2].map((i) => <Skeleton key={i} height={140} radius={20} />)
         ) : q.error ? (
@@ -30,13 +33,24 @@ export function CommunityScreen() {
             <Card key={g.id} variant={g.joined ? 'tinted' : 'surface'}>
               <View style={{ gap: spacing.sm }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Text variant="h3" style={{ flex: 1 }}>{g.name}</Text>
+                  <Text variant="h3" style={{ flex: 1 }}>
+                    {g.name}
+                  </Text>
                   {g.joined && <Badge label="Participando" tone="solidBrand" />}
                 </View>
-                <Text variant="caption" tone="secondary">{g.region} · {formatNumber(g.members)} membros</Text>
+                <Text variant="caption" tone="secondary">
+                  {g.region} · {formatNumber(g.members)} membros
+                </Text>
                 <Text variant="callout">{g.description}</Text>
-                {g.nextMeetup && <Badge label={`Encontro: ${formatMatchDate(g.nextMeetup)}`} tone="info" icon="calendar" />}
-                <Button label={g.joined ? 'Sair do grupo' : 'Participar'} variant={g.joined ? 'ghost' : 'secondary'} size="sm" onPress={() => toggle(g.id)} />
+                {g.nextMeetup && (
+                  <Badge label={`Encontro: ${formatMatchDate(g.nextMeetup)}`} tone="info" icon="calendar" />
+                )}
+                <Button
+                  label={g.joined ? 'Sair do grupo' : 'Participar'}
+                  variant={g.joined ? 'ghost' : 'secondary'}
+                  size="sm"
+                  onPress={() => toggle(g.id)}
+                />
               </View>
             </Card>
           ))

@@ -3,7 +3,20 @@ import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 
-import { Avatar, Badge, Card, DemoBadge, ListGroup, ListItem, Screen, SectionHeader, SegmentedControl, Skeleton, Text, useTheme } from '@/design-system';
+import {
+  Avatar,
+  Badge,
+  Card,
+  DemoBadge,
+  ListGroup,
+  ListItem,
+  Screen,
+  SectionHeader,
+  SegmentedControl,
+  Skeleton,
+  Text,
+  useTheme,
+} from '@/design-system';
 import { CATEGORY_LABEL } from '@/features/shared/ContentCards';
 import { useAsync } from '@/hooks/useAsync';
 import { services } from '@/services';
@@ -29,10 +42,22 @@ export function ProfileScreen() {
   const history = useAsync(() => services.profile.getHistory());
   const [hist, setHist] = useState<HistFilter>('todos');
 
-  if (!profile) return <Screen reserveFab><View style={{ padding: layout.gutter, gap: spacing.lg }}><Skeleton height={160} /><Skeleton height={300} /></View></Screen>;
+  if (!profile)
+    return (
+      <Screen reserveFab>
+        <View style={{ padding: layout.gutter, gap: spacing.lg }}>
+          <Skeleton height={160} />
+          <Skeleton height={300} />
+        </View>
+      </Screen>
+    );
 
   const toggleInterest = (c: ContentCategory) =>
-    updateProfile({ interests: profile.interests.includes(c) ? profile.interests.filter((x) => x !== c) : [...profile.interests, c] });
+    updateProfile({
+      interests: profile.interests.includes(c)
+        ? profile.interests.filter((x) => x !== c)
+        : [...profile.interests, c],
+    });
 
   const histItems = history.data?.filter((h) => hist === 'todos' || h.kind === hist);
 
@@ -45,16 +70,38 @@ export function ProfileScreen() {
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Trocar foto (em breve)"
-              style={{ position: 'absolute', right: -4, bottom: -4, width: 30, height: 30, borderRadius: 15, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: colors.background }}
+              style={{
+                position: 'absolute',
+                right: -4,
+                bottom: -4,
+                width: 30,
+                height: 30,
+                borderRadius: 15,
+                backgroundColor: colors.primary,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderWidth: 2,
+                borderColor: colors.background,
+              }}
             >
               <Ionicons name="camera" size={14} color={colors.onPrimary} />
             </Pressable>
           </View>
           <View style={{ flex: 1, gap: 2 }}>
-            <Text variant="h1" numberOfLines={1}>{profile.name}</Text>
-            <Text variant="caption" tone="secondary">{profile.city} · {profile.state} · rubro-negro desde {profile.fanSince}</Text>
+            <Text variant="h1" numberOfLines={1}>
+              {profile.name}
+            </Text>
+            <Text variant="caption" tone="secondary">
+              {profile.city} · {profile.state} · rubro-negro desde {profile.fanSince}
+            </Text>
             <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: 4 }}>
-              {progress && <Badge label={`Nível ${progress.level.level} · ${progress.level.name}`} tone="brand" icon="shield" />}
+              {progress && (
+                <Badge
+                  label={`Nível ${progress.level.level} · ${progress.level.name}`}
+                  tone="brand"
+                  icon="shield"
+                />
+              )}
               <DemoBadge label="Conta demo" />
             </View>
           </View>
@@ -67,9 +114,19 @@ export function ProfileScreen() {
               [String(progress.attendanceStreak), 'Jogos seguidos', 'Passport'],
               ['Maraca 2', 'Plano sócio', 'Membership'],
             ].map(([v, l, route]) => (
-              <Card key={l} padding="sm" style={{ flex: 1 }} onPress={() => navigation.navigate(route as never)} accessibilityLabel={`${l}: ${v}`}>
-                <Text variant="numberSm" align="center">{v}</Text>
-                <Text variant="footnote" tone="secondary" align="center">{l}</Text>
+              <Card
+                key={l}
+                padding="sm"
+                style={{ flex: 1 }}
+                onPress={() => navigation.navigate(route as never)}
+                accessibilityLabel={`${l}: ${v}`}
+              >
+                <Text variant="numberSm" align="center">
+                  {v}
+                </Text>
+                <Text variant="footnote" tone="secondary" align="center">
+                  {l}
+                </Text>
               </Card>
             ))}
           </View>
@@ -79,9 +136,15 @@ export function ProfileScreen() {
       <View style={{ marginTop: spacing.xxl }}>
         <SectionHeader title="Jogadores favoritos" subtitle="Personalizam o “Para você” na Home" />
         {squad.loading ? (
-          <View style={{ paddingHorizontal: layout.gutter }}><Skeleton height={96} /></View>
+          <View style={{ paddingHorizontal: layout.gutter }}>
+            <Skeleton height={96} />
+          </View>
         ) : (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: layout.gutter, gap: spacing.md }}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: layout.gutter, gap: spacing.md }}
+          >
             {squad.data?.map((p) => {
               const fav = profile.favoritePlayerIds.includes(p.id);
               return (
@@ -95,10 +158,24 @@ export function ProfileScreen() {
                   accessibilityHint="Toque para favoritar. Toque longo abre o perfil."
                   style={{ alignItems: 'center', width: 72, gap: 6, opacity: fav ? 1 : 0.55 }}
                 >
-                  <View style={{ borderWidth: 2, borderColor: fav ? colors.primary : 'transparent', borderRadius: 32, padding: 2 }}>
+                  <View
+                    style={{
+                      borderWidth: 2,
+                      borderColor: fav ? colors.primary : 'transparent',
+                      borderRadius: 32,
+                      padding: 2,
+                    }}
+                  >
                     <Avatar name={p.shortName} number={p.number} size={52} />
                   </View>
-                  <Text variant="footnote" numberOfLines={1} align="center" tone={fav ? 'brand' : 'secondary'}>{p.shortName}</Text>
+                  <Text
+                    variant="footnote"
+                    numberOfLines={1}
+                    align="center"
+                    tone={fav ? 'brand' : 'secondary'}
+                  >
+                    {p.shortName}
+                  </Text>
                 </Pressable>
               );
             })}
@@ -117,10 +194,23 @@ export function ProfileScreen() {
                 onPress={() => toggleInterest(c)}
                 accessibilityRole="checkbox"
                 accessibilityState={{ checked: on }}
-                style={{ minHeight: 36, paddingHorizontal: spacing.md, borderRadius: radius.pill, justifyContent: 'center', borderWidth: 1, borderColor: on ? colors.primary : colors.border, backgroundColor: on ? colors.primarySubtle : 'transparent', flexDirection: 'row', alignItems: 'center', gap: 4 }}
+                style={{
+                  minHeight: 36,
+                  paddingHorizontal: spacing.md,
+                  borderRadius: radius.pill,
+                  justifyContent: 'center',
+                  borderWidth: 1,
+                  borderColor: on ? colors.primary : colors.border,
+                  backgroundColor: on ? colors.primarySubtle : 'transparent',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 4,
+                }}
               >
                 {on && <Ionicons name="checkmark" size={14} color={colors.primaryText} />}
-                <Text variant="label" tone={on ? 'brand' : 'secondary'}>{CATEGORY_LABEL[c]}</Text>
+                <Text variant="label" tone={on ? 'brand' : 'secondary'}>
+                  {CATEGORY_LABEL[c]}
+                </Text>
               </Pressable>
             );
           })}
@@ -130,18 +220,35 @@ export function ProfileScreen() {
       <View style={{ marginTop: spacing.xxl }}>
         <SectionHeader title="Histórico" />
         <SegmentedControl<HistFilter>
-          segments={[{ key: 'todos', label: 'Tudo' }, { key: 'ticket', label: 'Ingressos' }, { key: 'purchase', label: 'Compras' }, { key: 'points', label: 'Pontos' }, { key: 'medal', label: 'Conquistas' }]}
+          segments={[
+            { key: 'todos', label: 'Tudo' },
+            { key: 'ticket', label: 'Ingressos' },
+            { key: 'purchase', label: 'Compras' },
+            { key: 'points', label: 'Pontos' },
+            { key: 'medal', label: 'Conquistas' },
+          ]}
           value={hist}
           onChange={setHist}
         />
         <View style={{ marginTop: spacing.md }}>
           {history.loading ? (
-            <View style={{ paddingHorizontal: layout.gutter }}><Skeleton height={200} /></View>
+            <View style={{ paddingHorizontal: layout.gutter }}>
+              <Skeleton height={200} />
+            </View>
           ) : histItems?.length === 0 ? (
-            <Text variant="caption" tone="tertiary" align="center">Nada por aqui ainda.</Text>
+            <Text variant="caption" tone="tertiary" align="center">
+              Nada por aqui ainda.
+            </Text>
           ) : (
             <ListGroup>
-              {histItems?.map((h) => <ListItem key={h.id} icon={HISTORY_ICON[h.kind]} title={h.title} subtitle={`${h.detail} · ${formatFullDate(h.date)}`} />)}
+              {histItems?.map((h) => (
+                <ListItem
+                  key={h.id}
+                  icon={HISTORY_ICON[h.kind]}
+                  title={h.title}
+                  subtitle={`${h.detail} · ${formatFullDate(h.date)}`}
+                />
+              ))}
             </ListGroup>
           )}
         </View>
@@ -150,10 +257,26 @@ export function ProfileScreen() {
       <View style={{ marginTop: spacing.xxl }}>
         <SectionHeader title="Conta" />
         <ListGroup>
-          <ListItem icon="wallet-outline" title="Meus ingressos" onPress={() => navigation.navigate('TicketWallet')} />
-          <ListItem icon="card-outline" title="Sócio-Torcedor" onPress={() => navigation.navigate('Membership')} />
-          <ListItem icon="notifications-outline" title="Notificações e privacidade" onPress={() => navigation.navigate('Settings')} />
-          <ListItem icon="settings-outline" title="Configurações" onPress={() => navigation.navigate('Settings')} />
+          <ListItem
+            icon="wallet-outline"
+            title="Meus ingressos"
+            onPress={() => navigation.navigate('TicketWallet')}
+          />
+          <ListItem
+            icon="card-outline"
+            title="Sócio-Torcedor"
+            onPress={() => navigation.navigate('Membership')}
+          />
+          <ListItem
+            icon="notifications-outline"
+            title="Notificações e privacidade"
+            onPress={() => navigation.navigate('Settings')}
+          />
+          <ListItem
+            icon="settings-outline"
+            title="Configurações"
+            onPress={() => navigation.navigate('Settings')}
+          />
         </ListGroup>
       </View>
     </Screen>

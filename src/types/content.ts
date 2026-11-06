@@ -1,12 +1,5 @@
 export type ContentCategory =
-  | 'jogos'
-  | 'elenco'
-  | 'bastidores'
-  | 'base'
-  | 'clube'
-  | 'socio'
-  | 'loja'
-  | 'feminino';
+  'jogos' | 'elenco' | 'bastidores' | 'base' | 'clube' | 'socio' | 'loja' | 'feminino';
 
 export interface NewsArticle {
   id: string;
@@ -41,5 +34,4 @@ export interface Video {
 
 /** Item do "Para você": notícia ou vídeo com o motivo da recomendação. */
 export type RecommendedItem =
-  | { kind: 'news'; item: NewsArticle; reason: string }
-  | { kind: 'video'; item: Video; reason: string };
+  { kind: 'news'; item: NewsArticle; reason: string } | { kind: 'video'; item: Video; reason: string };

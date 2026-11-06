@@ -22,7 +22,7 @@ export interface CartItem {
 }
 
 export interface Cart {
-  items: Array<CartItem & { product: Product; lineTotal: number }>;
+  items: (CartItem & { product: Product; lineTotal: number })[];
   subtotal: number;
   memberDiscount: number;
   shipping: number;

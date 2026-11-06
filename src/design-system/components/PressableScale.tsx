@@ -1,5 +1,12 @@
-import { useRef, type ReactNode } from 'react';
-import { Animated, Pressable, StyleSheet, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
+import { type ReactNode, useState } from 'react';
+import {
+  Animated,
+  Pressable,
+  StyleSheet,
+  type PressableProps,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 
 import { useReduceMotion } from '@/hooks/useReduceMotion';
 import { motion } from '../tokens/layout';
@@ -13,18 +20,43 @@ export interface PressableScaleProps extends Omit<PressableProps, 'style' | 'chi
 
 /** Propriedades que posicionam o elemento no pai: vão para o Pressable (o filho animado só desenha). */
 const OUTER_KEYS = [
-  'flex', 'flexGrow', 'flexShrink', 'flexBasis', 'alignSelf', 'width', 'minWidth', 'maxWidth',
-  'margin', 'marginTop', 'marginBottom', 'marginLeft', 'marginRight', 'marginHorizontal', 'marginVertical',
-  'position', 'top', 'bottom', 'left', 'right', 'zIndex',
+  'flex',
+  'flexGrow',
+  'flexShrink',
+  'flexBasis',
+  'alignSelf',
+  'width',
+  'minWidth',
+  'maxWidth',
+  'margin',
+  'marginTop',
+  'marginBottom',
+  'marginLeft',
+  'marginRight',
+  'marginHorizontal',
+  'marginVertical',
+  'position',
+  'top',
+  'bottom',
+  'left',
+  'right',
+  'zIndex',
 ] as const;
 
 function splitStyle(style: StyleProp<ViewStyle>) {
   const flat = (StyleSheet.flatten(style) ?? {}) as Record<string, unknown>;
   const outer: Record<string, unknown> = {};
   const inner: Record<string, unknown> = {};
-  for (const [k, v] of Object.entries(flat)) ((OUTER_KEYS as readonly string[]).includes(k) ? outer : inner)[k] = v;
+  for (const [k, v] of Object.entries(flat))
+    ((OUTER_KEYS as readonly string[]).includes(k) ? outer : inner)[k] = v;
   // O filho preenche o espaço que o Pressable recebeu.
-  if (outer.flex !== undefined || outer.flexGrow !== undefined || outer.flexBasis !== undefined || outer.width !== undefined) inner.flexGrow = 1;
+  if (
+    outer.flex !== undefined ||
+    outer.flexGrow !== undefined ||
+    outer.flexBasis !== undefined ||
+    outer.width !== undefined
+  )
+    inner.flexGrow = 1;
   if (outer.position === 'absolute') inner.flexGrow = 1;
   return { outer: outer as ViewStyle, inner: inner as ViewStyle };
 }
@@ -43,8 +75,8 @@ export function PressableScale({
   ...rest
 }: PressableScaleProps) {
   const reduceMotion = useReduceMotion();
-  const scale = useRef(new Animated.Value(1)).current;
-  const opacity = useRef(new Animated.Value(1)).current;
+  const scale = useState(() => new Animated.Value(1))[0];
+  const opacity = useState(() => new Animated.Value(1))[0];
 
   const animateTo = (pressed: boolean) => {
     if (reduceMotion) {

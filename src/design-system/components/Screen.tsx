@@ -47,7 +47,12 @@ export function Screen({
     <View style={[styles.header, { paddingHorizontal: spacing.sm, minHeight: 52 }]}>
       <View style={styles.headerSide}>
         {canGoBack && (
-          <IconButton icon="chevron-back" variant="plain" accessibilityLabel="Voltar" onPress={() => navigation.goBack()} />
+          <IconButton
+            icon="chevron-back"
+            variant="plain"
+            accessibilityLabel="Voltar"
+            onPress={() => navigation.goBack()}
+          />
         )}
       </View>
       <Text variant="title" numberOfLines={1} style={styles.headerTitle} accessibilityRole="header">

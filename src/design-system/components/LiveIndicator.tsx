@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 
 import { useReduceMotion } from '@/hooks/useReduceMotion';
@@ -12,7 +12,7 @@ import { Text } from './Text';
 export function LiveIndicator({ minute, compact }: { minute?: string; compact?: boolean }) {
   const { colors, motion, radius } = useTheme();
   const reduceMotion = useReduceMotion();
-  const pulse = useRef(new Animated.Value(0)).current;
+  const pulse = useState(() => new Animated.Value(0))[0];
 
   useEffect(() => {
     if (reduceMotion) {
@@ -38,11 +38,23 @@ export function LiveIndicator({ minute, compact }: { minute?: string; compact?: 
     <View
       accessible
       accessibilityLabel={minute ? `Ao vivo, ${minute}` : 'Ao vivo'}
-      style={[styles.row, !compact && { backgroundColor: colors.liveSubtle, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5 }]}
+      style={[
+        styles.row,
+        !compact && {
+          backgroundColor: colors.liveSubtle,
+          borderRadius: radius.pill,
+          paddingHorizontal: 10,
+          paddingVertical: 5,
+        },
+      ]}
     >
       <View style={styles.dotWrap}>
         <Animated.View
-          style={[styles.dot, styles.ring, { backgroundColor: colors.live, opacity: ringOpacity, transform: [{ scale: ringScale }] }]}
+          style={[
+            styles.dot,
+            styles.ring,
+            { backgroundColor: colors.live, opacity: ringOpacity, transform: [{ scale: ringScale }] },
+          ]}
         />
         <View style={[styles.dot, { backgroundColor: colors.live }]} />
       </View>

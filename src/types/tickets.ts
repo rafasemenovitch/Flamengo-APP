@@ -15,7 +15,7 @@ export interface SectorOffer {
 export interface TicketSale {
   matchId: string;
   /** Abertura de vendas por público. */
-  phases: Array<{ audience: string; startsAt: string }>;
+  phases: { audience: string; startsAt: string }[];
   sectors: SectorOffer[];
   maxPerFan: number;
 }

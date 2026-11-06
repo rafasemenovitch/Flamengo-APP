@@ -18,16 +18,43 @@ export interface ListItemProps {
   destructive?: boolean;
 }
 
-export function ListItem({ title, subtitle, icon, leading, trailing, onPress, chevron, destructive }: ListItemProps) {
+export function ListItem({
+  title,
+  subtitle,
+  icon,
+  leading,
+  trailing,
+  onPress,
+  chevron,
+  destructive,
+}: ListItemProps) {
   const { colors, spacing, radius, layout } = useTheme();
   const showChevron = chevron ?? !!onPress;
   const fg = destructive ? colors.danger : colors.textPrimary;
 
   const content = (
-    <View style={[styles.row, { minHeight: layout.minTouch + 12, gap: spacing.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md }]}>
+    <View
+      style={[
+        styles.row,
+        {
+          minHeight: layout.minTouch + 12,
+          gap: spacing.md,
+          paddingHorizontal: spacing.lg,
+          paddingVertical: spacing.md,
+        },
+      ]}
+    >
       {leading ??
         (icon && (
-          <View style={[styles.iconWrap, { backgroundColor: destructive ? colors.dangerSubtle : colors.surfaceMuted, borderRadius: radius.sm }]}>
+          <View
+            style={[
+              styles.iconWrap,
+              {
+                backgroundColor: destructive ? colors.dangerSubtle : colors.surfaceMuted,
+                borderRadius: radius.sm,
+              },
+            ]}
+          >
             <Ionicons name={icon} size={18} color={fg} />
           </View>
         ))}
@@ -48,7 +75,11 @@ export function ListItem({ title, subtitle, icon, leading, trailing, onPress, ch
 
   if (!onPress) return content;
   return (
-    <PressableScale onPress={onPress} accessibilityLabel={subtitle ? `${title}. ${subtitle}` : title} scaleTo={0.985}>
+    <PressableScale
+      onPress={onPress}
+      accessibilityLabel={subtitle ? `${title}. ${subtitle}` : title}
+      scaleTo={0.985}
+    >
       {content}
     </PressableScale>
   );
@@ -59,10 +90,23 @@ export function ListGroup({ children }: { children: ReactNode }) {
   const { colors, radius, layout } = useTheme();
   const items = Array.isArray(children) ? children.filter(Boolean) : [children];
   return (
-    <View style={{ marginHorizontal: layout.gutter, backgroundColor: colors.surface, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, overflow: 'hidden' }}>
+    <View
+      style={{
+        marginHorizontal: layout.gutter,
+        backgroundColor: colors.surface,
+        borderRadius: radius.lg,
+        borderWidth: 1,
+        borderColor: colors.border,
+        overflow: 'hidden',
+      }}
+    >
       {items.map((child, i) => (
         <View key={i}>
-          {i > 0 && <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: colors.border, marginLeft: 64 }} />}
+          {i > 0 && (
+            <View
+              style={{ height: StyleSheet.hairlineWidth, backgroundColor: colors.border, marginLeft: 64 }}
+            />
+          )}
           {child}
         </View>
       ))}

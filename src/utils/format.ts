@@ -82,7 +82,13 @@ export interface Countdown {
 export function countdownTo(iso: string, now = Date.now()): Countdown {
   const totalMs = Math.max(0, new Date(iso).getTime() - now);
   const s = Math.floor(totalMs / 1000);
-  return { days: Math.floor(s / 86400), hours: Math.floor((s % 86400) / 3600), minutes: Math.floor((s % 3600) / 60), seconds: s % 60, totalMs };
+  return {
+    days: Math.floor(s / 86400),
+    hours: Math.floor((s % 86400) / 3600),
+    minutes: Math.floor((s % 3600) / 60),
+    seconds: s % 60,
+    totalMs,
+  };
 }
 
 export function pad2(n: number) {

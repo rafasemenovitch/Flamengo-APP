@@ -40,15 +40,38 @@ export function NotificationsScreen() {
           q.data?.map((n) => (
             <Card key={n.id} variant={n.read ? 'surface' : 'tinted'} padding="sm">
               <View style={{ flexDirection: 'row', gap: spacing.md, alignItems: 'flex-start' }}>
-                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surfaceMuted, alignItems: 'center', justifyContent: 'center' }}>
+                <View
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 20,
+                    backgroundColor: colors.surfaceMuted,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
                   <Ionicons name={ICON[n.kind]} size={18} color={colors.primaryText} />
                 </View>
                 <View style={{ flex: 1, gap: 2 }}>
                   <Text variant="bodyStrong">{n.title}</Text>
-                  <Text variant="callout" tone="secondary">{n.body}</Text>
-                  <Text variant="footnote" tone="tertiary">{formatRelative(n.createdAt)}</Text>
+                  <Text variant="callout" tone="secondary">
+                    {n.body}
+                  </Text>
+                  <Text variant="footnote" tone="tertiary">
+                    {formatRelative(n.createdAt)}
+                  </Text>
                 </View>
-                {!n.read && <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colors.primary, marginTop: 6 }} />}
+                {!n.read && (
+                  <View
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: 4,
+                      backgroundColor: colors.primary,
+                      marginTop: 6,
+                    }}
+                  />
+                )}
               </View>
             </Card>
           ))

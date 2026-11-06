@@ -4,7 +4,7 @@ import type { RootStackParamList, TabParamList } from './types';
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
-const TAB_ROUTES: ReadonlyArray<keyof TabParamList> = ['Inicio', 'Jogos', 'Ingressos', 'Nacao', 'Perfil'];
+const TAB_ROUTES: readonly (keyof TabParamList)[] = ['Inicio', 'Jogos', 'Ingressos', 'Nacao', 'Perfil'];
 
 /**
  * Navega por NOME de rota vindo de dados (ex.: ações do Assistente), sem

@@ -8,7 +8,7 @@
  */
 export type DemoScenario = 'upcoming' | 'matchday' | 'live' | 'finished';
 
-export const DEMO_SCENARIOS: Array<{ key: DemoScenario; label: string }> = [
+export const DEMO_SCENARIOS: { key: DemoScenario; label: string }[] = [
   { key: 'upcoming', label: 'Pré-jogo' },
   { key: 'matchday', label: 'Dia de jogo' },
   { key: 'live', label: 'Ao vivo' },

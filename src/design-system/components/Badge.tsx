@@ -5,7 +5,17 @@ import type { ThemeColors } from '../tokens/colors';
 import { useTheme } from '../theme/ThemeProvider';
 import { Text } from './Text';
 
-export type BadgeTone = 'neutral' | 'brand' | 'solidBrand' | 'success' | 'warning' | 'danger' | 'info' | 'live' | 'demo' | 'onMedia';
+export type BadgeTone =
+  | 'neutral'
+  | 'brand'
+  | 'solidBrand'
+  | 'success'
+  | 'warning'
+  | 'danger'
+  | 'info'
+  | 'live'
+  | 'demo'
+  | 'onMedia';
 
 function toneColors(tone: BadgeTone, c: ThemeColors) {
   switch (tone) {

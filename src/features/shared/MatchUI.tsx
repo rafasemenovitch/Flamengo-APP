@@ -25,18 +25,34 @@ export function ResultPill({ result }: { result: 'W' | 'D' | 'L' }) {
 }
 
 /** Linha de jogo usada no calendário, resultados e ingressos. */
-export function MatchRow({ match, onPress, trailing }: { match: Match; onPress?: () => void; trailing?: React.ReactNode }) {
+export function MatchRow({
+  match,
+  onPress,
+  trailing,
+}: {
+  match: Match;
+  onPress?: () => void;
+  trailing?: React.ReactNode;
+}) {
   const { spacing, colors } = useTheme();
   const live = match.status === 'live' || match.status === 'halftime';
   const result = flaResult(match);
   return (
-    <Card onPress={onPress} accessibilityLabel={`${match.homeTeam.shortName} contra ${match.awayTeam.shortName}, ${formatMatchDate(match.kickoff)}`} padding="sm">
+    <Card
+      onPress={onPress}
+      accessibilityLabel={`${match.homeTeam.shortName} contra ${match.awayTeam.shortName}, ${formatMatchDate(match.kickoff)}`}
+      padding="sm"
+    >
       <View style={{ gap: spacing.sm }}>
         <View style={styles.rowBetween}>
           <Text variant="overline" tone="tertiary" numberOfLines={1} style={{ flex: 1 }}>
             {competitionName(match.competitionId)} · {match.stage}
           </Text>
-          {live ? <LiveIndicator compact minute={match.liveMinute} /> : result ? <ResultPill result={result} /> : null}
+          {live ? (
+            <LiveIndicator compact minute={match.liveMinute} />
+          ) : result ? (
+            <ResultPill result={result} />
+          ) : null}
         </View>
         <View style={styles.rowBetween}>
           <View style={{ flex: 1, gap: spacing.xs }}>
@@ -91,7 +107,11 @@ export function ScoreBoard({ match, onMedia }: { match: Match; onMedia?: boolean
       <TeamBlock team={match.homeTeam} onMedia={onMedia} />
       <View style={{ alignItems: 'center', minWidth: 110, gap: spacing.xs }}>
         {started && match.score ? (
-          <Text variant="score" tone={tone} accessibilityLabel={`Placar ${match.score.home} a ${match.score.away}`}>
+          <Text
+            variant="score"
+            tone={tone}
+            accessibilityLabel={`Placar ${match.score.home} a ${match.score.away}`}
+          >
             {match.score.home}
             <Text variant="h1" tone={tone} style={{ opacity: 0.5 }}>
               {'  ×  '}
@@ -130,16 +150,32 @@ export function StandingsTable({ table, compact }: { table: Table; compact?: boo
     rows = rows.slice(start, start + 5);
   }
   const zoneColor = (z?: string) =>
-    z === 'libertadores' ? colors.info : z === 'pre-libertadores' ? colors.success : z === 'sudamericana' ? colors.warning : z === 'relegation' ? colors.danger : 'transparent';
+    z === 'libertadores'
+      ? colors.info
+      : z === 'pre-libertadores'
+        ? colors.success
+        : z === 'sudamericana'
+          ? colors.warning
+          : z === 'relegation'
+            ? colors.danger
+            : 'transparent';
   return (
     <View accessibilityRole="list">
       <View style={[styles.row, { paddingHorizontal: spacing.md, paddingBottom: spacing.sm }]}>
-        <Text variant="overline" tone="tertiary" style={{ width: 28 }}>#</Text>
-        <Text variant="overline" tone="tertiary" style={{ flex: 1 }}>Time</Text>
+        <Text variant="overline" tone="tertiary" style={{ width: 28 }}>
+          #
+        </Text>
+        <Text variant="overline" tone="tertiary" style={{ flex: 1 }}>
+          Time
+        </Text>
         {['J', 'V', 'SG'].map((h) => (
-          <Text key={h} variant="overline" tone="tertiary" style={styles.col}>{h}</Text>
+          <Text key={h} variant="overline" tone="tertiary" style={styles.col}>
+            {h}
+          </Text>
         ))}
-        <Text variant="overline" tone="tertiary" style={styles.colPts}>Pts</Text>
+        <Text variant="overline" tone="tertiary" style={styles.colPts}>
+          Pts
+        </Text>
       </View>
       {rows.map((r) => {
         const fla = r.team.id === 'fla';
@@ -148,7 +184,11 @@ export function StandingsTable({ table, compact }: { table: Table; compact?: boo
             key={r.team.id}
             accessible
             accessibilityLabel={`${r.position}º ${r.team.shortName}, ${r.points} pontos`}
-            style={[styles.row, { paddingHorizontal: spacing.md, paddingVertical: 10, borderRadius: radius.sm }, fla && { backgroundColor: colors.primarySubtle }]}
+            style={[
+              styles.row,
+              { paddingHorizontal: spacing.md, paddingVertical: 10, borderRadius: radius.sm },
+              fla && { backgroundColor: colors.primarySubtle },
+            ]}
           >
             <View style={{ width: 28, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <View style={{ width: 3, height: 16, borderRadius: 2, backgroundColor: zoneColor(r.zone) }} />
@@ -156,23 +196,43 @@ export function StandingsTable({ table, compact }: { table: Table; compact?: boo
             </View>
             <View style={[styles.row, { flex: 1, gap: spacing.sm }]}>
               <TeamCrest shortName={r.team.code} color={r.team.color} size={20} />
-              <Text variant={fla ? 'bodyStrong' : 'callout'} numberOfLines={1} style={{ flex: 1 }} tone={fla ? 'brand' : 'primary'}>
+              <Text
+                variant={fla ? 'bodyStrong' : 'callout'}
+                numberOfLines={1}
+                style={{ flex: 1 }}
+                tone={fla ? 'brand' : 'primary'}
+              >
                 {r.team.shortName}
               </Text>
             </View>
-            <Text variant="tabular" tone="secondary" style={styles.col}>{r.played}</Text>
-            <Text variant="tabular" tone="secondary" style={styles.col}>{r.won}</Text>
-            <Text variant="tabular" tone="secondary" style={styles.col}>{r.goalsFor - r.goalsAgainst}</Text>
-            <Text variant="tabular" style={[styles.colPts, { fontFamily: 'Inter_700Bold' }]}>{r.points}</Text>
+            <Text variant="tabular" tone="secondary" style={styles.col}>
+              {r.played}
+            </Text>
+            <Text variant="tabular" tone="secondary" style={styles.col}>
+              {r.won}
+            </Text>
+            <Text variant="tabular" tone="secondary" style={styles.col}>
+              {r.goalsFor - r.goalsAgainst}
+            </Text>
+            <Text variant="tabular" style={[styles.colPts, { fontFamily: 'Inter_700Bold' }]}>
+              {r.points}
+            </Text>
           </View>
         );
       })}
       {!compact && (
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md, padding: spacing.md }}>
-          {[['libertadores', 'Libertadores'], ['pre-libertadores', 'Pré-Libertadores'], ['sudamericana', 'Sul-Americana'], ['relegation', 'Rebaixamento']].map(([z, l]) => (
+          {[
+            ['libertadores', 'Libertadores'],
+            ['pre-libertadores', 'Pré-Libertadores'],
+            ['sudamericana', 'Sul-Americana'],
+            ['relegation', 'Rebaixamento'],
+          ].map(([z, l]) => (
             <View key={z} style={[styles.row, { gap: 6 }]}>
               <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: zoneColor(z) }} />
-              <Text variant="footnote" tone="secondary">{l}</Text>
+              <Text variant="footnote" tone="secondary">
+                {l}
+              </Text>
             </View>
           ))}
         </View>

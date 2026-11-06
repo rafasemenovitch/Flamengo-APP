@@ -19,7 +19,12 @@ export function ClubCrest({ size = 40 }: { size?: number }) {
   const { colors } = useTheme();
   if (brandAssets.crest) {
     return (
-      <Image source={brandAssets.crest} style={{ width: size, height: size }} resizeMode="contain" accessibilityLabel="Escudo do clube" />
+      <Image
+        source={brandAssets.crest}
+        style={{ width: size, height: size }}
+        resizeMode="contain"
+        accessibilityLabel="Escudo do clube"
+      />
     );
   }
   return (
@@ -39,9 +44,21 @@ export function ClubCrest({ size = 40 }: { size?: number }) {
 }
 
 /** Escudo genérico de adversário: forma neutra + sigla + cor principal do seed. */
-export function TeamCrest({ shortName, color, size = 40 }: { shortName: string; color: string; size?: number }) {
+export function TeamCrest({
+  shortName,
+  color,
+  size = 40,
+}: {
+  shortName: string;
+  color: string;
+  size?: number;
+}) {
   return (
-    <View accessible accessibilityLabel={`Escudo de ${shortName} (placeholder)`} style={{ width: size, height: size }}>
+    <View
+      accessible
+      accessibilityLabel={`Escudo de ${shortName} (placeholder)`}
+      style={{ width: size, height: size }}
+    >
       <Svg width={size} height={size} viewBox="0 0 100 104">
         <Path d={SHIELD_PATH} fill={color} stroke="rgba(255,255,255,0.7)" strokeWidth={4} />
         <SvgText x="50" y="62" fontSize="30" fontWeight="800" fill={palette.white} textAnchor="middle">
@@ -52,7 +69,7 @@ export function TeamCrest({ shortName, color, size = 40 }: { shortName: string; 
   );
 }
 
-const MEDIA_GRADIENTS: ReadonlyArray<readonly [string, string]> = [
+const MEDIA_GRADIENTS: readonly (readonly [string, string])[] = [
   [palette.red800, palette.ink900],
   [palette.red600, palette.red900],
   [palette.ink700, palette.ink950],
@@ -87,7 +104,12 @@ export function MediaImage({ imageKey, icon = 'image-outline', style, scrim, chi
       {source ? (
         <Image source={source} style={StyleSheet.absoluteFill} resizeMode="cover" />
       ) : (
-        <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[StyleSheet.absoluteFill, styles.center]}>
+        <LinearGradient
+          colors={gradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={[StyleSheet.absoluteFill, styles.center]}
+        >
           <Ionicons name={icon} size={32} color="rgba(255,255,255,0.28)" />
         </LinearGradient>
       )}

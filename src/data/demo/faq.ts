@@ -38,7 +38,19 @@ export const FAQ: FaqEntry[] = [
   },
   {
     id: 'faq-transporte',
-    keywords: ['metro', 'metrô', 'trem', 'onibus', 'ônibus', 'transporte', 'estacionamento', 'carro', 'uber', 'chego', 'chegar'],
+    keywords: [
+      'metro',
+      'metrô',
+      'trem',
+      'onibus',
+      'ônibus',
+      'transporte',
+      'estacionamento',
+      'carro',
+      'uber',
+      'chego',
+      'chegar',
+    ],
     answer:
       'O jeito mais prático é o metrô (Linha 2, Estação Maracanã) ou o trem (Estação Maracanã). O embarque de táxi e transporte por app fica na Rua Prof. Eurico Rabelo. O estádio não tem estacionamento próprio em dia de jogo.',
     source: 'Guia do torcedor no Maracanã (demonstrativo)',

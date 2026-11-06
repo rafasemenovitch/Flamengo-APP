@@ -2,7 +2,16 @@ import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
 import { View } from 'react-native';
 
-import { Card, EmptyState, ErrorState, Screen, SegmentedControl, Skeleton, Text, useTheme } from '@/design-system';
+import {
+  Card,
+  EmptyState,
+  ErrorState,
+  Screen,
+  SegmentedControl,
+  Skeleton,
+  Text,
+  useTheme,
+} from '@/design-system';
 import { MatchRow, StandingsTable } from '@/features/shared/MatchUI';
 import { useAsync } from '@/hooks/useAsync';
 import { useDemoScenario } from '@/hooks/useMatch';
@@ -13,7 +22,7 @@ import type { CompetitionId } from '@/types/match';
 type View_ = 'proximos' | 'resultados' | 'tabela';
 type Filter = 'todas' | CompetitionId;
 
-const FILTERS: Array<{ key: Filter; label: string }> = [
+const FILTERS: { key: Filter; label: string }[] = [
   { key: 'todas', label: 'Todas' },
   { key: 'brasileirao', label: 'Brasileirão' },
   { key: 'libertadores', label: 'Libertadores' },
@@ -29,7 +38,8 @@ export function MatchesScreen({ route }: TabScreenProps<'Jogos'>) {
 
   const competitionId = filter === 'todas' ? undefined : filter;
   const matches = useAsync(
-    () => services.matches.getMatches({ competitionId, when: view === 'resultados' ? 'results' : 'upcoming' }),
+    () =>
+      services.matches.getMatches({ competitionId, when: view === 'resultados' ? 'results' : 'upcoming' }),
     [view, filter, scenario]
   );
   const table = useAsync(() => services.matches.getStandings('brasileirao'), [scenario]);
@@ -40,8 +50,12 @@ export function MatchesScreen({ route }: TabScreenProps<'Jogos'>) {
   return (
     <Screen reserveFab refreshing={refreshing} onRefresh={onRefresh}>
       <View style={{ paddingHorizontal: layout.gutter, paddingTop: spacing.xl, paddingBottom: spacing.lg }}>
-        <Text variant="display" accessibilityRole="header">Jogos</Text>
-        <Text variant="caption" tone="secondary">Temporada 2026 · dados demonstrativos</Text>
+        <Text variant="display" accessibilityRole="header">
+          Jogos
+        </Text>
+        <Text variant="caption" tone="secondary">
+          Temporada 2026 · dados demonstrativos
+        </Text>
       </View>
 
       <SegmentedControl
@@ -57,7 +71,12 @@ export function MatchesScreen({ route }: TabScreenProps<'Jogos'>) {
 
       {view !== 'tabela' && (
         <View style={{ marginTop: spacing.md }}>
-          <SegmentedControl accessibilityLabel="Competição" segments={FILTERS} value={filter} onChange={setFilter} />
+          <SegmentedControl
+            accessibilityLabel="Competição"
+            segments={FILTERS}
+            value={filter}
+            onChange={setFilter}
+          />
         </View>
       )}
 
@@ -69,7 +88,9 @@ export function MatchesScreen({ route }: TabScreenProps<'Jogos'>) {
             <ErrorState compact onRetry={table.reload} />
           ) : (
             <Card padding="sm">
-              <Text variant="h3" style={{ padding: spacing.md }}>{table.data.title}</Text>
+              <Text variant="h3" style={{ padding: spacing.md }}>
+                {table.data.title}
+              </Text>
               <StandingsTable table={table.data} />
             </Card>
           )
@@ -78,9 +99,20 @@ export function MatchesScreen({ route }: TabScreenProps<'Jogos'>) {
         ) : matches.error ? (
           <ErrorState compact onRetry={matches.reload} />
         ) : matches.data?.length === 0 ? (
-          <EmptyState compact icon="calendar-outline" title="Nenhum jogo encontrado" message="Tente outra competição." />
+          <EmptyState
+            compact
+            icon="calendar-outline"
+            title="Nenhum jogo encontrado"
+            message="Tente outra competição."
+          />
         ) : (
-          matches.data?.map((m) => <MatchRow key={m.id} match={m} onPress={() => navigation.navigate('MatchDetail', { matchId: m.id })} />)
+          matches.data?.map((m) => (
+            <MatchRow
+              key={m.id}
+              match={m}
+              onPress={() => navigation.navigate('MatchDetail', { matchId: m.id })}
+            />
+          ))
         )}
       </View>
     </Screen>

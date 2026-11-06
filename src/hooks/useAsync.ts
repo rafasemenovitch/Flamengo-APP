@@ -23,7 +23,9 @@ export function useAsync<T>(fn: () => Promise<T>, deps: DependencyList = []): As
   const [refreshing, setRefreshing] = useState(false);
   const callId = useRef(0);
   const fnRef = useRef(fn);
-  fnRef.current = fn;
+  useEffect(() => {
+    fnRef.current = fn;
+  });
 
   const run = useCallback(async (mode: 'load' | 'refresh') => {
     const id = ++callId.current;
@@ -46,6 +48,8 @@ export function useAsync<T>(fn: () => Promise<T>, deps: DependencyList = []): As
   }, []);
 
   useEffect(() => {
+    // Busca de dados ao montar/mudar dependências: o setState aqui é intencional.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     run('load');
     return () => {
       callId.current++;

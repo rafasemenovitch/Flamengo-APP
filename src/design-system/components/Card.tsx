@@ -34,7 +34,11 @@ export function Card({
     tinted: { backgroundColor: colors.primarySubtle, borderWidth: 1, borderColor: colors.primarySubtle },
   }[variant];
 
-  const cardStyle = [{ borderRadius: radius.lg, padding: pad, overflow: 'hidden' as const }, variantStyle, style];
+  const cardStyle = [
+    { borderRadius: radius.lg, padding: pad, overflow: 'hidden' as const },
+    variantStyle,
+    style,
+  ];
 
   if (onPress) {
     return (

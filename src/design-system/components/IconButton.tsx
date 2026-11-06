@@ -33,12 +33,15 @@ export function IconButton({
   return (
     <PressableScale
       onPress={onPress}
-      accessibilityLabel={
-        badgeCount ? `${accessibilityLabel}, ${badgeCount} não lidas` : accessibilityLabel
-      }
+      accessibilityLabel={badgeCount ? `${accessibilityLabel}, ${badgeCount} não lidas` : accessibilityLabel}
       style={[
         styles.base,
-        { width: layout.minTouch, height: layout.minTouch, borderRadius: layout.minTouch / 2, backgroundColor: bg },
+        {
+          width: layout.minTouch,
+          height: layout.minTouch,
+          borderRadius: layout.minTouch / 2,
+          backgroundColor: bg,
+        },
         style,
       ]}
     >

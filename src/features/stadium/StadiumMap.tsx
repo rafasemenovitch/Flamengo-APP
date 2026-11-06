@@ -80,7 +80,10 @@ export function StadiumMap({
   const sectorName = stadium.sectors.find((s) => s.id === highlightSectorId)?.name;
 
   return (
-    <View style={{ height, aspectRatio: 1, alignSelf: 'center' }} accessibilityLabel={`Mapa esquemático do ${stadium.name}${sectorName ? `, setor ${sectorName} selecionado` : ''}`}>
+    <View
+      style={{ height, aspectRatio: 1, alignSelf: 'center' }}
+      accessibilityLabel={`Mapa esquemático do ${stadium.name}${sectorName ? `, setor ${sectorName} selecionado` : ''}`}
+    >
       <Svg width="100%" height="100%" viewBox="0 0 100 100">
         {stadium.sectors.map((s) => {
           const [r0, r1] = RINGS[s.ring];
@@ -90,7 +93,13 @@ export function StadiumMap({
             <Path
               key={s.id}
               d={sectorPath(s.arc[0], s.arc[1], r0, r1)}
-              fill={active ? colors.primary : isAway ? withAlpha(colors.textTertiary, 0.35) : withAlpha(colors.primary, highlightSectorId ? 0.14 : 0.24)}
+              fill={
+                active
+                  ? colors.primary
+                  : isAway
+                    ? withAlpha(colors.textTertiary, 0.35)
+                    : withAlpha(colors.primary, highlightSectorId ? 0.14 : 0.24)
+              }
               stroke={colors.background}
               strokeWidth={0.8}
               onPress={onSectorPress ? () => onSectorPress(s.id) : undefined}
@@ -98,7 +107,16 @@ export function StadiumMap({
           );
         })}
         <Ellipse cx={CX} cy={CY} rx={25} ry={25 * SY} fill={withAlpha(colors.success, 0.18)} />
-        <Rect x={35} y={37} width={30} height={26} rx={1} fill="none" stroke={withAlpha(colors.success, 0.7)} strokeWidth={0.5} />
+        <Rect
+          x={35}
+          y={37}
+          width={30}
+          height={26}
+          rx={1}
+          fill="none"
+          stroke={withAlpha(colors.success, 0.7)}
+          strokeWidth={0.5}
+        />
         <Line x1={50} y1={37} x2={50} y2={63} stroke={withAlpha(colors.success, 0.7)} strokeWidth={0.5} />
         {stadium.sectors
           .filter((s) => s.ring === 'lower')
@@ -106,7 +124,15 @@ export function StadiumMap({
             const e = s.arc[1] <= s.arc[0] ? s.arc[1] + 360 : s.arc[1];
             const [x, y] = point((s.arc[0] + e) / 2, 31.5);
             return (
-              <SvgText key={`l-${s.id}`} x={x} y={y + 1} fontSize={3} fill={s.id === highlightSectorId ? colors.onPrimary : colors.textSecondary} textAnchor="middle" fontWeight="bold">
+              <SvgText
+                key={`l-${s.id}`}
+                x={x}
+                y={y + 1}
+                fontSize={3}
+                fill={s.id === highlightSectorId ? colors.onPrimary : colors.textSecondary}
+                textAnchor="middle"
+                fontWeight="bold"
+              >
                 {s.name.split(' ')[0]!.toUpperCase()}
               </SvgText>
             );
@@ -139,7 +165,12 @@ export function StadiumMap({
               borderColor: active ? colors.onPrimary : colors.borderStrong,
             }}
           >
-            <Text variant="label" style={{ fontSize: 11, lineHeight: 13, color: active ? colors.onPrimary : colors.textPrimary }}>{g.id}</Text>
+            <Text
+              variant="label"
+              style={{ fontSize: 11, lineHeight: 13, color: active ? colors.onPrimary : colors.textPrimary }}
+            >
+              {g.id}
+            </Text>
           </Pressable>
         );
       })}
@@ -170,7 +201,11 @@ export function StadiumMap({
               borderColor: sel ? colors.textPrimary : colors.border,
             }}
           >
-            <Ionicons name={FACILITY_ICON[f.type]} size={sel ? 15 : 12} color={sel ? colors.background : colors.textSecondary} />
+            <Ionicons
+              name={FACILITY_ICON[f.type]}
+              size={sel ? 15 : 12}
+              color={sel ? colors.background : colors.textSecondary}
+            />
           </Pressable>
         );
       })}

@@ -14,7 +14,13 @@ export interface SectionHeaderProps {
   accessory?: ReactNode;
 }
 
-export function SectionHeader({ title, subtitle, actionLabel = 'Ver tudo', onAction, accessory }: SectionHeaderProps) {
+export function SectionHeader({
+  title,
+  subtitle,
+  actionLabel = 'Ver tudo',
+  onAction,
+  accessory,
+}: SectionHeaderProps) {
   const { colors, spacing, layout } = useTheme();
   return (
     <View style={[styles.row, { paddingHorizontal: layout.gutter, marginBottom: spacing.md }]}>

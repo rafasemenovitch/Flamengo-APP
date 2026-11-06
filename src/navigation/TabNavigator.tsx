@@ -1,5 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
-import { BottomTabBar, createBottomTabNavigator, type BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import {
+  BottomTabBar,
+  createBottomTabNavigator,
+  type BottomTabBarProps,
+} from '@react-navigation/bottom-tabs';
 import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -15,12 +19,12 @@ import type { TabParamList } from './types';
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
-const TABS: Array<{
+const TABS: {
   name: keyof TabParamList;
   title: string;
   icon: keyof typeof Ionicons.glyphMap;
   iconActive: keyof typeof Ionicons.glyphMap;
-}> = [
+}[] = [
   { name: 'Inicio', title: 'Início', icon: 'home-outline', iconActive: 'home' },
   { name: 'Jogos', title: 'Jogos', icon: 'football-outline', iconActive: 'football' },
   { name: 'Ingressos', title: 'Ingressos', icon: 'ticket-outline', iconActive: 'ticket' },
@@ -28,7 +32,6 @@ const TABS: Array<{
   { name: 'Perfil', title: 'Perfil', icon: 'person-circle-outline', iconActive: 'person-circle' },
 ];
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const SCREENS: Record<keyof TabParamList, React.ComponentType<any>> = {
   Inicio: HomeScreen,
   Jogos: MatchesScreen,
@@ -52,34 +55,38 @@ export function TabNavigator() {
   const [barHeight, setBarHeight] = useState(0);
   return (
     <View style={styles.flex}>
-    <Tab.Navigator
-      tabBar={(props) => <MeasuredTabBar {...props} onHeight={setBarHeight} />}
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: colors.primaryText,
-        tabBarInactiveTintColor: colors.textTertiary,
-        tabBarStyle: { backgroundColor: colors.surfaceElevated, borderTopColor: colors.border },
-        tabBarLabelStyle: { fontFamily: fonts.semibold, fontSize: 11 },
-        tabBarBadgeStyle: { backgroundColor: colors.primary, color: colors.onPrimary },
-        animation: 'shift',
-      }}
-    >
-      {TABS.map((t) => (
-        <Tab.Screen
-          key={t.name}
-          name={t.name}
-          component={SCREENS[t.name]}
-          options={{
-            title: t.title,
-            tabBarAccessibilityLabel: t.title,
-            tabBarIcon: ({ color, size, focused }) => <Ionicons name={focused ? t.iconActive : t.icon} color={color} size={size} />,
-          }}
-        />
-      ))}
-    </Tab.Navigator>
+      <Tab.Navigator
+        tabBar={(props) => <MeasuredTabBar {...props} onHeight={setBarHeight} />}
+        screenOptions={{
+          headerShown: false,
+          tabBarActiveTintColor: colors.primaryText,
+          tabBarInactiveTintColor: colors.textTertiary,
+          tabBarStyle: { backgroundColor: colors.surfaceElevated, borderTopColor: colors.border },
+          tabBarLabelStyle: { fontFamily: fonts.semibold, fontSize: 11 },
+          tabBarBadgeStyle: { backgroundColor: colors.primary, color: colors.onPrimary },
+          animation: 'shift',
+        }}
+      >
+        {TABS.map((t) => (
+          <Tab.Screen
+            key={t.name}
+            name={t.name}
+            component={SCREENS[t.name]}
+            options={{
+              title: t.title,
+              tabBarAccessibilityLabel: t.title,
+              tabBarIcon: ({ color, size, focused }) => (
+                <Ionicons name={focused ? t.iconActive : t.icon} color={color} size={size} />
+              ),
+            }}
+          />
+        ))}
+      </Tab.Navigator>
       {/* Irmão do navigator (não filho da tab bar): no Android, filhos fora dos
           limites do pai não recebem toque. */}
-      {barHeight > 0 && <AssistantFab bottom={barHeight + spacing.md} onPress={() => navigation.navigate('Assistant')} />}
+      {barHeight > 0 && (
+        <AssistantFab bottom={barHeight + spacing.md} onPress={() => navigation.navigate('Assistant')} />
+      )}
     </View>
   );
 }

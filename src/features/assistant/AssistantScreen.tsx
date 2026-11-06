@@ -1,6 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button, ClubCrest, IconButton, Text, fonts, useTheme } from '@/design-system';
@@ -32,15 +42,38 @@ export function AssistantScreen({ navigation, route }: RootScreenProps<'Assistan
   const send = async (text: string) => {
     const q = text.trim();
     if (!q || thinking) return;
-    const userMsg: Msg = { id: `u-${Date.now()}`, role: 'user', text: q, createdAt: new Date().toISOString() };
+    const userMsg: Msg = {
+      id: `u-${Date.now()}`,
+      role: 'user',
+      text: q,
+      createdAt: new Date().toISOString(),
+    };
     setMessages((m) => [...m, userMsg]);
     setDraft('');
     setThinking(true);
     try {
       const reply = await services.assistant.ask(q, messages);
-      setMessages((m) => [...m, { id: `a-${Date.now()}`, role: 'assistant', text: reply.text, sources: reply.sources, createdAt: new Date().toISOString(), reply }]);
+      setMessages((m) => [
+        ...m,
+        {
+          id: `a-${Date.now()}`,
+          role: 'assistant',
+          text: reply.text,
+          sources: reply.sources,
+          createdAt: new Date().toISOString(),
+          reply,
+        },
+      ]);
     } catch {
-      setMessages((m) => [...m, { id: `e-${Date.now()}`, role: 'assistant', text: 'Tive um problema para responder agora. Tente de novo em instantes.', createdAt: new Date().toISOString() }]);
+      setMessages((m) => [
+        ...m,
+        {
+          id: `e-${Date.now()}`,
+          role: 'assistant',
+          text: 'Tive um problema para responder agora. Tente de novo em instantes.',
+          createdAt: new Date().toISOString(),
+        },
+      ]);
     } finally {
       setThinking(false);
     }
@@ -66,13 +99,35 @@ export function AssistantScreen({ navigation, route }: RootScreenProps<'Assistan
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top', 'bottom']}>
-      <View style={[styles.row, { paddingHorizontal: spacing.sm, paddingVertical: spacing.sm, gap: spacing.sm, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: colors.border }]}>
-        <View style={{ width: 44, alignItems: 'center' }}><ClubCrest size={30} /></View>
-        <View style={{ flex: 1 }}>
-          <Text variant="title" accessibilityRole="header">Assistente Fla</Text>
-          <Text variant="footnote" tone="tertiary">Respostas da base oficial · versão demo</Text>
+      <View
+        style={[
+          styles.row,
+          {
+            paddingHorizontal: spacing.sm,
+            paddingVertical: spacing.sm,
+            gap: spacing.sm,
+            borderBottomWidth: StyleSheet.hairlineWidth,
+            borderColor: colors.border,
+          },
+        ]}
+      >
+        <View style={{ width: 44, alignItems: 'center' }}>
+          <ClubCrest size={30} />
         </View>
-        <IconButton icon="close" variant="plain" accessibilityLabel="Fechar assistente" onPress={() => navigation.goBack()} />
+        <View style={{ flex: 1 }}>
+          <Text variant="title" accessibilityRole="header">
+            Assistente Fla
+          </Text>
+          <Text variant="footnote" tone="tertiary">
+            Respostas da base oficial · versão demo
+          </Text>
+        </View>
+        <IconButton
+          icon="close"
+          variant="plain"
+          accessibilityLabel="Fechar assistente"
+          onPress={() => navigation.goBack()}
+        />
       </View>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -97,52 +152,101 @@ export function AssistantScreen({ navigation, route }: RootScreenProps<'Assistan
                     borderColor: colors.border,
                   }}
                 >
-                  <Text variant="body" tone={mine ? 'onPrimary' : 'primary'}>{item.text}</Text>
+                  <Text variant="body" tone={mine ? 'onPrimary' : 'primary'}>
+                    {item.text}
+                  </Text>
                   {!!item.sources?.length && (
                     <View style={[styles.row, { gap: 4, marginTop: spacing.sm, flexWrap: 'wrap' }]}>
                       <Ionicons name="document-text-outline" size={12} color={colors.textTertiary} />
-                      <Text variant="footnote" tone="tertiary">Fonte: {item.sources.join(' · ')}</Text>
+                      <Text variant="footnote" tone="tertiary">
+                        Fonte: {item.sources.join(' · ')}
+                      </Text>
                     </View>
                   )}
                   {item.reply && !item.reply.grounded && (
                     <View style={[styles.row, { gap: 4, marginTop: spacing.sm }]}>
                       <Ionicons name="help-circle-outline" size={12} color={colors.warning} />
-                      <Text variant="footnote" tone="warning">Sem informação oficial para essa pergunta</Text>
+                      <Text variant="footnote" tone="warning">
+                        Sem informação oficial para essa pergunta
+                      </Text>
                     </View>
                   )}
                 </View>
                 {item.reply?.action && (
-                  <Button label={item.reply.action.label} size="sm" variant="secondary" icon="arrow-forward" iconPosition="right" onPress={() => goTo(item.reply!.action!.route, item.reply!.action!.params)} />
+                  <Button
+                    label={item.reply.action.label}
+                    size="sm"
+                    variant="secondary"
+                    icon="arrow-forward"
+                    iconPosition="right"
+                    onPress={() => goTo(item.reply!.action!.route, item.reply!.action!.params)}
+                  />
                 )}
               </View>
             );
           }}
           ListFooterComponent={
             thinking ? (
-              <View style={[styles.row, { gap: spacing.sm, marginTop: spacing.md }]} accessibilityLabel="Assistente digitando">
+              <View
+                style={[styles.row, { gap: spacing.sm, marginTop: spacing.md }]}
+                accessibilityLabel="Assistente digitando"
+              >
                 <ActivityIndicator color={colors.primaryText} size="small" />
-                <Text variant="caption" tone="tertiary">Consultando a base oficial…</Text>
+                <Text variant="caption" tone="tertiary">
+                  Consultando a base oficial…
+                </Text>
               </View>
             ) : undefined
           }
         />
 
         {messages.length <= 2 && !!suggestions.data?.length && (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: layout.gutter, gap: spacing.sm, paddingBottom: spacing.sm }} style={{ flexGrow: 0 }}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{
+              paddingHorizontal: layout.gutter,
+              gap: spacing.sm,
+              paddingBottom: spacing.sm,
+            }}
+            style={{ flexGrow: 0 }}
+          >
             {suggestions.data.map((s) => (
               <Pressable
                 key={s}
                 onPress={() => send(s)}
                 accessibilityRole="button"
-                style={({ pressed }) => ({ minHeight: 40, paddingHorizontal: spacing.md, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, justifyContent: 'center', opacity: pressed ? 0.6 : 1 })}
+                style={({ pressed }) => ({
+                  minHeight: 40,
+                  paddingHorizontal: spacing.md,
+                  borderRadius: radius.pill,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                  backgroundColor: colors.surface,
+                  justifyContent: 'center',
+                  opacity: pressed ? 0.6 : 1,
+                })}
               >
-                <Text variant="label" tone="brand">{s}</Text>
+                <Text variant="label" tone="brand">
+                  {s}
+                </Text>
               </Pressable>
             ))}
           </ScrollView>
         )}
 
-        <View style={[styles.row, { padding: spacing.sm, paddingHorizontal: layout.gutter, gap: spacing.sm, borderTopWidth: StyleSheet.hairlineWidth, borderColor: colors.border }]}>
+        <View
+          style={[
+            styles.row,
+            {
+              padding: spacing.sm,
+              paddingHorizontal: layout.gutter,
+              gap: spacing.sm,
+              borderTopWidth: StyleSheet.hairlineWidth,
+              borderColor: colors.border,
+            },
+          ]}
+        >
           <TextInput
             value={draft}
             onChangeText={setDraft}
@@ -151,16 +255,36 @@ export function AssistantScreen({ navigation, route }: RootScreenProps<'Assistan
             onSubmitEditing={() => send(draft)}
             returnKeyType="send"
             accessibilityLabel="Mensagem para o assistente"
-            style={{ flex: 1, minHeight: 44, borderRadius: radius.pill, paddingHorizontal: spacing.lg, backgroundColor: colors.surfaceMuted, color: colors.textPrimary, fontFamily: fonts.regular, fontSize: 15 }}
+            style={{
+              flex: 1,
+              minHeight: 44,
+              borderRadius: radius.pill,
+              paddingHorizontal: spacing.lg,
+              backgroundColor: colors.surfaceMuted,
+              color: colors.textPrimary,
+              fontFamily: fonts.regular,
+              fontSize: 15,
+            }}
           />
           <Pressable
             onPress={() => send(draft)}
             disabled={!draft.trim() || thinking}
             accessibilityRole="button"
             accessibilityLabel="Enviar"
-            style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: draft.trim() ? colors.primary : colors.surfaceMuted, alignItems: 'center', justifyContent: 'center' }}
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 22,
+              backgroundColor: draft.trim() ? colors.primary : colors.surfaceMuted,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
           >
-            <Ionicons name="arrow-up" size={20} color={draft.trim() ? colors.onPrimary : colors.textTertiary} />
+            <Ionicons
+              name="arrow-up"
+              size={20}
+              color={draft.trim() ? colors.onPrimary : colors.textTertiary}
+            />
           </Pressable>
         </View>
       </KeyboardAvoidingView>

@@ -2,7 +2,21 @@ import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { Badge, Button, Card, ErrorState, ListGroup, ListItem, MediaImage, Screen, SectionHeader, SegmentedControl, Skeleton, Text, useTheme } from '@/design-system';
+import {
+  Badge,
+  Button,
+  Card,
+  ErrorState,
+  ListGroup,
+  ListItem,
+  MediaImage,
+  Screen,
+  SectionHeader,
+  SegmentedControl,
+  Skeleton,
+  Text,
+  useTheme,
+} from '@/design-system';
 import { useAsync } from '@/hooks/useAsync';
 import type { RootScreenProps } from '@/navigation/types';
 import { services } from '@/services';
@@ -36,23 +50,44 @@ export function StadiumModeScreen({ route }: RootScreenProps<'StadiumMode'>) {
     return () => clearInterval(t);
   }, [refreshQueues]);
 
-  if (stadium.loading) return <Screen title="Modo Maracanã"><View style={{ padding: layout.gutter, gap: spacing.lg }}><Skeleton height={120} /><Skeleton height={340} /></View></Screen>;
-  if (stadium.error || !stadium.data) return <Screen title="Modo Maracanã" scroll={false}><ErrorState onRetry={stadium.reload} /></Screen>;
+  if (stadium.loading)
+    return (
+      <Screen title="Modo Maracanã">
+        <View style={{ padding: layout.gutter, gap: spacing.lg }}>
+          <Skeleton height={120} />
+          <Skeleton height={340} />
+        </View>
+      </Screen>
+    );
+  if (stadium.error || !stadium.data)
+    return (
+      <Screen title="Modo Maracanã" scroll={false}>
+        <ErrorState onRetry={stadium.reload} />
+      </Screen>
+    );
   const s = stadium.data;
 
   return (
     <Screen title="Modo Maracanã" refreshing={queues.refreshing} onRefresh={queues.refresh}>
       <View style={{ paddingHorizontal: layout.gutter, gap: 2, marginBottom: spacing.lg }}>
         <Text variant="display">{s.name}</Text>
-        <Text variant="caption" tone="secondary">{s.nickname} · {formatNumber(s.capacity)} lugares · {s.address}</Text>
+        <Text variant="caption" tone="secondary">
+          {s.nickname} · {formatNumber(s.capacity)} lugares · {s.address}
+        </Text>
       </View>
       <SegmentedControl<Tab>
-        segments={[{ key: 'estadio', label: 'Estádio' }, { key: 'chegar', label: 'Como chegar' }, { key: 'filas', label: 'Filas agora' }]}
+        segments={[
+          { key: 'estadio', label: 'Estádio' },
+          { key: 'chegar', label: 'Como chegar' },
+          { key: 'filas', label: 'Filas agora' },
+        ]}
         value={tab}
         onChange={setTab}
       />
       <View style={{ marginTop: spacing.lg }}>
-        {tab === 'estadio' && <StadiumTab stadium={s} queues={queues.data} initialSectorId={route.params?.sectorId} />}
+        {tab === 'estadio' && (
+          <StadiumTab stadium={s} queues={queues.data} initialSectorId={route.params?.sectorId} />
+        )}
         {tab === 'chegar' && <ArrivalTab stadium={s} />}
         {tab === 'filas' && <QueuesTab stadium={s} queues={queues.data} loading={queues.loading} />}
       </View>
@@ -60,10 +95,20 @@ export function StadiumModeScreen({ route }: RootScreenProps<'StadiumMode'>) {
   );
 }
 
-function StadiumTab({ stadium: s, queues, initialSectorId }: { stadium: Stadium; queues?: GateQueue[]; initialSectorId?: string }) {
+function StadiumTab({
+  stadium: s,
+  queues,
+  initialSectorId,
+}: {
+  stadium: Stadium;
+  queues?: GateQueue[];
+  initialSectorId?: string;
+}) {
   const { colors, spacing, layout, radius } = useTheme();
   const [layers, setLayers] = useState<FacilityType[]>(['restroom', 'food']);
-  const [sel, setSel] = useState<Selection>(initialSectorId ? { kind: 'sector', id: initialSectorId } : undefined);
+  const [sel, setSel] = useState<Selection>(
+    initialSectorId ? { kind: 'sector', id: initialSectorId } : undefined
+  );
 
   const select = (next: Selection) => {
     haptic.select();
@@ -78,11 +123,16 @@ function StadiumTab({ stadium: s, queues, initialSectorId }: { stadium: Stadium;
   const gate = sel?.kind === 'gate' ? s.gates.find((x) => x.id === sel.id) : undefined;
   const facility = sel?.kind === 'facility' ? s.facilities.find((x) => x.id === sel.id) : undefined;
   const queueOf = (gateId: string) => queues?.find((q) => q.gateId === gateId);
-  const highlightGate = gate?.id ?? (sector ? s.gates.find((g) => g.sectorIds.includes(sector.id))?.id : undefined);
+  const highlightGate =
+    gate?.id ?? (sector ? s.gates.find((g) => g.sectorIds.includes(sector.id))?.id : undefined);
 
   return (
     <View style={{ gap: spacing.lg }}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: layout.gutter, gap: spacing.sm }}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: layout.gutter, gap: spacing.sm }}
+      >
         {LAYERS.map((t) => {
           const on = layers.includes(t);
           return (
@@ -91,10 +141,26 @@ function StadiumTab({ stadium: s, queues, initialSectorId }: { stadium: Stadium;
               onPress={() => toggleLayer(t)}
               accessibilityRole="checkbox"
               accessibilityState={{ checked: on }}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 36, paddingHorizontal: spacing.md, borderRadius: radius.pill, borderWidth: 1, borderColor: on ? colors.primary : colors.border, backgroundColor: on ? colors.primarySubtle : colors.surface }}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 6,
+                minHeight: 36,
+                paddingHorizontal: spacing.md,
+                borderRadius: radius.pill,
+                borderWidth: 1,
+                borderColor: on ? colors.primary : colors.border,
+                backgroundColor: on ? colors.primarySubtle : colors.surface,
+              }}
             >
-              <Ionicons name={FACILITY_ICON[t]} size={14} color={on ? colors.primaryText : colors.textSecondary} />
-              <Text variant="label" tone={on ? 'brand' : 'secondary'}>{FACILITY_LABEL[t]}</Text>
+              <Ionicons
+                name={FACILITY_ICON[t]}
+                size={14}
+                color={on ? colors.primaryText : colors.textSecondary}
+              />
+              <Text variant="label" tone={on ? 'brand' : 'secondary'}>
+                {FACILITY_LABEL[t]}
+              </Text>
             </Pressable>
           );
         })}
@@ -113,14 +179,18 @@ function StadiumTab({ stadium: s, queues, initialSectorId }: { stadium: Stadium;
             onGatePress={(id) => select({ kind: 'gate', id })}
             onFacilityPress={(id) => select({ kind: 'facility', id })}
           />
-          <Text variant="footnote" tone="tertiary" align="center">Toque em setores, portões e serviços · esquema ilustrativo</Text>
+          <Text variant="footnote" tone="tertiary" align="center">
+            Toque em setores, portões e serviços · esquema ilustrativo
+          </Text>
         </Card>
 
         {!sel && (
           <Card variant="outline">
             <View style={{ flexDirection: 'row', gap: spacing.md, alignItems: 'center' }}>
               <Ionicons name="hand-left-outline" size={22} color={colors.textTertiary} />
-              <Text variant="callout" tone="secondary" style={{ flex: 1 }}>Toque num setor para ver portões, fila e serviços próximos, ou ligue as camadas acima.</Text>
+              <Text variant="callout" tone="secondary" style={{ flex: 1 }}>
+                Toque num setor para ver portões, fila e serviços próximos, ou ligue as camadas acima.
+              </Text>
             </View>
           </Card>
         )}
@@ -132,34 +202,69 @@ function StadiumTab({ stadium: s, queues, initialSectorId }: { stadium: Stadium;
                 <Text variant="h2">{sector.name}</Text>
                 <Badge label={sector.ring === 'upper' ? 'Anel superior' : 'Anel inferior'} tone="neutral" />
               </View>
-              <Text variant="body" tone="secondary">{sector.description}</Text>
-              <MediaImage imageKey={sector.viewImageKey} icon="eye-outline" style={{ height: 150, borderRadius: radius.md, justifyContent: 'flex-end' }} scrim>
+              <Text variant="body" tone="secondary">
+                {sector.description}
+              </Text>
+              <MediaImage
+                imageKey={sector.viewImageKey}
+                icon="eye-outline"
+                style={{ height: 150, borderRadius: radius.md, justifyContent: 'flex-end' }}
+                scrim
+              >
                 <View style={{ padding: spacing.md }}>
-                  <Text variant="label" tone="onMedia">Vista do setor</Text>
-                  <Text variant="footnote" tone="onMedia" style={{ opacity: 0.8 }}>Fotos de cada setor em breve</Text>
+                  <Text variant="label" tone="onMedia">
+                    Vista do setor
+                  </Text>
+                  <Text variant="footnote" tone="onMedia" style={{ opacity: 0.8 }}>
+                    Fotos de cada setor em breve
+                  </Text>
                 </View>
               </MediaImage>
-              {s.gates.filter((g) => g.sectorIds.includes(sector.id)).map((g) => {
-                const q = queueOf(g.id);
-                return (
-                  <View key={g.id} style={[styles.between, { gap: spacing.md }]}>
-                    <View style={{ flex: 1 }}>
-                      <Text variant="bodyStrong">{g.label}{g.accessible ? ' · acessível' : ''}</Text>
-                      <Text variant="caption" tone="secondary">{g.access}</Text>
+              {s.gates
+                .filter((g) => g.sectorIds.includes(sector.id))
+                .map((g) => {
+                  const q = queueOf(g.id);
+                  return (
+                    <View key={g.id} style={[styles.between, { gap: spacing.md }]}>
+                      <View style={{ flex: 1 }}>
+                        <Text variant="bodyStrong">
+                          {g.label}
+                          {g.accessible ? ' · acessível' : ''}
+                        </Text>
+                        <Text variant="caption" tone="secondary">
+                          {g.access}
+                        </Text>
+                      </View>
+                      {q && (
+                        <Badge
+                          label={`fila ~${q.waitMinutes} min`}
+                          tone={q.level === 'low' ? 'success' : q.level === 'medium' ? 'warning' : 'danger'}
+                        />
+                      )}
                     </View>
-                    {q && <Badge label={`fila ~${q.waitMinutes} min`} tone={q.level === 'low' ? 'success' : q.level === 'medium' ? 'warning' : 'danger'} />}
-                  </View>
-                );
-              })}
-              <Text variant="label" tone="tertiary">Perto deste setor</Text>
+                  );
+                })}
+              <Text variant="label" tone="tertiary">
+                Perto deste setor
+              </Text>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
-                {s.facilities.filter((f) => f.nearSectorIds.includes(sector.id)).map((f) => (
-                  <Badge key={f.id} label={f.label} icon={FACILITY_ICON[f.type]} tone="neutral" />
-                ))}
+                {s.facilities
+                  .filter((f) => f.nearSectorIds.includes(sector.id))
+                  .map((f) => (
+                    <Badge key={f.id} label={f.label} icon={FACILITY_ICON[f.type]} tone="neutral" />
+                  ))}
               </View>
               {(() => {
                 const g = s.gates.find((x) => x.sectorIds.includes(sector.id));
-                return g ? <Button label={`Rota até o ${g.label}`} icon="navigate" variant="secondary" onPress={() => openDirections({ coords: g.coords, label: g.label }, 'walking')} fullWidth /> : null;
+                return g ? (
+                  <Button
+                    label={`Rota até o ${g.label}`}
+                    icon="navigate"
+                    variant="secondary"
+                    onPress={() => openDirections({ coords: g.coords, label: g.label }, 'walking')}
+                    fullWidth
+                  />
+                ) : null;
               })()}
             </View>
           </Card>
@@ -170,12 +275,25 @@ function StadiumTab({ stadium: s, queues, initialSectorId }: { stadium: Stadium;
             <View style={{ gap: spacing.md }}>
               <View style={styles.between}>
                 <Text variant="h2">{gate.label}</Text>
-                {queueOf(gate.id) && <Badge label={`fila ~${queueOf(gate.id)!.waitMinutes} min`} tone="warning" />}
+                {queueOf(gate.id) && (
+                  <Badge label={`fila ~${queueOf(gate.id)!.waitMinutes} min`} tone="warning" />
+                )}
               </View>
-              <Text variant="body" tone="secondary">{gate.access}</Text>
-              <Text variant="callout">Setores: {gate.sectorIds.map((id) => s.sectors.find((x) => x.id === id)?.name).join(', ')}</Text>
-              {gate.accessible && <Badge label="Acesso para pessoas com deficiência" icon="accessibility" tone="info" />}
-              <Button label="Traçar rota até este portão" icon="navigate" onPress={() => openDirections({ coords: gate.coords, label: gate.label }, 'walking')} fullWidth />
+              <Text variant="body" tone="secondary">
+                {gate.access}
+              </Text>
+              <Text variant="callout">
+                Setores: {gate.sectorIds.map((id) => s.sectors.find((x) => x.id === id)?.name).join(', ')}
+              </Text>
+              {gate.accessible && (
+                <Badge label="Acesso para pessoas com deficiência" icon="accessibility" tone="info" />
+              )}
+              <Button
+                label="Traçar rota até este portão"
+                icon="navigate"
+                onPress={() => openDirections({ coords: gate.coords, label: gate.label }, 'walking')}
+                fullWidth
+              />
             </View>
           </Card>
         )}
@@ -185,10 +303,17 @@ function StadiumTab({ stadium: s, queues, initialSectorId }: { stadium: Stadium;
             <View style={{ gap: spacing.sm }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
                 <Ionicons name={FACILITY_ICON[facility.type]} size={22} color={colors.primaryText} />
-                <Text variant="h2" style={{ flex: 1 }}>{facility.label}</Text>
+                <Text variant="h2" style={{ flex: 1 }}>
+                  {facility.label}
+                </Text>
               </View>
-              <Text variant="body" tone="secondary">{facility.description}</Text>
-              <Text variant="caption" tone="tertiary">Perto de: {facility.nearSectorIds.map((id) => s.sectors.find((x) => x.id === id)?.name).join(', ')}</Text>
+              <Text variant="body" tone="secondary">
+                {facility.description}
+              </Text>
+              <Text variant="caption" tone="tertiary">
+                Perto de:{' '}
+                {facility.nearSectorIds.map((id) => s.sectors.find((x) => x.id === id)?.name).join(', ')}
+              </Text>
             </View>
           </Card>
         )}
@@ -222,11 +347,15 @@ function ArrivalTab({ stadium: s }: { stadium: Stadium }) {
       </View>
       <View style={{ paddingHorizontal: layout.gutter }}>
         <Card>
-          <Text variant="h3" style={{ marginBottom: spacing.sm }}>Antes de sair de casa</Text>
+          <Text variant="h3" style={{ marginBottom: spacing.sm }}>
+            Antes de sair de casa
+          </Text>
           {s.tips.map((tip) => (
             <View key={tip} style={{ flexDirection: 'row', gap: spacing.sm, paddingVertical: 4 }}>
               <Ionicons name="information-circle" size={16} color={colors.info} style={{ marginTop: 2 }} />
-              <Text variant="callout" tone="secondary" style={{ flex: 1 }}>{tip}</Text>
+              <Text variant="callout" tone="secondary" style={{ flex: 1 }}>
+                {tip}
+              </Text>
             </View>
           ))}
         </Card>
@@ -235,23 +364,48 @@ function ArrivalTab({ stadium: s }: { stadium: Stadium }) {
   );
 }
 
-function QueuesTab({ stadium: s, queues, loading }: { stadium: Stadium; queues?: GateQueue[]; loading: boolean }) {
+function QueuesTab({
+  stadium: s,
+  queues,
+  loading,
+}: {
+  stadium: Stadium;
+  queues?: GateQueue[];
+  loading: boolean;
+}) {
   const { spacing, layout } = useTheme();
-  if (loading || !queues) return <View style={{ paddingHorizontal: layout.gutter }}><Skeleton height={300} /></View>;
-  const best = [...queues].filter((q) => s.gates.find((g) => g.id === q.gateId)?.id !== 'B').sort((a, b) => a.waitMinutes - b.waitMinutes)[0];
+  if (loading || !queues)
+    return (
+      <View style={{ paddingHorizontal: layout.gutter }}>
+        <Skeleton height={300} />
+      </View>
+    );
+  const best = [...queues]
+    .filter((q) => s.gates.find((g) => g.id === q.gateId)?.id !== 'B')
+    .sort((a, b) => a.waitMinutes - b.waitMinutes)[0];
   return (
     <View style={{ gap: spacing.lg }}>
       {best && (
         <View style={{ paddingHorizontal: layout.gutter }}>
           <Card variant="tinted">
-            <Text variant="overline" tone="brand">Menor fila agora</Text>
-            <Text variant="h2">Portão {best.gateId} · ~{best.waitMinutes} min</Text>
-            <Text variant="caption" tone="secondary">Lembre que cada setor entra pelo seu portão.</Text>
+            <Text variant="overline" tone="brand">
+              Menor fila agora
+            </Text>
+            <Text variant="h2">
+              Portão {best.gateId} · ~{best.waitMinutes} min
+            </Text>
+            <Text variant="caption" tone="secondary">
+              Lembre que cada setor entra pelo seu portão.
+            </Text>
           </Card>
         </View>
       )}
       <View>
-        <SectionHeader title="Todos os portões" subtitle="Atualiza a cada minuto" accessory={<Badge label="Simulado" tone="demo" />} />
+        <SectionHeader
+          title="Todos os portões"
+          subtitle="Atualiza a cada minuto"
+          accessory={<Badge label="Simulado" tone="demo" />}
+        />
         <ListGroup>
           {queues.map((q) => {
             const g = s.gates.find((x) => x.id === q.gateId);
@@ -261,7 +415,12 @@ function QueuesTab({ stadium: s, queues, loading }: { stadium: Stadium; queues?:
                 icon="people-outline"
                 title={g?.label ?? `Portão ${q.gateId}`}
                 subtitle={g?.sectorIds.map((id) => s.sectors.find((x) => x.id === id)?.name).join(', ')}
-                trailing={<Badge label={`~${q.waitMinutes} min`} tone={q.level === 'low' ? 'success' : q.level === 'medium' ? 'warning' : 'danger'} />}
+                trailing={
+                  <Badge
+                    label={`~${q.waitMinutes} min`}
+                    tone={q.level === 'low' ? 'success' : q.level === 'medium' ? 'warning' : 'danger'}
+                  />
+                }
               />
             );
           })}

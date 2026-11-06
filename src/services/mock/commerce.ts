@@ -18,12 +18,15 @@ function buildCart(): Cart {
   });
   const subtotal = round2(items.reduce((s, i) => s + i.lineTotal, 0));
   // Torcedor demo é sócio: aplica o desconto de cada produto.
-  const memberDiscount = round2(items.reduce((s, i) => s + (i.lineTotal * i.product.memberDiscountPct) / 100, 0));
+  const memberDiscount = round2(
+    items.reduce((s, i) => s + (i.lineTotal * i.product.memberDiscountPct) / 100, 0)
+  );
   const shipping = subtotal === 0 || subtotal - memberDiscount >= FREE_SHIPPING_FROM ? 0 : SHIPPING;
   return { items, subtotal, memberDiscount, shipping, total: round2(subtotal - memberDiscount + shipping) };
 }
 
-const sameLine = (a: CartItem, productId: string, size?: string) => a.productId === productId && a.size === size;
+const sameLine = (a: CartItem, productId: string, size?: string) =>
+  a.productId === productId && a.size === size;
 
 export function createMockStoreService(): StoreService {
   return {
@@ -56,7 +59,15 @@ export function createMockStoreService(): StoreService {
       const cart = buildCart();
       if (cart.items.length === 0) throw new Error('Carrinho vazio.');
       cartItems = [];
-      return delay({ orderId: newId('DEMO'), total: cart.total, createdAt: new Date().toISOString(), isDemo: true as const }, 1000);
+      return delay(
+        {
+          orderId: newId('DEMO'),
+          total: cart.total,
+          createdAt: new Date().toISOString(),
+          isDemo: true as const,
+        },
+        1000
+      );
     },
   };
 }

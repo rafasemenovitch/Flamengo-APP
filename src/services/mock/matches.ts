@@ -9,7 +9,17 @@ import {
   opponentLineup,
   type MatchSeed,
 } from '@/data/demo/matches';
-import { CLUB, COMPETITIONS, HEAD_COACH, OPPONENT_COACHES, OPPONENT_NAMES, REFEREES, SQUAD, TEAMS, playerById } from '@/data/demo/seed';
+import {
+  CLUB,
+  COMPETITIONS,
+  HEAD_COACH,
+  OPPONENT_COACHES,
+  OPPONENT_NAMES,
+  REFEREES,
+  SQUAD,
+  TEAMS,
+  playerById,
+} from '@/data/demo/seed';
 import { BRASILEIRAO_TABLE, FLA_FORM, GOALS_OVERRIDE, ZONES } from '@/data/demo/standings';
 import { FEATURED_HIGHLIGHTS } from '@/data/demo/content';
 import type { MatchesService } from '@/services/adapters';
@@ -43,11 +53,12 @@ function featuredLiveOrder() {
   return Math.min(FULLTIME_ORDER, FEATURED_LIVE_MINUTE + Math.floor(elapsedSec / LIVE_SECONDS_PER_MINUTE));
 }
 
+/** Minuto exibido: acréscimos do 1º tempo como 45+x (ordens 46–47) e do 2º como 90+x. */
 function formatMinute(order: number) {
   if (order <= 45) return `${order}'`;
   if (order <= 47) return `45+${order - 45}'`;
-  if (order <= 90) return `${order - 2}'`;
-  return `90+${order - 92}'`;
+  if (order <= 90) return `${order}'`;
+  return `90+${order - 90}'`;
 }
 
 function scoreFromEvents(events: MatchEvent[]): Score {
@@ -104,24 +115,55 @@ function genericEvents(seed: MatchSeed): MatchEvent[] {
   });
   (seed.oppGoals ?? []).forEach((min, i) => {
     const name = OPPONENT_NAMES[(hash(seed.id) + i) % OPPONENT_NAMES.length]!;
-    events.push({ id: `${seed.id}-og${i}`, minute: `${min}'`, order: min, type: 'goal', side: oppSide, playerName: name, text: `Gol do adversário: ${name}.` });
+    events.push({
+      id: `${seed.id}-og${i}`,
+      minute: `${min}'`,
+      order: min,
+      type: 'goal',
+      side: oppSide,
+      playerName: name,
+      text: `Gol do adversário: ${name}.`,
+    });
   });
   const cardMin = 20 + (hash(seed.id) % 50);
-  events.push({ id: `${seed.id}-y1`, minute: `${cardMin}'`, order: cardMin, type: 'yellow', side: oppSide, playerName: OPPONENT_NAMES[hash(seed.id) % OPPONENT_NAMES.length], text: 'Cartão amarelo.' });
+  events.push({
+    id: `${seed.id}-y1`,
+    minute: `${cardMin}'`,
+    order: cardMin,
+    type: 'yellow',
+    side: oppSide,
+    playerName: OPPONENT_NAMES[hash(seed.id) % OPPONENT_NAMES.length],
+    text: 'Cartão amarelo.',
+  });
   return events.sort((a, b) => a.order - b.order);
 }
 
 function flaLineup(): Lineup {
   const toLineup = (id: string): LineupPlayer => {
     const pl = playerById(id)!;
-    return { playerId: pl.id, name: pl.shortName, number: pl.number, position: pl.role, isCaptain: id === FLA_LINEUP.captainId };
+    return {
+      playerId: pl.id,
+      name: pl.shortName,
+      number: pl.number,
+      position: pl.role,
+      isCaptain: id === FLA_LINEUP.captainId,
+    };
   };
-  return { formation: FLA_LINEUP.formation, coach: HEAD_COACH, starters: FLA_LINEUP.starters.map(toLineup), bench: FLA_LINEUP.bench.map(toLineup) };
+  return {
+    formation: FLA_LINEUP.formation,
+    coach: HEAD_COACH,
+    starters: FLA_LINEUP.starters.map(toLineup),
+    bench: FLA_LINEUP.bench.map(toLineup),
+  };
 }
 
 function lineupsFor(seed: MatchSeed) {
   const opp = opponentLineup(OPPONENT_NAMES, hash(seed.id) % OPPONENT_NAMES.length);
-  const oppLineup: Lineup = { formation: OPPONENT_FORMATION, coach: OPPONENT_COACHES[seed.opponentId] ?? 'Técnico (demo)', ...opp };
+  const oppLineup: Lineup = {
+    formation: OPPONENT_FORMATION,
+    coach: OPPONENT_COACHES[seed.opponentId] ?? 'Técnico (demo)',
+    ...opp,
+  };
   return seed.isHome ? { home: flaLineup(), away: oppLineup } : { home: oppLineup, away: flaLineup() };
 }
 
@@ -136,10 +178,20 @@ function statsFor(seed: MatchSeed, score: Score, progress: number): MatchStat[] 
   return [
     { key: 'possession', label: 'Posse de bola', home: homePoss, away: 100 - homePoss, unit: '%' },
     { key: 'shots', label: 'Finalizações', home: scale(homeShots), away: scale(awayShots) },
-    { key: 'onTarget', label: 'No gol', home: Math.max(score.home, scale(Math.round(homeShots * 0.42))), away: Math.max(score.away, scale(Math.round(awayShots * 0.4))) },
+    {
+      key: 'onTarget',
+      label: 'No gol',
+      home: Math.max(score.home, scale(Math.round(homeShots * 0.42))),
+      away: Math.max(score.away, scale(Math.round(awayShots * 0.4))),
+    },
     { key: 'corners', label: 'Escanteios', home: scale(4 + (h % 5)), away: scale(2 + ((h >> 2) % 5)) },
     { key: 'fouls', label: 'Faltas', home: scale(10 + (h % 6)), away: scale(12 + ((h >> 4) % 6)) },
-    { key: 'passes', label: 'Passes certos', home: scale(seed.isHome ? 480 : 360), away: scale(seed.isHome ? 340 : 470) },
+    {
+      key: 'passes',
+      label: 'Passes certos',
+      home: scale(seed.isHome ? 480 : 360),
+      away: scale(seed.isHome ? 340 : 470),
+    },
     { key: 'offsides', label: 'Impedimentos', home: scale(1 + (h % 3)), away: scale((h >> 5) % 3) },
   ];
 }
@@ -197,7 +249,16 @@ function buildDetail(seed: MatchSeed): MatchDetail {
 }
 
 function toSummary(d: MatchDetail): Match {
-  const { events: _e, lineups: _l, stats: _s, referee: _r, attendance: _a, manOfTheMatchPollId: _m, highlightsVideoId: _h, ...summary } = d;
+  const {
+    events: _e,
+    lineups: _l,
+    stats: _s,
+    referee: _r,
+    attendance: _a,
+    manOfTheMatchPollId: _m,
+    highlightsVideoId: _h,
+    ...summary
+  } = d;
   return summary;
 }
 
@@ -208,23 +269,52 @@ function allDetails() {
 function computeStandings(): StandingsTable {
   const featuredFinished = featuredState().status === 'finished';
   const rows = BRASILEIRAO_TABLE.map(([teamId, w, d, l]) => {
-    let won = w, drawn = d, lost = l;
+    let won = w,
+      drawn = d,
+      lost = l;
     const override = GOALS_OVERRIDE[teamId];
     let goalsFor = override?.[0] ?? Math.round(w * 1.8 + d * 0.9 + l * 0.5);
     let goalsAgainst = override?.[1] ?? Math.round(w * 0.5 + d * 0.9 + l * 1.8);
-    let form: Array<'W' | 'D' | 'L'> =
-      teamId === 'fla' ? [...FLA_FORM] : (['W', 'D', 'L', 'W', 'D'] as const).map((_, i) => (['W', 'D', 'L'] as const)[(hash(teamId) >> i) % 3]!);
+    let form: ('W' | 'D' | 'L')[] =
+      teamId === 'fla'
+        ? [...FLA_FORM]
+        : (['W', 'D', 'L', 'W', 'D'] as const).map(
+            (_, i) => (['W', 'D', 'L'] as const)[(hash(teamId) >> i) % 3]!
+          );
     if (featuredFinished && teamId === 'fla') {
-      won++; goalsFor += 3; goalsAgainst += 1; form = [...form.slice(1), 'W'];
+      won++;
+      goalsFor += 3;
+      goalsAgainst += 1;
+      form = [...form.slice(1), 'W'];
     }
     if (featuredFinished && teamId === 'pal') {
-      lost++; goalsFor += 1; goalsAgainst += 3; form = [...form.slice(1), 'L'];
+      lost++;
+      goalsFor += 1;
+      goalsAgainst += 3;
+      form = [...form.slice(1), 'L'];
     }
-    return { team: TEAMS[teamId]!, played: won + drawn + lost, won, drawn, lost, goalsFor, goalsAgainst, points: won * 3 + drawn, form };
+    return {
+      team: TEAMS[teamId]!,
+      played: won + drawn + lost,
+      won,
+      drawn,
+      lost,
+      goalsFor,
+      goalsAgainst,
+      points: won * 3 + drawn,
+      form,
+    };
   });
-  rows.sort((a, b) => b.points - a.points || b.won - a.won || b.goalsFor - b.goalsAgainst - (a.goalsFor - a.goalsAgainst) || b.goalsFor - a.goalsFor);
+  rows.sort(
+    (a, b) =>
+      b.points - a.points ||
+      b.won - a.won ||
+      b.goalsFor - b.goalsAgainst - (a.goalsFor - a.goalsAgainst) ||
+      b.goalsFor - a.goalsFor
+  );
   const zoneFor = (pos: number): StandingRow['zone'] => {
-    for (const [zone, [from, to]] of Object.entries(ZONES)) if (pos >= from && pos <= to) return zone as StandingRow['zone'];
+    for (const [zone, [from, to]] of Object.entries(ZONES))
+      if (pos >= from && pos <= to) return zone as StandingRow['zone'];
     return undefined;
   };
   return {
@@ -258,7 +348,12 @@ export function createMockMatchesService(): MatchesService {
     async getStandings(competitionId) {
       if (competitionId !== 'brasileirao') {
         // Competições de mata-mata não têm tabela de pontos corridos no demo.
-        return delay({ competitionId, title: 'Sem tabela de classificação', rows: [], updatedAt: new Date().toISOString() });
+        return delay({
+          competitionId,
+          title: 'Sem tabela de classificação',
+          rows: [],
+          updatedAt: new Date().toISOString(),
+        });
       }
       return delay(computeStandings());
     },
@@ -283,7 +378,14 @@ export function createMockMatchesService(): MatchesService {
         away: i % 2 === 0 ? opponent.shortName : CLUB.shortName,
         score: { home: (h >> i) % 3, away: (h >> (i + 2)) % 3 },
       }));
-      const result: HeadToHead = { opponent, played, wins, draws, losses: played - wins - draws, lastMatches: [...lastMatches, ...synthetic].slice(0, 5) };
+      const result: HeadToHead = {
+        opponent,
+        played,
+        wins,
+        draws,
+        losses: played - wins - draws,
+        lastMatches: [...lastMatches, ...synthetic].slice(0, 5),
+      };
       return delay(result);
     },
     async getSquad() {

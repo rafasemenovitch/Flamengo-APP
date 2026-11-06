@@ -29,16 +29,26 @@ export function HomeScreen() {
   const featured = useLiveMatch(() => services.matches.getFeaturedMatch(), [scenario], { alerts: true });
   const news = useAsync(() => services.news.getLatest(6));
   const videos = useAsync(() => services.flatv.getFeatured(6));
-  const standings = useAsync(() => services.matches.getStandings('brasileirao'), [featured.data?.status === 'finished']);
+  const standings = useAsync(
+    () => services.matches.getStandings('brasileirao'),
+    [featured.data?.status === 'finished']
+  );
   const notifications = useAsync(() => services.profile.getNotifications());
   const forYou = useAsync(
-    () => services.recommendations.getForYou({ favoritePlayerIds: profile?.favoritePlayerIds ?? [], interests: profile?.interests ?? [] }),
+    () =>
+      services.recommendations.getForYou({
+        favoritePlayerIds: profile?.favoritePlayerIds ?? [],
+        interests: profile?.interests ?? [],
+      }),
     [profile?.favoritePlayerIds.join(','), profile?.interests.join(',')]
   );
 
   const match = featured.data;
   const matchday = !!match && match.status === 'scheduled' && isToday(match.kickoff);
-  const plan = useAsync(async () => (matchday && match ? services.stadium.getMatchDayPlan(match.id) : undefined), [matchday, match?.id]);
+  const plan = useAsync(
+    async () => (matchday && match ? services.stadium.getMatchDayPlan(match.id) : undefined),
+    [matchday, match?.id]
+  );
 
   // Ao voltar para a Home (ex.: depois de ler as notificações), atualiza o badge.
   const refreshNotifications = notifications.refresh;
@@ -64,7 +74,12 @@ export function HomeScreen() {
   return (
     <Screen reserveFab refreshing={refreshing} onRefresh={onRefresh}>
       <HomeHeader unread={unread} onSecretLongPress={() => setDemoPanel(true)} />
-      <DemoControlsSheet visible={demoPanel} value={scenario} onChange={setScenario} onClose={() => setDemoPanel(false)} />
+      <DemoControlsSheet
+        visible={demoPanel}
+        value={scenario}
+        onChange={setScenario}
+        onClose={() => setDemoPanel(false)}
+      />
 
       {featured.error ? (
         <View style={{ paddingHorizontal: layout.gutter }}>
@@ -97,23 +112,49 @@ export function HomeScreen() {
         {news.error ? (
           <ErrorState compact onRetry={news.reload} />
         ) : (
-          <HList data={news.data} loading={news.loading} itemWidth={280} keyOf={(n) => n.id} renderItem={(n) => <NewsCard article={n} onPress={() => navigation.navigate('NewsDetail', { articleId: n.id })} />} />
+          <HList
+            data={news.data}
+            loading={news.loading}
+            itemWidth={280}
+            keyOf={(n) => n.id}
+            renderItem={(n) => (
+              <NewsCard article={n} onPress={() => navigation.navigate('NewsDetail', { articleId: n.id })} />
+            )}
+          />
         )}
       </View>
 
       <View style={section}>
-        <SectionHeader title="FlaTV" subtitle="Vídeos em destaque" onAction={() => navigation.navigate('FlaTV')} />
+        <SectionHeader
+          title="FlaTV"
+          subtitle="Vídeos em destaque"
+          onAction={() => navigation.navigate('FlaTV')}
+        />
         {videos.error ? (
           <ErrorState compact onRetry={videos.reload} />
         ) : (
-          <HList data={videos.data} loading={videos.loading} itemWidth={260} keyOf={(v) => v.id} renderItem={(v) => <VideoCard video={v} onPress={() => navigation.navigate('VideoDetail', { videoId: v.id })} />} />
+          <HList
+            data={videos.data}
+            loading={videos.loading}
+            itemWidth={260}
+            keyOf={(v) => v.id}
+            renderItem={(v) => (
+              <VideoCard video={v} onPress={() => navigation.navigate('VideoDetail', { videoId: v.id })} />
+            )}
+          />
         )}
       </View>
 
       <View style={section}>
         <SectionHeader title="Para você" subtitle="Com base nos seus jogadores favoritos e interesses" />
         {forYou.data?.length === 0 ? (
-          <EmptyState compact title="Escolha seus favoritos" message="Siga jogadores no seu perfil para receber recomendações." actionLabel="Ir para o perfil" onAction={() => navigation.navigate('Tabs', { screen: 'Perfil' })} />
+          <EmptyState
+            compact
+            title="Escolha seus favoritos"
+            message="Siga jogadores no seu perfil para receber recomendações."
+            actionLabel="Ir para o perfil"
+            onAction={() => navigation.navigate('Tabs', { screen: 'Perfil' })}
+          />
         ) : (
           <HList
             data={forYou.data}
@@ -122,10 +163,17 @@ export function HomeScreen() {
             keyOf={(r) => `${r.kind}-${r.item.id}`}
             renderItem={(r) =>
               r.kind === 'video' ? (
-                <VideoCard video={r.item} reason={r.reason} onPress={() => navigation.navigate('VideoDetail', { videoId: r.item.id })} />
+                <VideoCard
+                  video={r.item}
+                  reason={r.reason}
+                  onPress={() => navigation.navigate('VideoDetail', { videoId: r.item.id })}
+                />
               ) : (
                 <View style={{ gap: 6 }}>
-                  <NewsCard article={r.item} onPress={() => navigation.navigate('NewsDetail', { articleId: r.item.id })} />
+                  <NewsCard
+                    article={r.item}
+                    onPress={() => navigation.navigate('NewsDetail', { articleId: r.item.id })}
+                  />
                 </View>
               )
             }
@@ -135,16 +183,30 @@ export function HomeScreen() {
 
       <View style={[section, { paddingHorizontal: layout.gutter }]}>
         <View style={{ marginHorizontal: -layout.gutter }}>
-          <SectionHeader title="Brasileirão" subtitle="Classificação resumida" onAction={() => navigation.navigate('Standings', { competitionId: 'brasileirao' })} actionLabel="Tabela" />
+          <SectionHeader
+            title="Brasileirão"
+            subtitle="Classificação resumida"
+            onAction={() => navigation.navigate('Standings', { competitionId: 'brasileirao' })}
+            actionLabel="Tabela"
+          />
         </View>
         <Card padding="sm">
-          {standings.loading || !standings.data ? <Skeleton height={220} /> : <StandingsTable table={standings.data} compact />}
+          {standings.loading || !standings.data ? (
+            <Skeleton height={220} />
+          ) : (
+            <StandingsTable table={standings.data} compact />
+          )}
         </Card>
       </View>
 
       <View style={[section, { paddingHorizontal: layout.gutter, gap: spacing.lg }]}>
         <View style={{ marginHorizontal: -layout.gutter, marginBottom: -spacing.sm }}>
-          <SectionHeader title="Jogue com a Nação" subtitle="Pontos virtuais, sem apostas" onAction={() => navigation.navigate('Gamification')} actionLabel="Meus pontos" />
+          <SectionHeader
+            title="Jogue com a Nação"
+            subtitle="Pontos virtuais, sem apostas"
+            onAction={() => navigation.navigate('Gamification')}
+            actionLabel="Meus pontos"
+          />
         </View>
         {match && match.status === 'scheduled' && <PredictionCard match={match} />}
         <PollCard />

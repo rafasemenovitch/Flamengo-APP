@@ -44,7 +44,10 @@ export function createMockTicketsService(): TicketsService {
           sectorId,
           sectorName: offer.name,
           gate: offer.gate,
-          seat: sectorId.includes('inf') || sectorId.includes('sup') ? `Fila ${String.fromCharCode(70 + i)} · Cadeira ${10 + i}` : 'Lugar livre no setor',
+          seat:
+            sectorId.includes('inf') || sectorId.includes('sup')
+              ? `Fila ${String.fromCharCode(70 + i)} · Cadeira ${10 + i}`
+              : 'Lugar livre no setor',
           holderName: DEMO_FAN.name,
           type,
           price,
@@ -71,7 +74,11 @@ function liveQueues(seed: string) {
   const tick = Math.floor(Date.now() / 60_000);
   return Object.entries(GATE_QUEUES).map(([gateId, base]) => {
     const wait = Math.max(3, base + ((hash(seed + gateId + tick) % 7) - 3));
-    return { gateId, waitMinutes: wait, level: wait < 8 ? ('low' as const) : wait < 15 ? ('medium' as const) : ('high' as const) };
+    return {
+      gateId,
+      waitMinutes: wait,
+      level: wait < 8 ? ('low' as const) : wait < 15 ? ('medium' as const) : ('high' as const),
+    };
   });
 }
 

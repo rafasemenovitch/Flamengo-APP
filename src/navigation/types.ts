@@ -1,7 +1,6 @@
-import type { NavigatorScreenParams } from '@react-navigation/native';
+import type { NavigatorScreenParams, CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
-import type { CompositeScreenProps } from '@react-navigation/native';
 
 import type { ProductCategory } from '@/types/commerce';
 import type { CompetitionId } from '@/types/match';
@@ -53,7 +52,10 @@ export type RootStackParamList = {
   Assistant: { initialQuestion?: string } | undefined;
 };
 
-export type RootScreenProps<T extends keyof RootStackParamList> = NativeStackScreenProps<RootStackParamList, T>;
+export type RootScreenProps<T extends keyof RootStackParamList> = NativeStackScreenProps<
+  RootStackParamList,
+  T
+>;
 
 export type TabScreenProps<T extends keyof TabParamList> = CompositeScreenProps<
   BottomTabScreenProps<TabParamList, T>,
@@ -61,7 +63,6 @@ export type TabScreenProps<T extends keyof TabParamList> = CompositeScreenProps<
 >;
 
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace ReactNavigation {
     // Tipagem global do useNavigation().
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type

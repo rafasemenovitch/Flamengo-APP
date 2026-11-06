@@ -33,8 +33,16 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    services.profile.getProfile().then(setProfile).catch(() => undefined);
-    services.store.getCart().then(setCart).catch(() => undefined);
+    services.profile
+      .getProfile()
+      .then(setProfile)
+      .catch(() => undefined);
+    services.store
+      .getCart()
+      .then(setCart)
+      .catch(() => undefined);
+    // Carga inicial assíncrona; o setState acontece depois da resposta.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     refreshProgress().catch(() => undefined);
   }, [refreshProgress]);
 

@@ -10,7 +10,15 @@ import type { Match } from '@/types/match';
 import { formatNumber } from '@/utils/format';
 import { haptic } from '@/utils/haptics';
 
-function Stepper({ value, onChange, label }: { value: number; onChange: (n: number) => void; label: string }) {
+function Stepper({
+  value,
+  onChange,
+  label,
+}: {
+  value: number;
+  onChange: (n: number) => void;
+  label: string;
+}) {
   const { colors, spacing, layout } = useTheme();
   const btn = (icon: 'remove' | 'add', delta: number) => (
     <Pressable
@@ -20,7 +28,15 @@ function Stepper({ value, onChange, label }: { value: number; onChange: (n: numb
       }}
       accessibilityRole="button"
       accessibilityLabel={`${delta > 0 ? 'Aumentar' : 'Diminuir'} gols de ${label}`}
-      style={({ pressed }) => [styles.stepBtn, { width: layout.minTouch, height: layout.minTouch, backgroundColor: colors.surfaceMuted, opacity: pressed ? 0.6 : 1 }]}
+      style={({ pressed }) => [
+        styles.stepBtn,
+        {
+          width: layout.minTouch,
+          height: layout.minTouch,
+          backgroundColor: colors.surfaceMuted,
+          opacity: pressed ? 0.6 : 1,
+        },
+      ]}
     >
       <Ionicons name={icon} size={18} color={colors.textPrimary} />
     </Pressable>
@@ -28,7 +44,9 @@ function Stepper({ value, onChange, label }: { value: number; onChange: (n: numb
   return (
     <View style={{ alignItems: 'center', gap: spacing.xs }}>
       {btn('add', 1)}
-      <Text variant="number" accessibilityLabel={`${value} gols para ${label}`}>{value}</Text>
+      <Text variant="number" accessibilityLabel={`${value} gols para ${label}`}>
+        {value}
+      </Text>
       {btn('remove', -1)}
     </View>
   );
@@ -77,25 +95,33 @@ export function PredictionCard({ match }: { match: Match }) {
         <View style={[styles.between, { alignItems: 'center' }]}>
           <View style={{ alignItems: 'center', gap: 6, width: 80 }}>
             <TeamCrest shortName={match.homeTeam.code} color={match.homeTeam.color} size={36} />
-            <Text variant="caption" numberOfLines={1}>{match.homeTeam.shortName}</Text>
+            <Text variant="caption" numberOfLines={1}>
+              {match.homeTeam.shortName}
+            </Text>
           </View>
           {locked ? (
             <Text variant="number">{saved ? `${saved.home} × ${saved.away}` : '—'}</Text>
           ) : (
             <View style={[styles.row, { gap: spacing.lg }]}>
               <Stepper value={home} onChange={setHome} label={match.homeTeam.shortName} />
-              <Text variant="h2" tone="tertiary">×</Text>
+              <Text variant="h2" tone="tertiary">
+                ×
+              </Text>
               <Stepper value={away} onChange={setAway} label={match.awayTeam.shortName} />
             </View>
           )}
           <View style={{ alignItems: 'center', gap: 6, width: 80 }}>
             <TeamCrest shortName={match.awayTeam.code} color={match.awayTeam.color} size={36} />
-            <Text variant="caption" numberOfLines={1}>{match.awayTeam.shortName}</Text>
+            <Text variant="caption" numberOfLines={1}>
+              {match.awayTeam.shortName}
+            </Text>
           </View>
         </View>
         {locked ? (
           <Text variant="caption" tone="secondary" align="center">
-            {saved ? 'Palpite registrado. Os pontos saem ao fim do jogo.' : 'Palpites encerrados para este jogo.'}
+            {saved
+              ? 'Palpite registrado. Os pontos saem ao fim do jogo.'
+              : 'Palpites encerrados para este jogo.'}
           </Text>
         ) : (
           <Button
@@ -138,8 +164,14 @@ export function PollCard({ pollId, onVoted }: { pollId?: string; onVoted?: () =>
     <Card variant="elevated" padding="lg">
       <View style={{ gap: spacing.md }}>
         <View style={styles.between}>
-          <Badge label={poll.kind === 'craque-do-jogo' ? 'Craque do jogo' : 'Enquete'} tone="brand" icon="stats-chart" />
-          <Text variant="footnote" tone="tertiary">{formatNumber(total)} votos</Text>
+          <Badge
+            label={poll.kind === 'craque-do-jogo' ? 'Craque do jogo' : 'Enquete'}
+            tone="brand"
+            icon="stats-chart"
+          />
+          <Text variant="footnote" tone="tertiary">
+            {formatNumber(total)} votos
+          </Text>
         </View>
         <Text variant="h3">{poll.question}</Text>
         {poll.options.map((o) => {
@@ -154,18 +186,36 @@ export function PollCard({ pollId, onVoted }: { pollId?: string; onVoted?: () =>
               accessibilityLabel={voted ? `${o.label}, ${Math.round(pct * 100)}%` : `Votar em ${o.label}`}
               accessibilityState={{ selected: mine, disabled: voted }}
               style={({ pressed }) => [
-                { minHeight: layout.minTouch, borderRadius: radius.md, borderWidth: 1, borderColor: mine ? colors.primary : colors.border, padding: spacing.md, gap: 6, opacity: pressed ? 0.7 : 1 },
+                {
+                  minHeight: layout.minTouch,
+                  borderRadius: radius.md,
+                  borderWidth: 1,
+                  borderColor: mine ? colors.primary : colors.border,
+                  padding: spacing.md,
+                  gap: 6,
+                  opacity: pressed ? 0.7 : 1,
+                },
               ]}
             >
               <View style={styles.between}>
                 <Text variant="bodyStrong">{o.label}</Text>
-                {voted && <Text variant="tabular" tone={mine ? 'brand' : 'secondary'}>{Math.round(pct * 100)}%</Text>}
+                {voted && (
+                  <Text variant="tabular" tone={mine ? 'brand' : 'secondary'}>
+                    {Math.round(pct * 100)}%
+                  </Text>
+                )}
               </View>
-              {voted && <ProgressBar value={pct} height={6} color={mine ? colors.primary : colors.borderStrong} />}
+              {voted && (
+                <ProgressBar value={pct} height={6} color={mine ? colors.primary : colors.borderStrong} />
+              )}
             </Pressable>
           );
         })}
-        {!voted && <Text variant="footnote" tone="tertiary">Vote e ganhe 5 pontos.</Text>}
+        {!voted && (
+          <Text variant="footnote" tone="tertiary">
+            Vote e ganhe 5 pontos.
+          </Text>
+        )}
       </View>
     </Card>
   );
@@ -204,7 +254,11 @@ export function QuizCard() {
             const isCorrect = a?.correctOptionId === o.id;
             const isWrongPick = a && a.optionId === o.id && !a.correct;
             const border = isCorrect ? colors.success : isWrongPick ? colors.danger : colors.border;
-            const bg = isCorrect ? colors.successSubtle : isWrongPick ? colors.dangerSubtle : colors.surfaceMuted;
+            const bg = isCorrect
+              ? colors.successSubtle
+              : isWrongPick
+                ? colors.dangerSubtle
+                : colors.surfaceMuted;
             return (
               <Pressable
                 key={o.id}
@@ -212,7 +266,18 @@ export function QuizCard() {
                 onPress={() => answer(o.id)}
                 accessibilityRole="button"
                 accessibilityLabel={`Resposta ${o.label}${isCorrect ? ', correta' : isWrongPick ? ', errada' : ''}`}
-                style={({ pressed }) => ({ flexBasis: '47%', flexGrow: 1, minHeight: layout.minTouch + 4, borderRadius: radius.md, borderWidth: 1.5, borderColor: border, backgroundColor: bg, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.7 : 1 })}
+                style={({ pressed }) => ({
+                  flexBasis: '47%',
+                  flexGrow: 1,
+                  minHeight: layout.minTouch + 4,
+                  borderRadius: radius.md,
+                  borderWidth: 1.5,
+                  borderColor: border,
+                  backgroundColor: bg,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  opacity: pressed ? 0.7 : 1,
+                })}
               >
                 <Text variant="bodyStrong">{o.label}</Text>
               </Pressable>
@@ -221,7 +286,11 @@ export function QuizCard() {
         </View>
         {a && (
           <View style={[styles.row, { gap: spacing.sm }]}>
-            <Ionicons name={a.correct ? 'checkmark-circle' : 'close-circle'} size={20} color={a.correct ? colors.success : colors.danger} />
+            <Ionicons
+              name={a.correct ? 'checkmark-circle' : 'close-circle'}
+              size={20}
+              color={a.correct ? colors.success : colors.danger}
+            />
             <Text variant="callout" tone="secondary" style={{ flex: 1 }}>
               {a.correct ? `Acertou! +${quiz.points} pontos. ` : 'Não foi dessa vez. '}
               {a.explanation}

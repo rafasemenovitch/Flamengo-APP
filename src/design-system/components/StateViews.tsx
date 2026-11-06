@@ -43,7 +43,16 @@ function StateView({
     >
       {illustration ??
         (icon && (
-          <View style={{ width: size, height: size, borderRadius: radius.pill, backgroundColor: iconBg, alignItems: 'center', justifyContent: 'center' }}>
+          <View
+            style={{
+              width: size,
+              height: size,
+              borderRadius: radius.pill,
+              backgroundColor: iconBg,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
             <Ionicons name={icon} size={compact ? 20 : 28} color={iconColor} />
           </View>
         ))}
@@ -58,7 +67,12 @@ function StateView({
         )}
       </View>
       {actionLabel && onAction && (
-        <Button label={actionLabel} onPress={onAction} variant={compact ? 'secondary' : 'primary'} size="sm" />
+        <Button
+          label={actionLabel}
+          onPress={onAction}
+          variant={compact ? 'secondary' : 'primary'}
+          size="sm"
+        />
       )}
     </View>
   );

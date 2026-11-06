@@ -16,7 +16,7 @@ export function SegmentedControl<K extends string>({
   onChange,
   accessibilityLabel,
 }: {
-  segments: ReadonlyArray<Segment<K>>;
+  segments: readonly Segment<K>[];
   value: K;
   onChange: (key: K) => void;
   accessibilityLabel?: string;

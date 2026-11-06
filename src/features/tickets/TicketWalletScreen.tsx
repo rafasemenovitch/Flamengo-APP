@@ -10,7 +10,10 @@ export function TicketWalletScreen() {
   const navigation = useNavigation();
   const { spacing, layout } = useTheme();
   const q = useAsync(async () => {
-    const [tickets, matches] = await Promise.all([services.tickets.getWallet(), services.matches.getMatches()]);
+    const [tickets, matches] = await Promise.all([
+      services.tickets.getWallet(),
+      services.matches.getMatches(),
+    ]);
     return tickets.map((t) => ({ ticket: t, match: matches.find((m) => m.id === t.matchId) }));
   });
   return (
@@ -21,13 +24,33 @@ export function TicketWalletScreen() {
         ) : q.error ? (
           <ErrorState compact onRetry={q.reload} />
         ) : q.data?.length === 0 ? (
-          <EmptyState compact icon="wallet-outline" title="Sua carteira está vazia" message="Ingressos comprados aparecem aqui." actionLabel="Ver jogos à venda" onAction={() => navigation.navigate('Tabs', { screen: 'Ingressos' })} />
+          <EmptyState
+            compact
+            icon="wallet-outline"
+            title="Sua carteira está vazia"
+            message="Ingressos comprados aparecem aqui."
+            actionLabel="Ver jogos à venda"
+            onAction={() => navigation.navigate('Tabs', { screen: 'Ingressos' })}
+          />
         ) : (
           q.data?.map(({ ticket, match }) => (
-            <TicketCard key={ticket.id} ticket={ticket} match={match} onPress={() => navigation.navigate('TicketDetail', { ticketId: ticket.id })} />
+            <TicketCard
+              key={ticket.id}
+              ticket={ticket}
+              match={match}
+              onPress={() => navigation.navigate('TicketDetail', { ticketId: ticket.id })}
+            />
           ))
         )}
-        {!!q.data?.length && <Button label="Abrir Modo Maracanã" icon="navigate" variant="secondary" onPress={() => navigation.navigate('StadiumMode')} fullWidth />}
+        {!!q.data?.length && (
+          <Button
+            label="Abrir Modo Maracanã"
+            icon="navigate"
+            variant="secondary"
+            onPress={() => navigation.navigate('StadiumMode')}
+            fullWidth
+          />
+        )}
       </View>
     </Screen>
   );

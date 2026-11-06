@@ -64,7 +64,7 @@ export interface Poll {
 export interface Quiz {
   id: string;
   question: string;
-  options: Array<{ id: string; label: string }>;
+  options: { id: string; label: string }[];
   points: number;
   /** Só revelado após responder. */
   answered?: { optionId: string; correct: boolean; correctOptionId: string; explanation: string };

@@ -56,12 +56,28 @@ export function HList<T>({
   );
 }
 
-export function NewsCard({ article, onPress, wide }: { article: NewsArticle; onPress: () => void; wide?: boolean }) {
+export function NewsCard({
+  article,
+  onPress,
+  wide,
+}: {
+  article: NewsArticle;
+  onPress: () => void;
+  wide?: boolean;
+}) {
   const { spacing, radius } = useTheme();
   return (
     <Card onPress={onPress} padding="none" accessibilityLabel={`Notícia: ${article.title}`}>
-      <MediaImage imageKey={article.imageKey} icon="newspaper-outline" style={{ height: wide ? 180 : 140, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg }}>
-        <Badge label={CATEGORY_LABEL[article.category]} tone="onMedia" style={{ position: 'absolute', top: 10, left: 10 }} />
+      <MediaImage
+        imageKey={article.imageKey}
+        icon="newspaper-outline"
+        style={{ height: wide ? 180 : 140, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg }}
+      >
+        <Badge
+          label={CATEGORY_LABEL[article.category]}
+          tone="onMedia"
+          style={{ position: 'absolute', top: 10, left: 10 }}
+        />
       </MediaImage>
       <View style={{ padding: spacing.md, gap: spacing.xs }}>
         <Text variant="title" numberOfLines={2}>
@@ -75,18 +91,55 @@ export function NewsCard({ article, onPress, wide }: { article: NewsArticle; onP
   );
 }
 
-export function VideoCard({ video, onPress, reason }: { video: Video; onPress: () => void; reason?: string }) {
+export function VideoCard({
+  video,
+  onPress,
+  reason,
+}: {
+  video: Video;
+  onPress: () => void;
+  reason?: string;
+}) {
   const { spacing, radius, colors } = useTheme();
   return (
-    <Card onPress={onPress} padding="none" accessibilityLabel={`Vídeo: ${video.title}, ${formatDuration(video.durationSec)}`}>
-      <MediaImage imageKey={video.imageKey} icon="videocam-outline" scrim style={{ height: 140, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg }}>
+    <Card
+      onPress={onPress}
+      padding="none"
+      accessibilityLabel={`Vídeo: ${video.title}, ${formatDuration(video.durationSec)}`}
+    >
+      <MediaImage
+        imageKey={video.imageKey}
+        icon="videocam-outline"
+        scrim
+        style={{ height: 140, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg }}
+      >
         <View style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center' }]}>
-          <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }}>
+          <View
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 22,
+              backgroundColor: colors.primary,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
             <Ionicons name="play" size={20} color={colors.onPrimary} style={{ marginLeft: 3 }} />
           </View>
         </View>
-        <Badge label={formatDuration(video.durationSec)} tone="onMedia" style={{ position: 'absolute', bottom: 10, right: 10 }} />
-        {video.membersOnly && <Badge label="Sócio" tone="solidBrand" icon="star" style={{ position: 'absolute', top: 10, left: 10 }} />}
+        <Badge
+          label={formatDuration(video.durationSec)}
+          tone="onMedia"
+          style={{ position: 'absolute', bottom: 10, right: 10 }}
+        />
+        {video.membersOnly && (
+          <Badge
+            label="Sócio"
+            tone="solidBrand"
+            icon="star"
+            style={{ position: 'absolute', top: 10, left: 10 }}
+          />
+        )}
       </MediaImage>
       <View style={{ padding: spacing.md, gap: spacing.xs }}>
         {reason && (

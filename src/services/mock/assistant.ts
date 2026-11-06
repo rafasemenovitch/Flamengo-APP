@@ -5,8 +5,7 @@ import { formatMatchDate } from '@/utils/format';
 import { delay, normalize } from './utils';
 
 const NOT_FOUND: AssistantReply = {
-  text:
-    'Não encontrei essa informação nas fontes oficiais que tenho disponíveis. Prefiro não arriscar uma resposta. Você pode tentar perguntar de outro jeito ou consultar os canais oficiais do clube.',
+  text: 'Não encontrei essa informação nas fontes oficiais que tenho disponíveis. Prefiro não arriscar uma resposta. Você pode tentar perguntar de outro jeito ou consultar os canais oficiais do clube.',
   sources: [],
   grounded: false,
 };
@@ -20,7 +19,10 @@ const has = (q: string, ...words: string[]) => words.some((w) => q.includes(w));
  * Para trocar por um LLM, implemente AssistantService em services/live
  * mantendo a mesma regra.
  */
-export function createMockAssistantService(deps: { matches: MatchesService; tickets: TicketsService }): AssistantService {
+export function createMockAssistantService(deps: {
+  matches: MatchesService;
+  tickets: TicketsService;
+}): AssistantService {
   return {
     getSuggestions: async () => delay(ASSISTANT_SUGGESTIONS, 100),
     async ask(question) {
@@ -33,7 +35,11 @@ export function createMockAssistantService(deps: { matches: MatchesService; tick
             text: `Seu ingresso é para o setor ${ticket.sectorName} (${ticket.seat}). A entrada recomendada é pelo Portão ${ticket.gate}. No Modo Maracanã você vê o mapa, as filas e como chegar.`,
             sources: ['Carteira de ingressos', 'Mapa do estádio (esquemático)'],
             grounded: true,
-            action: { label: 'Ver no mapa do estádio', route: 'StadiumMode', params: { sectorId: ticket.sectorId } },
+            action: {
+              label: 'Ver no mapa do estádio',
+              route: 'StadiumMode',
+              params: { sectorId: ticket.sectorId },
+            },
           });
         }
         return delay({
@@ -81,7 +87,15 @@ export function createMockAssistantService(deps: { matches: MatchesService; tick
         if (score > 0 && (!best || score > best.score)) best = { score, entry };
       }
       if (best) {
-        return delay({ text: best.entry.answer, sources: [best.entry.source], grounded: true, action: best.entry.action }, 600);
+        return delay(
+          {
+            text: best.entry.answer,
+            sources: [best.entry.source],
+            grounded: true,
+            action: best.entry.action,
+          },
+          600
+        );
       }
       return delay(NOT_FOUND, 600);
     },

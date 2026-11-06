@@ -126,7 +126,7 @@ export interface StandingRow {
   goalsAgainst: number;
   points: number;
   /** Últimos 5 jogos, mais recente por último. */
-  form: Array<'W' | 'D' | 'L'>;
+  form: ('W' | 'D' | 'L')[];
   zone?: 'libertadores' | 'pre-libertadores' | 'sudamericana' | 'relegation';
 }
 
@@ -143,7 +143,7 @@ export interface HeadToHead {
   wins: number;
   draws: number;
   losses: number;
-  lastMatches: Array<{ date: string; competition: string; home: string; away: string; score: Score }>;
+  lastMatches: { date: string; competition: string; home: string; away: string; score: Score }[];
 }
 
 export interface MatchFilter {

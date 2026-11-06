@@ -19,19 +19,18 @@ export function useDemoScenario(): [DemoScenario, (s: DemoScenario) => void] {
  */
 export function useLiveMatch(load: () => Promise<MatchDetail>, deps: unknown[], opts?: { alerts?: boolean }) {
   const state = useAsync(load, deps);
-  const [live, setLive] = useState<MatchDetail>();
+  // Atualização ao vivo guardada junto da carga que a originou: se a tela recarregar, ela é descartada.
+  const [live, setLive] = useState<{ base: MatchDetail; match: MatchDetail }>();
   const { showAlert } = useAlerts();
   const prev = useRef<{ match: MatchDetail; scenarioSince: number } | undefined>(undefined);
 
-  useEffect(() => setLive(undefined), [state.data]);
-
-  const matchId = state.data?.id;
+  const base = state.data;
   useEffect(() => {
-    if (!matchId) return;
-    return services.matches.subscribeToMatch(matchId, setLive);
-  }, [matchId]);
+    if (!base) return;
+    return services.matches.subscribeToMatch(base.id, (match) => setLive({ base, match }));
+  }, [base]);
 
-  const match = live ?? state.data;
+  const match = live && live.base === base ? live.match : base;
 
   useEffect(() => {
     if (!opts?.alerts || !match) return;
@@ -44,10 +43,18 @@ export function useLiveMatch(load: () => Promise<MatchDetail>, deps: unknown[], 
     const before = last.match;
     // O id inclui o início do cenário: ao repetir a demo, os alertas voltam a aparecer.
     const run = `${match.id}-${since}`;
-    const goTo = () => navigationRef.isReady() && navigationRef.navigate('MatchDetail', { matchId: match.id });
+    const goTo = () =>
+      navigationRef.isReady() && navigationRef.navigate('MatchDetail', { matchId: match.id });
     const label = `${match.homeTeam.shortName} ${match.score?.home ?? 0} × ${match.score?.away ?? 0} ${match.awayTeam.shortName}`;
     if (before.status === 'scheduled' && (match.status === 'live' || match.status === 'halftime')) {
-      showAlert({ id: `start-${run}`, variant: 'matchStart', title: 'Bola rolando!', message: `${match.homeTeam.shortName} × ${match.awayTeam.shortName} começou.`, primary: { label: 'Acompanhar', onPress: goTo }, secondary: { label: 'Fechar' } });
+      showAlert({
+        id: `start-${run}`,
+        variant: 'matchStart',
+        title: 'Bola rolando!',
+        message: `${match.homeTeam.shortName} × ${match.awayTeam.shortName} começou.`,
+        primary: { label: 'Acompanhar', onPress: goTo },
+        secondary: { label: 'Fechar' },
+      });
     }
     const goalsBefore = (before.score?.home ?? 0) + (before.score?.away ?? 0);
     const goalsNow = (match.score?.home ?? 0) + (match.score?.away ?? 0);
@@ -65,7 +72,14 @@ export function useLiveMatch(load: () => Promise<MatchDetail>, deps: unknown[], 
       });
     }
     if (before.status !== 'finished' && match.status === 'finished') {
-      showAlert({ id: `end-${run}`, variant: 'matchEnd', title: 'Fim de jogo', message: label, primary: { label: 'Ver resumo', onPress: goTo }, secondary: { label: 'Fechar' } });
+      showAlert({
+        id: `end-${run}`,
+        variant: 'matchEnd',
+        title: 'Fim de jogo',
+        message: label,
+        primary: { label: 'Ver resumo', onPress: goTo },
+        secondary: { label: 'Fechar' },
+      });
     }
   }, [match, state.data, opts?.alerts, showAlert]);
 
