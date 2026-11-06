@@ -12,7 +12,8 @@ export interface StadiumSector {
   name: string;
   /** Ângulo inicial/final do arco do setor, em graus (0 = topo, sentido horário). */
   arc: [number, number];
-  ring: 'lower' | 'upper';
+  /** Leste/Oeste têm anel inferior e superior; Norte/Sul (atrás dos gols) ocupam o anel todo. */
+  ring: 'lower' | 'upper' | 'full';
   description: string;
   /** Chave da foto da vista do setor (placeholder até haver fotos). */
   viewImageKey: string;

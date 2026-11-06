@@ -7,13 +7,16 @@ import type { FacilityType, Stadium } from '@/types/stadium';
 
 const CX = 50;
 const CY = 50;
-const RINGS = { lower: [27, 36], upper: [37.5, 46] } as const;
-/** Estádio oval: achata o eixo vertical. */
-const SY = 0.86;
+const RINGS = { lower: [27, 36], upper: [37.5, 47], full: [27, 47] } as const;
+/**
+ * Maracanã: oval alongado no sentido do campo (gols em cima e embaixo).
+ * Norte e Sul ficam ATRÁS DOS GOLS; Leste e Oeste nas laterais.
+ */
+const SX = 0.78;
 
 function point(angleDeg: number, r: number) {
   const a = ((angleDeg - 90) * Math.PI) / 180;
-  return [CX + r * Math.cos(a), CY + r * Math.sin(a) * SY] as const;
+  return [CX + r * Math.cos(a) * SX, CY + r * Math.sin(a)] as const;
 }
 
 function sectorPath(start: number, end: number, r0: number, r1: number) {
@@ -100,23 +103,51 @@ export function StadiumMap({
             />
           );
         })}
-        <Ellipse cx={CX} cy={CY} rx={25} ry={25 * SY} fill={withAlpha(colors.success, 0.18)} />
+        <Ellipse cx={CX} cy={CY} rx={26 * SX} ry={26} fill={withAlpha(colors.success, 0.16)} />
         <Rect
-          x={35}
-          y={37}
-          width={30}
-          height={26}
-          rx={1}
+          x={41}
+          y={31}
+          width={18}
+          height={38}
+          rx={0.5}
           fill="none"
           stroke={withAlpha(colors.success, 0.7)}
           strokeWidth={0.5}
         />
-        <Line x1={50} y1={37} x2={50} y2={63} stroke={withAlpha(colors.success, 0.7)} strokeWidth={0.5} />
+        {/* Grandes áreas (gols em cima e embaixo) */}
+        <Rect
+          x={45}
+          y={31}
+          width={10}
+          height={5}
+          fill="none"
+          stroke={withAlpha(colors.success, 0.7)}
+          strokeWidth={0.4}
+        />
+        <Rect
+          x={45}
+          y={64}
+          width={10}
+          height={5}
+          fill="none"
+          stroke={withAlpha(colors.success, 0.7)}
+          strokeWidth={0.4}
+        />
+        <Ellipse
+          cx={50}
+          cy={50}
+          rx={3.5}
+          ry={3.5}
+          fill="none"
+          stroke={withAlpha(colors.success, 0.7)}
+          strokeWidth={0.4}
+        />
+        <Line x1={41} y1={50} x2={59} y2={50} stroke={withAlpha(colors.success, 0.7)} strokeWidth={0.5} />
         {stadium.sectors
-          .filter((s) => s.ring === 'lower')
+          .filter((s) => s.ring !== 'upper')
           .map((s) => {
             const e = s.arc[1] <= s.arc[0] ? s.arc[1] + 360 : s.arc[1];
-            const [x, y] = point((s.arc[0] + e) / 2, 31.5);
+            const [x, y] = point((s.arc[0] + e) / 2, s.ring === 'full' ? 37 : 31.5);
             return (
               <SvgText
                 key={`l-${s.id}`}
