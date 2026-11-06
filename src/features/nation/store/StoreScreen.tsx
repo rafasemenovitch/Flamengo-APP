@@ -4,15 +4,15 @@ import { View } from 'react-native';
 
 import {
   Badge,
-  Card,
   EmptyState,
   ErrorState,
   IconButton,
-  MediaImage,
+  PressableScale,
   Screen,
   SegmentedControl,
   Skeleton,
   Text,
+  TreatedImage,
   useTheme,
 } from '@/design-system';
 import { useAsync } from '@/hooks/useAsync';
@@ -32,41 +32,40 @@ const CATS: { key: Cat; label: string }[] = [
   { key: 'infantil', label: 'Infantil' },
 ];
 
+/** Produto (especificação 13.4): imagem 1:1 raio 16, nome, preço e preço de sócio em vermelho. */
 export function ProductCard({ product, onPress }: { product: Product; onPress: () => void }) {
-  const { spacing, radius } = useTheme();
+  const { radius } = useTheme();
   const memberPrice = product.price * (1 - product.memberDiscountPct / 100);
   return (
-    <Card
-      padding="none"
+    <PressableScale
       onPress={onPress}
       accessibilityLabel={`${product.name}, ${formatCurrency(product.price)}`}
+      style={{ gap: 8 }}
     >
-      <MediaImage
+      <TreatedImage
         imageKey={product.imageKey}
-        icon="shirt-outline"
-        style={{ aspectRatio: 1, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg }}
+        aspect="square"
+        style={{ aspectRatio: 1, borderRadius: radius.l }}
       >
         {product.tag && (
-          <Badge label={product.tag} tone="solidBrand" style={{ position: 'absolute', top: 8, left: 8 }} />
+          <Badge label={product.tag} tone="onMedia" style={{ position: 'absolute', top: 8, left: 8 }} />
         )}
-      </MediaImage>
-      <View style={{ padding: spacing.md, gap: 4 }}>
-        <Text variant="callout" numberOfLines={2} style={{ minHeight: 40 }}>
-          {product.name}
-        </Text>
-        <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
-          <Text variant="bodyStrong">{formatCurrency(product.price)}</Text>
-          {product.compareAtPrice && (
-            <Text variant="footnote" tone="tertiary" style={{ textDecorationLine: 'line-through' }}>
-              {formatCurrency(product.compareAtPrice)}
-            </Text>
-          )}
-        </View>
-        <Text variant="footnote" tone="brand">
-          Sócio: {formatCurrency(memberPrice)}
-        </Text>
+      </TreatedImage>
+      <Text variant="titleS" numberOfLines={2} style={{ minHeight: 44 }}>
+        {product.name}
+      </Text>
+      <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
+        <Text variant="numericTable">{formatCurrency(product.price)}</Text>
+        {product.compareAtPrice && (
+          <Text variant="bodyS" tone="tertiary" style={{ textDecorationLine: 'line-through' }}>
+            {formatCurrency(product.compareAtPrice)}
+          </Text>
+        )}
       </View>
-    </Card>
+      <Text variant="labelM" tone="brand">
+        Sócio {formatCurrency(memberPrice)}
+      </Text>
+    </PressableScale>
   );
 }
 

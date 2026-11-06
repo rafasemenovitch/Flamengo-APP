@@ -1,35 +1,26 @@
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Alert, Linking, StyleSheet, View } from 'react-native';
+import { Alert, Linking, View } from 'react-native';
 
 import {
   Badge,
   Button,
-  Card,
-  ClubCrest,
-  DemoBadge,
   ErrorState,
-  palette,
+  ListGroup,
+  ListItem,
   Screen,
-  SectionHeader,
+  SectionTitle,
   Skeleton,
   Text,
   useTheme,
 } from '@/design-system';
 import { useAsync } from '@/hooks/useAsync';
 import { services } from '@/services';
-import type { MembershipPlan } from '@/types/commerce';
-import { formatCurrency, formatFullDate, formatNumber } from '@/utils/format';
+import { formatCurrency, formatNumber } from '@/utils/format';
+import { MemberCard } from './MemberCard';
 
-const TIER_GRADIENT: Record<MembershipPlan['tier'], readonly [string, string]> = {
-  bronze: [palette.bronze, palette.ink900],
-  silver: [palette.red700, palette.ink950],
-  gold: [palette.gold, palette.red700],
-  black: [palette.ink850, palette.black],
-};
-
+/** Sócio-Torcedor: carteirinha, programa e planos (valores de referência reais). */
 export function MembershipScreen() {
-  const { colors, spacing, layout, radius } = useTheme();
+  const { colors, layout, radius } = useTheme();
   const q = useAsync(async () => {
     const [plans, membership, benefits, info] = await Promise.all([
       services.membership.getPlans(),
@@ -43,9 +34,9 @@ export function MembershipScreen() {
   if (q.loading)
     return (
       <Screen title="Sócio-Torcedor">
-        <View style={{ padding: layout.gutter, gap: spacing.lg }}>
-          <Skeleton height={210} radius={radius.xl} />
-          <Skeleton height={300} />
+        <View style={{ padding: layout.gutter, gap: 16 }}>
+          <Skeleton height={210} radius={radius.l} />
+          <Skeleton height={300} radius={8} />
         </View>
       </Screen>
     );
@@ -60,212 +51,123 @@ export function MembershipScreen() {
 
   return (
     <Screen title="Sócio-Torcedor" refreshing={q.refreshing} onRefresh={q.refresh}>
-      <View style={{ paddingHorizontal: layout.gutter, gap: spacing.lg }}>
-        {m && plan && (
-          <LinearGradient
-            colors={TIER_GRADIENT[plan.tier]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{
-              borderRadius: radius.xl,
-              padding: spacing.xl,
-              aspectRatio: 1.586,
-              justifyContent: 'space-between',
-            }}
-          >
-            <View style={styles.between}>
-              <ClubCrest size={44} />
-              <DemoBadge label="Carteirinha demo" />
-            </View>
-            <View style={{ gap: 2 }}>
-              <Text variant="overline" tone="onMedia" style={{ opacity: 0.8 }}>
-                Sócio-Torcedor · {plan.name}
-              </Text>
-              <Text variant="h2" tone="onMedia">
-                {m.holderName}
-              </Text>
-              <Text variant="tabular" tone="onMedia" style={{ letterSpacing: 2 }}>
-                {m.memberNumber}
+      {m && plan && (
+        <View style={{ paddingHorizontal: layout.gutter, gap: 24 }}>
+          <MemberCard membership={m} plan={plan} />
+          <View style={{ flexDirection: 'row' }}>
+            <View style={{ flex: 1 }}>
+              <Text variant="displayXl">{formatNumber(m.priorityPoints)}</Text>
+              <Text variant="bodyS" tone="secondary">
+                pontos de prioridade
               </Text>
             </View>
-            <View style={styles.between}>
-              <Text variant="footnote" tone="onMedia" style={{ opacity: 0.85 }}>
-                Desde {formatFullDate(m.since)}
+            <View style={{ flex: 1 }}>
+              <Text variant="displayXl" tone="success">
+                {plan.ticketDiscountPct}%
               </Text>
-              <Text variant="footnote" tone="onMedia" style={{ opacity: 0.85 }}>
-                Válida até {formatFullDate(m.validUntil)}
+              <Text variant="bodyS" tone="secondary">
+                sobre a inteira
               </Text>
             </View>
-          </LinearGradient>
-        )}
-        {m && (
-          <View style={{ flexDirection: 'row', gap: spacing.md }}>
-            <Card style={{ flex: 1 }} padding="sm">
-              <Text variant="number" align="center">
-                {formatNumber(m.priorityPoints)}
-              </Text>
-              <Text variant="footnote" tone="secondary" align="center">
-                Pontos de prioridade
-              </Text>
-            </Card>
-            <Card style={{ flex: 1 }} padding="sm">
-              <Text variant="number" align="center" tone="success">
-                {m.status === 'active' ? 'Ativo' : 'Pendente'}
-              </Text>
-              <Text variant="footnote" tone="secondary" align="center">
-                Situação
-              </Text>
-            </Card>
           </View>
-        )}
-      </View>
-
-      <View style={{ marginTop: spacing.xxl }}>
-        <SectionHeader title={`Programa ${info.name}`} subtitle="Como funciona" />
-        <View style={{ paddingHorizontal: layout.gutter, gap: spacing.sm }}>
-          {benefits.map((b) => (
-            <Card key={b.id} padding="sm">
-              <View style={[styles.row, { gap: spacing.md }]}>
-                <View
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 12,
-                    backgroundColor: colors.primarySubtle,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Ionicons
-                    name={
-                      b.category === 'ingressos'
-                        ? 'ticket'
-                        : b.category === 'loja'
-                          ? 'bag-handle'
-                          : b.category === 'experiencias'
-                            ? 'star'
-                            : 'pricetag'
-                    }
-                    size={18}
-                    color={colors.primaryText}
-                  />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text variant="bodyStrong">{b.title}</Text>
-                  <Text variant="caption" tone="secondary">
-                    {b.partner} · {b.description}
-                  </Text>
-                </View>
-              </View>
-            </Card>
-          ))}
         </View>
+      )}
+
+      <View style={{ marginTop: 48 }}>
+        <SectionTitle title={`Programa ${info.name}`} subtitle="Como funciona" />
+        <ListGroup>
+          {benefits.map((b) => (
+            <ListItem key={b.id} title={b.title} subtitle={b.description} />
+          ))}
+        </ListGroup>
       </View>
 
-      <View style={{ marginTop: spacing.xxl }}>
-        <SectionHeader title="Planos" subtitle="Valores mensais de referência" />
-        <View style={{ paddingHorizontal: layout.gutter, gap: spacing.md }}>
+      <View style={{ marginTop: 48 }}>
+        <SectionTitle title="Planos" subtitle="Valores mensais de referência" />
+        <View style={{ paddingHorizontal: layout.gutter, gap: 12 }}>
           {plans.map((p) => {
             const current = p.id === plan?.id;
             return (
-              <Card key={p.id} variant={current ? 'tinted' : 'surface'} padding="lg">
-                <View style={{ gap: spacing.md }}>
-                  <View style={styles.between}>
-                    <View style={[styles.row, { gap: spacing.sm }]}>
-                      <View
-                        style={{
-                          width: 12,
-                          height: 12,
-                          borderRadius: 6,
-                          backgroundColor:
-                            palette[p.tier === 'black' ? 'ink500' : p.tier === 'silver' ? 'silver' : p.tier],
-                        }}
-                      />
-                      <Text variant="h2">{p.name}</Text>
-                    </View>
-                    {current ? (
-                      <Badge label="Seu plano" tone="solidBrand" />
-                    ) : p.highlight ? (
-                      <Badge label={p.highlight} tone="brand" />
-                    ) : null}
-                  </View>
-                  <View style={{ gap: 2 }}>
-                    <View style={[styles.row, { gap: spacing.sm, alignItems: 'baseline' }]}>
-                      <Text variant="number">
-                        {formatCurrency(p.monthlyPrice)}
-                        <Text variant="caption" tone="secondary">
-                          /mês
-                        </Text>
-                      </Text>
-                      {p.priceIsEstimate && <Badge label="Estimado" tone="warning" />}
-                    </View>
-                    {p.audience && (
-                      <Text variant="caption" tone="secondary">
-                        {p.audience}
-                      </Text>
-                    )}
-                    <Text variant="caption" tone="secondary">
-                      {p.ticketDiscountPct > 0 ? `${p.ticketDiscountPct}% sobre a inteira · ` : ''}Prioridade{' '}
-                      {p.ticketPriority}
-                      {p.guests ? ` · ${p.guests}` : ''}
-                    </Text>
-                  </View>
-                  <View style={{ gap: 6 }}>
-                    {p.benefits.map((b) => (
-                      <View key={b} style={[styles.row, { gap: spacing.sm }]}>
-                        <Ionicons name="checkmark-circle" size={16} color={colors.success} />
-                        <Text variant="callout" style={{ flex: 1 }}>
-                          {b}
-                        </Text>
-                      </View>
-                    ))}
-                  </View>
-                  {!current && (
-                    <Button
-                      label={`Mudar para ${p.name}`}
-                      variant="secondary"
-                      onPress={() =>
-                        Alert.alert(
-                          'Demonstração',
-                          'A troca de plano é apenas ilustrativa nesta versão. Nenhuma cobrança será feita.'
-                        )
-                      }
-                    />
-                  )}
+              <View
+                key={p.id}
+                style={{
+                  backgroundColor: colors.bgRaised,
+                  borderRadius: radius.l,
+                  padding: 20,
+                  gap: 12,
+                  borderWidth: current ? 1.5 : 0,
+                  borderColor: colors.lineStrong,
+                }}
+              >
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Text variant="displayM" style={{ flex: 1 }}>
+                    {p.name}
+                  </Text>
+                  {current ? (
+                    <Badge label="Seu plano" />
+                  ) : p.priceIsEstimate ? (
+                    <Badge label="Estimado" tone="warning" />
+                  ) : null}
                 </View>
-              </Card>
+                <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
+                  <Text variant="displayS">{formatCurrency(p.monthlyPrice)}</Text>
+                  <Text variant="bodyS" tone="secondary">
+                    /mês
+                  </Text>
+                </View>
+                {p.audience && (
+                  <Text variant="bodyS" tone="secondary">
+                    {p.audience}
+                  </Text>
+                )}
+                <View style={{ gap: 6 }}>
+                  {p.benefits.map((b) => (
+                    <View key={b} style={{ flexDirection: 'row', gap: 8 }}>
+                      <Ionicons name="checkmark" size={16} color={colors.success} style={{ marginTop: 3 }} />
+                      <Text variant="bodyM" style={{ flex: 1 }}>
+                        {b}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+                {p.guests && (
+                  <Text variant="bodyS" tone="tertiary">
+                    Convidados: {p.guests}
+                  </Text>
+                )}
+                {!current && (
+                  <Button
+                    label={`Mudar para ${p.name.replace('Nação ', '')}`}
+                    variant="secondary"
+                    size="sm"
+                    onPress={() =>
+                      Alert.alert(
+                        'Demonstração',
+                        'A troca de plano é apenas ilustrativa nesta versão. Nenhuma cobrança será feita.'
+                      )
+                    }
+                  />
+                )}
+              </View>
             );
           })}
-          <Card variant="outline">
-            <View style={{ gap: spacing.sm }}>
-              <View style={[styles.row, { gap: spacing.sm }]}>
-                <Ionicons name="information-circle" size={18} color={colors.info} />
-                <Text variant="label" style={{ flex: 1 }}>
-                  Sobre os valores
-                </Text>
-              </View>
-              <Text variant="caption" tone="secondary">
-                {info.priceNote}
-              </Text>
-              <Text variant="footnote" tone="tertiary">
-                Fontes: {info.sources.join(' · ')}
-              </Text>
-              <Button
-                label="Conferir no site oficial"
-                variant="ghost"
-                icon="open-outline"
-                size="sm"
-                onPress={() => Linking.openURL(info.officialUrl).catch(() => undefined)}
-              />
-            </View>
-          </Card>
         </View>
+      </View>
+
+      <View style={{ paddingHorizontal: layout.gutter, marginTop: 32, gap: 8 }}>
+        <Text variant="bodyS" tone="secondary">
+          {info.priceNote}
+        </Text>
+        <Text variant="bodyS" tone="tertiary">
+          Fontes: {info.sources.join(' · ')}
+        </Text>
+        <Button
+          label="Conferir no site oficial"
+          variant="link"
+          icon="open-outline"
+          onPress={() => Linking.openURL(info.officialUrl).catch(() => undefined)}
+        />
       </View>
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center' },
-  between: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-});

@@ -30,7 +30,10 @@ export function TicketCard({
 
   const body = (
     <View style={{ backgroundColor: colors.bgRaised, borderRadius: radius.l, overflow: 'hidden' }}>
-      <View onLayout={(e) => setTopHeight(e.nativeEvent.layout.height)} style={{ padding: 20, gap: 12, minHeight: 120 }}>
+      <View
+        onLayout={(e) => setTopHeight(e.nativeEvent.layout.height)}
+        style={{ padding: 20, gap: 12, minHeight: 120 }}
+      >
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             {match && <Crest team={match.homeTeam} size={28} />}
