@@ -1,7 +1,7 @@
-import { Ionicons } from '@expo/vector-icons';
 import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
+import { Mascot, type MascotPose } from '../mascot';
 import { useTheme } from '../theme/ThemeProvider';
 import { Button } from './Button';
 import { Text } from './Text';
@@ -9,84 +9,62 @@ import { Text } from './Text';
 interface StateViewProps {
   title: string;
   message?: string;
-  icon?: keyof typeof Ionicons.glyphMap;
-  /** Espaço reservado para ilustração/mascote no futuro (substitui o ícone). */
+  /** Pose do mascote (sempre `fan-*` fora do chat). */
+  pose?: MascotPose;
   illustration?: ReactNode;
   actionLabel?: string;
   onAction?: () => void;
-  /** Versão embutida numa seção (menor, sem preencher a tela). */
   compact?: boolean;
+  /** @deprecated ícones não são mais usados em estados vazios (o mascote substitui). */
+  icon?: string;
 }
 
+/** Estado vazio/erro (especificação 12.16): mascote, título, texto curto e botão secundário. */
 function StateView({
   title,
   message,
-  icon,
+  pose = 'fan-empty',
   illustration,
   actionLabel,
   onAction,
   compact,
-  tone,
-}: StateViewProps & { tone: 'neutral' | 'danger' }) {
-  const { colors, spacing, radius } = useTheme();
-  const iconColor = tone === 'danger' ? colors.danger : colors.textTertiary;
-  const iconBg = tone === 'danger' ? colors.dangerSubtle : colors.surfaceMuted;
-  const size = compact ? 44 : 64;
-
+}: StateViewProps) {
+  const { layout } = useTheme();
   return (
     <View
-      style={[
-        styles.container,
-        { gap: spacing.md, padding: compact ? spacing.lg : spacing.xxl },
-        !compact && styles.full,
-      ]}
+      style={{
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 24,
+        padding: compact ? layout.gutter : 32,
+        flex: compact ? undefined : 1,
+      }}
     >
-      {illustration ??
-        (icon && (
-          <View
-            style={{
-              width: size,
-              height: size,
-              borderRadius: radius.pill,
-              backgroundColor: iconBg,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Ionicons name={icon} size={compact ? 20 : 28} color={iconColor} />
-          </View>
-        ))}
-      <View style={{ gap: spacing.xs, alignItems: 'center' }}>
-        <Text variant={compact ? 'bodyStrong' : 'h3'} align="center">
+      {illustration ?? <Mascot pose={pose} size={compact ? 96 : 160} />}
+      <View style={{ gap: 8, alignItems: 'center' }}>
+        <Text variant="titleM" align="center">
           {title}
         </Text>
         {message && (
-          <Text variant="callout" tone="secondary" align="center" style={{ maxWidth: 320 }}>
+          <Text variant="bodyM" tone="secondary" align="center" numberOfLines={2} style={{ maxWidth: 320 }}>
             {message}
           </Text>
         )}
       </View>
       {actionLabel && onAction && (
-        <Button
-          label={actionLabel}
-          onPress={onAction}
-          variant={compact ? 'secondary' : 'primary'}
-          size="sm"
-        />
+        <Button label={actionLabel} onPress={onAction} variant="secondary" size={compact ? 'sm' : 'md'} />
       )}
     </View>
   );
 }
 
-/** Estado vazio (herdado do ZikoEmptyState, sem mascote). */
 export function EmptyState(props: StateViewProps) {
-  return <StateView icon="file-tray-outline" {...props} tone="neutral" />;
+  return <StateView {...props} title={props.title || 'Nada por aqui ainda.'} />;
 }
 
-/** Estado de erro com "Tentar de novo". */
 export function ErrorState({
-  title = 'Não foi possível carregar',
-  message = 'Verifique sua conexão e tente de novo.',
+  title = 'Perdemos o sinal.',
+  message = 'Já estamos tentando de novo.',
   onRetry,
   compact,
 }: {
@@ -99,16 +77,10 @@ export function ErrorState({
     <StateView
       title={title}
       message={message}
-      icon="cloud-offline-outline"
+      pose="fan-offline"
       actionLabel={onRetry ? 'Tentar de novo' : undefined}
       onAction={onRetry}
       compact={compact}
-      tone="danger"
     />
   );
 }
-
-const styles = StyleSheet.create({
-  container: { alignItems: 'center', justifyContent: 'center' },
-  full: { flex: 1 },
-});

@@ -21,21 +21,19 @@ export function Card({
   padding = 'md',
   style,
 }: CardProps) {
-  const { colors, radius, spacing, elevation, scheme } = useTheme();
-  const pad = { none: 0, sm: spacing.md, md: spacing.lg, lg: spacing.xl }[padding];
+  const { colors, radius, spacing } = useTheme();
+  const pad = { none: 0, sm: spacing.md, md: spacing.lg, lg: spacing.x20 }[padding];
 
+  // Card SÓ para objetos (ingresso, palpite, produto, vídeo). Sem sombra.
   const variantStyle: ViewStyle = {
-    surface: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
-    elevated: {
-      backgroundColor: colors.surfaceElevated,
-      ...(scheme === 'light' ? elevation.card : { borderWidth: 1, borderColor: colors.border }),
-    },
-    outline: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.borderStrong },
-    tinted: { backgroundColor: colors.primarySubtle, borderWidth: 1, borderColor: colors.primarySubtle },
+    surface: { backgroundColor: colors.bgRaised },
+    elevated: { backgroundColor: colors.bgRaised },
+    outline: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.lineHairline },
+    tinted: { backgroundColor: colors.accentTint },
   }[variant];
 
   const cardStyle = [
-    { borderRadius: radius.lg, padding: pad, overflow: 'hidden' as const },
+    { borderRadius: radius.l, padding: pad, overflow: 'hidden' as const },
     variantStyle,
     style,
   ];

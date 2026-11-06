@@ -1,7 +1,7 @@
 import { Text as RNText, type TextProps as RNTextProps } from 'react-native';
 
 import type { ThemeColors } from '../tokens/colors';
-import { typography, type TypographyVariant } from '../tokens/typography';
+import { maxFontScale, typography, type TypographyVariant } from '../tokens/typography';
 import { useTheme } from '../theme/ThemeProvider';
 
 export type TextTone =
@@ -18,17 +18,17 @@ export type TextTone =
   | 'demo';
 
 const TONE_TO_TOKEN: Record<TextTone, keyof ThemeColors> = {
-  primary: 'textPrimary',
-  secondary: 'textSecondary',
-  tertiary: 'textTertiary',
-  brand: 'primaryText',
-  onPrimary: 'onPrimary',
-  onMedia: 'textOnMedia',
+  primary: 'inkPrimary',
+  secondary: 'inkSecondary',
+  tertiary: 'inkTertiary',
+  brand: 'accentText',
+  onPrimary: 'inkOnRed',
+  onMedia: 'inkOnRed',
   success: 'success',
   warning: 'warning',
   danger: 'danger',
   live: 'live',
-  demo: 'demo',
+  demo: 'warning',
 };
 
 export interface TextProps extends RNTextProps {
@@ -41,7 +41,7 @@ export function Text({ variant = 'body', tone = 'primary', align, style, ...rest
   const { colors } = useTheme();
   return (
     <RNText
-      maxFontSizeMultiplier={1.6}
+      maxFontSizeMultiplier={maxFontScale(variant)}
       {...rest}
       style={[
         typography[variant],

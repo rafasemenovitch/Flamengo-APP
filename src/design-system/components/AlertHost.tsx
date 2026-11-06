@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
 import {
   createContext,
   useCallback,
@@ -9,12 +8,12 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { Animated, Image, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Animated, Modal, Pressable, StyleSheet, View } from 'react-native';
 
-import { brandAssets } from '@assets/brand';
 import { useReduceMotion } from '@/hooks/useReduceMotion';
 import { haptic } from '@/utils/haptics';
-import { palette } from '../tokens/colors';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Mascot, type MascotPose } from '../mascot';
 import { useTheme } from '../theme/ThemeProvider';
 import { Button } from './Button';
 import { Text } from './Text';
@@ -42,13 +41,14 @@ export interface AlertRequest {
 
 const PRIORITY_RANK: Record<AlertPriority, number> = { critical: 0, high: 1, normal: 2, low: 3 };
 
-const VARIANT_ICON: Record<AlertVariant, keyof typeof Ionicons.glyphMap> = {
-  goal: 'football',
-  matchStart: 'play-circle',
-  matchEnd: 'flag',
-  achievement: 'trophy',
-  info: 'information-circle',
-  warning: 'alert-circle',
+/** Pose do mascote (`fan-*`) por tipo de aviso. */
+const VARIANT_POSE: Record<AlertVariant, MascotPose> = {
+  goal: 'fan-goal',
+  matchStart: 'fan-tense',
+  matchEnd: 'fan-victory',
+  achievement: 'fan-trophy',
+  info: 'fan-confident',
+  warning: 'fan-complain',
 };
 
 interface QueuedAlert extends AlertRequest {
@@ -57,6 +57,8 @@ interface QueuedAlert extends AlertRequest {
 
 interface AlertContextValue {
   showAlert: (request: AlertRequest) => void;
+  /** Aviso curto no topo (3s). */
+  showToast: (message: string) => void;
 }
 
 const AlertContext = createContext<AlertContextValue | null>(null);
@@ -92,12 +94,26 @@ export function AlertHost({ children }: { children: ReactNode }) {
     action?.onPress?.();
   };
 
-  const value = useMemo(() => ({ showAlert }), [showAlert]);
+  const [toast, setToast] = useState<{ id: number; message: string } | null>(null);
+  const showToast = useCallback((message: string) => setToast({ id: Date.now(), message }), []);
+  const reduceMotion = useReduceMotion();
+
+  const value = useMemo(() => ({ showAlert, showToast }), [showAlert, showToast]);
 
   return (
     <AlertContext.Provider value={value}>
       {children}
-      {current && <AlertModal key={current.id} alert={current} onClose={close} />}
+      {current &&
+        (current.variant === 'goal' ? (
+          reduceMotion ? (
+            <GoalToast key={current.id} alert={current} onDone={() => close()} />
+          ) : (
+            <GoalCelebration key={current.id} alert={current} onClose={close} />
+          )
+        ) : (
+          <AlertModal key={current.id} alert={current} onClose={close} />
+        ))}
+      {toast && <Toast key={toast.id} message={toast.message} onDone={() => setToast(null)} />}
     </AlertContext.Provider>
   );
 }
@@ -121,14 +137,6 @@ function AlertModal({ alert, onClose }: { alert: QueuedAlert; onClose: (action?:
     ]).start();
   }, [opacity, translateY, reduceMotion, motion]);
 
-  const accent =
-    alert.variant === 'warning'
-      ? colors.warning
-      : alert.variant === 'achievement'
-        ? colors.gold
-        : colors.primary;
-  const mascot = alert.showMascot !== false ? brandAssets.mascot : null;
-
   return (
     <Modal visible transparent animationType="fade" onRequestClose={() => onClose()}>
       <Pressable
@@ -136,7 +144,6 @@ function AlertModal({ alert, onClose }: { alert: QueuedAlert; onClose: (action?:
         onPress={() => onClose()}
         accessible={false}
       >
-        {alert.variant === 'goal' && !reduceMotion && <GoalBurst />}
         <Animated.View
           style={{ width: '100%', maxWidth: 380, opacity, transform: [{ translateY }] }}
           accessibilityViewIsModal
@@ -146,33 +153,21 @@ function AlertModal({ alert, onClose }: { alert: QueuedAlert; onClose: (action?:
               style={[
                 styles.card,
                 {
-                  backgroundColor: colors.surfaceElevated,
-                  borderRadius: radius.xl,
+                  backgroundColor: colors.bgRaised,
+                  borderRadius: radius.l,
                   padding: spacing.xl,
                   gap: spacing.lg,
-                  borderColor: colors.border,
+                  borderColor: colors.lineHairline,
                 },
               ]}
             >
-              <View style={[styles.stripe, { backgroundColor: accent }]} />
-              {mascot ? (
-                <Image
-                  source={mascot}
-                  style={styles.mascot}
-                  resizeMode="contain"
-                  accessibilityIgnoresInvertColors
-                />
-              ) : (
-                <View style={[styles.iconCircle, { backgroundColor: colors.primarySubtle }]}>
-                  <Ionicons
-                    name={VARIANT_ICON[alert.variant]}
-                    size={30}
-                    color={alert.variant === 'achievement' ? colors.gold : colors.primaryText}
-                  />
+              {alert.showMascot !== false && (
+                <View style={{ alignItems: 'center' }}>
+                  <Mascot pose={VARIANT_POSE[alert.variant]} size={120} />
                 </View>
               )}
               <View style={{ gap: spacing.xs }}>
-                <Text variant="h2" align="center" accessibilityRole="header">
+                <Text variant="displayM" align="center" accessibilityRole="header">
                   {alert.title}
                 </Text>
                 <Text variant="body" tone="secondary" align="center">
@@ -198,55 +193,111 @@ function AlertModal({ alert, onClose }: { alert: QueuedAlert; onClose: (action?:
   );
 }
 
-const CONFETTI = Array.from({ length: 28 }, (_, i) => ({
-  angle: (i / 28) * Math.PI * 2 + (i % 3) * 0.2,
-  distance: 140 + (i % 5) * 38,
-  color: [palette.red600, palette.ink950, palette.white, palette.red400][i % 4]!,
-  w: 6 + (i % 3) * 3,
-  h: 12 + (i % 4) * 4,
-  spin: (i % 2 ? 1 : -1) * (180 + (i % 5) * 90),
-}));
-
-/** Comemoração de gol: explosão de confetes rubro-negros atrás do card. */
-function GoalBurst() {
+/**
+ * Comemoração de gol (especificação 11): tela vermelha inteira por 1,8s,
+ * "GOL!" gigante, mascote `fan-goal` entrando com mola e vibração forte.
+ * Fecha sozinha ou com um toque.
+ */
+function GoalCelebration({
+  alert,
+  onClose,
+}: {
+  alert: QueuedAlert;
+  onClose: (action?: AlertAction) => void;
+}) {
+  const { colors, motion } = useTheme();
   const t = useState(() => new Animated.Value(0))[0];
   useEffect(() => {
-    Animated.timing(t, { toValue: 1, duration: 1400, useNativeDriver: true }).start();
-  }, [t]);
+    haptic.goal();
+    Animated.spring(t, { toValue: 1, friction: 6, tension: 80, useNativeDriver: true }).start();
+    const timer = setTimeout(() => onClose(), 1800);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  void motion;
   return (
-    <View
-      pointerEvents="none"
-      style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center' }]}
-    >
-      {CONFETTI.map((c, i) => (
+    <Modal visible transparent animationType="fade" onRequestClose={() => onClose()}>
+      <Pressable
+        onPress={() => onClose(alert.primary)}
+        accessibilityRole="button"
+        accessibilityLabel={`${alert.title}. ${alert.message}. Toque para ver o lance.`}
+        style={{
+          flex: 1,
+          backgroundColor: colors.bgRed,
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 16,
+          padding: 20,
+        }}
+      >
         <Animated.View
-          key={i}
           style={{
-            position: 'absolute',
-            width: c.w,
-            height: c.h,
-            borderRadius: 2,
-            backgroundColor: c.color,
-            opacity: t.interpolate({ inputRange: [0, 0.1, 0.75, 1], outputRange: [0, 1, 1, 0] }),
-            transform: [
-              {
-                translateX: t.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, Math.cos(c.angle) * c.distance],
-                }),
-              },
-              {
-                translateY: t.interpolate({
-                  inputRange: [0, 0.6, 1],
-                  outputRange: [0, Math.sin(c.angle) * c.distance, Math.sin(c.angle) * c.distance + 80],
-                }),
-              },
-              { rotate: t.interpolate({ inputRange: [0, 1], outputRange: ['0deg', `${c.spin}deg`] }) },
-            ],
+            transform: [{ scale: t.interpolate({ inputRange: [0, 1], outputRange: [0.85, 1] }) }],
+            opacity: t,
           }}
-        />
-      ))}
-    </View>
+        >
+          <Mascot pose="fan-goal" size={180} />
+        </Animated.View>
+        <Animated.View
+          style={{ transform: [{ scale: t.interpolate({ inputRange: [0, 1], outputRange: [1.3, 1] }) }] }}
+        >
+          <Text variant="displayGoal" tone="onPrimary" align="center">
+            GOL!
+          </Text>
+        </Animated.View>
+        <Text variant="titleL" tone="onPrimary" align="center">
+          {alert.title}
+        </Text>
+        <Text variant="bodyM" tone="onPrimary" align="center" style={{ opacity: 0.85 }}>
+          {alert.message}
+        </Text>
+      </Pressable>
+    </Modal>
+  );
+}
+
+/** Com "reduzir movimento": o gol vira um toast, sem tela animada. */
+function GoalToast({ alert, onDone }: { alert: QueuedAlert; onDone: () => void }) {
+  useEffect(() => {
+    haptic.goal();
+  }, []);
+  return <Toast message={`${alert.title} ${alert.message}`} onDone={onDone} />;
+}
+
+/** Toast no topo (especificação 12.16): bgRaised2, raio 12, 3s. */
+function Toast({ message, onDone }: { message: string; onDone: () => void }) {
+  const { colors, radius, layout, motion } = useTheme();
+  const insets = useSafeAreaInsets();
+  const a = useState(() => new Animated.Value(0))[0];
+  useEffect(() => {
+    Animated.sequence([
+      Animated.timing(a, { toValue: 1, duration: motion.duration.base, useNativeDriver: true }),
+      Animated.delay(3000),
+      Animated.timing(a, { toValue: 0, duration: motion.duration.fast, useNativeDriver: true }),
+    ]).start(() => onDone());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return (
+    <Animated.View
+      pointerEvents="none"
+      accessibilityLiveRegion="polite"
+      style={{
+        position: 'absolute',
+        top: insets.top + 8,
+        left: layout.gutter,
+        right: layout.gutter,
+        minHeight: 48,
+        borderRadius: radius.m,
+        backgroundColor: colors.bgRaised2,
+        justifyContent: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        opacity: a,
+        transform: [{ translateY: a.interpolate({ inputRange: [0, 1], outputRange: [-12, 0] }) }],
+      }}
+    >
+      <Text variant="bodyM">{message}</Text>
+    </Animated.View>
   );
 }
 

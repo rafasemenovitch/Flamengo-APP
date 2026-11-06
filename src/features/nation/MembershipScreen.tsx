@@ -24,8 +24,8 @@ import { formatCurrency, formatFullDate, formatNumber } from '@/utils/format';
 const TIER_GRADIENT: Record<MembershipPlan['tier'], readonly [string, string]> = {
   bronze: [palette.bronze, palette.ink900],
   silver: [palette.red700, palette.ink950],
-  gold: [palette.gold, palette.red800],
-  black: [palette.ink700, palette.black],
+  gold: [palette.gold, palette.red700],
+  black: [palette.ink850, palette.black],
 };
 
 export function MembershipScreen() {
@@ -178,7 +178,7 @@ export function MembershipScreen() {
                           height: 12,
                           borderRadius: 6,
                           backgroundColor:
-                            palette[p.tier === 'black' ? 'ink600' : p.tier === 'silver' ? 'silver' : p.tier],
+                            palette[p.tier === 'black' ? 'ink500' : p.tier === 'silver' ? 'silver' : p.tier],
                         }}
                       />
                       <Text variant="h2">{p.name}</Text>

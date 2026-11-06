@@ -23,13 +23,13 @@ export function Skeleton({ width = '100%', height = 14, radius, style }: Skeleto
       Animated.sequence([
         Animated.timing(value, {
           toValue: 1,
-          duration: 700,
+          duration: 600,
           easing: motion.easing.inOut,
           useNativeDriver: true,
         }),
         Animated.timing(value, {
           toValue: 0,
-          duration: 700,
+          duration: 600,
           easing: motion.easing.inOut,
           useNativeDriver: true,
         }),
@@ -44,14 +44,20 @@ export function Skeleton({ width = '100%', height = 14, radius, style }: Skeleto
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
       style={[
-        { width, height, borderRadius: radius ?? r.xs, backgroundColor: colors.skeleton, overflow: 'hidden' },
+        {
+          width,
+          height,
+          borderRadius: radius ?? r.xs,
+          backgroundColor: colors.bgRaised2,
+          overflow: 'hidden',
+        },
         style,
       ]}
     >
       <Animated.View
         style={{
           flex: 1,
-          backgroundColor: colors.skeletonHighlight,
+          backgroundColor: colors.lineHairline,
           opacity: value.interpolate({ inputRange: [0, 1], outputRange: [0, 0.7] }),
         }}
       />

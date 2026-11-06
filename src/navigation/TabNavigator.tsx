@@ -8,7 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { fonts, useTheme } from '@/design-system';
+import { FabVisibilityProvider, Text, useFabVisibility, useTheme } from '@/design-system';
 import { HomeScreen } from '@/features/home/HomeScreen';
 import { MatchesScreen } from '@/features/matches/MatchesScreen';
 import { NationScreen } from '@/features/nation/NationScreen';
@@ -25,11 +25,12 @@ const TABS: {
   icon: keyof typeof Ionicons.glyphMap;
   iconActive: keyof typeof Ionicons.glyphMap;
 }[] = [
-  { name: 'Inicio', title: 'Início', icon: 'home-outline', iconActive: 'home' },
-  { name: 'Jogos', title: 'Jogos', icon: 'football-outline', iconActive: 'football' },
-  { name: 'Ingressos', title: 'Ingressos', icon: 'ticket-outline', iconActive: 'ticket' },
-  { name: 'Nacao', title: 'Nação', icon: 'people-outline', iconActive: 'people' },
-  { name: 'Perfil', title: 'Perfil', icon: 'person-circle-outline', iconActive: 'person-circle' },
+  // Ícones de linha sempre (sem preenchido no ativo): o ativo muda de cor e ganha o ponto vermelho.
+  { name: 'Inicio', title: 'Início', icon: 'home-outline', iconActive: 'home-outline' },
+  { name: 'Jogos', title: 'Jogos', icon: 'football-outline', iconActive: 'football-outline' },
+  { name: 'Ingressos', title: 'Ingressos', icon: 'ticket-outline', iconActive: 'ticket-outline' },
+  { name: 'Nacao', title: 'Nação', icon: 'people-outline', iconActive: 'people-outline' },
+  { name: 'Perfil', title: 'Perfil', icon: 'person-outline', iconActive: 'person-outline' },
 ];
 
 const SCREENS: Record<keyof TabParamList, React.ComponentType<any>> = {
@@ -50,8 +51,17 @@ function MeasuredTabBar({ onHeight, ...props }: BottomTabBarProps & { onHeight: 
 }
 
 export function TabNavigator() {
+  return (
+    <FabVisibilityProvider>
+      <TabNavigatorInner />
+    </FabVisibilityProvider>
+  );
+}
+
+function TabNavigatorInner() {
   const { colors, spacing } = useTheme();
   const navigation = useNavigation();
+  const fab = useFabVisibility();
   const [barHeight, setBarHeight] = useState(0);
   return (
     <View style={styles.flex}>
@@ -59,11 +69,16 @@ export function TabNavigator() {
         tabBar={(props) => <MeasuredTabBar {...props} onHeight={setBarHeight} />}
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: colors.primaryText,
-          tabBarInactiveTintColor: colors.textTertiary,
-          tabBarStyle: { backgroundColor: colors.surfaceElevated, borderTopColor: colors.border },
-          tabBarLabelStyle: { fontFamily: fonts.semibold, fontSize: 11 },
-          tabBarBadgeStyle: { backgroundColor: colors.primary, color: colors.onPrimary },
+          tabBarActiveTintColor: colors.accentText,
+          tabBarInactiveTintColor: colors.inkTertiary,
+          tabBarStyle: {
+            backgroundColor: colors.bgCanvas,
+            borderTopColor: colors.lineHairline,
+            borderTopWidth: 1,
+            minHeight: 60,
+          },
+          tabBarItemStyle: { paddingTop: 6 },
+          tabBarBadgeStyle: { backgroundColor: colors.accent, color: colors.inkOnRed },
           animation: 'shift',
         }}
       >
@@ -75,8 +90,24 @@ export function TabNavigator() {
             options={{
               title: t.title,
               tabBarAccessibilityLabel: t.title,
-              tabBarIcon: ({ color, size, focused }) => (
-                <Ionicons name={focused ? t.iconActive : t.icon} color={color} size={size} />
+              tabBarIcon: ({ color, focused }) => (
+                <Ionicons name={focused ? t.iconActive : t.icon} color={color} size={24} />
+              ),
+              // Rótulo + ponto vermelho de 4px na aba ativa (assinatura 7.2).
+              tabBarLabel: ({ color, focused }) => (
+                <View style={{ alignItems: 'center', gap: 4, marginTop: 4 }}>
+                  <Text variant="labelTab" style={{ color }}>
+                    {t.title}
+                  </Text>
+                  <View
+                    style={{
+                      width: 4,
+                      height: 4,
+                      borderRadius: 2,
+                      backgroundColor: focused ? colors.accent : 'transparent',
+                    }}
+                  />
+                </View>
               ),
             }}
           />
@@ -85,7 +116,11 @@ export function TabNavigator() {
       {/* Irmão do navigator (não filho da tab bar): no Android, filhos fora dos
           limites do pai não recebem toque. */}
       {barHeight > 0 && (
-        <AssistantFab bottom={barHeight + spacing.md} onPress={() => navigation.navigate('Assistant')} />
+        <AssistantFab
+          bottom={barHeight + spacing.lg}
+          visible={fab?.visible ?? true}
+          onPress={() => navigation.navigate('Assistant')}
+        />
       )}
     </View>
   );

@@ -4,6 +4,7 @@ import { RefreshControl, ScrollView, StyleSheet, View, type StyleProp, type View
 import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
 
 import { useTheme } from '../theme/ThemeProvider';
+import { useFabVisibility } from './FabVisibility';
 import { IconButton } from './IconButton';
 import { Text } from './Text';
 
@@ -37,11 +38,13 @@ export function Screen({
   contentStyle,
 }: ScreenProps) {
   const theme = useTheme();
-  const { colors, spacing, layout } = theme;
+  const { colors, spacing } = theme;
   const navigation = useNavigation();
   const hasHeader = !!title || !!headerRight;
   const canGoBack = (showBack ?? !!title) && navigation.canGoBack();
-  const bottomPad = reserveFab ? layout.fabSize + spacing.xxl : spacing.xxl;
+  // Telas com FAB: 96px extras para nada ficar coberto (especificação 6 e 12.15).
+  const bottomPad = reserveFab ? spacing.x96 + spacing.xl : spacing.xxl;
+  const fab = useFabVisibility();
 
   const header = hasHeader && (
     <View style={[styles.header, { paddingHorizontal: spacing.sm, minHeight: 52 }]}>
@@ -55,7 +58,7 @@ export function Screen({
           />
         )}
       </View>
-      <Text variant="title" numberOfLines={1} style={styles.headerTitle} accessibilityRole="header">
+      <Text variant="titleM" numberOfLines={1} style={styles.headerTitle} accessibilityRole="header">
         {title}
       </Text>
       <View style={[styles.headerSide, { alignItems: 'flex-end' }]}>{headerRight}</View>
@@ -66,6 +69,8 @@ export function Screen({
     <ScrollView
       contentContainerStyle={[{ paddingBottom: bottomPad }, contentStyle]}
       showsVerticalScrollIndicator={false}
+      onScroll={reserveFab ? fab?.onScroll : undefined}
+      scrollEventThrottle={32}
       refreshControl={
         onRefresh ? (
           <RefreshControl
@@ -95,7 +100,7 @@ export function Screen({
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   /** Em tablets o conteúdo não estica além de uma coluna confortável. */
-  maxWidth: { width: '100%', maxWidth: 640, alignSelf: 'center' },
+  maxWidth: { width: '100%', maxWidth: 600, alignSelf: 'center' },
   header: { flexDirection: 'row', alignItems: 'center' },
   headerSide: { width: 96, flexDirection: 'row' },
   headerTitle: { flex: 1, textAlign: 'center' },

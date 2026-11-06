@@ -1,40 +1,76 @@
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Animated, StyleSheet } from 'react-native';
 
-import { PressableScale, useTheme } from '@/design-system';
+import { Mascot, PressableScale, hasMascot, useTheme } from '@/design-system';
+import { useReduceMotion } from '@/hooks/useReduceMotion';
 
 /**
- * Botão flutuante do Assistente Fla. Fica ACIMA da tab bar, alinhado à
- * direita — nunca cobre a navegação; as telas de aba reservam espaço no fim
- * do scroll (Screen reserveFab) para não esconder conteúdo.
+ * FAB do Assistente Fla (especificação 12.15): 56px, 20px da direita, 16px
+ * acima da tab bar. Some ao rolar para baixo e volta ao rolar para cima.
+ * As telas com FAB reservam 96px no fim do scroll.
  */
-export function AssistantFab({ bottom, onPress }: { bottom: number; onPress: () => void }) {
-  const { colors, layout, elevation } = useTheme();
+export function AssistantFab({
+  bottom,
+  visible,
+  onPress,
+}: {
+  bottom: number;
+  visible: boolean;
+  onPress: () => void;
+}) {
+  const { colors, layout, elevation, motion } = useTheme();
+  const reduceMotion = useReduceMotion();
+  const anim = useState(() => new Animated.Value(1))[0];
+
+  useEffect(() => {
+    Animated.timing(anim, {
+      toValue: visible ? 1 : 0,
+      duration: reduceMotion ? motion.duration.reduced : motion.duration.fast,
+      useNativeDriver: true,
+    }).start();
+  }, [visible, anim, reduceMotion, motion]);
+
   return (
-    <PressableScale
-      onPress={onPress}
-      accessibilityLabel="Abrir Assistente Fla"
-      accessibilityHint="Tire dúvidas sobre jogos, ingressos, estádio e sócio"
-      scaleTo={0.92}
+    <Animated.View
+      pointerEvents={visible ? 'auto' : 'none'}
       style={[
-        styles.fab,
-        elevation.floating,
+        styles.wrap,
         {
           bottom,
           right: layout.gutter,
-          width: layout.fabSize,
-          height: layout.fabSize,
-          borderRadius: layout.fabSize / 2,
-          backgroundColor: colors.primary,
-          borderColor: colors.background,
+          opacity: anim,
+          transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [24, 0] }) }],
         },
       ]}
     >
-      <Ionicons name="chatbubble-ellipses" size={24} color={colors.onPrimary} />
-    </PressableScale>
+      <PressableScale
+        onPress={onPress}
+        accessibilityLabel="Abrir Assistente Fla"
+        accessibilityHint="Tire dúvidas sobre jogos, ingressos, estádio e sócio"
+        scaleTo={0.92}
+        style={[
+          styles.fab,
+          elevation.floating,
+          {
+            width: layout.fabSize,
+            height: layout.fabSize,
+            borderRadius: layout.fabSize / 2,
+            backgroundColor: colors.accent,
+          },
+        ]}
+      >
+        {hasMascot('assistant-neutral') ? (
+          <Mascot pose="assistant-neutral" size={48} />
+        ) : (
+          <Ionicons name="chatbubble-ellipses-outline" size={24} color={colors.inkOnRed} />
+        )}
+      </PressableScale>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  fab: { position: 'absolute', alignItems: 'center', justifyContent: 'center', borderWidth: 2 },
+  wrap: { position: 'absolute' },
+  fab: { alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
 });

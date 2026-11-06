@@ -84,7 +84,7 @@ function OnboardingFlow({ onDone }: { onDone: () => void }) {
     // Fundo sempre escuro (texto branco legível também no tema claro).
     <View style={{ flex: 1, backgroundColor: palette.ink950 }}>
       <LinearGradient
-        colors={[palette.red800, palette.ink950]}
+        colors={[palette.red700, palette.ink950]}
         style={StyleSheet.absoluteFill}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 0.55 }}

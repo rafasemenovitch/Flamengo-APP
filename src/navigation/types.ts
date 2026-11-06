@@ -48,6 +48,8 @@ export type RootStackParamList = {
   Community: undefined;
   // Perfil
   Settings: undefined;
+  // Dev
+  DesignSystem: undefined;
   // Assistente
   Assistant: { initialQuestion?: string } | undefined;
 };

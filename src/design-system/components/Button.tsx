@@ -1,12 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
-import { ActivityIndicator, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import type { ThemeColors } from '../tokens/colors';
 import { useTheme } from '../theme/ThemeProvider';
 import { PressableScale } from './PressableScale';
 import { Text } from './Text';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'onMedia';
+/**
+ * primary: vermelho (um por tela) · secondary: contorno branco ·
+ * ghost: fundo bgRaised2 · onMedia: contorno branco sobre foto/vermelho ·
+ * light: fundo branco (sobre bloco vermelho) · link: texto vermelho com seta.
+ */
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'onMedia' | 'light' | 'link';
 export type ButtonSize = 'md' | 'sm';
 
 export interface ButtonProps {
@@ -23,20 +29,24 @@ export interface ButtonProps {
   accessibilityHint?: string;
 }
 
-function variantColors(variant: ButtonVariant, c: ThemeColors) {
+function variantColors(variant: ButtonVariant, c: ThemeColors, pressed: boolean) {
   switch (variant) {
     case 'primary':
-      return { bg: c.primary, fg: c.onPrimary, border: c.primary };
+      return { bg: pressed ? c.accentPressed : c.accent, fg: c.inkOnRed, border: 'transparent' };
     case 'secondary':
-      return { bg: c.surfaceMuted, fg: c.textPrimary, border: c.border };
+      return { bg: 'transparent', fg: c.inkPrimary, border: c.lineStrong };
     case 'ghost':
-      return { bg: 'transparent', fg: c.primaryText, border: 'transparent' };
+      return { bg: c.bgRaised2, fg: c.inkPrimary, border: 'transparent' };
     case 'onMedia':
-      return { bg: 'rgba(255,255,255,0.14)', fg: c.textOnMedia, border: 'rgba(255,255,255,0.28)' };
+      return { bg: 'transparent', fg: c.inkOnRed, border: c.inkOnRed };
+    case 'light':
+      return { bg: c.inkOnRed, fg: c.bgCanvas, border: 'transparent' };
+    case 'link':
+      return { bg: 'transparent', fg: c.accentText, border: 'transparent' };
   }
 }
 
-/** Botão único do app (o Zuno tinha um estilo de botão por tela). Altura mínima 44px. */
+/** Botão único do app (especificação 12.3). Raio 12; altura 52 (36 no pequeno). */
 export function Button({
   label,
   onPress,
@@ -50,16 +60,43 @@ export function Button({
   style,
   accessibilityHint,
 }: ButtonProps) {
-  const { colors, radius, spacing, layout } = useTheme();
-  const { bg, fg, border } = variantColors(variant, colors);
+  const { colors, radius, layout } = useTheme();
+  const [pressed, setPressed] = useState(false);
   const isDisabled = disabled || loading;
-  const height = size === 'md' ? 50 : layout.minTouch;
 
-  const iconEl = icon ? <Ionicons name={icon} size={size === 'md' ? 18 : 16} color={fg} /> : null;
+  if (variant === 'link') {
+    return (
+      <Pressable
+        onPress={onPress}
+        disabled={isDisabled}
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        hitSlop={8}
+        style={({ pressed: p }) => [
+          styles.row,
+          { minHeight: layout.minTouch, gap: 4, opacity: p ? 0.6 : 1 },
+          style,
+        ]}
+      >
+        <Text variant="labelM" style={{ color: colors.accentText }}>
+          {label}
+        </Text>
+        <Ionicons name={icon ?? 'arrow-forward'} size={16} color={colors.accentText} />
+      </Pressable>
+    );
+  }
+
+  const { bg, fg, border } = isDisabled
+    ? { bg: colors.bgRaised2, fg: colors.inkTertiary, border: 'transparent' }
+    : variantColors(variant, colors, pressed);
+  const md = size === 'md';
+  const iconEl = icon ? <Ionicons name={icon} size={md ? 20 : 16} color={fg} /> : null;
 
   return (
     <PressableScale
       onPress={onPress}
+      onPressIn={() => setPressed(true)}
+      onPressOut={() => setPressed(false)}
       disabled={isDisabled}
       accessibilityLabel={label}
       accessibilityHint={accessibilityHint}
@@ -67,12 +104,12 @@ export function Button({
       style={[
         styles.base,
         {
-          minHeight: height,
-          paddingHorizontal: size === 'md' ? spacing.xl : spacing.lg,
+          minHeight: md ? 52 : 36,
+          paddingHorizontal: md ? 20 : 12,
           backgroundColor: bg,
           borderColor: border,
-          borderRadius: radius.pill,
-          opacity: isDisabled ? 0.5 : 1,
+          borderWidth: border === 'transparent' ? 0 : 1.5,
+          borderRadius: md ? radius.m : radius.s,
           alignSelf: fullWidth ? 'stretch' : 'flex-start',
         },
         style,
@@ -81,9 +118,9 @@ export function Button({
       {loading ? (
         <ActivityIndicator color={fg} />
       ) : (
-        <View style={[styles.content, { gap: spacing.sm }]}>
+        <View style={[styles.row, { gap: 8 }]}>
           {iconPosition === 'left' && iconEl}
-          <Text variant="label" style={{ color: fg, fontSize: size === 'md' ? 15 : 13 }}>
+          <Text variant={md ? 'labelButton' : 'labelM'} style={{ color: fg }} numberOfLines={1}>
             {label}
           </Text>
           {iconPosition === 'right' && iconEl}
@@ -94,10 +131,6 @@ export function Button({
 }
 
 const styles = StyleSheet.create({
-  base: {
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  content: { flexDirection: 'row', alignItems: 'center' },
+  base: { alignItems: 'center', justifyContent: 'center' },
+  row: { flexDirection: 'row', alignItems: 'center' },
 });

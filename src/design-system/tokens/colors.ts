@@ -1,189 +1,200 @@
 /**
- * Paleta bruta — NUNCA usar direto em componentes. Componentes leem apenas os
- * tokens semânticos de `ThemeColors` (via useTheme()), para que tema claro e
- * escuro funcionem sem nenhuma cor literal espalhada pelas telas.
+ * Paleta bruta. Componentes NUNCA usam estes valores direto: usam os tokens
+ * semânticos de `ThemeColors` via useTheme().
  */
 export const palette = {
-  red300: '#FF7A84',
-  red400: '#FF4D5A',
-  red500: '#E01A2F',
-  red600: '#C8102E', // rubro principal — 5,9:1 com branco
-  red700: '#A00D24',
-  red800: '#6E0A19',
-  red900: '#2A0509',
-
   black: '#000000',
-  ink950: '#0A0A0C',
-  ink900: '#111114',
-  ink850: '#16161A',
-  ink800: '#1C1C21',
-  ink750: '#232329',
-  ink700: '#2B2B32',
-  ink600: '#3A3A43',
-  ink500: '#5A5A64',
-  ink400: '#83838D',
-  ink300: '#A9A9B2',
-  ink200: '#D4D4DA',
-  ink100: '#E8E8EC',
-  ink50: '#F4F4F6',
+  ink950: '#0A0A0B',
+  ink900: '#151518',
+  ink850: '#1E1E22',
+  ink800: '#26262B',
+  ink500: '#7C7C84',
+  ink300: '#A6A6AD',
+  ink50: '#F5F5F4',
   white: '#FFFFFF',
-
-  green400: '#34D399',
-  green700: '#0F7A3D',
-  amber400: '#F5B83D',
-  amber700: '#8A5A00',
-  blue400: '#60A5FA',
-  blue700: '#1D4ED8',
+  red600: '#C8102E',
+  red700: '#A50D26',
+  red400: '#FF4D5E',
+  redLive: '#FF2D3F',
+  green: '#3CCB7F',
+  amber: '#F5B544',
+  // Medalhas (Conquistas)
   gold: '#D4A72C',
   silver: '#A8B0BA',
   bronze: '#B87A4B',
 } as const;
 
-export interface ThemeColors {
-  /** Fundo da tela. */
-  background: string;
-  /** Cards e superfícies sobre o fundo. */
-  surface: string;
-  /** Superfície acima de outra (sheet, card dentro de card, tab bar). */
-  surfaceElevated: string;
-  /** Fundo de chips, inputs e trilhas de progresso. */
-  surfaceMuted: string;
-  border: string;
-  borderStrong: string;
-
-  /** Preenchimento de marca (botões, destaques). Sempre com `onPrimary` por cima. */
-  primary: string;
-  primaryPressed: string;
-  onPrimary: string;
-  /** Vermelho para TEXTO/ÍCONE sobre background/surface (contraste ≥ 4,5:1). */
-  primaryText: string;
-  /** Fundo tingido de vermelho (badges, item selecionado). */
-  primarySubtle: string;
-
-  textPrimary: string;
-  textSecondary: string;
-  textTertiary: string;
-  /** Texto sobre imagens/gradientes escuros, independente do tema. */
-  textOnMedia: string;
-
-  success: string;
-  successSubtle: string;
-  warning: string;
-  warningSubtle: string;
-  danger: string;
-  dangerSubtle: string;
-  info: string;
-  infoSubtle: string;
-
-  /** Indicador AO VIVO. */
+/**
+ * Tokens da identidade (especificação de redesign, seção 4). Preto profundo,
+ * branco forte, vermelho com intenção.
+ */
+interface IdentityTokens {
+  /** Fundo de todas as telas. */
+  bgCanvas: string;
+  /** Fundo de objetos: ingresso, palpite, bolha do assistente, busca. */
+  bgRaised: string;
+  /** Botões −/+, células de quiz, opções de enquete, skeleton. */
+  bgRaised2: string;
+  /** Blocos vermelhos de destaque (dia de jogo, comemoração, fundo de foto). */
+  bgRed: string;
+  inkPrimary: string;
+  inkSecondary: string;
+  /** Legendas e inativos. Nunca em texto essencial abaixo de 13px. */
+  inkTertiary: string;
+  inkOnRed: string;
+  lineHairline: string;
+  lineStrong: string;
+  /** Preenchimento vermelho (botão primário). */
+  accent: string;
+  accentPressed: string;
+  /** Texto/ícone vermelho sobre preto (contraste ~6:1). */
+  accentText: string;
+  accentTint: string;
   live: string;
-  liveSubtle: string;
-  /** Selo DEMO (tudo que é simulado). */
-  demo: string;
-  demoSubtle: string;
-
+  success: string;
+  /** Texto do selo DEMO. */
+  warning: string;
+  warningBg: string;
+  danger: string;
+  /** Degradê de leitura sobre foto (topo → base). */
+  overlayPhoto: readonly [string, string];
+  scrim: string;
   gold: string;
   silver: string;
   bronze: string;
+}
 
+/**
+ * Nomes da primeira versão do app, mantidos como APELIDOS dos tokens novos
+ * durante a migração das telas. Não usar em código novo.
+ * @deprecated
+ */
+interface LegacyTokens {
+  background: string;
+  surface: string;
+  surfaceElevated: string;
+  surfaceMuted: string;
+  border: string;
+  borderStrong: string;
+  primary: string;
+  primaryPressed: string;
+  onPrimary: string;
+  primaryText: string;
+  primarySubtle: string;
+  textPrimary: string;
+  textSecondary: string;
+  textTertiary: string;
+  textOnMedia: string;
+  successSubtle: string;
+  warningSubtle: string;
+  dangerSubtle: string;
+  info: string;
+  infoSubtle: string;
+  liveSubtle: string;
+  demo: string;
+  demoSubtle: string;
   overlay: string;
   skeleton: string;
   skeletonHighlight: string;
-  /** Degradê do card hero (de cima para baixo). */
   heroGradient: readonly [string, string];
-  /** Escurecimento sobre imagens para legibilidade do texto. */
   mediaScrim: readonly [string, string];
 }
 
-export const darkColors: ThemeColors = {
-  background: palette.ink950,
-  surface: palette.ink850,
-  surfaceElevated: palette.ink800,
-  surfaceMuted: palette.ink750,
-  border: palette.ink700,
-  borderStrong: palette.ink600,
+export type ThemeColors = IdentityTokens & LegacyTokens;
 
-  primary: palette.red600,
-  primaryPressed: palette.red700,
-  onPrimary: palette.white,
-  primaryText: palette.red400,
-  primarySubtle: 'rgba(224, 26, 47, 0.18)',
+function withLegacy(t: IdentityTokens): ThemeColors {
+  return {
+    ...t,
+    background: t.bgCanvas,
+    surface: t.bgRaised,
+    surfaceElevated: t.bgRaised,
+    surfaceMuted: t.bgRaised2,
+    border: t.lineHairline,
+    borderStrong: t.lineStrong,
+    primary: t.accent,
+    primaryPressed: t.accentPressed,
+    onPrimary: t.inkOnRed,
+    primaryText: t.accentText,
+    primarySubtle: t.accentTint,
+    textPrimary: t.inkPrimary,
+    textSecondary: t.inkSecondary,
+    textTertiary: t.inkTertiary,
+    textOnMedia: t.inkOnRed,
+    successSubtle: 'rgba(60,203,127,0.14)',
+    warningSubtle: t.warningBg,
+    dangerSubtle: 'rgba(255,77,94,0.14)',
+    info: t.inkSecondary,
+    infoSubtle: t.bgRaised2,
+    liveSubtle: 'rgba(255,45,63,0.16)',
+    demo: t.warning,
+    demoSubtle: t.warningBg,
+    overlay: t.scrim,
+    skeleton: t.bgRaised2,
+    skeletonHighlight: t.lineHairline,
+    heroGradient: [t.bgRaised, t.bgCanvas],
+    mediaScrim: t.overlayPhoto,
+  };
+}
 
-  textPrimary: '#F5F5F7',
-  textSecondary: palette.ink300,
-  textTertiary: palette.ink400,
-  textOnMedia: palette.white,
-
-  success: palette.green400,
-  successSubtle: 'rgba(52, 211, 153, 0.16)',
-  warning: palette.amber400,
-  warningSubtle: 'rgba(245, 184, 61, 0.16)',
-  danger: '#FF6B6B',
-  dangerSubtle: 'rgba(255, 107, 107, 0.16)',
-  info: palette.blue400,
-  infoSubtle: 'rgba(96, 165, 250, 0.16)',
-
-  live: '#FF3045',
-  liveSubtle: 'rgba(255, 48, 69, 0.18)',
-  demo: palette.amber400,
-  demoSubtle: 'rgba(245, 184, 61, 0.14)',
-
+export const darkColors: ThemeColors = withLegacy({
+  bgCanvas: palette.ink950,
+  bgRaised: palette.ink900,
+  bgRaised2: palette.ink850,
+  bgRed: palette.red600,
+  inkPrimary: palette.ink50,
+  inkSecondary: palette.ink300,
+  inkTertiary: palette.ink500,
+  inkOnRed: palette.white,
+  lineHairline: palette.ink800,
+  lineStrong: palette.ink50,
+  accent: palette.red600,
+  accentPressed: palette.red700,
+  accentText: palette.red400,
+  accentTint: 'rgba(200,16,46,0.16)',
+  live: palette.redLive,
+  success: palette.green,
+  warning: palette.amber,
+  warningBg: 'rgba(245,181,68,0.14)',
+  danger: palette.red400,
+  overlayPhoto: ['rgba(10,10,11,0)', 'rgba(10,10,11,0.85)'],
+  scrim: 'rgba(0,0,0,0.6)',
   gold: palette.gold,
   silver: palette.silver,
   bronze: palette.bronze,
+});
 
-  overlay: 'rgba(0, 0, 0, 0.65)',
-  skeleton: palette.ink800,
-  skeletonHighlight: palette.ink700,
-  heroGradient: ['#3A0610', palette.ink900],
-  mediaScrim: ['rgba(0,0,0,0)', 'rgba(0,0,0,0.85)'],
-};
-
-export const lightColors: ThemeColors = {
-  background: palette.ink50,
-  surface: palette.white,
-  surfaceElevated: palette.white,
-  surfaceMuted: palette.ink100,
-  border: '#E3E3E8',
-  borderStrong: palette.ink200,
-
-  primary: palette.red600,
-  primaryPressed: palette.red700,
-  onPrimary: palette.white,
-  primaryText: '#B00E28',
-  primarySubtle: 'rgba(200, 16, 46, 0.09)',
-
-  textPrimary: palette.ink950,
-  textSecondary: '#52525C',
-  textTertiary: '#6B6B75',
-  textOnMedia: palette.white,
-
-  success: palette.green700,
-  successSubtle: 'rgba(15, 122, 61, 0.10)',
-  warning: palette.amber700,
-  warningSubtle: 'rgba(245, 184, 61, 0.18)',
-  danger: '#C62828',
-  dangerSubtle: 'rgba(198, 40, 40, 0.09)',
-  info: palette.blue700,
-  infoSubtle: 'rgba(29, 78, 216, 0.09)',
-
+/**
+ * Tema claro: arquitetura pronta, desenho NÃO priorizado nesta etapa
+ * (especificação, seção 4). Valores provisórios com contraste adequado.
+ */
+export const lightColors: ThemeColors = withLegacy({
+  bgCanvas: '#F5F5F4',
+  bgRaised: '#FFFFFF',
+  bgRaised2: '#EAEAEA',
+  bgRed: palette.red600,
+  inkPrimary: palette.ink950,
+  inkSecondary: '#4E4E55',
+  inkTertiary: '#6B6B73',
+  inkOnRed: palette.white,
+  lineHairline: '#DEDEE2',
+  lineStrong: palette.ink950,
+  accent: palette.red600,
+  accentPressed: palette.red700,
+  accentText: '#B00E28',
+  accentTint: 'rgba(200,16,46,0.09)',
   live: '#D90022',
-  liveSubtle: 'rgba(217, 0, 34, 0.10)',
-  demo: palette.amber700,
-  demoSubtle: 'rgba(245, 184, 61, 0.20)',
-
+  success: '#0F7A3D',
+  warning: '#8A5A00',
+  warningBg: 'rgba(245,181,68,0.2)',
+  danger: '#B00E28',
+  overlayPhoto: ['rgba(10,10,11,0)', 'rgba(10,10,11,0.85)'],
+  scrim: 'rgba(10,10,11,0.5)',
   gold: '#A77F12',
   silver: '#6F7782',
   bronze: '#8E5A33',
+});
 
-  overlay: 'rgba(10, 10, 12, 0.5)',
-  skeleton: palette.ink100,
-  skeletonHighlight: palette.ink50,
-  heroGradient: [palette.red700, palette.red900],
-  mediaScrim: ['rgba(0,0,0,0)', 'rgba(0,0,0,0.8)'],
-};
-
-/** Aplica alpha (0–1) a uma cor #RRGGBB. Útil para tingimentos derivados de tokens. */
+/** Aplica alpha (0–1) a uma cor #RRGGBB. */
 export function withAlpha(hex: string, alpha: number) {
   const a = Math.round(Math.min(1, Math.max(0, alpha)) * 255)
     .toString(16)

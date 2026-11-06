@@ -19,26 +19,21 @@ export type BadgeTone =
 
 function toneColors(tone: BadgeTone, c: ThemeColors) {
   switch (tone) {
-    case 'neutral':
-      return { bg: c.surfaceMuted, fg: c.textSecondary };
-    case 'brand':
-      return { bg: c.primarySubtle, fg: c.primaryText };
     case 'solidBrand':
-      return { bg: c.primary, fg: c.onPrimary };
-    case 'success':
-      return { bg: c.successSubtle, fg: c.success };
-    case 'warning':
-      return { bg: c.warningSubtle, fg: c.warning };
-    case 'danger':
-      return { bg: c.dangerSubtle, fg: c.danger };
-    case 'info':
-      return { bg: c.infoSubtle, fg: c.info };
     case 'live':
-      return { bg: c.live, fg: c.onPrimary };
+      return { bg: c.accent, fg: c.inkOnRed };
     case 'demo':
-      return { bg: c.demoSubtle, fg: c.demo };
+    case 'warning':
+      return { bg: c.warningBg, fg: c.warning };
     case 'onMedia':
-      return { bg: 'rgba(0,0,0,0.45)', fg: c.textOnMedia };
+      return { bg: 'rgba(10,10,11,0.7)', fg: c.inkOnRed };
+    case 'success':
+      return { bg: c.bgRaised2, fg: c.success };
+    case 'danger':
+    case 'brand':
+      return { bg: c.bgRaised2, fg: c.accentText };
+    default:
+      return { bg: c.bgRaised2, fg: c.inkSecondary };
   }
 }
 
@@ -49,24 +44,24 @@ export interface BadgeProps {
   style?: StyleProp<ViewStyle>;
 }
 
-/** Pílula de status (evolução do StatusPill do Zuno). */
+/**
+ * Selo pequeno (raio 8, 20px). Regra: no máximo 1 selo por objeto; pontos
+ * ("+10 pts") são TEXTO vermelho, não selo.
+ */
 export function Badge({ label, tone = 'neutral', icon, style }: BadgeProps) {
   const { colors, radius } = useTheme();
   const { bg, fg } = toneColors(tone, colors);
   return (
-    <View style={[styles.pill, { backgroundColor: bg, borderRadius: radius.pill }, style]}>
+    <View style={[styles.pill, { backgroundColor: bg, borderRadius: radius.s }, style]}>
       {icon && <Ionicons name={icon} size={12} color={fg} />}
-      <Text variant="overline" style={{ color: fg, fontSize: 10, letterSpacing: 0.8 }}>
+      <Text variant="overline" style={{ color: fg, fontSize: 10, lineHeight: 12, letterSpacing: 0.6 }}>
         {label}
       </Text>
     </View>
   );
 }
 
-/**
- * Selo obrigatório em tudo que é simulado (ingressos, QR, carteirinha,
- * checkout, pagamentos, benefícios, placares simulados).
- */
+/** Selo DEMO (especificação 12.16): tudo que é simulado. Máximo 1 por objeto. */
 export function DemoBadge({ style, label = 'Demo' }: { style?: StyleProp<ViewStyle>; label?: string }) {
   return (
     <View accessible accessibilityLabel="Conteúdo demonstrativo, sem validade real">
@@ -80,8 +75,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    height: 20,
+    paddingHorizontal: 6,
     alignSelf: 'flex-start',
   },
 });

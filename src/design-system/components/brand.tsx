@@ -1,49 +1,76 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { ReactNode } from 'react';
-import { Image, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
-import Svg, { ClipPath, Defs, Path, Rect, Text as SvgText } from 'react-native-svg';
+import { Image, StyleSheet, View, type ImageStyle, type StyleProp, type ViewStyle } from 'react-native';
+import Svg, { Path, Text as SvgText } from 'react-native-svg';
 
-import { brandAssets, mediaAssets } from '@assets/brand';
-import { palette } from '../tokens/colors';
+import { brandAssets } from '@assets/brand';
+import { photos, placeholders, type PhotoAspect } from '@assets/photos';
+import { CLUB } from '@/data/demo/seed';
+import { fonts } from '../tokens/typography';
 import { useTheme } from '../theme/ThemeProvider';
 import { Text } from './Text';
 
 const SHIELD_PATH = 'M50 4 L92 16 V52 C92 76 72 92 50 100 C28 92 8 76 8 52 V16 Z';
 
+export interface CrestTeam {
+  id: string;
+  code: string;
+  color: string;
+  shortName?: string;
+}
+
 /**
- * Escudo do clube. Sem licença ainda: desenha um escudo GENÉRICO (não imita o
- * oficial). Troca automaticamente quando `brandAssets.crest` for preenchido.
+ * Escudo ÚNICO do app (especificação 9.3): forma de escudo + sigla de 3 letras
+ * na cor de placeholder do time. O do Flamengo vira o escudo oficial
+ * automaticamente quando `brandAssets.crest` for preenchido.
+ * Tamanhos: 20 (lista) · 28 (ingresso) · 40 (palpite) · 56 (hero).
  */
-export function ClubCrest({ size = 40 }: { size?: number }) {
+export function Crest({ team, size = 40 }: { team: CrestTeam; size?: number }) {
   const { colors } = useTheme();
-  if (brandAssets.crest) {
+  const label = `Escudo ${team.shortName ?? team.code}`;
+  if (team.id === CLUB.id && brandAssets.crest) {
     return (
       <Image
         source={brandAssets.crest}
         style={{ width: size, height: size }}
         resizeMode="contain"
-        accessibilityLabel="Escudo do clube"
+        accessibilityLabel={label}
       />
     );
   }
   return (
-    <View accessible accessibilityLabel="Escudo do clube (placeholder)" style={{ width: size, height: size }}>
+    <View accessible accessibilityLabel={`${label} (placeholder)`} style={{ width: size, height: size }}>
       <Svg width={size} height={size} viewBox="0 0 100 104">
-        <Defs>
-          <ClipPath id="shield">
-            <Path d={SHIELD_PATH} />
-          </ClipPath>
-        </Defs>
-        <Rect x="0" y="0" width="100" height="104" fill={colors.primary} clipPath="url(#shield)" />
-        <Rect x="0" y="52" width="100" height="52" fill={palette.ink900} clipPath="url(#shield)" />
-        <Path d={SHIELD_PATH} fill="none" stroke={palette.white} strokeWidth={4} />
+        <Path
+          d={SHIELD_PATH}
+          fill={team.color}
+          stroke={colors.inkPrimary}
+          strokeOpacity={0.85}
+          strokeWidth={4}
+        />
+        <SvgText
+          x="50"
+          y="63"
+          fontSize="29"
+          fontFamily={fonts.displayNormal700}
+          fontWeight="700"
+          fill={colors.inkOnRed}
+          textAnchor="middle"
+        >
+          {team.code.slice(0, 3).toUpperCase()}
+        </SvgText>
       </Svg>
     </View>
   );
 }
 
-/** Escudo genérico de adversário: forma neutra + sigla + cor principal do seed. */
+/** Escudo do Flamengo (atalho para <Crest team={CLUB} />). */
+export function ClubCrest({ size = 40 }: { size?: number }) {
+  return <Crest team={CLUB} size={size} />;
+}
+
+/** @deprecated use <Crest team={...} />. */
 export function TeamCrest({
   shortName,
   color,
@@ -54,28 +81,9 @@ export function TeamCrest({
   size?: number;
 }) {
   return (
-    <View
-      accessible
-      accessibilityLabel={`Escudo de ${shortName} (placeholder)`}
-      style={{ width: size, height: size }}
-    >
-      <Svg width={size} height={size} viewBox="0 0 100 104">
-        <Path d={SHIELD_PATH} fill={color} stroke="rgba(255,255,255,0.7)" strokeWidth={4} />
-        <SvgText x="50" y="62" fontSize="30" fontWeight="800" fill={palette.white} textAnchor="middle">
-          {shortName.slice(0, 3).toUpperCase()}
-        </SvgText>
-      </Svg>
-    </View>
+    <Crest team={{ id: shortName === 'FLA' ? CLUB.id : shortName, code: shortName, color }} size={size} />
   );
 }
-
-const MEDIA_GRADIENTS: readonly (readonly [string, string])[] = [
-  [palette.red800, palette.ink900],
-  [palette.red600, palette.red900],
-  [palette.ink700, palette.ink950],
-  [palette.red900, palette.red700],
-  [palette.ink800, palette.red800],
-];
 
 function hashKey(key: string) {
   let h = 0;
@@ -83,43 +91,71 @@ function hashKey(key: string) {
   return h;
 }
 
-export interface MediaImageProps {
-  /** Chave da imagem (ver mediaAssets). Sem imagem registrada, mostra placeholder. */
+export interface TreatedImageProps {
+  /** Chave de conteúdo (ex.: 'news-1'); escolhe a foto registrada ou um placeholder estável. */
   imageKey: string;
-  icon?: keyof typeof Ionicons.glyphMap;
+  aspect?: PhotoAspect;
+  /** Degradê de leitura da parte de baixo da foto. */
+  overlay?: boolean;
   style?: StyleProp<ViewStyle>;
-  /** Escurece a parte de baixo para texto por cima. */
-  scrim?: boolean;
   children?: ReactNode;
 }
 
-/** Imagem de notícia/vídeo/produto. Placeholder: degradê rubro-negro estável por chave + ícone. */
-export function MediaImage({ imageKey, icon = 'image-outline', style, scrim, children }: MediaImageProps) {
+/**
+ * Foto com o tratamento "bandeirão" (duotone vermelho/preto, grão), aplicado
+ * no arquivo por scripts/treat-images.py.
+ */
+export function TreatedImage({ imageKey, aspect = 'wide', overlay, style, children }: TreatedImageProps) {
   const { colors } = useTheme();
-  const source = mediaAssets[imageKey];
-  const gradient = MEDIA_GRADIENTS[hashKey(imageKey) % MEDIA_GRADIENTS.length]!;
-
+  const list = placeholders[aspect];
+  const source = photos[imageKey] ?? list[hashKey(imageKey) % list.length]!;
   return (
-    <View style={[styles.media, style]}>
-      {source ? (
-        <Image source={source} style={StyleSheet.absoluteFill} resizeMode="cover" />
-      ) : (
+    <View style={[styles.media, { backgroundColor: colors.bgRed }, style]}>
+      <Image
+        source={source}
+        style={StyleSheet.absoluteFill as StyleProp<ImageStyle>}
+        resizeMode="cover"
+        accessibilityIgnoresInvertColors
+      />
+      {overlay && (
         <LinearGradient
-          colors={gradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[StyleSheet.absoluteFill, styles.center]}
-        >
-          <Ionicons name={icon} size={32} color="rgba(255,255,255,0.28)" />
-        </LinearGradient>
+          colors={colors.overlayPhoto}
+          locations={[0.4, 1]}
+          style={StyleSheet.absoluteFill}
+          pointerEvents="none"
+        />
       )}
-      {scrim && <LinearGradient colors={colors.mediaScrim} style={StyleSheet.absoluteFill} />}
       {children}
     </View>
   );
 }
 
-/** Avatar com iniciais (placeholder de foto de torcedor/jogador). */
+/** @deprecated use TreatedImage. Mantido para telas ainda não migradas. */
+export function MediaImage({
+  imageKey,
+  style,
+  scrim,
+  children,
+}: {
+  imageKey: string;
+  icon?: keyof typeof Ionicons.glyphMap;
+  style?: StyleProp<ViewStyle>;
+  scrim?: boolean;
+  children?: ReactNode;
+}) {
+  const aspect: PhotoAspect = imageKey.startsWith('video')
+    ? 'video'
+    : imageKey.startsWith('product') || imageKey.startsWith('player')
+      ? 'square'
+      : 'wide';
+  return (
+    <TreatedImage imageKey={imageKey} aspect={aspect} overlay={scrim} style={style}>
+      {children}
+    </TreatedImage>
+  );
+}
+
+/** Avatar circular com iniciais ou número (placeholder de foto). */
 export function Avatar({ name, size = 40, number }: { name: string; size?: number; number?: number }) {
   const { colors } = useTheme();
   const initials = name
@@ -136,14 +172,15 @@ export function Avatar({ name, size = 40, number }: { name: string; size?: numbe
         width: size,
         height: size,
         borderRadius: size / 2,
-        backgroundColor: colors.primarySubtle,
-        borderWidth: 1,
-        borderColor: colors.border,
+        backgroundColor: colors.bgRaised2,
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      <Text variant="label" tone="brand" style={{ fontSize: size * 0.36, lineHeight: size * 0.44 }}>
+      <Text
+        variant="labelM"
+        style={{ fontSize: size * 0.36, lineHeight: size * 0.44, color: colors.inkPrimary }}
+      >
         {number !== undefined ? number : initials}
       </Text>
     </View>
@@ -151,6 +188,5 @@ export function Avatar({ name, size = 40, number }: { name: string; size?: numbe
 }
 
 const styles = StyleSheet.create({
-  media: { overflow: 'hidden', backgroundColor: palette.ink900 },
-  center: { alignItems: 'center', justifyContent: 'center' },
+  media: { overflow: 'hidden' },
 });

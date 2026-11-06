@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Children, type ReactNode } from 'react';
+import { View } from 'react-native';
 
 import { useTheme } from '../theme/ThemeProvider';
 import { PressableScale } from './PressableScale';
@@ -9,15 +9,18 @@ import { Text } from './Text';
 export interface ListItemProps {
   title: string;
   subtitle?: string;
+  /** Ícone de linha de 20px, SEM fundo colorido (regra anti-template). */
   icon?: keyof typeof Ionicons.glyphMap;
   leading?: ReactNode;
   trailing?: ReactNode;
   onPress?: () => void;
-  /** Mostra chevron à direita (padrão: true quando há onPress). */
   chevron?: boolean;
   destructive?: boolean;
+  /** Linha grande (72px), usada nas entradas da Nação. */
+  large?: boolean;
 }
 
+/** Linha de lista (especificação 12.16). */
 export function ListItem({
   title,
   subtitle,
@@ -27,49 +30,39 @@ export function ListItem({
   onPress,
   chevron,
   destructive,
+  large,
 }: ListItemProps) {
-  const { colors, spacing, radius, layout } = useTheme();
+  const { colors, layout } = useTheme();
   const showChevron = chevron ?? !!onPress;
-  const fg = destructive ? colors.danger : colors.textPrimary;
+  const fg = destructive ? colors.danger : colors.inkPrimary;
 
   const content = (
     <View
-      style={[
-        styles.row,
-        {
-          minHeight: layout.minTouch + 12,
-          gap: spacing.md,
-          paddingHorizontal: spacing.lg,
-          paddingVertical: spacing.md,
-        },
-      ]}
+      style={{
+        minHeight: large ? 72 : 56,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 16,
+        paddingHorizontal: layout.gutter,
+        paddingVertical: 12,
+      }}
     >
       {leading ??
         (icon && (
-          <View
-            style={[
-              styles.iconWrap,
-              {
-                backgroundColor: destructive ? colors.dangerSubtle : colors.surfaceMuted,
-                borderRadius: radius.sm,
-              },
-            ]}
-          >
-            <Ionicons name={icon} size={18} color={fg} />
-          </View>
+          <Ionicons name={icon} size={20} color={destructive ? colors.danger : colors.inkSecondary} />
         ))}
-      <View style={styles.flex}>
-        <Text variant="bodyStrong" style={{ color: fg }} numberOfLines={1}>
+      <View style={{ flex: 1, gap: 2 }}>
+        <Text variant={large ? 'titleM' : 'titleS'} style={{ color: fg }} numberOfLines={2}>
           {title}
         </Text>
         {subtitle && (
-          <Text variant="caption" tone="secondary" numberOfLines={2}>
+          <Text variant="bodyS" tone="secondary" numberOfLines={2}>
             {subtitle}
           </Text>
         )}
       </View>
       {trailing}
-      {showChevron && <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />}
+      {showChevron && <Ionicons name="chevron-forward" size={16} color={colors.inkTertiary} />}
     </View>
   );
 
@@ -78,34 +71,23 @@ export function ListItem({
     <PressableScale
       onPress={onPress}
       accessibilityLabel={subtitle ? `${title}. ${subtitle}` : title}
-      scaleTo={0.985}
+      scaleTo={0.99}
     >
       {content}
     </PressableScale>
   );
 }
 
-/** Agrupa ListItems num card com divisórias. */
+/** Grupo de linhas aberto no fundo (sem card), com hairlines recuadas 20px. */
 export function ListGroup({ children }: { children: ReactNode }) {
-  const { colors, radius, layout } = useTheme();
-  const items = Array.isArray(children) ? children.filter(Boolean) : [children];
+  const { colors, layout } = useTheme();
+  const items = Children.toArray(children).filter(Boolean);
   return (
-    <View
-      style={{
-        marginHorizontal: layout.gutter,
-        backgroundColor: colors.surface,
-        borderRadius: radius.lg,
-        borderWidth: 1,
-        borderColor: colors.border,
-        overflow: 'hidden',
-      }}
-    >
+    <View style={{ borderTopWidth: 1, borderBottomWidth: 1, borderColor: colors.lineHairline }}>
       {items.map((child, i) => (
         <View key={i}>
           {i > 0 && (
-            <View
-              style={{ height: StyleSheet.hairlineWidth, backgroundColor: colors.border, marginLeft: 64 }}
-            />
+            <View style={{ height: 1, backgroundColor: colors.lineHairline, marginLeft: layout.gutter }} />
           )}
           {child}
         </View>
@@ -113,9 +95,3 @@ export function ListGroup({ children }: { children: ReactNode }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center' },
-  flex: { flex: 1, gap: 2 },
-  iconWrap: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
-});

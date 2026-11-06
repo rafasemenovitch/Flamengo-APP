@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import { Alert, Switch, View } from 'react-native';
 
 import {
@@ -33,6 +34,7 @@ const PRIVACY: [keyof PrivacyPrefs, string, string][] = [
 ];
 
 export function SettingsScreen() {
+  const navigation = useNavigation();
   const { colors, spacing, layout } = useTheme();
   const { preference, setPreference } = useThemePreference();
   const { profile, updateProfile } = useAppState();
@@ -111,6 +113,14 @@ export function SettingsScreen() {
             title="Flamengo App · versão conceito"
             subtitle={`Fonte de dados: ${DATA_SOURCE === 'demo' ? 'demonstrativa' : 'integrações reais'}`}
           />
+          {__DEV__ && (
+            <ListItem
+              icon="color-palette-outline"
+              title="Catálogo do design system"
+              subtitle="Só em desenvolvimento"
+              onPress={() => navigation.navigate('DesignSystem')}
+            />
+          )}
           <ListItem
             icon="play-circle-outline"
             title="Rever boas-vindas"

@@ -11,6 +11,7 @@ import { useReduceMotion } from '@/hooks/useReduceMotion';
 import { useTheme } from '@/design-system';
 import { AssistantScreen } from '@/features/assistant/AssistantScreen';
 import { FlaTVScreen, NewsListScreen } from '@/features/content/ContentListScreens';
+import { DesignSystemScreen } from '@/features/dev/DesignSystemScreen';
 import { NewsDetailScreen } from '@/features/content/NewsDetailScreen';
 import { NotificationsScreen } from '@/features/content/NotificationsScreen';
 import { VideoDetailScreen } from '@/features/content/VideoDetailScreen';
@@ -99,6 +100,7 @@ export function RootNavigator() {
         <Stack.Screen name="Passport" component={PassportScreen} />
         <Stack.Screen name="Community" component={CommunityScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
+        {__DEV__ && <Stack.Screen name="DesignSystem" component={DesignSystemScreen} />}
         <Stack.Screen
           name="Assistant"
           component={AssistantScreen}
