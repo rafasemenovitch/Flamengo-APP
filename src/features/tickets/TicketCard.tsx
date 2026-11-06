@@ -1,14 +1,19 @@
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { View } from 'react-native';
 
-import { Card, ClubCrest, DemoBadge, TeamCrest, Text, useTheme } from '@/design-system';
+import { Crest, DemoBadge, PressableScale, Text, useTheme } from '@/design-system';
 import type { Match } from '@/types/match';
 import type { Ticket } from '@/types/tickets';
 import { formatMatchDate } from '@/utils/format';
 
-const TYPE_LABEL = { full: 'Inteira', half: 'Meia-entrada', member: 'Sócio' } as const;
+const TYPE_LABEL = { full: 'Inteira', half: 'Meia', member: 'Sócio' } as const;
+const NOTCH = 12;
 
-/** Ingresso em formato de "bilhete" (picote lateral), inspirado no cartão de emergência do Zuno. */
+/**
+ * Ingresso (especificação 12.10): bgRaised, raio 16, sem borda; picote a 58%
+ * da altura com recortes semicirculares e linha tracejada.
+ */
 export function TicketCard({
   ticket,
   match,
@@ -18,65 +23,92 @@ export function TicketCard({
   match?: Match;
   onPress?: () => void;
 }) {
-  const { colors, spacing } = useTheme();
-  const opponent = match ? (match.homeTeam.id === 'fla' ? match.awayTeam : match.homeTeam) : undefined;
-  return (
-    <Card
-      variant="elevated"
-      padding="none"
-      onPress={onPress}
-      accessibilityLabel={`Ingresso ${ticket.sectorName}, portão ${ticket.gate}`}
+  const { colors, radius } = useTheme();
+  const [height, setHeight] = useState(0);
+  const notchTop = height * 0.58 - NOTCH;
+
+  const body = (
+    <View
+      onLayout={(e) => setHeight(e.nativeEvent.layout.height)}
+      style={{ backgroundColor: colors.bgRaised, borderRadius: radius.l, overflow: 'hidden' }}
     >
-      <View style={{ padding: spacing.lg, gap: spacing.md }}>
-        <View style={styles.between}>
-          <View style={[styles.row, { gap: spacing.sm }]}>
-            <ClubCrest size={28} />
-            <Text variant="h3">×</Text>
-            {opponent && <TeamCrest shortName={opponent.code} color={opponent.color} size={28} />}
+      <View style={{ padding: 20, gap: 12, minHeight: 120 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            {match && <Crest team={match.homeTeam} size={28} />}
+            <Text variant="bodyS" tone="tertiary">
+              ×
+            </Text>
+            {match && <Crest team={match.awayTeam} size={28} />}
           </View>
           <DemoBadge />
         </View>
-        <View>
-          <Text variant="title">
+        <View style={{ gap: 2 }}>
+          <Text variant="titleM">
             {match ? `${match.homeTeam.shortName} × ${match.awayTeam.shortName}` : 'Partida'}
           </Text>
           {match && (
-            <Text variant="caption" tone="secondary">
+            <Text variant="bodyS" tone="secondary">
               {formatMatchDate(match.kickoff)} · {match.venue.name}
             </Text>
           )}
         </View>
       </View>
-      <View style={[styles.row, { marginHorizontal: -10 }]}>
-        <View style={[styles.notch, { backgroundColor: colors.background }]} />
-        <View
-          style={{ flex: 1, borderTopWidth: 1, borderStyle: 'dashed', borderColor: colors.borderStrong }}
-        />
-        <View style={[styles.notch, { backgroundColor: colors.background }]} />
-      </View>
-      <View style={[styles.row, { padding: spacing.lg, gap: spacing.lg }]}>
-        {[
-          ['Setor', ticket.sectorName],
-          ['Portão', ticket.gate],
-          ['Tipo', TYPE_LABEL[ticket.type]],
-        ].map(([k, v]) => (
-          <View key={k} style={{ flex: k === 'Setor' ? 2 : 1 }}>
+      <View
+        style={{
+          height: 1,
+          marginHorizontal: NOTCH + 8,
+          borderTopWidth: 1,
+          borderStyle: 'dashed',
+          borderColor: colors.lineHairline,
+        }}
+      />
+      <View style={{ flexDirection: 'row', alignItems: 'center', padding: 20, gap: 16 }}>
+        {(
+          [
+            ['Setor', ticket.sectorName, 2],
+            ['Portão', ticket.gate, 1],
+            ['Tipo', TYPE_LABEL[ticket.type], 1],
+          ] as const
+        ).map(([k, v, flex]) => (
+          <View key={k} style={{ flex }}>
             <Text variant="overline" tone="tertiary">
               {k}
             </Text>
-            <Text variant="bodyStrong" numberOfLines={1}>
+            <Text variant="titleM" numberOfLines={1}>
               {v}
             </Text>
           </View>
         ))}
-        {onPress && <Ionicons name="qr-code" size={28} color={colors.primaryText} />}
+        <Ionicons name="qr-code-outline" size={44} color={colors.accentText} />
       </View>
-    </Card>
+      {height > 0 &&
+        [-NOTCH, undefined].map((left, i) => (
+          <View
+            key={i}
+            style={{
+              position: 'absolute',
+              top: notchTop,
+              left,
+              right: left === undefined ? -NOTCH : undefined,
+              width: NOTCH * 2,
+              height: NOTCH * 2,
+              borderRadius: NOTCH,
+              backgroundColor: colors.bgCanvas,
+            }}
+          />
+        ))}
+    </View>
+  );
+
+  if (!onPress) return body;
+  return (
+    <PressableScale
+      onPress={onPress}
+      accessibilityLabel={`Ingresso ${ticket.sectorName}, portão ${ticket.gate}. Abrir QR Code`}
+      scaleTo={0.98}
+    >
+      {body}
+    </PressableScale>
   );
 }
-
-const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center' },
-  between: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  notch: { width: 20, height: 20, borderRadius: 10 },
-});

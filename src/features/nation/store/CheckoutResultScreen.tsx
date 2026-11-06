@@ -1,9 +1,8 @@
-import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import { Animated, View } from 'react-native';
 
-import { Badge, Button, Card, Screen, Text, useTheme } from '@/design-system';
+import { Badge, Button, Card, Screen, Text, useTheme, Mascot } from '@/design-system';
 import { useReduceMotion } from '@/hooks/useReduceMotion';
 import type { RootScreenProps } from '@/navigation/types';
 import { useAppState } from '@/state/AppStateProvider';
@@ -14,7 +13,7 @@ import { haptic } from '@/utils/haptics';
 export function CheckoutResultScreen({ route }: RootScreenProps<'CheckoutResult'>) {
   const { orderId, total, kind } = route.params;
   const navigation = useNavigation();
-  const { colors, spacing, layout } = useTheme();
+  const { spacing, layout } = useTheme();
   const { refreshProgress } = useAppState();
   const reduceMotion = useReduceMotion();
   const scale = useState(() => new Animated.Value(reduceMotion ? 1 : 0.4))[0];
@@ -34,22 +33,11 @@ export function CheckoutResultScreen({ route }: RootScreenProps<'CheckoutResult'
         style={{ padding: layout.gutter, gap: spacing.xl, alignItems: 'center', paddingTop: spacing.xxxl }}
       >
         <Animated.View style={{ transform: [{ scale }] }}>
-          <View
-            style={{
-              width: 96,
-              height: 96,
-              borderRadius: 48,
-              backgroundColor: colors.successSubtle,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Ionicons name="checkmark" size={52} color={colors.success} />
-          </View>
+          <Mascot pose="fan-ticket" size={160} />
         </Animated.View>
         <View style={{ alignItems: 'center', gap: spacing.sm }}>
           <Badge label="Compra simulada" tone="demo" icon="flask-outline" />
-          <Text variant="h1" align="center">
+          <Text variant="displayM" align="center">
             {kind === 'tickets' ? 'Ingressos na carteira!' : 'Pedido confirmado!'}
           </Text>
           <Text variant="body" tone="secondary" align="center">

@@ -93,14 +93,8 @@ export function StadiumMap({
             <Path
               key={s.id}
               d={sectorPath(s.arc[0], s.arc[1], r0, r1)}
-              fill={
-                active
-                  ? colors.primary
-                  : isAway
-                    ? withAlpha(colors.textTertiary, 0.35)
-                    : withAlpha(colors.primary, highlightSectorId ? 0.14 : 0.24)
-              }
-              stroke={colors.background}
+              fill={active ? colors.accent : isAway ? colors.bgRaised : colors.bgRaised2}
+              stroke={colors.bgCanvas}
               strokeWidth={0.8}
               onPress={onSectorPress ? () => onSectorPress(s.id) : undefined}
             />

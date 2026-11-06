@@ -57,8 +57,6 @@ export function DemoQRCode({ payload, size = 220 }: { payload: string; size?: nu
         padding: 12,
         backgroundColor: palette.white,
         borderRadius: 16,
-        borderWidth: 2,
-        borderColor: colors.demo,
       }}
     >
       <Svg width="100%" height="100%" viewBox="0 0 100 100">
@@ -66,19 +64,23 @@ export function DemoQRCode({ payload, size = 220 }: { payload: string; size?: nu
         {finder(0, 0)}
         {finder(N - 7, 0)}
         {finder(0, N - 7)}
+        {/* Marca d'água diagonal repetida (especificação 12.10): vermelho a 35%. */}
         <G rotation={-35} origin="50, 50">
-          <Rect x={-10} y={42} width={120} height={16} fill={colors.demo} opacity={0.92} />
-          <SvgText
-            x={50}
-            y={53.5}
-            fontSize={8.5}
-            fontWeight="bold"
-            fill={palette.ink950}
-            textAnchor="middle"
-            letterSpacing={1.2}
-          >
-            DEMONSTRATIVO
-          </SvgText>
+          {[-30, -10, 10, 30, 50, 70, 90, 110, 130].map((y) => (
+            <SvgText
+              key={y}
+              x={50}
+              y={y}
+              fontSize={7}
+              fontWeight="bold"
+              fill={colors.accent}
+              opacity={0.35}
+              textAnchor="middle"
+              letterSpacing={1.5}
+            >
+              DEMONSTRATIVO DEMONSTRATIVO
+            </SvgText>
+          ))}
         </G>
       </Svg>
     </View>

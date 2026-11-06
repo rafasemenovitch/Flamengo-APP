@@ -1,28 +1,28 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import {
-  Badge,
   Button,
-  Card,
   EmptyState,
   ErrorState,
   Screen,
-  SectionHeader,
+  SectionTitle,
   Skeleton,
+  TabHeader,
   Text,
   useTheme,
 } from '@/design-system';
-import { MatchRow } from '@/features/shared/MatchUI';
+import { MatchList } from '@/features/shared/MatchUI';
 import { useAsync } from '@/hooks/useAsync';
 import { useDemoScenario } from '@/hooks/useMatch';
 import { services } from '@/services';
 import { TicketCard } from './TicketCard';
 
+/** Ingressos (especificação 13.3). */
 export function TicketsScreen() {
   const navigation = useNavigation();
-  const { spacing, layout, colors } = useTheme();
+  const { colors, layout, radius } = useTheme();
   const [scenario] = useDemoScenario();
   const wallet = useAsync(() => services.tickets.getWallet());
   const sales = useAsync(async () => {
@@ -46,98 +46,85 @@ export function TicketsScreen() {
         sales.refresh();
       }}
     >
-      <View style={{ paddingHorizontal: layout.gutter, paddingTop: spacing.xl, gap: spacing.xs }}>
-        <Text variant="display" accessibilityRole="header">
-          Ingressos
-        </Text>
-        <Text variant="caption" tone="secondary">
-          Compra simulada · nenhum valor é cobrado
-        </Text>
-      </View>
+      <TabHeader title="Ingressos" subtitle="Compra simulada · nenhum valor é cobrado" />
 
-      <View style={{ marginTop: spacing.xl }}>
-        <SectionHeader
+      <View style={{ marginTop: 48 }}>
+        <SectionTitle
           title="Meu próximo jogo"
+          action="Carteira"
           onAction={() => navigation.navigate('TicketWallet')}
-          actionLabel="Carteira"
         />
-        <View style={{ paddingHorizontal: layout.gutter, gap: spacing.md }}>
+        <View style={{ paddingHorizontal: layout.gutter, gap: 16 }}>
           {wallet.loading ? (
-            <Skeleton height={190} radius={20} />
+            <Skeleton height={220} radius={radius.l} />
           ) : nextTicket ? (
-            <>
-              <TicketCard
-                ticket={nextTicket}
-                match={nextTicketMatch}
-                onPress={() => navigation.navigate('TicketDetail', { ticketId: nextTicket.id })}
-              />
-              <Card
-                variant="tinted"
-                onPress={() => navigation.navigate('StadiumMode', { sectorId: nextTicket.sectorId })}
-                accessibilityLabel="Abrir Modo Maracanã"
-              >
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
-                  <Ionicons name="navigate-circle" size={36} color={colors.primaryText} />
-                  <View style={{ flex: 1 }}>
-                    <Text variant="title">Modo Maracanã</Text>
-                    <Text variant="caption" tone="secondary">
-                      Mapa interativo do estádio, filas e como chegar
-                    </Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={20} color={colors.primaryText} />
-                </View>
-              </Card>
-            </>
-          ) : (
-            <Card>
-              <EmptyState
-                compact
-                icon="ticket-outline"
-                title="Nenhum ingresso na carteira"
-                message="Escolha um jogo abaixo para comprar."
-              />
-            </Card>
-          )}
-        </View>
-      </View>
-
-      <View style={{ marginTop: spacing.xxl }}>
-        <SectionHeader title="Venda aberta" subtitle="Sócios têm prioridade e desconto" />
-        <View style={{ paddingHorizontal: layout.gutter, gap: spacing.md }}>
-          {sales.loading ? (
-            [0, 1].map((i) => <Skeleton key={i} height={150} radius={20} />)
-          ) : sales.error ? (
-            <ErrorState compact onRetry={sales.reload} />
-          ) : sales.data?.length === 0 ? (
-            <EmptyState compact icon="calendar-outline" title="Sem vendas abertas agora" />
-          ) : (
-            sales.data?.map((m) => (
-              <MatchRow
-                key={m.id}
-                match={m}
-                onPress={() => navigation.navigate('TicketPurchase', { matchId: m.id })}
-                trailing={<Badge label="Comprar" tone="solidBrand" icon="ticket" />}
-              />
-            ))
-          )}
-        </View>
-      </View>
-
-      <View style={{ paddingHorizontal: layout.gutter, marginTop: spacing.xxl }}>
-        <Card>
-          <View style={{ gap: spacing.md }}>
-            <Text variant="h3">Ainda não é sócio?</Text>
-            <Text variant="callout" tone="secondary">
-              Sócios compram antes, pagam menos e acumulam pontos de prioridade.
-            </Text>
-            <Button
-              label="Conhecer planos"
-              variant="secondary"
-              icon="card"
-              onPress={() => navigation.navigate('Membership')}
+            <TicketCard
+              ticket={nextTicket}
+              match={nextTicketMatch}
+              onPress={() => navigation.navigate('TicketDetail', { ticketId: nextTicket.id })}
             />
+          ) : (
+            <EmptyState
+              compact
+              pose="fan-ticket"
+              title="Nenhum ingresso na carteira."
+              message="Escolha um jogo abaixo."
+            />
+          )}
+
+          <Pressable
+            onPress={() =>
+              navigation.navigate('StadiumMode', nextTicket ? { sectorId: nextTicket.sectorId } : undefined)
+            }
+            accessibilityRole="button"
+            accessibilityLabel="Modo Maracanã: mapa do estádio, filas e como chegar"
+            style={({ pressed }) => ({
+              minHeight: 80,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 16,
+              paddingHorizontal: 20,
+              borderRadius: radius.l,
+              backgroundColor: colors.bgRaised,
+              opacity: pressed ? 0.8 : 1,
+            })}
+          >
+            <Ionicons name="navigate-outline" size={28} color={colors.accentText} />
+            <View style={{ flex: 1, gap: 2 }}>
+              <Text variant="titleM">Modo Maracanã</Text>
+              <Text variant="bodyS" tone="secondary">
+                Mapa do estádio, filas e como chegar
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color={colors.inkTertiary} />
+          </Pressable>
+        </View>
+      </View>
+
+      <View style={{ marginTop: 48 }}>
+        <SectionTitle title="Venda aberta" subtitle="Sócios têm prioridade e desconto" />
+        {sales.loading ? (
+          <View style={{ paddingHorizontal: layout.gutter, gap: 16 }}>
+            <Skeleton height={80} radius={8} />
+            <Skeleton height={80} radius={8} />
           </View>
-        </Card>
+        ) : sales.error ? (
+          <ErrorState compact onRetry={sales.reload} />
+        ) : sales.data?.length === 0 ? (
+          <EmptyState compact pose="fan-no-matches" title="Sem vendas abertas agora." />
+        ) : (
+          <MatchList
+            matches={sales.data ?? []}
+            onPress={(m) => navigation.navigate('TicketPurchase', { matchId: m.id })}
+            trailing={(m) => (
+              <Button
+                label="Comprar"
+                size="sm"
+                onPress={() => navigation.navigate('TicketPurchase', { matchId: m.id })}
+              />
+            )}
+          />
+        )}
       </View>
     </Screen>
   );

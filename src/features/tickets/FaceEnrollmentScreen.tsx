@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import { Image, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Badge, Button, Card, IconButton, palette, Screen, Text, useTheme } from '@/design-system';
+import { Badge, Button, Card, IconButton, palette, Screen, Text, useTheme, Mascot } from '@/design-system';
 import type { RootScreenProps } from '@/navigation/types';
 import { services } from '@/services';
 import { haptic } from '@/utils/haptics';
@@ -125,19 +125,8 @@ export function FaceEnrollmentScreen({ navigation }: RootScreenProps<'FaceEnroll
         {step === 'intro' && (
           <>
             <View style={{ alignItems: 'center', gap: spacing.md, paddingTop: spacing.md }}>
-              <View
-                style={{
-                  width: 96,
-                  height: 96,
-                  borderRadius: 48,
-                  backgroundColor: colors.primarySubtle,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Ionicons name="scan" size={48} color={colors.primaryText} />
-              </View>
-              <Text variant="h1" align="center">
+              <Mascot pose="fan-arrived" size={160} />
+              <Text variant="displayM" align="center">
                 Entre no Maracanã com o seu rosto
               </Text>
               <Text variant="body" tone="secondary" align="center">
@@ -239,19 +228,8 @@ export function FaceEnrollmentScreen({ navigation }: RootScreenProps<'FaceEnroll
 
         {step === 'done' && (
           <View style={{ alignItems: 'center', gap: spacing.lg, paddingTop: spacing.xxl }}>
-            <View
-              style={{
-                width: 96,
-                height: 96,
-                borderRadius: 48,
-                backgroundColor: colors.successSubtle,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Ionicons name="checkmark" size={52} color={colors.success} />
-            </View>
-            <Text variant="h1" align="center">
+            <Mascot pose="fan-high-five" size={160} />
+            <Text variant="displayM" align="center">
               Rosto cadastrado!
             </Text>
             <Text variant="body" tone="secondary" align="center">
