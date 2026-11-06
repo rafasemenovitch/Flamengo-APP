@@ -77,7 +77,7 @@ export function SectionTitle({
       }}
     >
       <View style={{ flex: 1, gap: 4 }}>
-        <Text variant="displayM" accessibilityRole="header">
+        <Text variant="sectionTitle" accessibilityRole="header">
           {title}
         </Text>
         {subtitle && (

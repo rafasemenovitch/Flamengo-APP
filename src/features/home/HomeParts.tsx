@@ -203,28 +203,22 @@ type Shortcut = {
 
 /**
  * Atalhos (especificação 12.7): 4 colunas iguais sem tiles, separadas por
- * hairlines verticais. Em dia de jogo o primeiro vira "Maracanã".
+ * hairlines verticais. Maracanã ganha ponto ao vivo em dia de jogo.
  */
 export function QuickActions({ matchday }: { matchday: boolean }) {
   const navigation = useNavigation();
   const { colors, layout } = useTheme();
+  // Ordem pedida: Maracanã (sempre, com ponto ao vivo em dia de jogo), Sócio, Loja, FlaTV.
   const items: Shortcut[] = [
-    matchday
-      ? {
-          key: 'maraca',
-          label: 'Maracanã',
-          icon: 'location-outline',
-          onPress: () => navigation.navigate('StadiumMode'),
-          live: true,
-        }
-      : {
-          key: 'ingressos',
-          label: 'Ingressos',
-          icon: 'ticket-outline',
-          onPress: () => navigation.navigate('Tabs', { screen: 'Ingressos' }),
-        },
-    { key: 'loja', label: 'Loja', icon: 'bag-handle-outline', onPress: () => navigation.navigate('Store') },
+    {
+      key: 'maraca',
+      label: 'Maracanã',
+      icon: 'location-outline',
+      onPress: () => navigation.navigate('StadiumMode'),
+      live: matchday,
+    },
     { key: 'socio', label: 'Sócio', icon: 'card-outline', onPress: () => navigation.navigate('Membership') },
+    { key: 'loja', label: 'Loja', icon: 'bag-handle-outline', onPress: () => navigation.navigate('Store') },
     {
       key: 'flatv',
       label: 'FlaTV',

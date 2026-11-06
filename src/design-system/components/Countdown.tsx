@@ -8,7 +8,7 @@ import { useTheme } from '../theme/ThemeProvider';
 import { Text } from './Text';
 
 /** Grupo de dígitos: ao mudar, o novo valor entra com deslize vertical de 10px + fade (160ms). */
-function RollingNumber({ value, onMedia }: { value: string; onMedia?: boolean }) {
+function RollingNumber({ value, onMedia, compact }: { value: string; onMedia?: boolean; compact?: boolean }) {
   const { motion } = useTheme();
   const reduceMotion = useReduceMotion();
   const anim = useState(() => new Animated.Value(1))[0];
@@ -31,7 +31,7 @@ function RollingNumber({ value, onMedia }: { value: string; onMedia?: boolean })
         transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [-10, 0] }) }],
       }}
     >
-      <Text variant="displayHero" tone={onMedia ? 'onMedia' : 'primary'}>
+      <Text variant={compact ? 'displayXl' : 'displayHero'} tone={onMedia ? 'onMedia' : 'primary'}>
         {value}
       </Text>
     </Animated.View>
@@ -42,7 +42,15 @@ function RollingNumber({ value, onMedia }: { value: string; onMedia?: boolean })
  * Contagem regressiva (especificação 12.6): três grupos display.hero sem
  * caixas e sem dois-pontos, com rótulos overline embaixo.
  */
-export function Countdown({ target, onMedia }: { target: string; onMedia?: boolean }) {
+export function Countdown({
+  target,
+  onMedia,
+  size = 'hero',
+}: {
+  target: string;
+  onMedia?: boolean;
+  size?: 'hero' | 'compact';
+}) {
   const c = useCountdown(target);
   if (!c) return null;
   const groups: [number, string][] =
@@ -59,13 +67,13 @@ export function Countdown({ target, onMedia }: { target: string; onMedia?: boole
         ];
   return (
     <View
-      style={{ flexDirection: 'row', justifyContent: 'center', gap: 12 }}
+      style={{ flexDirection: 'row', justifyContent: 'center', gap: size === 'compact' ? 20 : 12 }}
       accessible
       accessibilityLabel={`Faltam ${groups.map(([v, l]) => `${v} ${l}`).join(', ')}`}
     >
       {groups.map(([v, l]) => (
         <View key={l} style={{ alignItems: 'center' }}>
-          <RollingNumber value={pad2(v)} onMedia={onMedia} />
+          <RollingNumber value={pad2(v)} onMedia={onMedia} compact={size === 'compact'} />
           <Text
             variant="overline"
             tone={onMedia ? 'onMedia' : 'secondary'}

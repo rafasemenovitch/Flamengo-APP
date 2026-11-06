@@ -15,7 +15,8 @@ import { competitionName, ScoreBoard } from '@/features/shared/MatchUI';
 import type { MatchDetail } from '@/types/match';
 import { formatMatchDate } from '@/utils/format';
 
-const HERO_HEIGHT = 520;
+/** Compacto o bastante para os atalhos aparecerem sem rolar (tela de ~844pt). */
+const HERO_HEIGHT = 380;
 
 /**
  * Hero do próximo jogo (especificação 12.9): sangria total, foto tratada,
@@ -56,7 +57,7 @@ export function HeroMatchCard({ match, loading }: { match?: MatchDetail; loading
           </Text>
         </View>
 
-        <View style={{ gap: 16 }}>
+        <View style={{ gap: 12 }}>
           {live && (
             <View style={{ alignItems: 'center' }}>
               <LiveIndicator minute={match.status === 'halftime' ? 'Intervalo' : match.liveMinute} />
@@ -68,7 +69,7 @@ export function HeroMatchCard({ match, loading }: { match?: MatchDetail; loading
             </Text>
           )}
           <ScoreBoard match={match} onMedia />
-          {!live && !finished && <Countdown target={match.kickoff} onMedia />}
+          {!live && !finished && <Countdown target={match.kickoff} onMedia size="compact" />}
           {(live || finished) && goals.length > 0 && (
             <Text variant="bodyS" tone="onMedia" align="center" style={{ opacity: 0.85 }}>
               {goals.map((g) => `${g.playerName} ${g.minute}`).join('  ·  ')}

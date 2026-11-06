@@ -75,6 +75,8 @@ const scale = {
     lineHeight: 84,
     letterSpacing: track(80, -3),
   },
+  /** Títulos de seção (Notícias, FlaTV...): grotesca editorial pesada. */
+  sectionTitle: { fontFamily: fonts.extrabold, fontSize: 24, lineHeight: 28, letterSpacing: track(24, -0.8) },
   titleL: { fontFamily: fonts.bold, fontSize: 22, lineHeight: 28, letterSpacing: track(22, -0.5) },
   titleM: { fontFamily: fonts.semibold, fontSize: 18, lineHeight: 24 },
   titleS: { fontFamily: fonts.semibold, fontSize: 16, lineHeight: 22 },
