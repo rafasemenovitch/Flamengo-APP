@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import type { ReactNode } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 
-import { Badge, Card, MediaImage, SkeletonCard, Text, useTheme } from '@/design-system';
+import { PressableScale, Skeleton, Text, TreatedImage, useTheme, withAlpha } from '@/design-system';
 import type { ContentCategory, NewsArticle, Video } from '@/types/content';
 import { formatCompact, formatDuration, formatRelative } from '@/utils/format';
 
@@ -17,14 +17,14 @@ export const CATEGORY_LABEL: Record<ContentCategory, string> = {
   feminino: 'Feminino',
 };
 
-/** Carrossel horizontal com espaçamento do layout e skeleton embutido. */
+/** Rolagem horizontal com gutter e skeleton (usada na FlaTV). */
 export function HList<T>({
   data,
   loading,
   renderItem,
   keyOf,
   itemWidth,
-  skeletonHeight = 140,
+  skeletonHeight = 158,
 }: {
   data: T[] | undefined;
   loading?: boolean;
@@ -33,12 +33,12 @@ export function HList<T>({
   itemWidth: number;
   skeletonHeight?: number;
 }) {
-  const { layout, spacing } = useTheme();
+  const { layout, radius } = useTheme();
   if (loading || !data) {
     return (
-      <View style={{ flexDirection: 'row', gap: spacing.md, paddingHorizontal: layout.gutter }}>
-        <SkeletonCard width={itemWidth} imageHeight={skeletonHeight} />
-        <SkeletonCard width={itemWidth} imageHeight={skeletonHeight} />
+      <View style={{ flexDirection: 'row', gap: 12, paddingHorizontal: layout.gutter }}>
+        <Skeleton width={itemWidth} height={skeletonHeight} radius={radius.l} />
+        <Skeleton width={itemWidth} height={skeletonHeight} radius={radius.l} />
       </View>
     );
   }
@@ -48,14 +48,149 @@ export function HList<T>({
       data={data}
       keyExtractor={keyOf}
       showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{ paddingHorizontal: layout.gutter, gap: spacing.md }}
-      snapToInterval={itemWidth + spacing.md}
+      contentContainerStyle={{ paddingHorizontal: layout.gutter, gap: 12 }}
+      snapToInterval={itemWidth + 12}
       decelerationRate="fast"
       renderItem={({ item }) => <View style={{ width: itemWidth }}>{renderItem(item)}</View>}
     />
   );
 }
 
+/** Manchete principal (editorial): imagem 16:10, categoria, título grande. */
+export function NewsLead({ article, onPress }: { article: NewsArticle; onPress: () => void }) {
+  const { layout, radius } = useTheme();
+  return (
+    <PressableScale
+      onPress={onPress}
+      accessibilityLabel={`Notícia: ${article.title}`}
+      scaleTo={0.99}
+      style={{ paddingHorizontal: layout.gutter, gap: 12 }}
+    >
+      <TreatedImage
+        imageKey={article.imageKey}
+        aspect="wide"
+        style={{ aspectRatio: 16 / 10, borderRadius: radius.s }}
+      />
+      <View style={{ gap: 6 }}>
+        <Text variant="overline" tone="secondary">
+          {CATEGORY_LABEL[article.category]}
+        </Text>
+        <Text variant="titleL">{article.title}</Text>
+        <Text variant="bodyS" tone="tertiary">
+          {article.readMinutes} min de leitura · {formatRelative(article.publishedAt)}
+        </Text>
+      </View>
+    </PressableScale>
+  );
+}
+
+/** Linha de notícia com miniatura 72×72 (também usada no "Para você"). */
+export function NewsRow({
+  title,
+  imageKey,
+  meta,
+  reason,
+  onPress,
+  video,
+}: {
+  title: string;
+  imageKey: string;
+  meta: string;
+  reason?: string;
+  onPress: () => void;
+  video?: boolean;
+}) {
+  const { colors, layout, radius } = useTheme();
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      style={({ pressed }) => ({
+        flexDirection: 'row',
+        gap: 16,
+        paddingHorizontal: layout.gutter,
+        paddingVertical: 12,
+        opacity: pressed ? 0.7 : 1,
+      })}
+    >
+      <TreatedImage
+        imageKey={imageKey}
+        aspect="square"
+        style={{ width: 72, height: 72, borderRadius: radius.s }}
+      >
+        {video && (
+          <View style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center' }]}>
+            <Ionicons name="play" size={20} color={colors.inkOnRed} />
+          </View>
+        )}
+      </TreatedImage>
+      <View style={{ flex: 1, gap: 4, justifyContent: 'center' }}>
+        <Text variant="titleS" numberOfLines={2}>
+          {title}
+        </Text>
+        <Text variant="bodyS" tone={reason ? 'tertiary' : 'secondary'} numberOfLines={1}>
+          {reason ?? meta}
+        </Text>
+      </View>
+    </Pressable>
+  );
+}
+
+/** Cartão de vídeo da FlaTV: 280×158, raio 16, play central, duração no canto. */
+export function VideoTile({
+  video,
+  onPress,
+  width = 280,
+}: {
+  video: Video;
+  onPress: () => void;
+  width?: number;
+}) {
+  const { colors, radius } = useTheme();
+  return (
+    <PressableScale
+      onPress={onPress}
+      accessibilityLabel={`Vídeo: ${video.title}, ${formatDuration(video.durationSec)}`}
+      style={{ width, gap: 8 }}
+    >
+      <TreatedImage
+        imageKey={video.imageKey}
+        aspect="video"
+        style={{ width, height: (width * 158) / 280, borderRadius: radius.l }}
+      >
+        <View style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center' }]}>
+          <Ionicons name="play" size={32} color={colors.inkOnRed} />
+        </View>
+        <View
+          style={{
+            position: 'absolute',
+            right: 8,
+            bottom: 8,
+            backgroundColor: withAlpha(colors.bgCanvas, 0.7),
+            borderRadius: 6,
+            paddingHorizontal: 6,
+            paddingVertical: 2,
+          }}
+        >
+          <Text variant="labelM" tone="onMedia">
+            {formatDuration(video.durationSec)}
+          </Text>
+        </View>
+      </TreatedImage>
+      <Text variant="titleS" numberOfLines={2}>
+        {video.title}
+      </Text>
+      {video.membersOnly && (
+        <Text variant="bodyS" tone="brand">
+          Exclusivo sócio
+        </Text>
+      )}
+    </PressableScale>
+  );
+}
+
+/** @deprecated use NewsLead/NewsRow. Mantido nas telas ainda não migradas. */
 export function NewsCard({
   article,
   onPress,
@@ -65,32 +200,28 @@ export function NewsCard({
   onPress: () => void;
   wide?: boolean;
 }) {
-  const { spacing, radius } = useTheme();
+  const { radius } = useTheme();
   return (
-    <Card onPress={onPress} padding="none" accessibilityLabel={`Notícia: ${article.title}`}>
-      <MediaImage
+    <PressableScale onPress={onPress} accessibilityLabel={`Notícia: ${article.title}`} style={{ gap: 8 }}>
+      <TreatedImage
         imageKey={article.imageKey}
-        icon="newspaper-outline"
-        style={{ height: wide ? 180 : 140, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg }}
-      >
-        <Badge
-          label={CATEGORY_LABEL[article.category]}
-          tone="onMedia"
-          style={{ position: 'absolute', top: 10, left: 10 }}
-        />
-      </MediaImage>
-      <View style={{ padding: spacing.md, gap: spacing.xs }}>
-        <Text variant="title" numberOfLines={2}>
-          {article.title}
-        </Text>
-        <Text variant="footnote" tone="tertiary">
-          {formatRelative(article.publishedAt)} · {article.readMinutes} min de leitura
-        </Text>
-      </View>
-    </Card>
+        aspect="wide"
+        style={{ height: wide ? 200 : 150, borderRadius: radius.s }}
+      />
+      <Text variant="overline" tone="secondary">
+        {CATEGORY_LABEL[article.category]}
+      </Text>
+      <Text variant="titleS" numberOfLines={2}>
+        {article.title}
+      </Text>
+      <Text variant="bodyS" tone="tertiary">
+        {article.readMinutes} min de leitura · {formatRelative(article.publishedAt)}
+      </Text>
+    </PressableScale>
   );
 }
 
+/** @deprecated use VideoTile. */
 export function VideoCard({
   video,
   onPress,
@@ -100,60 +231,12 @@ export function VideoCard({
   onPress: () => void;
   reason?: string;
 }) {
-  const { spacing, radius, colors } = useTheme();
   return (
-    <Card
-      onPress={onPress}
-      padding="none"
-      accessibilityLabel={`Vídeo: ${video.title}, ${formatDuration(video.durationSec)}`}
-    >
-      <MediaImage
-        imageKey={video.imageKey}
-        icon="videocam-outline"
-        scrim
-        style={{ height: 140, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg }}
-      >
-        <View style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center' }]}>
-          <View
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: 22,
-              backgroundColor: colors.primary,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Ionicons name="play" size={20} color={colors.onPrimary} style={{ marginLeft: 3 }} />
-          </View>
-        </View>
-        <Badge
-          label={formatDuration(video.durationSec)}
-          tone="onMedia"
-          style={{ position: 'absolute', bottom: 10, right: 10 }}
-        />
-        {video.membersOnly && (
-          <Badge
-            label="Sócio"
-            tone="solidBrand"
-            icon="star"
-            style={{ position: 'absolute', top: 10, left: 10 }}
-          />
-        )}
-      </MediaImage>
-      <View style={{ padding: spacing.md, gap: spacing.xs }}>
-        {reason && (
-          <Text variant="footnote" tone="brand" numberOfLines={1}>
-            {reason}
-          </Text>
-        )}
-        <Text variant="title" numberOfLines={2}>
-          {video.title}
-        </Text>
-        <Text variant="footnote" tone="tertiary">
-          {formatCompact(video.views)} visualizações · {formatRelative(video.publishedAt)}
-        </Text>
-      </View>
-    </Card>
+    <View style={{ gap: 4 }}>
+      <VideoTile video={video} onPress={onPress} width={320} />
+      <Text variant="bodyS" tone="tertiary">
+        {reason ?? `${formatCompact(video.views)} visualizações · ${formatRelative(video.publishedAt)}`}
+      </Text>
+    </View>
   );
 }

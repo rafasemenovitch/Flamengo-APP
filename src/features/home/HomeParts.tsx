@@ -1,13 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Modal, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Badge, Card, IconButton, palette, PressableScale, Text, useTheme, withAlpha } from '@/design-system';
+import { Button, LiveIndicator, Mascot, Text, useTheme } from '@/design-system';
 import { DEMO_SCENARIOS, IS_DEMO, type DemoScenario } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
-import type { MatchDayPlan } from '@/types/stadium';
 import type { MatchDetail } from '@/types/match';
+import type { MatchDayPlan } from '@/types/stadium';
 import { formatNumber, shiftTime } from '@/utils/format';
 import { haptic } from '@/utils/haptics';
 
@@ -16,25 +16,31 @@ function greeting() {
   return h < 5 ? 'Boa noite' : h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
 }
 
+/** Saudação (especificação 13.1.1): sem pílula; sino de 24px com ponto vermelho. */
 export function HomeHeader({
   unread,
+  matchday,
   onSecretLongPress,
 }: {
   unread: number;
+  matchday: boolean;
   onSecretLongPress?: () => void;
 }) {
   const navigation = useNavigation();
   const { profile, progress } = useAppState();
-  const { spacing, layout, colors, radius } = useTheme();
+  const { colors, layout } = useTheme();
+  const name = profile?.firstName ?? 'torcedor';
   return (
     <View
-      style={[
-        styles.between,
-        { paddingHorizontal: layout.gutter, paddingTop: spacing.md, paddingBottom: spacing.lg },
-      ]}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        paddingHorizontal: layout.gutter,
+        paddingTop: 16,
+      }}
     >
-      <View style={{ flex: 1, gap: 6 }}>
-        {/* Toque longo na saudação = controles da demonstração (sem pista visual). */}
+      <View style={{ flex: 1, gap: 4 }}>
+        {/* Toque longo no nome = controles da demonstração (sem pista visual). */}
         <Pressable
           onLongPress={() => {
             haptic.medium();
@@ -43,46 +49,50 @@ export function HomeHeader({
           delayLongPress={600}
           accessible={false}
         >
-          <Text variant="caption" tone="secondary">
-            {greeting()},
+          <Text variant="bodyL" tone="secondary">
+            {matchday ? 'Dia de Mengão,' : `${greeting()},`}
           </Text>
-          <Text variant="h1" numberOfLines={1}>
-            {profile?.firstName ?? 'Torcedor'}
+          <Text variant="displayL" numberOfLines={1}>
+            {name}
           </Text>
         </Pressable>
         {progress && (
           <Pressable
             onPress={() => navigation.navigate('Gamification')}
             accessibilityRole="button"
-            accessibilityLabel={`Nível ${progress.level.level}, ${progress.level.name}, ${progress.points} pontos`}
-            style={[
-              styles.row,
-              {
-                gap: 6,
-                alignSelf: 'flex-start',
-                paddingHorizontal: 10,
-                paddingVertical: 5,
-                borderRadius: radius.pill,
-                backgroundColor: colors.primarySubtle,
-              },
-            ]}
+            style={{ flexDirection: 'row', marginTop: 4, minHeight: 24 }}
           >
-            <Ionicons name="shield" size={12} color={colors.primaryText} />
-            <Text variant="label" tone="brand" style={{ fontSize: 12 }}>
+            <Text variant="labelM" tone="brand">
               Nível {progress.level.level} · {progress.level.name}
             </Text>
-            <Text variant="label" tone="secondary" style={{ fontSize: 12 }}>
+            <Text variant="labelM" tone="secondary">
+              {' '}
               · {formatNumber(progress.points)} pts
             </Text>
           </Pressable>
         )}
       </View>
-      <IconButton
-        icon="notifications-outline"
-        accessibilityLabel="Notificações"
-        badgeCount={unread}
+      <Pressable
         onPress={() => navigation.navigate('Notifications')}
-      />
+        accessibilityRole="button"
+        accessibilityLabel={unread ? `Notificações, ${unread} novas` : 'Notificações'}
+        style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
+      >
+        <Ionicons name="notifications-outline" size={24} color={colors.inkPrimary} />
+        {unread > 0 && (
+          <View
+            style={{
+              position: 'absolute',
+              top: 10,
+              right: 11,
+              width: 6,
+              height: 6,
+              borderRadius: 3,
+              backgroundColor: colors.accent,
+            }}
+          />
+        )}
+      </Pressable>
     </View>
   );
 }
@@ -94,11 +104,7 @@ const SCENARIO_HINT: Record<DemoScenario, string> = {
   finished: 'Fim de jogo: resultado, melhores momentos e craque do jogo',
 };
 
-/**
- * Painel ESCONDIDO de controle da demonstração (modo apresentação). Abre com
- * toque longo na saudação da Home; só existe no modo demo. Na reunião, o app
- * parece 100% real e o apresentador troca o estado do jogo discretamente.
- */
+/** Painel escondido de demonstração (bottom sheet). Toque longo no nome da Home. */
 export function DemoControlsSheet({
   visible,
   value,
@@ -110,12 +116,12 @@ export function DemoControlsSheet({
   onChange: (s: DemoScenario) => void;
   onClose: () => void;
 }) {
-  const { colors, spacing, radius, layout } = useTheme();
+  const { colors, radius, layout } = useTheme();
   if (!IS_DEMO) return null;
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable
-        style={{ flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' }}
+        style={{ flex: 1, backgroundColor: colors.scrim, justifyContent: 'flex-end' }}
         onPress={onClose}
         accessible={false}
       >
@@ -123,30 +129,25 @@ export function DemoControlsSheet({
           <SafeAreaView
             edges={['bottom']}
             style={{
-              backgroundColor: colors.surfaceElevated,
-              borderTopLeftRadius: radius.xl,
-              borderTopRightRadius: radius.xl,
+              backgroundColor: colors.bgRaised,
+              borderTopLeftRadius: radius.l,
+              borderTopRightRadius: radius.l,
               padding: layout.gutter,
-              gap: spacing.md,
+              gap: 12,
             }}
           >
             <View
               style={{
                 alignSelf: 'center',
-                width: 40,
+                width: 36,
                 height: 4,
                 borderRadius: 2,
-                backgroundColor: colors.borderStrong,
+                backgroundColor: colors.lineHairline,
               }}
             />
-            <View style={[styles.row, { gap: spacing.sm }]}>
-              <Ionicons name="easel-outline" size={20} color={colors.demo} />
-              <Text variant="h3" style={{ flex: 1 }}>
-                Controles da demonstração
-              </Text>
-            </View>
-            <Text variant="caption" tone="secondary">
-              Escolha o momento do jogo em destaque. Visível só para quem apresenta.
+            <Text variant="titleL">Momento do jogo</Text>
+            <Text variant="bodyS" tone="secondary">
+              Controle da demonstração. Visível só para quem apresenta.
             </Text>
             {DEMO_SCENARIOS.map((s) => {
               const active = s.key === value;
@@ -160,28 +161,25 @@ export function DemoControlsSheet({
                   }}
                   accessibilityRole="radio"
                   accessibilityState={{ selected: active }}
-                  style={({ pressed }) => [
-                    styles.row,
-                    {
-                      gap: spacing.md,
-                      minHeight: 56,
-                      padding: spacing.md,
-                      borderRadius: radius.md,
-                      borderWidth: 1.5,
-                      borderColor: active ? colors.primary : colors.border,
-                      backgroundColor: active ? colors.primarySubtle : colors.surface,
-                      opacity: pressed ? 0.75 : 1,
-                    },
-                  ]}
+                  style={({ pressed }) => ({
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 16,
+                    minHeight: 56,
+                    paddingVertical: 8,
+                    borderBottomWidth: 1,
+                    borderColor: colors.lineHairline,
+                    opacity: pressed ? 0.7 : 1,
+                  })}
                 >
                   <Ionicons
                     name={active ? 'radio-button-on' : 'radio-button-off'}
                     size={20}
-                    color={active ? colors.primaryText : colors.textTertiary}
+                    color={active ? colors.accentText : colors.inkTertiary}
                   />
                   <View style={{ flex: 1 }}>
-                    <Text variant="bodyStrong">{s.label}</Text>
-                    <Text variant="caption" tone="secondary">
+                    <Text variant="titleS">{s.label}</Text>
+                    <Text variant="bodyS" tone="secondary">
                       {SCENARIO_HINT[s.key]}
                     </Text>
                   </View>
@@ -200,152 +198,106 @@ type Shortcut = {
   label: string;
   icon: keyof typeof Ionicons.glyphMap;
   onPress: () => void;
-  highlight?: boolean;
-  badge?: number;
+  live?: boolean;
 };
 
+/**
+ * Atalhos (especificação 12.7): 4 colunas iguais sem tiles, separadas por
+ * hairlines verticais. Em dia de jogo o primeiro vira "Maracanã".
+ */
 export function QuickActions({ matchday }: { matchday: boolean }) {
   const navigation = useNavigation();
-  const { cartCount } = useAppState();
-  const { colors, spacing, layout, radius } = useTheme();
+  const { colors, layout } = useTheme();
   const items: Shortcut[] = [
-    // Modo Maracanã é aberto a todos; em dia de jogo ganha destaque.
+    matchday
+      ? {
+          key: 'maraca',
+          label: 'Maracanã',
+          icon: 'location-outline',
+          onPress: () => navigation.navigate('StadiumMode'),
+          live: true,
+        }
+      : {
+          key: 'ingressos',
+          label: 'Ingressos',
+          icon: 'ticket-outline',
+          onPress: () => navigation.navigate('Tabs', { screen: 'Ingressos' }),
+        },
+    { key: 'loja', label: 'Loja', icon: 'bag-handle-outline', onPress: () => navigation.navigate('Store') },
+    { key: 'socio', label: 'Sócio', icon: 'card-outline', onPress: () => navigation.navigate('Membership') },
     {
-      key: 'maraca',
-      label: 'Modo Maracanã',
-      icon: 'location',
-      onPress: () => navigation.navigate('StadiumMode'),
-      highlight: matchday,
+      key: 'flatv',
+      label: 'FlaTV',
+      icon: 'play-circle-outline',
+      onPress: () => navigation.navigate('FlaTV'),
     },
-    {
-      key: 'ingressos',
-      label: 'Ingressos',
-      icon: 'ticket',
-      onPress: () => navigation.navigate('Tabs', { screen: 'Ingressos' }),
-    },
-    {
-      key: 'loja',
-      label: 'Loja',
-      icon: 'bag-handle',
-      onPress: () => navigation.navigate('Store'),
-      badge: cartCount,
-    },
-    { key: 'socio', label: 'Sócio-Torcedor', icon: 'card', onPress: () => navigation.navigate('Membership') },
-    { key: 'flatv', label: 'FlaTV', icon: 'play-circle', onPress: () => navigation.navigate('FlaTV') },
   ];
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{ paddingHorizontal: layout.gutter, gap: spacing.sm }}
-    >
-      {items.map((it) => (
-        <PressableScale
+    <View style={{ flexDirection: 'row', marginHorizontal: layout.gutter }}>
+      {items.map((it, i) => (
+        <Pressable
           key={it.key}
           onPress={it.onPress}
+          accessibilityRole="button"
           accessibilityLabel={it.label}
-          style={{
-            width: 92,
-            paddingVertical: spacing.md,
+          style={({ pressed }) => ({
+            flex: 1,
+            height: 76,
             alignItems: 'center',
-            gap: spacing.sm,
-            borderRadius: radius.lg,
-            backgroundColor: it.highlight ? colors.primary : colors.surface,
-            borderWidth: 1,
-            borderColor: it.highlight ? colors.primary : colors.border,
-          }}
+            justifyContent: 'center',
+            gap: 8,
+            borderLeftWidth: i ? 1 : 0,
+            borderColor: colors.lineHairline,
+            opacity: pressed ? 0.6 : 1,
+          })}
         >
-          <View
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: 22,
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: it.highlight ? withAlpha(palette.white, 0.18) : colors.primarySubtle,
-            }}
-          >
-            <Ionicons name={it.icon} size={22} color={it.highlight ? colors.onPrimary : colors.primaryText} />
-            {!!it.badge && (
-              <View
-                style={{
-                  position: 'absolute',
-                  top: -2,
-                  right: -4,
-                  minWidth: 18,
-                  height: 18,
-                  borderRadius: 9,
-                  backgroundColor: colors.primary,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  paddingHorizontal: 4,
-                }}
-              >
-                <Text variant="footnote" tone="onPrimary" style={{ fontSize: 10, lineHeight: 12 }}>
-                  {it.badge}
-                </Text>
+          <View>
+            <Ionicons name={it.icon} size={28} color={it.live ? colors.accentText : colors.inkPrimary} />
+            {it.live && (
+              <View style={{ position: 'absolute', top: -2, right: -6 }}>
+                <LiveIndicator compact size={6} />
               </View>
             )}
           </View>
-          <Text
-            variant="label"
-            align="center"
-            numberOfLines={2}
-            style={{ fontSize: 12, color: it.highlight ? colors.onPrimary : colors.textPrimary }}
-          >
+          <Text variant="labelM" tone={it.live ? 'brand' : 'secondary'} numberOfLines={1}>
             {it.label}
           </Text>
-        </PressableScale>
+        </Pressable>
       ))}
-    </ScrollView>
-  );
-}
-
-/** Banner de dia de jogo: portão recomendado e horário ideal de chegada. */
-export function MatchdayBanner({ match, plan }: { match: MatchDetail; plan?: MatchDayPlan }) {
-  const navigation = useNavigation();
-  const { colors, spacing, layout } = useTheme();
-  if (!plan) return null;
-  const arrival = shiftTime(match.kickoff, Number(plan.recommendedArrival));
-  const queue = plan.queues.find((q) => q.gateId === plan.recommendedGateId);
-  return (
-    <View style={{ paddingHorizontal: layout.gutter }}>
-      <Card
-        variant="tinted"
-        onPress={() => navigation.navigate('TicketWallet')}
-        accessibilityLabel={`Seu jogo é hoje. Portão ${plan.recommendedGateId}, chegue às ${arrival}`}
-      >
-        <View style={[styles.row, { gap: spacing.md }]}>
-          <View
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: 24,
-              backgroundColor: colors.primary,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Ionicons name="location" size={24} color={colors.onPrimary} />
-          </View>
-          <View style={{ flex: 1, gap: 2 }}>
-            <View style={[styles.row, { gap: spacing.sm }]}>
-              <Text variant="title">Seu jogo é hoje!</Text>
-              <Badge label="Demo" tone="demo" />
-            </View>
-            <Text variant="caption" tone="secondary">
-              Portão {plan.recommendedGateId} · chegue às {arrival}
-              {queue ? ` · fila ~${queue.waitMinutes} min` : ''}
-            </Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color={colors.primaryText} />
-        </View>
-      </Card>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center' },
-  between: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 },
-});
+/** Banner de dia de jogo (13.1.4): bloco vermelho em sangria, mascote cortado pela base. */
+export function MatchdayBanner({ match, plan }: { match: MatchDetail; plan?: MatchDayPlan }) {
+  const navigation = useNavigation();
+  const { colors, layout } = useTheme();
+  if (!plan) return null;
+  const arrival = shiftTime(match.kickoff, Number(plan.recommendedArrival));
+  const queue = plan.queues.find((q) => q.gateId === plan.recommendedGateId);
+  return (
+    <View
+      style={{ backgroundColor: colors.bgRed, padding: layout.gutter, overflow: 'hidden', minHeight: 140 }}
+    >
+      <View style={{ position: 'absolute', right: 8, bottom: -24 }}>
+        <Mascot pose="fan-arrived" size={96} />
+      </View>
+      <View style={{ gap: 8, paddingRight: 96 }}>
+        <Text variant="titleL" tone="onPrimary">
+          Seu jogo é hoje
+        </Text>
+        <Text variant="bodyM" tone="onPrimary" style={{ opacity: 0.85 }}>
+          Portão {plan.recommendedGateId} · chegue às {arrival}
+          {queue ? ` · fila ~${queue.waitMinutes} min` : ''}
+        </Text>
+        <Button
+          label="Abrir Modo Maracanã"
+          variant="light"
+          size="sm"
+          onPress={() => navigation.navigate('StadiumMode')}
+          style={{ marginTop: 4 }}
+        />
+      </View>
+    </View>
+  );
+}

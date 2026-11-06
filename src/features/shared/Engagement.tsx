@@ -1,60 +1,52 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Animated, Pressable, StyleSheet, View } from 'react-native';
 
-import { Badge, Button, Card, ProgressBar, Skeleton, TeamCrest, Text, useTheme } from '@/design-system';
+import { Button, Crest, Mascot, Skeleton, Text, useTheme, withAlpha } from '@/design-system';
+import { useReduceMotion } from '@/hooks/useReduceMotion';
 import { services } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
-import type { Poll, Prediction, Quiz } from '@/types/gamification';
+import type { Poll, PollOption, Prediction, Quiz } from '@/types/gamification';
 import type { Match } from '@/types/match';
 import { formatNumber } from '@/utils/format';
 import { haptic } from '@/utils/haptics';
 
-function Stepper({
-  value,
-  onChange,
+function StepButton({
+  icon,
+  onPress,
   label,
 }: {
-  value: number;
-  onChange: (n: number) => void;
+  icon: 'add' | 'remove';
+  onPress: () => void;
   label: string;
 }) {
-  const { colors, spacing, layout } = useTheme();
-  const btn = (icon: 'remove' | 'add', delta: number) => (
+  const { colors, radius } = useTheme();
+  return (
     <Pressable
       onPress={() => {
         haptic.select();
-        onChange(Math.max(0, Math.min(9, value + delta)));
+        onPress();
       }}
       accessibilityRole="button"
-      accessibilityLabel={`${delta > 0 ? 'Aumentar' : 'Diminuir'} gols de ${label}`}
-      style={({ pressed }) => [
-        styles.stepBtn,
-        {
-          width: layout.minTouch,
-          height: layout.minTouch,
-          backgroundColor: colors.surfaceMuted,
-          opacity: pressed ? 0.6 : 1,
-        },
-      ]}
+      accessibilityLabel={label}
+      style={({ pressed }) => ({
+        width: 44,
+        height: 44,
+        borderRadius: radius.m,
+        backgroundColor: colors.bgRaised2,
+        alignItems: 'center',
+        justifyContent: 'center',
+        opacity: pressed ? 0.7 : 1,
+      })}
     >
-      <Ionicons name={icon} size={18} color={colors.textPrimary} />
+      <Ionicons name={icon} size={20} color={colors.inkPrimary} />
     </Pressable>
-  );
-  return (
-    <View style={{ alignItems: 'center', gap: spacing.xs }}>
-      {btn('add', 1)}
-      <Text variant="number" accessibilityLabel={`${value} gols para ${label}`}>
-        {value}
-      </Text>
-      {btn('remove', -1)}
-    </View>
   );
 }
 
-/** Palpite de placar: pontos virtuais, sem nenhuma aposta financeira. */
+/** Palpite (especificação 12.14): objeto bgRaised, números display.xl, − e + de 44px. */
 export function PredictionCard({ match }: { match: Match }) {
-  const { spacing } = useTheme();
+  const { colors, radius } = useTheme();
   const { refreshProgress } = useAppState();
   const [saved, setSaved] = useState<Prediction | null | undefined>(undefined);
   const [home, setHome] = useState(2);
@@ -83,65 +75,133 @@ export function PredictionCard({ match }: { match: Match }) {
     }
   };
 
-  if (saved === undefined) return <Skeleton height={190} radius={20} />;
+  if (saved === undefined) return <Skeleton height={300} radius={radius.l} />;
+
+  const side = (team: Match['homeTeam'], value: number, set: (n: number) => void) => (
+    <View style={{ flex: 1, alignItems: 'center', gap: 8 }}>
+      <Crest team={team} size={40} />
+      <Text variant="titleS" numberOfLines={1}>
+        {team.shortName}
+      </Text>
+      {!locked && (
+        <StepButton
+          icon="add"
+          label={`Mais um gol para ${team.shortName}`}
+          onPress={() => set(Math.min(9, value + 1))}
+        />
+      )}
+      <Text variant="displayXl" accessibilityLabel={`${value} gols para ${team.shortName}`}>
+        {value}
+      </Text>
+      {!locked && (
+        <StepButton
+          icon="remove"
+          label={`Menos um gol para ${team.shortName}`}
+          onPress={() => set(Math.max(0, value - 1))}
+        />
+      )}
+    </View>
+  );
 
   return (
-    <Card variant="elevated" padding="lg">
-      <View style={{ gap: spacing.lg }}>
-        <View style={styles.between}>
-          <Text variant="h3">Seu palpite</Text>
-          <Badge label="+10 pts" tone="brand" icon="flash" />
-        </View>
-        <View style={[styles.between, { alignItems: 'center' }]}>
-          <View style={{ alignItems: 'center', gap: 6, width: 80 }}>
-            <TeamCrest shortName={match.homeTeam.code} color={match.homeTeam.color} size={36} />
-            <Text variant="caption" numberOfLines={1}>
-              {match.homeTeam.shortName}
-            </Text>
-          </View>
-          {locked ? (
-            <Text variant="number">{saved ? `${saved.home} × ${saved.away}` : '—'}</Text>
-          ) : (
-            <View style={[styles.row, { gap: spacing.lg }]}>
-              <Stepper value={home} onChange={setHome} label={match.homeTeam.shortName} />
-              <Text variant="h2" tone="tertiary">
-                ×
-              </Text>
-              <Stepper value={away} onChange={setAway} label={match.awayTeam.shortName} />
-            </View>
-          )}
-          <View style={{ alignItems: 'center', gap: 6, width: 80 }}>
-            <TeamCrest shortName={match.awayTeam.code} color={match.awayTeam.color} size={36} />
-            <Text variant="caption" numberOfLines={1}>
-              {match.awayTeam.shortName}
-            </Text>
-          </View>
-        </View>
-        {locked ? (
-          <Text variant="caption" tone="secondary" align="center">
-            {saved
-              ? 'Palpite registrado. Os pontos saem ao fim do jogo.'
-              : 'Palpites encerrados para este jogo.'}
-          </Text>
-        ) : (
-          <Button
-            label={saved ? 'Atualizar palpite' : 'Confirmar palpite'}
-            icon={saved ? 'refresh' : 'checkmark'}
-            onPress={submit}
-            loading={saving}
-            fullWidth
-          />
-        )}
-        <Text variant="footnote" tone="tertiary" align="center">
-          Pontos virtuais do programa de fidelidade. Não envolve dinheiro nem apostas.
+    <View style={{ backgroundColor: colors.bgRaised, borderRadius: radius.l, padding: 20, gap: 20 }}>
+      <View style={styles.between}>
+        <Text variant="titleM">Seu palpite</Text>
+        <Text variant="labelM" tone="brand">
+          +10 pts
         </Text>
       </View>
-    </Card>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        {side(match.homeTeam, home, setHome)}
+        <Text variant="displayM" tone="tertiary">
+          ×
+        </Text>
+        {side(match.awayTeam, away, setAway)}
+      </View>
+      {locked ? (
+        <Text variant="bodyM" tone="secondary" align="center">
+          {saved
+            ? 'Palpite registrado. Os pontos saem ao fim do jogo.'
+            : 'Palpites encerrados para este jogo.'}
+        </Text>
+      ) : (
+        <Button
+          label={saved ? 'Atualizar palpite' : 'Confirmar palpite'}
+          onPress={submit}
+          loading={saving}
+          fullWidth
+        />
+      )}
+      <Text variant="bodyS" tone="tertiary" align="center">
+        Pontos virtuais do programa de fidelidade. Não envolve dinheiro nem apostas.
+      </Text>
+    </View>
   );
 }
 
+function PollOptionRow({
+  option,
+  pct,
+  voted,
+  mine,
+  onPress,
+}: {
+  option: PollOption;
+  pct: number;
+  voted: boolean;
+  mine: boolean;
+  onPress: () => void;
+}) {
+  const { colors, radius, motion } = useTheme();
+  const reduceMotion = useReduceMotion();
+  const fill = useState(() => new Animated.Value(0))[0];
+  useEffect(() => {
+    if (!voted) return;
+    Animated.timing(fill, {
+      toValue: pct,
+      duration: reduceMotion ? 0 : motion.duration.slow,
+      easing: motion.easing.slow,
+      useNativeDriver: false,
+    }).start();
+  }, [voted, pct, fill, reduceMotion, motion]);
+  return (
+    <Pressable
+      disabled={voted}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={voted ? `${option.label}, ${Math.round(pct * 100)}%` : `Votar em ${option.label}`}
+      accessibilityState={{ selected: mine, disabled: voted }}
+      style={({ pressed }) => ({
+        height: 56,
+        borderRadius: radius.m,
+        backgroundColor: colors.bgRaised2,
+        overflow: 'hidden',
+        justifyContent: 'center',
+        opacity: pressed ? 0.75 : 1,
+      })}
+    >
+      {voted && (
+        <Animated.View
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              width: fill.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }),
+              backgroundColor: mine ? withAlpha(colors.accent, 0.35) : withAlpha(colors.inkPrimary, 0.1),
+            },
+          ]}
+        />
+      )}
+      <View style={[styles.between, { paddingHorizontal: 16 }]}>
+        <Text variant="titleS">{option.label}</Text>
+        {voted && <Text variant="numericTable">{Math.round(pct * 100)}%</Text>}
+      </View>
+    </Pressable>
+  );
+}
+
+/** Enquete (especificação 12.13). */
 export function PollCard({ pollId, onVoted }: { pollId?: string; onVoted?: () => void }) {
-  const { spacing, colors, radius, layout } = useTheme();
+  const { radius } = useTheme();
   const { refreshProgress } = useAppState();
   const [poll, setPoll] = useState<Poll>();
 
@@ -149,7 +209,7 @@ export function PollCard({ pollId, onVoted }: { pollId?: string; onVoted?: () =>
     services.gamification.getPoll(pollId).then(setPoll);
   }, [pollId]);
 
-  if (!poll) return <Skeleton height={200} radius={20} />;
+  if (!poll) return <Skeleton height={280} radius={radius.l} />;
   const total = poll.options.reduce((s, o) => s + o.votes, 0);
   const voted = !!poll.userVoteId;
 
@@ -161,68 +221,38 @@ export function PollCard({ pollId, onVoted }: { pollId?: string; onVoted?: () =>
   };
 
   return (
-    <Card variant="elevated" padding="lg">
-      <View style={{ gap: spacing.md }}>
-        <View style={styles.between}>
-          <Badge
-            label={poll.kind === 'craque-do-jogo' ? 'Craque do jogo' : 'Enquete'}
-            tone="brand"
-            icon="stats-chart"
-          />
-          <Text variant="footnote" tone="tertiary">
-            {formatNumber(total)} votos
-          </Text>
-        </View>
-        <Text variant="h3">{poll.question}</Text>
-        {poll.options.map((o) => {
-          const pct = total ? o.votes / total : 0;
-          const mine = poll.userVoteId === o.id;
-          return (
-            <Pressable
-              key={o.id}
-              disabled={voted}
-              onPress={() => vote(o.id)}
-              accessibilityRole="button"
-              accessibilityLabel={voted ? `${o.label}, ${Math.round(pct * 100)}%` : `Votar em ${o.label}`}
-              accessibilityState={{ selected: mine, disabled: voted }}
-              style={({ pressed }) => [
-                {
-                  minHeight: layout.minTouch,
-                  borderRadius: radius.md,
-                  borderWidth: 1,
-                  borderColor: mine ? colors.primary : colors.border,
-                  padding: spacing.md,
-                  gap: 6,
-                  opacity: pressed ? 0.7 : 1,
-                },
-              ]}
-            >
-              <View style={styles.between}>
-                <Text variant="bodyStrong">{o.label}</Text>
-                {voted && (
-                  <Text variant="tabular" tone={mine ? 'brand' : 'secondary'}>
-                    {Math.round(pct * 100)}%
-                  </Text>
-                )}
-              </View>
-              {voted && (
-                <ProgressBar value={pct} height={6} color={mine ? colors.primary : colors.borderStrong} />
-              )}
-            </Pressable>
-          );
-        })}
-        {!voted && (
-          <Text variant="footnote" tone="tertiary">
-            Vote e ganhe 5 pontos.
-          </Text>
-        )}
+    <View style={{ gap: 16 }}>
+      <View style={styles.between}>
+        <Text variant="overline" tone="secondary">
+          {poll.kind === 'craque-do-jogo' ? 'Craque do jogo' : 'Enquete'}
+        </Text>
+        <Text variant="bodyS" tone="tertiary">
+          {formatNumber(total)} votos
+        </Text>
       </View>
-    </Card>
+      <Text variant="titleL">{poll.question}</Text>
+      <View style={{ gap: 8 }}>
+        {poll.options.map((o) => (
+          <PollOptionRow
+            key={o.id}
+            option={o}
+            pct={total ? o.votes / total : 0}
+            voted={voted}
+            mine={poll.userVoteId === o.id}
+            onPress={() => vote(o.id)}
+          />
+        ))}
+      </View>
+      <Text variant="bodyS" tone="secondary">
+        {voted ? 'Voto registrado. +5 pts' : 'Vote e ganhe 5 pts'}
+      </Text>
+    </View>
   );
 }
 
+/** Quiz do dia (especificação 12.14): grade 2×2 de células de 64px. */
 export function QuizCard() {
-  const { spacing, colors, radius, layout } = useTheme();
+  const { colors, radius } = useTheme();
   const { refreshProgress } = useAppState();
   const [quiz, setQuiz] = useState<Quiz>();
 
@@ -230,7 +260,7 @@ export function QuizCard() {
     services.gamification.getDailyQuiz().then(setQuiz);
   }, []);
 
-  if (!quiz) return <Skeleton height={220} radius={20} />;
+  if (!quiz) return <Skeleton height={260} radius={radius.l} />;
   const a = quiz.answered;
 
   const answer = async (optionId: string) => {
@@ -242,68 +272,62 @@ export function QuizCard() {
   };
 
   return (
-    <Card variant="elevated" padding="lg">
-      <View style={{ gap: spacing.md }}>
-        <View style={styles.between}>
-          <Badge label="Quiz do dia" tone="info" icon="help-circle" />
-          <Badge label={`+${quiz.points} pts`} tone="brand" />
-        </View>
-        <Text variant="h3">{quiz.question}</Text>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
-          {quiz.options.map((o) => {
-            const isCorrect = a?.correctOptionId === o.id;
-            const isWrongPick = a && a.optionId === o.id && !a.correct;
-            const border = isCorrect ? colors.success : isWrongPick ? colors.danger : colors.border;
-            const bg = isCorrect
-              ? colors.successSubtle
-              : isWrongPick
-                ? colors.dangerSubtle
-                : colors.surfaceMuted;
-            return (
-              <Pressable
-                key={o.id}
-                disabled={!!a}
-                onPress={() => answer(o.id)}
-                accessibilityRole="button"
-                accessibilityLabel={`Resposta ${o.label}${isCorrect ? ', correta' : isWrongPick ? ', errada' : ''}`}
-                style={({ pressed }) => ({
-                  flexBasis: '47%',
-                  flexGrow: 1,
-                  minHeight: layout.minTouch + 4,
-                  borderRadius: radius.md,
-                  borderWidth: 1.5,
-                  borderColor: border,
-                  backgroundColor: bg,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  opacity: pressed ? 0.7 : 1,
-                })}
-              >
-                <Text variant="bodyStrong">{o.label}</Text>
-              </Pressable>
-            );
-          })}
-        </View>
-        {a && (
-          <View style={[styles.row, { gap: spacing.sm }]}>
-            <Ionicons
-              name={a.correct ? 'checkmark-circle' : 'close-circle'}
-              size={20}
-              color={a.correct ? colors.success : colors.danger}
-            />
-            <Text variant="callout" tone="secondary" style={{ flex: 1 }}>
-              {a.correct ? `Acertou! +${quiz.points} pontos. ` : 'Não foi dessa vez. '}
-              {a.explanation}
-            </Text>
-          </View>
-        )}
+    <View style={{ gap: 16 }}>
+      <View style={styles.between}>
+        <Text variant="overline" tone="secondary">
+          Quiz do dia
+        </Text>
+        <Text variant="labelM" tone="brand">
+          +{quiz.points} pts
+        </Text>
       </View>
-    </Card>
+      <Text variant="titleL">{quiz.question}</Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+        {quiz.options.map((o) => {
+          const isCorrect = a?.correctOptionId === o.id;
+          const isWrongPick = !!a && a.optionId === o.id && !a.correct;
+          return (
+            <Pressable
+              key={o.id}
+              disabled={!!a}
+              onPress={() => answer(o.id)}
+              accessibilityRole="button"
+              accessibilityLabel={`Resposta ${o.label}${isCorrect ? ', correta' : isWrongPick ? ', errada' : ''}`}
+              style={({ pressed }) => ({
+                flexBasis: '48%',
+                flexGrow: 1,
+                height: 64,
+                borderRadius: radius.s,
+                backgroundColor: colors.bgRaised2,
+                borderWidth: isCorrect || isWrongPick ? 1.5 : 0,
+                borderColor: isCorrect ? colors.success : colors.danger,
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexDirection: 'row',
+                gap: 8,
+                opacity: pressed ? 0.75 : 1,
+              })}
+            >
+              {isCorrect && <Ionicons name="checkmark" size={18} color={colors.success} />}
+              {isWrongPick && <Ionicons name="close" size={18} color={colors.danger} />}
+              <Text variant="displayS">{o.label}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+      {a && (
+        <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+          {a.correct && <Mascot pose="fan-quiz" size={56} />}
+          <Text variant="bodyM" tone="secondary" style={{ flex: 1 }}>
+            {a.correct ? `Acertou! +${quiz.points} pts. ` : 'Não foi dessa vez. '}
+            {a.explanation}
+          </Text>
+        </View>
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center' },
   between: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  stepBtn: { borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
 });
