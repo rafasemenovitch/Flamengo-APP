@@ -1,6 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import {
   createContext,
   useCallback,
@@ -15,7 +14,7 @@ import {
 import { Pressable, ScrollView, StyleSheet, Switch, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Avatar, Button, ClubCrest, palette, Text, useTheme, withAlpha } from '@/design-system';
+import { Avatar, Button, ClubCrest, Mascot, palette, Text, useTheme } from '@/design-system';
 import { useAsync } from '@/hooks/useAsync';
 import { services } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
@@ -81,32 +80,8 @@ function OnboardingFlow({ onDone }: { onDone: () => void }) {
   const favs = profile?.favoritePlayerIds ?? [];
 
   return (
-    // Fundo sempre escuro (texto branco legível também no tema claro).
-    <View style={{ flex: 1, backgroundColor: palette.ink950 }}>
-      <LinearGradient
-        colors={[palette.red700, palette.ink950]}
-        style={StyleSheet.absoluteFill}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 0.55 }}
-      />
-      {/* Listras diagonais sutis */}
-      <View pointerEvents="none" style={[StyleSheet.absoluteFill, { opacity: 0.06 }]}>
-        {[0, 1, 2, 3, 4].map((i) => (
-          <View
-            key={i}
-            style={{
-              position: 'absolute',
-              top: -80 + i * 90,
-              left: -100,
-              right: -100,
-              height: 34,
-              backgroundColor: palette.white,
-              transform: [{ rotate: '-14deg' }],
-            }}
-          />
-        ))}
-      </View>
-
+    // Boas-vindas em vermelho chapado; demais passos em preto (sempre escuro, texto branco legível).
+    <View style={{ flex: 1, backgroundColor: page === 0 ? colors.bgRed : palette.ink950 }}>
       <SafeAreaView style={{ flex: 1 }}>
         <View
           style={{
@@ -146,9 +121,12 @@ function OnboardingFlow({ onDone }: { onDone: () => void }) {
               gap: spacing.xl,
             }}
           >
-            <ClubCrest size={96} />
+            <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+              <ClubCrest size={72} />
+              <Mascot pose="fan-welcome" size={120} />
+            </View>
             <View style={{ gap: spacing.sm }}>
-              <Text variant="display" tone="onMedia" style={{ fontSize: 44, lineHeight: 46 }}>
+              <Text variant="displayL" tone="onMedia" style={{ fontSize: 48, lineHeight: 48 }}>
                 Bem-vindo à Nação
               </Text>
               <Text variant="body" tone="onMedia" style={{ opacity: 0.85 }}>
@@ -168,7 +146,7 @@ function OnboardingFlow({ onDone }: { onDone: () => void }) {
                       width: 36,
                       height: 36,
                       borderRadius: 18,
-                      backgroundColor: withAlpha(palette.white, 0.12),
+                      backgroundColor: 'transparent',
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}

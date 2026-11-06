@@ -12,7 +12,7 @@ import {
   MediaImage,
   Screen,
   SectionHeader,
-  SegmentedControl,
+  Tabs,
   Skeleton,
   Text,
   useTheme,
@@ -75,7 +75,7 @@ export function StadiumModeScreen({ route }: RootScreenProps<'StadiumMode'>) {
           {s.nickname} · {formatNumber(s.capacity)} lugares · {s.address}
         </Text>
       </View>
-      <SegmentedControl<Tab>
+      <Tabs<Tab>
         segments={[
           { key: 'estadio', label: 'Estádio' },
           { key: 'chegar', label: 'Como chegar' },

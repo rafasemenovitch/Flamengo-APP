@@ -1,16 +1,7 @@
 import { useState } from 'react';
 import { View } from 'react-native';
 
-import {
-  Avatar,
-  Card,
-  ErrorState,
-  Screen,
-  SegmentedControl,
-  Skeleton,
-  Text,
-  useTheme,
-} from '@/design-system';
+import { Avatar, ErrorState, Screen, Tabs, Skeleton, Text, useTheme } from '@/design-system';
 import { useAsync } from '@/hooks/useAsync';
 import { services } from '@/services';
 import type { RankingScope } from '@/types/gamification';
@@ -25,7 +16,7 @@ export function RankingsScreen() {
 
   return (
     <Screen title="Rankings" refreshing={q.refreshing} onRefresh={q.refresh}>
-      <SegmentedControl<RankingScope>
+      <Tabs<RankingScope>
         segments={[
           { key: 'geral', label: 'Geral' },
           { key: 'semanal', label: 'Semanal' },
@@ -35,7 +26,7 @@ export function RankingsScreen() {
         value={scope}
         onChange={setScope}
       />
-      <View style={{ paddingHorizontal: layout.gutter, marginTop: spacing.lg, gap: spacing.sm }}>
+      <View style={{ marginTop: spacing.lg }}>
         {q.loading ? (
           [0, 1, 2, 3, 4].map((i) => <Skeleton key={i} height={60} radius={radius.md} />)
         ) : q.error ? (
@@ -50,7 +41,26 @@ export function RankingsScreen() {
                     • • •
                   </Text>
                 )}
-                <Card variant={r.isCurrentUser ? 'tinted' : 'surface'} padding="sm">
+                <View
+                  style={{
+                    paddingVertical: 12,
+                    paddingHorizontal: layout.gutter,
+                    borderBottomWidth: 1,
+                    borderColor: colors.lineHairline,
+                  }}
+                >
+                  {r.isCurrentUser && (
+                    <View
+                      style={{
+                        position: 'absolute',
+                        left: 0,
+                        top: 10,
+                        bottom: 10,
+                        width: 3,
+                        backgroundColor: colors.accent,
+                      }}
+                    />
+                  )}
                   <View
                     style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}
                     accessible
@@ -58,20 +68,9 @@ export function RankingsScreen() {
                   >
                     <View style={{ width: 44, alignItems: 'center' }}>
                       {medal(r.position) ? (
-                        <View
-                          style={{
-                            width: 30,
-                            height: 30,
-                            borderRadius: 15,
-                            backgroundColor: medal(r.position),
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}
-                        >
-                          <Text variant="label" tone="onPrimary">
-                            {r.position}
-                          </Text>
-                        </View>
+                        <Text variant="displayS" style={{ color: medal(r.position) }}>
+                          {r.position}
+                        </Text>
                       ) : (
                         <Text variant="tabular" tone="secondary">
                           {formatNumber(r.position)}º
@@ -89,7 +88,7 @@ export function RankingsScreen() {
                     </View>
                     <Text variant="tabular">{formatNumber(r.points)}</Text>
                   </View>
-                </Card>
+                </View>
               </View>
             );
           })

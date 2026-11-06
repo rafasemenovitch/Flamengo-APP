@@ -69,23 +69,12 @@ export function VideoDetailScreen({ route }: RootScreenProps<'VideoDetail'>) {
             style={{ aspectRatio: 16 / 9, borderRadius: radius.lg }}
           >
             <View style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center' }]}>
-              <View
-                style={{
-                  width: 64,
-                  height: 64,
-                  borderRadius: 32,
-                  backgroundColor: colors.primary,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Ionicons
-                  name={playing ? 'pause' : 'play'}
-                  size={28}
-                  color={colors.onPrimary}
-                  style={{ marginLeft: playing ? 0 : 3 }}
-                />
-              </View>
+              <Ionicons
+                name={playing ? 'pause' : 'play'}
+                size={48}
+                color={colors.onPrimary}
+                style={{ marginLeft: playing ? 0 : 3 }}
+              />
             </View>
             <View
               style={{

@@ -185,20 +185,9 @@ export function GamificationScreen() {
           {pools.data?.map((p) => (
             <Card key={p.id} padding="sm">
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
-                <View
-                  style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: 22,
-                    backgroundColor: colors.primarySubtle,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Text variant="label" tone="brand">
-                    {p.userPosition}º
-                  </Text>
-                </View>
+                <Text variant="displayS" tone="brand" style={{ width: 44 }}>
+                  {p.userPosition}º
+                </Text>
                 <View style={{ flex: 1 }}>
                   <Text variant="bodyStrong">{p.name}</Text>
                   <Text variant="caption" tone="secondary">

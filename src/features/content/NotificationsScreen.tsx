@@ -2,26 +2,27 @@ import { Ionicons } from '@expo/vector-icons';
 import { useEffect } from 'react';
 import { View } from 'react-native';
 
-import { Card, EmptyState, ErrorState, Screen, Skeleton, Text, useTheme } from '@/design-system';
+import { EmptyState, ErrorState, Screen, Skeleton, Text, useTheme } from '@/design-system';
 import { useAsync } from '@/hooks/useAsync';
 import { services } from '@/services';
 import type { AppNotification } from '@/types/fan';
 import { formatRelative } from '@/utils/format';
 
 const ICON: Record<AppNotification['kind'], keyof typeof Ionicons.glyphMap> = {
-  match: 'football',
-  news: 'newspaper',
-  tickets: 'ticket',
-  store: 'bag-handle',
-  gamification: 'trophy',
+  match: 'football-outline',
+  news: 'newspaper-outline',
+  tickets: 'ticket-outline',
+  store: 'bag-handle-outline',
+  gamification: 'trophy-outline',
 };
 
+/** Notificações em linhas abertas; não lidas com ponto vermelho. */
 export function NotificationsScreen() {
-  const { colors, spacing, layout } = useTheme();
+  const { colors, layout } = useTheme();
   const q = useAsync(() => services.profile.getNotifications());
 
   useEffect(() => {
-    // Marca como lidas ao sair da tela (o badge da Home zera no próximo refresh).
+    // Marca como lidas ao sair da tela (o ponto do sino some ao voltar para a Home).
     return () => {
       services.profile.markNotificationsRead();
     };
@@ -29,54 +30,66 @@ export function NotificationsScreen() {
 
   return (
     <Screen title="Notificações" refreshing={q.refreshing} onRefresh={q.refresh}>
-      <View style={{ paddingHorizontal: layout.gutter, gap: spacing.sm }}>
-        {q.loading ? (
-          [0, 1, 2].map((i) => <Skeleton key={i} height={80} radius={16} />)
-        ) : q.error ? (
-          <ErrorState compact onRetry={q.reload} />
-        ) : q.data?.length === 0 ? (
-          <EmptyState compact icon="notifications-off-outline" title="Nenhuma notificação" />
-        ) : (
-          q.data?.map((n) => (
-            <Card key={n.id} variant={n.read ? 'surface' : 'tinted'} padding="sm">
-              <View style={{ flexDirection: 'row', gap: spacing.md, alignItems: 'flex-start' }}>
-                <View
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 20,
-                    backgroundColor: colors.surfaceMuted,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Ionicons name={ICON[n.kind]} size={18} color={colors.primaryText} />
-                </View>
-                <View style={{ flex: 1, gap: 2 }}>
-                  <Text variant="bodyStrong">{n.title}</Text>
-                  <Text variant="callout" tone="secondary">
-                    {n.body}
-                  </Text>
-                  <Text variant="footnote" tone="tertiary">
-                    {formatRelative(n.createdAt)}
-                  </Text>
-                </View>
-                {!n.read && (
-                  <View
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: 4,
-                      backgroundColor: colors.primary,
-                      marginTop: 6,
-                    }}
-                  />
-                )}
+      {q.loading ? (
+        <View style={{ paddingHorizontal: layout.gutter, gap: 12 }}>
+          {[0, 1, 2].map((i) => (
+            <Skeleton key={i} height={64} radius={8} />
+          ))}
+        </View>
+      ) : q.error ? (
+        <ErrorState compact onRetry={q.reload} />
+      ) : q.data?.length === 0 ? (
+        <EmptyState
+          compact
+          pose="fan-notifications"
+          title="Nada por aqui ainda."
+          message="Não perca nenhum gol. Ative as notificações."
+        />
+      ) : (
+        <View style={{ borderTopWidth: 1, borderColor: colors.lineHairline }}>
+          {q.data?.map((n) => (
+            <View
+              key={n.id}
+              style={{
+                flexDirection: 'row',
+                gap: 16,
+                paddingHorizontal: layout.gutter,
+                paddingVertical: 16,
+                borderBottomWidth: 1,
+                borderColor: colors.lineHairline,
+              }}
+            >
+              <Ionicons
+                name={ICON[n.kind]}
+                size={20}
+                color={n.read ? colors.inkTertiary : colors.inkPrimary}
+                style={{ marginTop: 2 }}
+              />
+              <View style={{ flex: 1, gap: 2 }}>
+                <Text variant="titleS">{n.title}</Text>
+                <Text variant="bodyM" tone="secondary">
+                  {n.body}
+                </Text>
+                <Text variant="bodyS" tone="tertiary">
+                  {formatRelative(n.createdAt)}
+                </Text>
               </View>
-            </Card>
-          ))
-        )}
-      </View>
+              {!n.read && (
+                <View
+                  accessibilityLabel="Não lida"
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: 3,
+                    backgroundColor: colors.accent,
+                    marginTop: 8,
+                  }}
+                />
+              )}
+            </View>
+          ))}
+        </View>
+      )}
     </Screen>
   );
 }

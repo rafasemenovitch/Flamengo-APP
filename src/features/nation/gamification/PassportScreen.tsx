@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { View } from 'react-native';
 
 import {
@@ -20,17 +19,14 @@ import { formatFullDate } from '@/utils/format';
 
 /** Passaporte Rubro-Negro: um "carimbo" por jogo em que o torcedor esteve no estádio. */
 export function PassportScreen() {
-  const { colors, spacing, layout, radius } = useTheme();
+  const { colors, spacing, layout } = useTheme();
   const { profile, progress } = useAppState();
   const q = useAsync(() => services.gamification.getPassport());
 
   return (
     <Screen title="Passaporte Rubro-Negro" refreshing={q.refreshing} onRefresh={q.refresh}>
       <View style={{ paddingHorizontal: layout.gutter, gap: spacing.lg }}>
-        <LinearGradient
-          colors={colors.heroGradient}
-          style={{ borderRadius: radius.xl, padding: spacing.xl, gap: spacing.lg }}
-        >
+        <View style={{ gap: spacing.lg }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
             <ClubCrest size={48} />
             <View style={{ flex: 1 }}>
@@ -52,16 +48,14 @@ export function PassportScreen() {
               [String(progress?.attendanceStreak ?? '—'), 'Sequência'],
             ].map(([v, l]) => (
               <View key={l} style={{ flex: 1, alignItems: 'center' }}>
-                <Text variant="number" tone="onMedia">
-                  {v}
-                </Text>
+                <Text variant="displayXl">{v}</Text>
                 <Text variant="footnote" tone="onMedia" style={{ opacity: 0.8 }}>
                   {l}
                 </Text>
               </View>
             ))}
           </View>
-        </LinearGradient>
+        </View>
       </View>
 
       <View style={{ marginTop: spacing.xxl }}>
