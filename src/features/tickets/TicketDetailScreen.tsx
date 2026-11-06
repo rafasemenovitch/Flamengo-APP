@@ -1,7 +1,9 @@
-import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useCallback } from 'react';
 import { View } from 'react-native';
 
-import { Button, Card, DemoBadge, ErrorState, Screen, Skeleton, Text, useTheme } from '@/design-system';
+import { Badge, Button, Card, DemoBadge, ErrorState, Screen, Skeleton, Text, useTheme } from '@/design-system';
 import { DemoQRCode } from '@/features/shared/DemoQRCode';
 import { useAsync } from '@/hooks/useAsync';
 import type { RootScreenProps } from '@/navigation/types';
@@ -10,7 +12,11 @@ import { formatCurrency, formatMatchDate } from '@/utils/format';
 
 export function TicketDetailScreen({ route }: RootScreenProps<'TicketDetail'>) {
   const navigation = useNavigation();
-  const { spacing, layout } = useTheme();
+  const { colors, spacing, layout } = useTheme();
+  const face = useAsync(() => services.profile.getFaceEnrollment());
+  // Atualiza o status ao voltar do cadastro facial.
+  const refreshFace = face.refresh;
+  useFocusEffect(useCallback(() => void refreshFace(), [refreshFace]));
   const q = useAsync(async () => {
     const ticket = await services.tickets.getTicket(route.params.ticketId);
     const match = await services.matches.getMatch(ticket.matchId);
@@ -45,7 +51,26 @@ export function TicketDetailScreen({ route }: RootScreenProps<'TicketDetail'>) {
             <Text variant="caption" tone="secondary">{t.holderName} · {formatCurrency(t.price)} (simulado)</Text>
           </View>
         </Card>
-        <Button label="Como chegar e portão" icon="navigate" onPress={() => navigation.navigate('StadiumMode', { matchId: t.matchId })} fullWidth />
+        <Card variant={face.data?.status === 'enrolled' ? 'surface' : 'tinted'}>
+          <View style={{ gap: spacing.md }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
+              <Ionicons name="scan" size={28} color={face.data?.status === 'enrolled' ? colors.success : colors.primaryText} />
+              <View style={{ flex: 1 }}>
+                <Text variant="title">Entrada por reconhecimento facial</Text>
+                <Text variant="caption" tone="secondary">
+                  {face.data?.status === 'enrolled' ? 'Ativa: na catraca, seu rosto confirma este ingresso.' : 'Cadastre seu rosto para entrar no estádio.'}
+                </Text>
+              </View>
+              {face.data?.status === 'enrolled' && <Badge label="Ativa" tone="success" icon="checkmark" />}
+            </View>
+            {face.data?.status !== 'enrolled' ? (
+              <Button label="Cadastrar meu rosto" icon="camera" onPress={() => navigation.navigate('FaceEnrollment')} fullWidth />
+            ) : (
+              <Button label="Refazer cadastro" variant="ghost" size="sm" onPress={() => navigation.navigate('FaceEnrollment')} />
+            )}
+          </View>
+        </Card>
+        <Button label="Ver meu setor no mapa do estádio" icon="map" variant="secondary" onPress={() => navigation.navigate('StadiumMode', { sectorId: t.sectorId })} fullWidth />
       </View>
     </Screen>
   );

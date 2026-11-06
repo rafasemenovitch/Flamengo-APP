@@ -34,7 +34,9 @@ export type RootStackParamList = {
   TicketPurchase: { matchId: string };
   TicketWallet: undefined;
   TicketDetail: { ticketId: string };
-  StadiumMode: { matchId?: string } | undefined;
+  FaceEnrollment: undefined;
+  /** Aberto a todos; `sectorId` só destaca um setor (ex.: vindo do ingresso). */
+  StadiumMode: { sectorId?: string; tab?: 'estadio' | 'chegar' | 'filas' } | undefined;
   // Nação
   Store: { category?: ProductCategory } | undefined;
   Product: { productId: string };

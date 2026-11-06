@@ -11,7 +11,7 @@ import type { RootScreenProps } from '@/navigation/types';
 import { services } from '@/services';
 import type { SectorOffer, TicketType } from '@/types/tickets';
 import { formatCurrency } from '@/utils/format';
-import { StadiumMap } from './StadiumMap';
+import { StadiumMap } from '@/features/stadium/StadiumMap';
 
 const AVAIL = {
   available: ['Disponível', 'success'],

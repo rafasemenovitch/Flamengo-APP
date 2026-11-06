@@ -22,7 +22,8 @@ import { ProductScreen } from '@/features/nation/store/ProductScreen';
 import { RankingsScreen } from '@/features/nation/gamification/RankingsScreen';
 import { StoreScreen } from '@/features/nation/store/StoreScreen';
 import { SettingsScreen } from '@/features/profile/SettingsScreen';
-import { StadiumModeScreen } from '@/features/tickets/StadiumModeScreen';
+import { StadiumModeScreen } from '@/features/stadium/StadiumModeScreen';
+import { FaceEnrollmentScreen } from '@/features/tickets/FaceEnrollmentScreen';
 import { TicketDetailScreen } from '@/features/tickets/TicketDetailScreen';
 import { TicketPurchaseScreen } from '@/features/tickets/TicketPurchaseScreen';
 import { TicketWalletScreen } from '@/features/tickets/TicketWalletScreen';
@@ -73,6 +74,7 @@ export function RootNavigator() {
         <Stack.Screen name="TicketPurchase" component={TicketPurchaseScreen} />
         <Stack.Screen name="TicketWallet" component={TicketWalletScreen} />
         <Stack.Screen name="TicketDetail" component={TicketDetailScreen} />
+        <Stack.Screen name="FaceEnrollment" component={FaceEnrollmentScreen} options={{ gestureEnabled: false }} />
         <Stack.Screen name="StadiumMode" component={StadiumModeScreen} />
         <Stack.Screen name="Store" component={StoreScreen} />
         <Stack.Screen name="Product" component={ProductScreen} />

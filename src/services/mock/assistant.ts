@@ -30,10 +30,10 @@ export function createMockAssistantService(deps: { matches: MatchesService; tick
         const [ticket] = await deps.tickets.getWallet();
         if (ticket) {
           return delay({
-            text: `Seu ingresso é para o setor ${ticket.sectorName} (${ticket.seat}). A entrada recomendada é pelo Portão ${ticket.gate}. No Modo Maracanã você vê o mapa e a fila de cada portão em tempo real (simulado).`,
+            text: `Seu ingresso é para o setor ${ticket.sectorName} (${ticket.seat}). A entrada recomendada é pelo Portão ${ticket.gate}. No Modo Maracanã você vê o mapa, as filas e como chegar.`,
             sources: ['Carteira de ingressos', 'Mapa do estádio (esquemático)'],
             grounded: true,
-            action: { label: 'Abrir Modo Maracanã', route: 'StadiumMode' },
+            action: { label: 'Ver no mapa do estádio', route: 'StadiumMode', params: { sectorId: ticket.sectorId } },
           });
         }
         return delay({

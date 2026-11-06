@@ -1,4 +1,5 @@
 import type { AppNotification, FanProfile, HistoryEntry } from '@/types/fan';
+import type { FaceEnrollment } from '@/types/stadium';
 
 export interface Session {
   fanId: string;
@@ -18,4 +19,9 @@ export interface ProfileService {
   getHistory(): Promise<HistoryEntry[]>;
   getNotifications(): Promise<AppNotification[]>;
   markNotificationsRead(): Promise<void>;
+  /** Cadastro facial para entrada no estádio (vale para todos os ingressos da conta). */
+  getFaceEnrollment(): Promise<FaceEnrollment>;
+  /** No modo demo, a foto NÃO sai do aparelho: só o status é registrado. */
+  enrollFace(photoUri: string): Promise<FaceEnrollment>;
+  removeFace(): Promise<FaceEnrollment>;
 }

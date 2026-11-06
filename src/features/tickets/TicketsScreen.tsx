@@ -45,12 +45,12 @@ export function TicketsScreen() {
           ) : nextTicket ? (
             <>
               <TicketCard ticket={nextTicket} match={nextTicketMatch} onPress={() => navigation.navigate('TicketDetail', { ticketId: nextTicket.id })} />
-              <Card variant="tinted" onPress={() => navigation.navigate('StadiumMode', { matchId: nextTicket.matchId })} accessibilityLabel="Abrir Modo Maracanã">
+              <Card variant="tinted" onPress={() => navigation.navigate('StadiumMode', { sectorId: nextTicket.sectorId })} accessibilityLabel="Abrir Modo Maracanã">
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
                   <Ionicons name="navigate-circle" size={36} color={colors.primaryText} />
                   <View style={{ flex: 1 }}>
                     <Text variant="title">Modo Maracanã</Text>
-                    <Text variant="caption" tone="secondary">Portão, mapa, filas, transporte e horário ideal de chegada</Text>
+                    <Text variant="caption" tone="secondary">Mapa interativo do estádio, filas e como chegar</Text>
                   </View>
                   <Ionicons name="chevron-forward" size={20} color={colors.primaryText} />
                 </View>

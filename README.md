@@ -21,7 +21,7 @@ npm run typecheck      # checagem de tipos
 
 ## Stack
 
-Expo SDK 58 · React Native 0.88 · React 19.3 · TypeScript strict · React Navigation 7 ·
+Expo SDK 58 · React Native 0.88 · React 19.3 · react-native-maps · expo-location · expo-camera · TypeScript strict · React Navigation 7 ·
 `Animated` nativo (respeita "reduzir movimento") · react-native-svg · expo-linear-gradient.
 Fontes: Inter (texto) e Barlow Condensed (títulos e placares), licença OFL, em `assets/fonts`.
 
@@ -75,7 +75,8 @@ Tudo no modo `demo`. Na interface, os itens simulados levam o selo **DEMO**:
 - Checkout da loja e de ingressos: nunca pede dados de cartão e termina em "Compra simulada"
 - Carteirinha do Sócio-Torcedor (selo DEMO). Os **planos do programa Nação são reais**: nomes, prioridades, descontos e convidados. Os valores de referência foram pesquisados em nov/2026; Maraca 2 e Maraca 3 são estimados. As fontes estão em `src/data/demo/commerce.ts`
 - Pontos, rankings, medalhas, bolões, quizzes e enquetes (pontos virtuais, **sem apostas**)
-- Mapa do Maracanã: esquema vetorial próprio, não é planta oficial
+- Mapa do Maracanã: esquema vetorial próprio, não é planta oficial. No "Como chegar", as posições de portões e estações são aproximadas, mas as rotas são reais (Google/Apple Maps)
+- Filas por portão (simuladas) e cadastro facial (simulado; a foto fica só no aparelho)
 - Notícias, vídeos e imagens (degradês de placeholder)
 - Escudo: forma genérica de placeholder (troque em `assets/brand/index.ts`)
 
@@ -90,7 +91,7 @@ Tudo no modo `demo`. Na interface, os itens simulados levam o selo **DEMO**:
 0. Primeira abertura: boas-vindas em 3 passos (rever em Perfil → Configurações → Rever boas-vindas).
 1. Home: **toque e segure a saudação** ("Boa tarde, Rafael") para abrir os controles escondidos da demonstração e alternar entre pré-jogo, dia de jogo, ao vivo e pós-jogo.
    No modo **Ao vivo**, o relógio avança (1 min de jogo a cada 4 s) e o 3º gol, aos 83', dispara o alerta de gol.
-2. Comprar ingresso: escolha o setor no mapa → "Compra simulada" → carteira com QR DEMONSTRATIVO.
-3. Modo Maracanã: portão, horário de chegada, mapa com serviços, filas e transporte.
+2. Comprar ingresso: escolha o setor no mapa → "Compra simulada" → carteira com QR DEMONSTRATIVO → **cadastro facial** (câmera frontal; a foto não sai do aparelho).
+3. Modo Maracanã (aberto a todos, sem ingresso): mapa interativo (toque em setores, portões e serviços; camadas de banheiros, alimentação etc.), **Como chegar** com mapa real, sua localização, a melhor estação e o melhor portão, e rota no Google/Apple Maps, além de **Filas agora**.
 4. Assistente Fla (botão vermelho): "Qual portão do meu setor?", "Quando é o próximo jogo?", e algo fora da base para ver o "não sei".
 5. Perfil: favorite jogadores e veja o "Para você" da Home mudar.

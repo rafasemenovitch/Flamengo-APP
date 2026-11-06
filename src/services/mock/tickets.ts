@@ -66,18 +66,25 @@ export function createMockTicketsService(): TicketsService {
   };
 }
 
+/** Fila oscila um pouco a cada consulta (minuto do relógio), como num painel ao vivo. */
+function liveQueues(seed: string) {
+  const tick = Math.floor(Date.now() / 60_000);
+  return Object.entries(GATE_QUEUES).map(([gateId, base]) => {
+    const wait = Math.max(3, base + ((hash(seed + gateId + tick) % 7) - 3));
+    return { gateId, waitMinutes: wait, level: wait < 8 ? ('low' as const) : wait < 15 ? ('medium' as const) : ('high' as const) };
+  });
+}
+
 export function createMockStadiumService(): StadiumService {
   return {
     getStadium: async () => delay(STADIUM),
+    getQueues: async () => delay(liveQueues('now'), 250),
     async getMatchDayPlan(matchId, sectorId) {
       const ticket = wallet.find((t) => t.matchId === matchId);
       const sector = sectorId ?? ticket?.sectorId;
       const gate = STADIUM.gates.find((g) => sector && g.sectorIds.includes(sector)) ?? STADIUM.gates[0]!;
       const seed = MATCH_SEEDS.find((m) => m.id === matchId);
-      const queues = Object.entries(GATE_QUEUES).map(([gateId, base]) => {
-        const wait = Math.max(3, base + ((hash(matchId + gateId) % 7) - 3));
-        return { gateId, waitMinutes: wait, level: wait < 8 ? ('low' as const) : wait < 15 ? ('medium' as const) : ('high' as const) };
-      });
+      const queues = liveQueues(matchId);
       const plan: MatchDayPlan = {
         matchId,
         // Horários relativos ao início do jogo são calculados na UI a partir do kickoff.

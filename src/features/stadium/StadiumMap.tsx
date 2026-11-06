@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import Svg, { Ellipse, Line, Path, Rect, Text as SvgText } from 'react-native-svg';
 
-import { useTheme, withAlpha } from '@/design-system';
+import { Text, useTheme, withAlpha } from '@/design-system';
 import type { FacilityType, Stadium } from '@/types/stadium';
 
 const CX = 50;
@@ -31,7 +31,7 @@ function sectorPath(start: number, end: number, r0: number, r1: number) {
   return `M${outer.join(' L')} L${inner.join(' L')} Z`;
 }
 
-const FACILITY_ICON: Record<FacilityType, keyof typeof Ionicons.glyphMap> = {
+export const FACILITY_ICON: Record<FacilityType, keyof typeof Ionicons.glyphMap> = {
   restroom: 'male-female',
   food: 'fast-food',
   store: 'bag-handle',
@@ -40,28 +40,47 @@ const FACILITY_ICON: Record<FacilityType, keyof typeof Ionicons.glyphMap> = {
   atm: 'cash',
 };
 
+export const FACILITY_LABEL: Record<FacilityType, string> = {
+  restroom: 'Banheiros',
+  food: 'Alimentação',
+  store: 'Loja',
+  'first-aid': 'Saúde',
+  accessibility: 'Acessibilidade',
+  atm: 'Caixa eletrônico',
+};
+
 /**
- * Mapa ESQUEMÁTICO próprio do estádio (não é planta oficial): setores em
- * dois anéis, gramado, portões e serviços. Setores são tocáveis.
+ * Mapa ESQUEMÁTICO e interativo do estádio (não é planta oficial): setores
+ * em dois anéis, gramado, portões e serviços. Tudo tocável.
  */
 export function StadiumMap({
   stadium,
   highlightSectorId,
   highlightGateId,
   onSectorPress,
-  showFacilities,
+  onGatePress,
+  facilityTypes,
+  selectedFacilityId,
+  onFacilityPress,
   height = 300,
 }: {
   stadium: Stadium;
   highlightSectorId?: string;
   highlightGateId?: string;
   onSectorPress?: (sectorId: string) => void;
-  showFacilities?: boolean;
+  onGatePress?: (gateId: string) => void;
+  /** Tipos de serviço visíveis (vazio/undefined = nenhum). */
+  facilityTypes?: FacilityType[];
+  selectedFacilityId?: string;
+  onFacilityPress?: (facilityId: string) => void;
   height?: number;
 }) {
   const { colors } = useTheme();
+  const facilities = stadium.facilities.filter((f) => facilityTypes?.includes(f.type));
+  const sectorName = stadium.sectors.find((s) => s.id === highlightSectorId)?.name;
+
   return (
-    <View style={{ height, aspectRatio: 1, alignSelf: 'center' }} accessible accessibilityLabel={`Mapa esquemático do ${stadium.name}${highlightSectorId ? `, setor ${stadium.sectors.find((s) => s.id === highlightSectorId)?.name} destacado` : ''}`}>
+    <View style={{ height, aspectRatio: 1, alignSelf: 'center' }} accessibilityLabel={`Mapa esquemático do ${stadium.name}${sectorName ? `, setor ${sectorName} selecionado` : ''}`}>
       <Svg width="100%" height="100%" viewBox="0 0 100 100">
         {stadium.sectors.map((s) => {
           const [r0, r1] = RINGS[s.ring];
@@ -71,14 +90,13 @@ export function StadiumMap({
             <Path
               key={s.id}
               d={sectorPath(s.arc[0], s.arc[1], r0, r1)}
-              fill={active ? colors.primary : isAway ? withAlpha(colors.textTertiary, 0.35) : withAlpha(colors.primary, 0.22)}
+              fill={active ? colors.primary : isAway ? withAlpha(colors.textTertiary, 0.35) : withAlpha(colors.primary, highlightSectorId ? 0.14 : 0.24)}
               stroke={colors.background}
               strokeWidth={0.8}
               onPress={onSectorPress ? () => onSectorPress(s.id) : undefined}
             />
           );
         })}
-        {/* Gramado */}
         <Ellipse cx={CX} cy={CY} rx={25} ry={25 * SY} fill={withAlpha(colors.success, 0.18)} />
         <Rect x={35} y={37} width={30} height={26} rx={1} fill="none" stroke={withAlpha(colors.success, 0.7)} strokeWidth={0.5} />
         <Line x1={50} y1={37} x2={50} y2={63} stroke={withAlpha(colors.success, 0.7)} strokeWidth={0.5} />
@@ -94,21 +112,26 @@ export function StadiumMap({
             );
           })}
       </Svg>
-      {/* Portões e serviços como Views por cima (ícones nativos) */}
+
       {stadium.gates.map((g) => {
         const active = g.id === highlightGateId;
         return (
-          <View
+          <Pressable
             key={g.id}
+            onPress={onGatePress ? () => onGatePress(g.id) : undefined}
+            disabled={!onGatePress}
+            accessibilityRole="button"
+            accessibilityLabel={g.label}
+            hitSlop={10}
             style={{
               position: 'absolute',
               left: `${g.x}%`,
               top: `${g.y}%`,
-              width: 22,
-              height: 22,
-              marginLeft: -11,
-              marginTop: -11,
-              borderRadius: 11,
+              width: 26,
+              height: 26,
+              marginLeft: -13,
+              marginTop: -13,
+              borderRadius: 13,
               alignItems: 'center',
               justifyContent: 'center',
               backgroundColor: active ? colors.primary : colors.surfaceElevated,
@@ -116,31 +139,41 @@ export function StadiumMap({
               borderColor: active ? colors.onPrimary : colors.borderStrong,
             }}
           >
-            <SvgLabel text={g.id} color={active ? colors.onPrimary : colors.textPrimary} />
-          </View>
+            <Text variant="label" style={{ fontSize: 11, lineHeight: 13, color: active ? colors.onPrimary : colors.textPrimary }}>{g.id}</Text>
+          </Pressable>
         );
       })}
-      {showFacilities &&
-        stadium.facilities.map((f) => (
-          <View
+
+      {facilities.map((f) => {
+        const sel = f.id === selectedFacilityId;
+        return (
+          <Pressable
             key={f.id}
-            style={{ position: 'absolute', left: `${f.x}%`, top: `${f.y}%`, width: 18, height: 18, marginLeft: -9, marginTop: -9, borderRadius: 9, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surfaceMuted }}
+            onPress={onFacilityPress ? () => onFacilityPress(f.id) : undefined}
+            disabled={!onFacilityPress}
+            accessibilityRole="button"
+            accessibilityLabel={f.label}
+            hitSlop={10}
+            style={{
+              position: 'absolute',
+              left: `${f.x}%`,
+              top: `${f.y}%`,
+              width: sel ? 30 : 24,
+              height: sel ? 30 : 24,
+              marginLeft: sel ? -15 : -12,
+              marginTop: sel ? -15 : -12,
+              borderRadius: 15,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: sel ? colors.textPrimary : colors.surfaceElevated,
+              borderWidth: 1,
+              borderColor: sel ? colors.textPrimary : colors.border,
+            }}
           >
-            <Ionicons name={FACILITY_ICON[f.type]} size={10} color={colors.textSecondary} />
-          </View>
-        ))}
+            <Ionicons name={FACILITY_ICON[f.type]} size={sel ? 15 : 12} color={sel ? colors.background : colors.textSecondary} />
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
-
-function SvgLabel({ text, color }: { text: string; color: string }) {
-  return (
-    <Svg width={22} height={22} viewBox="0 0 22 22">
-      <SvgText x={11} y={15} fontSize={11} fontWeight="bold" fill={color} textAnchor="middle">
-        {text}
-      </SvgText>
-    </Svg>
-  );
-}
-
-export { FACILITY_ICON };

@@ -1,13 +1,21 @@
 /**
- * Mapa ESQUEMÁTICO próprio (não é planta oficial). Coordenadas num viewBox
- * 0–100 × 0–100 desenhado em SVG pela tela do Modo Maracanã.
+ * Maracanã: mapa ESQUEMÁTICO próprio (não é planta oficial) + coordenadas
+ * geográficas APROXIMADAS para o mapa de "Como chegar".
  */
+export interface LatLng {
+  latitude: number;
+  longitude: number;
+}
+
 export interface StadiumSector {
   id: string;
   name: string;
   /** Ângulo inicial/final do arco do setor, em graus (0 = topo, sentido horário). */
   arc: [number, number];
   ring: 'lower' | 'upper';
+  description: string;
+  /** Chave da foto da vista do setor (placeholder até haver fotos). */
+  viewImageKey: string;
 }
 
 export interface StadiumGate {
@@ -17,7 +25,11 @@ export interface StadiumGate {
   /** Posição no esquema (0–100). */
   x: number;
   y: number;
+  /** Posição aproximada no mapa da cidade. */
+  coords: LatLng;
   accessible: boolean;
+  /** Referência de rua/acesso. */
+  access: string;
 }
 
 export type FacilityType = 'restroom' | 'food' | 'store' | 'first-aid' | 'accessibility' | 'atm';
@@ -26,26 +38,26 @@ export interface Facility {
   id: string;
   type: FacilityType;
   label: string;
+  description: string;
   x: number;
   y: number;
   nearSectorIds: string[];
 }
 
-export interface TransportOption {
+export type TransportMode = 'metro' | 'train' | 'bus' | 'brt' | 'app' | 'walk';
+
+export interface TransportPoint {
   id: string;
-  mode: 'metro' | 'train' | 'bus' | 'brt' | 'app' | 'walk';
+  mode: TransportMode;
   title: string;
   details: string;
-  /** Tempo estimado a partir da estação/ponto até o portão. */
-  walkMinutes?: number;
-}
-
-export interface ParkingOption {
-  id: string;
-  name: string;
-  distance: string;
-  price: string;
-  note?: string;
+  coords: LatLng;
+  /** Texto de busca usado para abrir a rota no app de mapas (mais preciso que coordenadas). */
+  mapsQuery: string;
+  /** Portões mais próximos, em ordem. */
+  bestGateIds: string[];
+  /** Caminhada até o portão mais próximo, em minutos. */
+  walkMinutes: number;
 }
 
 export interface Stadium {
@@ -54,11 +66,13 @@ export interface Stadium {
   nickname: string;
   capacity: number;
   address: string;
+  coords: LatLng;
+  mapsQuery: string;
   sectors: StadiumSector[];
   gates: StadiumGate[];
   facilities: Facility[];
-  transport: TransportOption[];
-  parking: ParkingOption[];
+  transport: TransportPoint[];
+  tips: string[];
 }
 
 export interface GateQueue {
@@ -76,5 +90,13 @@ export interface MatchDayPlan {
   queues: GateQueue[];
   /** Avisos do dia (ex.: "Proibido entrada com guarda-chuva"). */
   notices: string[];
+  isDemo: true;
+}
+
+/** Cadastro facial para acesso ao estádio (vinculado à conta, usado pelo ingresso). */
+export interface FaceEnrollment {
+  status: 'not-enrolled' | 'enrolled';
+  enrolledAt?: string;
+  /** Sempre demonstrativo: a imagem não sai do aparelho nesta versão. */
   isDemo: true;
 }

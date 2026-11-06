@@ -123,7 +123,8 @@ export function QuickActions({ matchday }: { matchday: boolean }) {
   const { cartCount } = useAppState();
   const { colors, spacing, layout, radius } = useTheme();
   const items: Shortcut[] = [
-    ...(matchday ? [{ key: 'maraca', label: 'Modo Maracanã', icon: 'location' as const, onPress: () => navigation.navigate('StadiumMode'), highlight: true }] : []),
+    // Modo Maracanã é aberto a todos; em dia de jogo ganha destaque.
+    { key: 'maraca', label: 'Modo Maracanã', icon: 'location', onPress: () => navigation.navigate('StadiumMode'), highlight: matchday },
     { key: 'ingressos', label: 'Ingressos', icon: 'ticket', onPress: () => navigation.navigate('Tabs', { screen: 'Ingressos' }) },
     { key: 'loja', label: 'Loja', icon: 'bag-handle', onPress: () => navigation.navigate('Store'), badge: cartCount },
     { key: 'socio', label: 'Sócio-Torcedor', icon: 'card', onPress: () => navigation.navigate('Membership') },
@@ -173,7 +174,7 @@ export function MatchdayBanner({ match, plan }: { match: MatchDetail; plan?: Mat
   const queue = plan.queues.find((q) => q.gateId === plan.recommendedGateId);
   return (
     <View style={{ paddingHorizontal: layout.gutter }}>
-      <Card variant="tinted" onPress={() => navigation.navigate('StadiumMode', { matchId: match.id })} accessibilityLabel={`Seu jogo é hoje. Portão ${plan.recommendedGateId}, chegue às ${arrival}`}>
+      <Card variant="tinted" onPress={() => navigation.navigate('TicketWallet')} accessibilityLabel={`Seu jogo é hoje. Portão ${plan.recommendedGateId}, chegue às ${arrival}`}>
         <View style={[styles.row, { gap: spacing.md }]}>
           <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }}>
             <Ionicons name="location" size={24} color={colors.onPrimary} />

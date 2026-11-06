@@ -1,62 +1,67 @@
 import type { Stadium } from '@/types/stadium';
 
 /**
- * Maracanã ESQUEMÁTICO: setores, portões e serviços posicionados num
- * desenho próprio (viewBox 0–100). Não é planta oficial.
+ * Maracanã. O desenho dos setores é ESQUEMÁTICO (não é planta oficial) e as
+ * coordenadas são APROXIMADAS — servem para o mapa de "Como chegar"; as rotas
+ * reais são calculadas pelo app de mapas a partir de `mapsQuery`.
  */
+const C = { latitude: -22.91217, longitude: -43.23017 };
+const at = (dLat: number, dLng: number) => ({ latitude: C.latitude + dLat, longitude: C.longitude + dLng });
+
 export const STADIUM: Stadium = {
   id: 'maracana',
   name: 'Maracanã',
   nickname: 'Templo do Futebol',
   capacity: 78_000,
-  address: 'Av. Pres. Castelo Branco, Portão 3 — Maracanã, Rio de Janeiro',
+  address: 'Av. Pres. Castelo Branco — Maracanã, Rio de Janeiro',
+  coords: C,
+  mapsQuery: 'Estádio do Maracanã, Rio de Janeiro',
   sectors: [
-    { id: 'norte', name: 'Norte', arc: [315, 45], ring: 'lower' },
-    { id: 'leste-inf', name: 'Leste Inferior', arc: [45, 135], ring: 'lower' },
-    { id: 'leste-sup', name: 'Leste Superior', arc: [45, 135], ring: 'upper' },
-    { id: 'sul', name: 'Sul', arc: [135, 225], ring: 'lower' },
-    { id: 'oeste-inf', name: 'Oeste Inferior', arc: [225, 315], ring: 'lower' },
-    { id: 'oeste-sup', name: 'Oeste Superior', arc: [225, 315], ring: 'upper' },
-    { id: 'visitante', name: 'Visitante', arc: [160, 200], ring: 'upper' },
+    { id: 'norte', name: 'Norte', arc: [315, 45], ring: 'lower', description: 'Atrás do gol, setor tradicional das torcidas organizadas. Clima de arquibancada, em pé boa parte do jogo.', viewImageKey: 'view-norte' },
+    { id: 'leste-inf', name: 'Leste Inferior', arc: [45, 135], ring: 'lower', description: 'Lateral, perto do campo. Boa visão do lance e fácil acesso a bares.', viewImageKey: 'view-leste-inf' },
+    { id: 'leste-sup', name: 'Leste Superior', arc: [45, 135], ring: 'upper', description: 'Lateral no anel superior: visão tática do jogo inteiro.', viewImageKey: 'view-leste-sup' },
+    { id: 'sul', name: 'Sul', arc: [135, 225], ring: 'lower', description: 'Atrás do gol oposto à Norte, ambiente festivo e preço mais acessível.', viewImageKey: 'view-sul' },
+    { id: 'oeste-inf', name: 'Oeste Inferior', arc: [225, 315], ring: 'lower', description: 'Lateral das cabines e bancos de reservas. Um dos setores mais disputados.', viewImageKey: 'view-oeste-inf' },
+    { id: 'oeste-sup', name: 'Oeste Superior', arc: [225, 315], ring: 'upper', description: 'Lateral no anel superior, do lado das cabines de imprensa.', viewImageKey: 'view-oeste-sup' },
+    { id: 'visitante', name: 'Visitante', arc: [160, 200], ring: 'upper', description: 'Setor reservado à torcida adversária, com acesso separado.', viewImageKey: 'view-visitante' },
   ],
   gates: [
-    { id: 'A', label: 'Portão A', sectorIds: ['norte'], x: 50, y: 3, accessible: true },
-    { id: 'B', label: 'Portão B', sectorIds: ['visitante'], x: 25, y: 92, accessible: false },
-    { id: 'C', label: 'Portão C', sectorIds: ['leste-inf', 'leste-sup'], x: 97, y: 50, accessible: true },
-    { id: 'E', label: 'Portão E', sectorIds: ['sul'], x: 50, y: 97, accessible: true },
-    { id: 'F', label: 'Portão F', sectorIds: ['oeste-inf', 'oeste-sup'], x: 3, y: 50, accessible: true },
+    { id: 'A', label: 'Portão A', sectorIds: ['norte'], x: 50, y: 3, coords: at(0.0011, 0), accessible: true, access: 'Pela passarela da estação Maracanã' },
+    { id: 'B', label: 'Portão B', sectorIds: ['visitante'], x: 25, y: 92, coords: at(-0.0009, -0.0009), accessible: false, access: 'Acesso exclusivo da torcida visitante' },
+    { id: 'C', label: 'Portão C', sectorIds: ['leste-inf', 'leste-sup'], x: 97, y: 50, coords: at(0, 0.0014), accessible: true, access: 'Pela Av. Radial Oeste' },
+    { id: 'E', label: 'Portão E', sectorIds: ['sul'], x: 50, y: 97, coords: at(-0.0012, 0), accessible: true, access: 'Pela Rua Prof. Eurico Rabelo' },
+    { id: 'F', label: 'Portão F', sectorIds: ['oeste-inf', 'oeste-sup'], x: 3, y: 50, coords: at(0, -0.0015), accessible: true, access: 'Pelo lado da UERJ' },
   ],
   facilities: [
-    { id: 'wc1', type: 'restroom', label: 'Banheiros Norte', x: 35, y: 12, nearSectorIds: ['norte'] },
-    { id: 'wc2', type: 'restroom', label: 'Banheiros Leste', x: 88, y: 35, nearSectorIds: ['leste-inf', 'leste-sup'] },
-    { id: 'wc3', type: 'restroom', label: 'Banheiros Sul', x: 65, y: 88, nearSectorIds: ['sul'] },
-    { id: 'wc4', type: 'restroom', label: 'Banheiros Oeste', x: 12, y: 65, nearSectorIds: ['oeste-inf', 'oeste-sup'] },
-    { id: 'fd1', type: 'food', label: 'Bar Norte', x: 65, y: 12, nearSectorIds: ['norte'] },
-    { id: 'fd2', type: 'food', label: 'Bar Leste', x: 88, y: 65, nearSectorIds: ['leste-inf', 'leste-sup'] },
-    { id: 'fd3', type: 'food', label: 'Bar Sul', x: 35, y: 88, nearSectorIds: ['sul'] },
-    { id: 'fd4', type: 'food', label: 'Bar Oeste', x: 12, y: 35, nearSectorIds: ['oeste-inf', 'oeste-sup'] },
-    { id: 'st1', type: 'store', label: 'Loja oficial', x: 80, y: 18, nearSectorIds: ['norte', 'leste-inf'] },
-    { id: 'fa1', type: 'first-aid', label: 'Posto médico', x: 20, y: 18, nearSectorIds: ['norte', 'oeste-inf'] },
-    { id: 'ac1', type: 'accessibility', label: 'Acesso PcD', x: 80, y: 82, nearSectorIds: ['sul', 'leste-inf'] },
+    { id: 'wc1', type: 'restroom', label: 'Banheiros Norte', description: 'Masculino, feminino e família. Mais cheio no intervalo.', x: 35, y: 12, nearSectorIds: ['norte'] },
+    { id: 'wc2', type: 'restroom', label: 'Banheiros Leste', description: 'Masculino e feminino, nos dois anéis.', x: 88, y: 35, nearSectorIds: ['leste-inf', 'leste-sup'] },
+    { id: 'wc3', type: 'restroom', label: 'Banheiros Sul', description: 'Masculino e feminino.', x: 65, y: 88, nearSectorIds: ['sul'] },
+    { id: 'wc4', type: 'restroom', label: 'Banheiros Oeste', description: 'Masculino, feminino e família.', x: 12, y: 65, nearSectorIds: ['oeste-inf', 'oeste-sup'] },
+    { id: 'fd1', type: 'food', label: 'Bar Norte', description: 'Lanches, bebidas e o tradicional biscoito. Pagamento por cartão e Pix.', x: 65, y: 12, nearSectorIds: ['norte'] },
+    { id: 'fd2', type: 'food', label: 'Bar Leste', description: 'Lanches quentes e bebidas.', x: 88, y: 65, nearSectorIds: ['leste-inf', 'leste-sup'] },
+    { id: 'fd3', type: 'food', label: 'Bar Sul', description: 'Lanches e bebidas.', x: 35, y: 88, nearSectorIds: ['sul'] },
+    { id: 'fd4', type: 'food', label: 'Praça de alimentação Oeste', description: 'Mais opções de comida e área coberta.', x: 12, y: 35, nearSectorIds: ['oeste-inf', 'oeste-sup'] },
+    { id: 'st1', type: 'store', label: 'Loja oficial', description: 'Camisas, acessórios e produtos de dia de jogo.', x: 80, y: 18, nearSectorIds: ['norte', 'leste-inf'] },
+    { id: 'fa1', type: 'first-aid', label: 'Posto médico', description: 'Atendimento de primeiros socorros durante todo o evento.', x: 20, y: 18, nearSectorIds: ['norte', 'oeste-inf'] },
+    { id: 'ac1', type: 'accessibility', label: 'Acesso PcD', description: 'Entrada com rampa, elevador e área reservada para cadeirantes e acompanhantes.', x: 80, y: 82, nearSectorIds: ['sul', 'leste-inf'] },
+    { id: 'atm1', type: 'atm', label: 'Caixa eletrônico', description: 'Saque com cartão de débito.', x: 20, y: 82, nearSectorIds: ['sul', 'oeste-inf'] },
   ],
   transport: [
-    { id: 't1', mode: 'metro', title: 'Metrô — Estação Maracanã', details: 'Linha 2. Saída pela passarela direto para o estádio.', walkMinutes: 6 },
-    { id: 't2', mode: 'train', title: 'Trem — Estação Maracanã', details: 'Ramais Deodoro, Santa Cruz e Japeri.', walkMinutes: 8 },
-    { id: 't3', mode: 'metro', title: 'Metrô — Estação São Cristóvão', details: 'Alternativa com menos fila na saída.', walkMinutes: 14 },
-    { id: 't4', mode: 'bus', title: 'Ônibus', details: 'Linhas com parada na Av. Radial Oeste e Rua São Francisco Xavier.', walkMinutes: 5 },
-    { id: 't5', mode: 'app', title: 'Transporte por app', details: 'Ponto de embarque e desembarque na Rua Eurico Rabelo.', walkMinutes: 7 },
+    { id: 't-metro-maracana', mode: 'metro', title: 'Metrô — Estação Maracanã', details: 'Linha 2. A passarela leva direto ao estádio.', coords: at(0.0029, -0.0031), mapsQuery: 'Estação Maracanã Metrô Rio, Rio de Janeiro', bestGateIds: ['A', 'F'], walkMinutes: 6 },
+    { id: 't-trem-maracana', mode: 'train', title: 'Trem — Estação Maracanã (SuperVia)', details: 'Ramais Deodoro, Santa Cruz e Japeri.', coords: at(0.0033, -0.0026), mapsQuery: 'Estação Maracanã SuperVia, Rio de Janeiro', bestGateIds: ['A', 'F'], walkMinutes: 8 },
+    { id: 't-metro-sao-cristovao', mode: 'metro', title: 'Metrô — Estação São Cristóvão', details: 'Linhas 1 e 2. Costuma ter menos fila na saída.', coords: at(0.0014, 0.0083), mapsQuery: 'Estação São Cristóvão Metrô Rio, Rio de Janeiro', bestGateIds: ['C', 'E'], walkMinutes: 14 },
+    { id: 't-onibus-radial', mode: 'bus', title: 'Ônibus — Av. Radial Oeste', details: 'Diversas linhas param em frente ao estádio.', coords: at(-0.0006, 0.0027), mapsQuery: 'Avenida Radial Oeste, Maracanã, Rio de Janeiro', bestGateIds: ['C', 'E'], walkMinutes: 5 },
+    { id: 't-app', mode: 'app', title: 'Táxi e transporte por app', details: 'Embarque e desembarque pela Rua Prof. Eurico Rabelo.', coords: at(-0.0021, 0.0012), mapsQuery: 'Rua Professor Eurico Rabelo, Maracanã, Rio de Janeiro', bestGateIds: ['E', 'C'], walkMinutes: 4 },
   ],
-  parking: [
-    { id: 'pk1', name: 'Estacionamento credenciado (demo)', distance: '400 m do Portão A', price: 'R$ 60,00', note: 'Reserva antecipada pelo app — simulado' },
-    { id: 'pk2', name: 'Estacionamento UERJ (demo)', distance: '700 m do Portão F', price: 'R$ 50,00' },
+  tips: [
+    'O Maracanã não oferece estacionamento próprio em dia de jogo: prefira metrô e trem.',
+    'Portões abrem cerca de 2h30 antes da partida.',
+    'Leve documento com foto. Com o cadastro facial ativo, a entrada é pelo rosto.',
+    'Não é permitida a entrada com guarda-chuva, objetos de vidro ou sinalizadores.',
   ],
 };
 
-/** Esperas simuladas por portão (minutos) em dia de jogo. */
+/** Esperas simuladas por portão (minutos). */
 export const GATE_QUEUES: Record<string, number> = { A: 18, B: 6, C: 9, E: 14, F: 7 };
 
-export const MATCH_DAY_NOTICES = [
-  'Portões abrem 2h30 antes do jogo.',
-  'Leve documento com foto e o ingresso no app.',
-  'Não é permitida a entrada com guarda-chuva, objetos de vidro ou sinalizadores.',
-];
+export const MATCH_DAY_NOTICES = STADIUM.tips;

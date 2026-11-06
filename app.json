@@ -32,6 +32,19 @@
           "resizeMode": "contain",
           "backgroundColor": "#0A0A0C"
         }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "O Flamengo App usa a câmera para cadastrar seu rosto no acesso por reconhecimento facial ao estádio.",
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "O Flamengo App usa sua localização para mostrar o melhor caminho até o Maracanã."
+        }
       ]
     ],
     "icon": "./assets/brand/icon.png"
