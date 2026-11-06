@@ -24,15 +24,13 @@ export function TicketCard({
   onPress?: () => void;
 }) {
   const { colors, radius } = useTheme();
-  const [height, setHeight] = useState(0);
-  const notchTop = height * 0.58 - NOTCH;
+  // Recortes alinhados à linha do picote (fim do bloco superior, ~58% da altura).
+  const [topHeight, setTopHeight] = useState(0);
+  const notchTop = topHeight - NOTCH;
 
   const body = (
-    <View
-      onLayout={(e) => setHeight(e.nativeEvent.layout.height)}
-      style={{ backgroundColor: colors.bgRaised, borderRadius: radius.l, overflow: 'hidden' }}
-    >
-      <View style={{ padding: 20, gap: 12, minHeight: 120 }}>
+    <View style={{ backgroundColor: colors.bgRaised, borderRadius: radius.l, overflow: 'hidden' }}>
+      <View onLayout={(e) => setTopHeight(e.nativeEvent.layout.height)} style={{ padding: 20, gap: 12, minHeight: 120 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             {match && <Crest team={match.homeTeam} size={28} />}
@@ -82,7 +80,7 @@ export function TicketCard({
         ))}
         <Ionicons name="qr-code-outline" size={44} color={colors.accentText} />
       </View>
-      {height > 0 &&
+      {topHeight > 0 &&
         [-NOTCH, undefined].map((left, i) => (
           <View
             key={i}
