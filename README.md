@@ -73,7 +73,7 @@ Tudo no modo `demo`. Na interface, os itens simulados levam o selo **DEMO**:
 - Elenco (**jogadores fictícios**), classificação e resultados
 - Ingressos, QR Codes (marca d'água "DEMONSTRATIVO", não escaneáveis como ingresso) e carteira
 - Checkout da loja e de ingressos: nunca pede dados de cartão e termina em "Compra simulada"
-- Carteirinha e benefícios do Sócio-Torcedor
+- Carteirinha do Sócio-Torcedor (selo DEMO). Os **planos do programa Nação são reais**: nomes, prioridades, descontos e convidados. Os valores de referência foram pesquisados em nov/2026; Maraca 2 e Maraca 3 são estimados. As fontes estão em `src/data/demo/commerce.ts`
 - Pontos, rankings, medalhas, bolões, quizzes e enquetes (pontos virtuais, **sem apostas**)
 - Mapa do Maracanã: esquema vetorial próprio, não é planta oficial
 - Notícias, vídeos e imagens (degradês de placeholder)

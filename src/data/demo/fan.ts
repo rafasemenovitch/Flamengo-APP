@@ -20,7 +20,7 @@ export const DEMO_FAN: FanProfile = {
 };
 
 export const DEMO_MEMBERSHIP: Membership = {
-  planId: 'plan-nacao',
+  planId: 'plan-maraca-2',
   memberNumber: '0000 1981 2019',
   holderName: DEMO_FAN.name,
   since: '2019-03-01',
@@ -41,7 +41,7 @@ export const DEMO_TICKETS: Ticket[] = [
     seat: 'Fila K · Cadeira 14',
     holderName: DEMO_FAN.name,
     type: 'member',
-    price: 90,
+    price: 56,
     purchasedAt: demoDate(-2, '10:12'),
     status: 'valid',
     qrPayload: 'DEMONSTRATIVO-SEM-VALIDADE-t-demo-1',

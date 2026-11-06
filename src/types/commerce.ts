@@ -43,10 +43,26 @@ export interface MembershipPlan {
   /** Cor de destaque do plano (token de paleta). */
   tier: 'bronze' | 'silver' | 'gold' | 'black';
   highlight?: string;
+  /** 1 = prioridade máxima na compra de ingressos. */
   ticketPriority: number;
+  /** Desconto sobre a inteira em jogos no Maracanã (0 quando o plano não tem). */
   ticketDiscountPct: number;
-  storeDiscountPct: number;
+  /** Para quem é o plano (ex.: "Torcedores fora do Rio"). */
+  audience?: string;
+  /** Regra de convidados, como divulgada. */
+  guests?: string;
+  /** true quando o preço é estimado (fonte não divulgou o valor atualizado). */
+  priceIsEstimate?: boolean;
   benefits: string[];
+}
+
+/** Metadados do programa de sócio e das fontes consultadas. */
+export interface MembershipProgramInfo {
+  name: string;
+  checkedAt: string;
+  priceNote: string;
+  officialUrl: string;
+  sources: string[];
 }
 
 export interface Membership {

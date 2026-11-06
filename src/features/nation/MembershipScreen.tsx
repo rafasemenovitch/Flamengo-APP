@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, Linking, StyleSheet, View } from 'react-native';
 
 import { Badge, Button, Card, ClubCrest, DemoBadge, ErrorState, palette, Screen, SectionHeader, Skeleton, Text, useTheme } from '@/design-system';
 import { useAsync } from '@/hooks/useAsync';
@@ -18,13 +18,18 @@ const TIER_GRADIENT: Record<MembershipPlan['tier'], readonly [string, string]> =
 export function MembershipScreen() {
   const { colors, spacing, layout, radius } = useTheme();
   const q = useAsync(async () => {
-    const [plans, membership, benefits] = await Promise.all([services.membership.getPlans(), services.membership.getMembership(), services.membership.getBenefits()]);
-    return { plans, membership, benefits };
+    const [plans, membership, benefits, info] = await Promise.all([
+      services.membership.getPlans(),
+      services.membership.getMembership(),
+      services.membership.getBenefits(),
+      services.membership.getProgramInfo(),
+    ]);
+    return { plans, membership, benefits, info };
   });
 
   if (q.loading) return <Screen title="Sócio-Torcedor"><View style={{ padding: layout.gutter, gap: spacing.lg }}><Skeleton height={210} radius={radius.xl} /><Skeleton height={300} /></View></Screen>;
   if (q.error || !q.data) return <Screen title="Sócio-Torcedor" scroll={false}><ErrorState onRetry={q.reload} /></Screen>;
-  const { plans, membership: m, benefits } = q.data;
+  const { plans, membership: m, benefits, info } = q.data;
   const plan = plans.find((p) => p.id === m?.planId);
 
   return (
@@ -62,7 +67,7 @@ export function MembershipScreen() {
       </View>
 
       <View style={{ marginTop: spacing.xxl }}>
-        <SectionHeader title="Benefícios" accessory={<DemoBadge />} />
+        <SectionHeader title={`Programa ${info.name}`} subtitle="Como funciona" />
         <View style={{ paddingHorizontal: layout.gutter, gap: spacing.sm }}>
           {benefits.map((b) => (
             <Card key={b.id} padding="sm">
@@ -81,7 +86,7 @@ export function MembershipScreen() {
       </View>
 
       <View style={{ marginTop: spacing.xxl }}>
-        <SectionHeader title="Planos" subtitle="Valores demonstrativos" />
+        <SectionHeader title="Planos" subtitle="Valores mensais de referência" />
         <View style={{ paddingHorizontal: layout.gutter, gap: spacing.md }}>
           {plans.map((p) => {
             const current = p.id === plan?.id;
@@ -95,7 +100,16 @@ export function MembershipScreen() {
                     </View>
                     {current ? <Badge label="Seu plano" tone="solidBrand" /> : p.highlight ? <Badge label={p.highlight} tone="brand" /> : null}
                   </View>
-                  <Text variant="number">{formatCurrency(p.monthlyPrice)}<Text variant="caption" tone="secondary">/mês</Text></Text>
+                  <View style={{ gap: 2 }}>
+                    <View style={[styles.row, { gap: spacing.sm, alignItems: 'baseline' }]}>
+                      <Text variant="number">{formatCurrency(p.monthlyPrice)}<Text variant="caption" tone="secondary">/mês</Text></Text>
+                      {p.priceIsEstimate && <Badge label="Estimado" tone="warning" />}
+                    </View>
+                    {p.audience && <Text variant="caption" tone="secondary">{p.audience}</Text>}
+                    <Text variant="caption" tone="secondary">
+                      {p.ticketDiscountPct > 0 ? `${p.ticketDiscountPct}% sobre a inteira · ` : ''}Prioridade {p.ticketPriority}{p.guests ? ` · ${p.guests}` : ''}
+                    </Text>
+                  </View>
                   <View style={{ gap: 6 }}>
                     {p.benefits.map((b) => (
                       <View key={b} style={[styles.row, { gap: spacing.sm }]}>
@@ -115,6 +129,17 @@ export function MembershipScreen() {
               </Card>
             );
           })}
+          <Card variant="outline">
+            <View style={{ gap: spacing.sm }}>
+              <View style={[styles.row, { gap: spacing.sm }]}>
+                <Ionicons name="information-circle" size={18} color={colors.info} />
+                <Text variant="label" style={{ flex: 1 }}>Sobre os valores</Text>
+              </View>
+              <Text variant="caption" tone="secondary">{info.priceNote}</Text>
+              <Text variant="footnote" tone="tertiary">Fontes: {info.sources.join(' · ')}</Text>
+              <Button label="Conferir no site oficial" variant="ghost" icon="open-outline" size="sm" onPress={() => Linking.openURL(info.officialUrl).catch(() => undefined)} />
+            </View>
+          </Card>
         </View>
       </View>
     </Screen>

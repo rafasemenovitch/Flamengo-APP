@@ -16,8 +16,8 @@ export const FAQ: FaqEntry[] = [
     id: 'faq-socio-beneficios',
     keywords: ['beneficio', 'beneficios', 'socio', 'vantagem', 'plano', 'planos'],
     answer:
-      'Os planos de Sócio-Torcedor oferecem desconto em ingressos (de 20% a 100%), prioridade na compra, desconto na loja e, nos planos mais altos, conteúdos exclusivos e experiências. Seu plano atual é o Nação, com 35% de desconto em ingressos e 10% na loja.',
-    source: 'Regulamento Sócio-Torcedor (demonstrativo)',
+      'O programa Nação tem quatro planos. Sem Fronteiras (R$ 21,80/mês), para quem mora fora do Rio, com prioridade em jogos como visitante. Maraca 3, Maraca 2 e Maraca 1 dão de 60% a 75% de desconto sobre a inteira no Maracanã e prioridade crescente na compra. O Maraca 1 (R$ 357,94/mês) garante o lugar o ano todo. Todos acessam a pré-venda. Seu plano atual é o Maraca 2, com 65% de desconto.',
+    source: 'Programa Nação: site oficial e matérias de abr/2026 (valores de referência)',
     action: { label: 'Ver planos', route: 'Membership' },
   },
   {

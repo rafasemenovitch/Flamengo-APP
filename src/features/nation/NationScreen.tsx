@@ -88,9 +88,9 @@ export function NationScreen() {
             <View style={[styles.row, { gap: spacing.md }]}>
               <Ionicons name="card" size={32} color={colors.primaryText} />
               <View style={{ flex: 1 }}>
-                <Text variant="title">{plan ? `Plano ${plan.name}` : 'Seja sócio'}</Text>
+                <Text variant="title">{plan ? plan.name : 'Seja sócio'}</Text>
                 <Text variant="caption" tone="secondary">
-                  {plan ? `${plan.ticketDiscountPct}% em ingressos · ${plan.storeDiscountPct}% na loja · carteirinha digital` : 'Prioridade e descontos em ingressos'}
+                  {plan ? `${plan.ticketDiscountPct}% sobre a inteira · prioridade ${plan.ticketPriority} · carteirinha digital` : 'Prioridade e descontos em ingressos'}
                 </Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />

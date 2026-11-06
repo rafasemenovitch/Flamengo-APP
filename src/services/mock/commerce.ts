@@ -1,4 +1,4 @@
-import { BENEFITS, MEMBERSHIP_PLANS, PRODUCTS } from '@/data/demo/commerce';
+import { BENEFITS, MEMBERSHIP_PLANS, MEMBERSHIP_PROGRAM, PRODUCTS } from '@/data/demo/commerce';
 import { DEMO_MEMBERSHIP } from '@/data/demo/fan';
 import type { MembershipService, StoreService } from '@/services/adapters';
 import type { Cart, CartItem } from '@/types/commerce';
@@ -66,5 +66,6 @@ export function createMockMembershipService(): MembershipService {
     getPlans: async () => delay(MEMBERSHIP_PLANS),
     getMembership: async () => delay(DEMO_MEMBERSHIP),
     getBenefits: async () => delay(BENEFITS),
+    getProgramInfo: async () => delay(MEMBERSHIP_PROGRAM, 100),
   };
 }

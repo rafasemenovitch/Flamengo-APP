@@ -65,7 +65,7 @@ export function ProfileScreen() {
             {[
               [formatNumber(progress.points), 'Pontos', 'Gamification'],
               [String(progress.attendanceStreak), 'Jogos seguidos', 'Passport'],
-              ['Nação', 'Plano sócio', 'Membership'],
+              ['Maraca 2', 'Plano sócio', 'Membership'],
             ].map(([v, l, route]) => (
               <Card key={l} padding="sm" style={{ flex: 1 }} onPress={() => navigation.navigate(route as never)} accessibilityLabel={`${l}: ${v}`}>
                 <Text variant="numberSm" align="center">{v}</Text>
