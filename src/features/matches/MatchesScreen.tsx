@@ -10,9 +10,10 @@ import {
   Skeleton,
   TabHeader,
   Tabs,
+  Text,
   useTheme,
 } from '@/design-system';
-import { MatchList, StandingsTable } from '@/features/shared/MatchUI';
+import { KnockoutBracket, MatchList, StandingsTable } from '@/features/shared/MatchUI';
 import { useAsync } from '@/hooks/useAsync';
 import { useDemoScenario } from '@/hooks/useMatch';
 import type { TabScreenProps } from '@/navigation/types';
@@ -27,6 +28,14 @@ const FILTERS: { key: Filter; label: string }[] = [
   { key: 'brasileirao', label: 'Brasileirão' },
   { key: 'libertadores', label: 'Libertadores' },
   { key: 'copa-do-brasil', label: 'Copa do Brasil' },
+  { key: 'carioca', label: 'Carioca' },
+];
+
+const TABLE_COMPETITIONS: { key: CompetitionId; label: string }[] = [
+  { key: 'brasileirao', label: 'Brasileirão' },
+  { key: 'libertadores', label: 'Libertadores' },
+  { key: 'copa-do-brasil', label: 'Copa do Brasil' },
+  { key: 'carioca', label: 'Carioca' },
 ];
 
 /** Jogos (especificação 13.2): abas sublinhadas, filtros e linhas de calendário. */
@@ -43,7 +52,12 @@ export function MatchesScreen({ route }: TabScreenProps<'Jogos'>) {
       services.matches.getMatches({ competitionId, when: view === 'resultados' ? 'results' : 'upcoming' }),
     [view, filter, scenario]
   );
-  const table = useAsync(() => services.matches.getStandings('brasileirao'), [scenario]);
+  const [tableComp, setTableComp] = useState<CompetitionId>('brasileirao');
+  const [phaseKey, setPhaseKey] = useState<string>();
+  const table = useAsync(() => services.matches.getCompetitionOverview(tableComp), [tableComp, scenario]);
+  const phases = table.data?.phases ?? [];
+  // Copas abrem na fase mais avançada (mata-mata), onde o torcedor quer olhar.
+  const phase = phases.find((p) => p.key === phaseKey) ?? phases[phases.length - 1];
 
   return (
     <Screen
@@ -66,11 +80,21 @@ export function MatchesScreen({ route }: TabScreenProps<'Jogos'>) {
         />
       </View>
 
-      {view !== 'tabela' && (
-        <View style={{ marginTop: 12 }}>
+      <View style={{ marginTop: 12 }}>
+        {view === 'tabela' ? (
+          <Filters
+            accessibilityLabel="Competição"
+            segments={TABLE_COMPETITIONS}
+            value={tableComp}
+            onChange={(c) => {
+              setTableComp(c);
+              setPhaseKey(undefined);
+            }}
+          />
+        ) : (
           <Filters accessibilityLabel="Competição" segments={FILTERS} value={filter} onChange={setFilter} />
-        </View>
-      )}
+        )}
+      </View>
 
       <View style={{ marginTop: 16 }}>
         {view === 'tabela' ? (
@@ -81,7 +105,35 @@ export function MatchesScreen({ route }: TabScreenProps<'Jogos'>) {
           ) : table.error ? (
             <ErrorState compact onRetry={table.reload} />
           ) : (
-            <StandingsTable table={table.data} />
+            <View style={{ gap: 24 }}>
+              {phases.length > 1 && (
+                <Tabs
+                  accessibilityLabel="Fase"
+                  segments={phases.map((p) => ({ key: p.key, label: p.label }))}
+                  value={phase?.key ?? ''}
+                  onChange={setPhaseKey}
+                />
+              )}
+              {phase?.kind === 'knockout' && phase.rounds ? (
+                <KnockoutBracket rounds={phase.rounds} />
+              ) : (
+                phase?.tables?.map((t) => (
+                  <View key={t.title} style={{ gap: 8 }}>
+                    {(phase.tables?.length ?? 0) > 1 && (
+                      <Text variant="overline" tone="secondary" style={{ paddingHorizontal: layout.gutter }}>
+                        {t.title}
+                      </Text>
+                    )}
+                    <StandingsTable table={t} legend={phase.legend} />
+                  </View>
+                ))
+              )}
+              {table.data.note && (
+                <Text variant="bodyS" tone="tertiary" style={{ paddingHorizontal: layout.gutter }}>
+                  {table.data.note}
+                </Text>
+              )}
+            </View>
           )
         ) : matches.loading ? (
           <View style={{ paddingHorizontal: layout.gutter, gap: 16 }}>

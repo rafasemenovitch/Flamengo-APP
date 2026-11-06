@@ -42,3 +42,32 @@ describe('jogo em destaque por cenário (mock)', () => {
     for (const r of table.rows) expect(r.points).toBe(r.won * 3 + r.drawn);
   });
 });
+
+describe('fases das copas (mock)', () => {
+  const matches = createMockMatchesService();
+
+  it('Libertadores: grupos + mata-mata com o Flamengo na final pendente', async () => {
+    const o = await matches.getCompetitionOverview('libertadores');
+    expect(o.phases.map((p) => p.kind)).toEqual(['table', 'knockout']);
+    const ko = o.phases[1]!.rounds!;
+    const semi = ko.find((r) => r.name === 'Semifinal')!.ties.find((t) => t.home.id === 'fla')!;
+    expect(semi.winnerId).toBe('fla');
+    expect(semi.aggregate).toEqual({ home: 3, away: 1 });
+    const final = ko[ko.length - 1]!.ties[0]!;
+    expect(final.pending).toBe(true);
+  });
+
+  it('Copa do Brasil: semifinal com ida 1×1 e volta a jogar', async () => {
+    const o = await matches.getCompetitionOverview('copa-do-brasil');
+    const semi = o.phases[0]!.rounds!.find((r) => r.name === 'Semifinal')!.ties[0]!;
+    expect(semi.legs[0]!.score).toEqual({ home: 1, away: 1 });
+    expect(semi.pending).toBe(true);
+  });
+
+  it('Carioca: Flamengo lidera a Taça Guanabara e é campeão', async () => {
+    const o = await matches.getCompetitionOverview('carioca');
+    expect(o.phases[0]!.tables![0]!.rows[0]!.team.id).toBe('fla');
+    const final = o.phases[1]!.rounds!.find((r) => r.name === 'Final')!.ties[0]!;
+    expect(final.winnerId).toBe('fla');
+  });
+});

@@ -3,7 +3,7 @@ import { Pressable, View } from 'react-native';
 
 import { Crest, fonts, LiveIndicator, Text, useTheme } from '@/design-system';
 import { COMPETITIONS } from '@/data/demo/seed';
-import type { Match, StandingsTable as Table, Team } from '@/types/match';
+import type { KnockoutRound, Match, StandingRow, StandingsTable as Table, Team } from '@/types/match';
 import { formatTime } from '@/utils/format';
 
 export const competitionName = (id: string) => COMPETITIONS.find((c) => c.id === id)?.shortName ?? id;
@@ -257,7 +257,15 @@ export function ScoreBoard({
  * Classificação (especificação 12.12): sem fundo colorido; Flamengo com barra
  * vermelha de 3px e nome em vermelho; marcador de zona de 2px.
  */
-export function StandingsTable({ table, compact }: { table: Table; compact?: boolean }) {
+export function StandingsTable({
+  table,
+  compact,
+  legend,
+}: {
+  table: Table;
+  compact?: boolean;
+  legend?: { zone: NonNullable<StandingRow['zone']>; label: string }[];
+}) {
   const { colors, layout } = useTheme();
   let rows = table.rows;
   if (compact) {
@@ -377,12 +385,15 @@ export function StandingsTable({ table, compact }: { table: Table; compact?: boo
             paddingTop: 12,
           }}
         >
-          {[
-            ['libertadores', 'Libertadores'],
-            ['pre-libertadores', 'Pré-Libertadores'],
-            ['sudamericana', 'Sul-Americana'],
-            ['relegation', 'Rebaixamento'],
-          ].map(([z, l]) => (
+          {(legend
+            ? legend.map((l) => [l.zone, l.label])
+            : [
+                ['libertadores', 'Libertadores'],
+                ['pre-libertadores', 'Pré-Libertadores'],
+                ['sudamericana', 'Sul-Americana'],
+                ['relegation', 'Rebaixamento'],
+              ]
+          ).map(([z, l]) => (
             <View key={z} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <View style={{ width: 2, height: 12, backgroundColor: zoneColor(z) }} />
               <Text variant="bodyS" tone="secondary">
@@ -392,6 +403,97 @@ export function StandingsTable({ table, compact }: { table: Table; compact?: boo
           ))}
         </View>
       )}
+    </View>
+  );
+}
+
+/**
+ * Chaveamento do mata-mata: uma seção por fase, confrontos em linhas abertas.
+ * Flamengo com barra vermelha; vencedor em peso forte; jogos pendentes em cinza.
+ */
+export function KnockoutBracket({ rounds }: { rounds: KnockoutRound[] }) {
+  const { colors, layout } = useTheme();
+  return (
+    <View style={{ gap: 32 }}>
+      {rounds.map((r) => (
+        <View key={r.name}>
+          <Text
+            variant="overline"
+            tone="secondary"
+            style={{ paddingHorizontal: layout.gutter, marginBottom: 8 }}
+          >
+            {r.name}
+          </Text>
+          {r.ties.map((t) => {
+            const fla = t.home.id === 'fla' || t.away.id === 'fla';
+            const line = (team: Team, goals?: number) => {
+              const won = t.winnerId === team.id;
+              return (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <Crest team={team} size={20} />
+                  <Text
+                    variant="titleS"
+                    numberOfLines={1}
+                    style={{
+                      flex: 1,
+                      fontFamily: won || isFla(team) ? fonts.bold : fonts.regular,
+                      color:
+                        team.id === 'tbd'
+                          ? colors.inkTertiary
+                          : isFla(team)
+                            ? colors.inkPrimary
+                            : won
+                              ? colors.inkPrimary
+                              : colors.inkSecondary,
+                    }}
+                  >
+                    {team.shortName}
+                  </Text>
+                  {goals !== undefined && (
+                    <Text variant="displayS" style={{ color: won ? colors.inkPrimary : colors.inkTertiary }}>
+                      {goals}
+                    </Text>
+                  )}
+                </View>
+              );
+            };
+            const legsText = t.legs
+              .map((l) => `${l.label} ${l.score ? `${l.score.home}–${l.score.away}` : 'a jogar'}`)
+              .join(' · ');
+            return (
+              <View
+                key={t.id}
+                style={{
+                  paddingHorizontal: layout.gutter,
+                  paddingVertical: 12,
+                  gap: 6,
+                  borderTopWidth: 1,
+                  borderColor: colors.lineHairline,
+                }}
+              >
+                {fla && (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      left: 0,
+                      top: 10,
+                      bottom: 10,
+                      width: 3,
+                      backgroundColor: colors.accent,
+                    }}
+                  />
+                )}
+                {line(t.home, t.aggregate?.home)}
+                {line(t.away, t.aggregate?.away)}
+                <Text variant="bodyS" tone="tertiary">
+                  {legsText}
+                  {t.penalties ? ` · pênaltis ${t.penalties.home}–${t.penalties.away}` : ''}
+                </Text>
+              </View>
+            );
+          })}
+        </View>
+      ))}
     </View>
   );
 }

@@ -93,6 +93,24 @@ export const TEAMS: Record<string, Team> = {
   rem: team('rem', 'Remo', 'REM', '#14306B', 'Belém'),
   rac: team('rac', 'Racing', 'RAC', '#5BB3E6', 'Avellaneda'),
   nac: team('nac', 'Nacional', 'NAC', '#1B2A6B', 'Montevidéu'),
+  // Libertadores e Carioca (siglas e cores de placeholder)
+  est: team('est', 'Estudiantes', 'EST', '#B71C1C', 'La Plata'),
+  ldu: team('ldu', 'LDU Quito', 'LDU', '#1A237E', 'Quito'),
+  cer: team('cer', 'Cerro Porteño', 'CER', '#0D47A1', 'Assunção'),
+  olm: team('olm', 'Olimpia', 'OLI', '#37474F', 'Assunção'),
+  bol: team('bol', 'Bolívar', 'BOL', '#4FC3F7', 'La Paz'),
+  tal: team('tal', 'Talleres', 'TAL', '#283593', 'Córdoba'),
+  pen: team('pen', 'Peñarol', 'PEN', '#F9A825', 'Montevidéu'),
+  riv: team('riv', 'River Plate', 'RIV', '#C62828', 'Buenos Aires'),
+  crb: team('crb', 'CRB', 'CRB', '#C62828', 'Maceió'),
+  ban: team('ban', 'Bangu', 'BAN', '#B71C1C', 'Rio de Janeiro'),
+  boa: team('boa', 'Boavista', 'BOA', '#2E7D32', 'Saquarema'),
+  mad: team('mad', 'Madureira', 'MAD', '#F9A825', 'Rio de Janeiro'),
+  vrd: team('vrd', 'Volta Redonda', 'VRE', '#424242', 'Volta Redonda'),
+  ptg: team('ptg', 'Portuguesa-RJ', 'POR', '#C62828', 'Rio de Janeiro'),
+  nig: team('nig', 'Nova Iguaçu', 'NIG', '#F57C00', 'Nova Iguaçu'),
+  sam: team('sam', 'Sampaio Corrêa-RJ', 'SAM', '#1565C0', 'Saquarema'),
+  mar: team('mar', 'Maricá', 'MAR', '#00838F', 'Maricá'),
 };
 
 type SeedPlayer = Omit<Player, 'imageKey' | 'bio'> & { bio?: string };

@@ -22,8 +22,20 @@ import {
 } from '@/data/demo/seed';
 import { BRASILEIRAO_TABLE, FLA_FORM, GOALS_OVERRIDE, ZONES } from '@/data/demo/standings';
 import { FEATURED_HIGHLIGHTS } from '@/data/demo/content';
+import {
+  CARIOCA_FINALS,
+  CARIOCA_TAÇA_GUANABARA,
+  COPA_DO_BRASIL_KO,
+  LIBERTADORES_GROUPS,
+  LIBERTADORES_KO,
+  type GroupRowSeed,
+  type TieSeed,
+} from '@/data/demo/competitions';
 import type { MatchesService } from '@/services/adapters';
+import type { CompetitionId } from '@/types/match';
 import type {
+  CompetitionOverview,
+  KnockoutRound,
   HeadToHead,
   Lineup,
   LineupPlayer,
@@ -325,6 +337,145 @@ function computeStandings(): StandingsTable {
   };
 }
 
+// ---------- Copas: grupos e chaveamento (simulados) ----------
+
+const TBD = { id: 'tbd', name: 'A definir', shortName: 'A definir', code: '?', color: '#3A3A43', city: '' };
+
+function groupTable(
+  title: string,
+  rows: GroupRowSeed[],
+  zones: (pos: number) => StandingRow['zone']
+): StandingsTable {
+  const sorted = rows
+    .map(([id, w, d, l, gf, ga]) => ({
+      team: TEAMS[id] ?? TBD,
+      played: w + d + l,
+      won: w,
+      drawn: d,
+      lost: l,
+      goalsFor: gf,
+      goalsAgainst: ga,
+      points: w * 3 + d,
+      form: [] as ('W' | 'D' | 'L')[],
+    }))
+    .sort((a, b) => b.points - a.points || b.goalsFor - b.goalsAgainst - (a.goalsFor - a.goalsAgainst));
+  return {
+    competitionId: 'libertadores',
+    title,
+    rows: sorted.map((r, i) => ({ ...r, position: i + 1, zone: zones(i + 1) })),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function rounds(seeds: { name: string; ties: TieSeed[] }[], singleLegNames: string[] = []): KnockoutRound[] {
+  return seeds.map((r) => ({
+    name: r.name,
+    ties: r.ties.map(([a, b, first, second], i) => {
+      const A = TEAMS[a] ?? TBD;
+      const B = TEAMS[b] ?? TBD;
+      const single = singleLegNames.some((n) => r.name.startsWith(n));
+      // Placares sempre do ponto de vista A × B (home = A, away = B).
+      const legs = single
+        ? [{ label: 'Jogo único', score: first ? { home: first[0], away: first[1] } : undefined }]
+        : [
+            { label: 'Ida', score: first ? { home: first[0], away: first[1] } : undefined },
+            { label: 'Volta', score: second ? { home: second[0], away: second[1] } : undefined },
+          ];
+      const aGoals = (first?.[0] ?? 0) + (single ? 0 : (second?.[0] ?? 0));
+      const bGoals = (first?.[1] ?? 0) + (single ? 0 : (second?.[1] ?? 0));
+      const complete = single ? !!first : !!first && !!second;
+      const winnerId = complete ? (aGoals > bGoals ? A.id : bGoals > aGoals ? B.id : A.id) : undefined;
+      return {
+        id: `${r.name}-${i}`,
+        home: A,
+        away: B,
+        legs,
+        aggregate: first ? { home: aGoals, away: bGoals } : undefined,
+        penalties: complete && aGoals === bGoals ? { home: 4, away: 3 } : undefined,
+        winnerId,
+        pending: !complete,
+      };
+    }),
+  }));
+}
+
+function overviewFor(id: CompetitionId): CompetitionOverview {
+  if (id === 'libertadores') {
+    return {
+      competitionId: id,
+      title: 'CONMEBOL Libertadores 2026',
+      phases: [
+        {
+          key: 'grupos',
+          label: 'Fase de grupos',
+          kind: 'table',
+          tables: LIBERTADORES_GROUPS.map((g) =>
+            groupTable(g.name, g.rows, (p) =>
+              p <= 2 ? 'libertadores' : p === 3 ? 'sudamericana' : undefined
+            )
+          ),
+          legend: [
+            { zone: 'libertadores', label: 'Oitavas de final' },
+            { zone: 'sudamericana', label: 'Playoff da Sul-Americana' },
+          ],
+        },
+        {
+          key: 'mata-mata',
+          label: 'Mata-mata',
+          kind: 'knockout',
+          rounds: rounds(LIBERTADORES_KO, ['Final']),
+        },
+      ],
+      note: 'Grupos exibidos: o do Flamengo e mais um. Dados simulados.',
+    };
+  }
+  if (id === 'copa-do-brasil') {
+    return {
+      competitionId: id,
+      title: 'Copa do Brasil 2026',
+      phases: [{ key: 'mata-mata', label: 'Mata-mata', kind: 'knockout', rounds: rounds(COPA_DO_BRASIL_KO) }],
+      note: 'Dados simulados.',
+    };
+  }
+  if (id === 'carioca') {
+    return {
+      competitionId: id,
+      title: 'Campeonato Carioca 2026',
+      phases: [
+        {
+          key: 'tg',
+          label: 'Taça Guanabara',
+          kind: 'table',
+          tables: [
+            {
+              ...groupTable('Taça Guanabara', CARIOCA_TAÇA_GUANABARA, (p) =>
+                p <= 4 ? 'libertadores' : p >= 12 ? 'relegation' : undefined
+              ),
+              competitionId: 'carioca',
+            },
+          ],
+          legend: [
+            { zone: 'libertadores', label: 'Semifinal' },
+            { zone: 'relegation', label: 'Rebaixamento' },
+          ],
+        },
+        {
+          key: 'final',
+          label: 'Fase final',
+          kind: 'knockout',
+          rounds: rounds(CARIOCA_FINALS, ['Semifinal']),
+        },
+      ],
+      note: 'Flamengo campeão carioca de 2026 (dados simulados).',
+    };
+  }
+  return {
+    competitionId: 'brasileirao',
+    title: 'Brasileirão 2026',
+    phases: [{ key: 'tabela', label: 'Tabela', kind: 'table', tables: [computeStandings()] }],
+  };
+}
+
 export function createMockMatchesService(): MatchesService {
   return {
     async getFeaturedMatch() {
@@ -356,6 +507,9 @@ export function createMockMatchesService(): MatchesService {
         });
       }
       return delay(computeStandings());
+    },
+    async getCompetitionOverview(id) {
+      return delay(overviewFor(id));
     },
     async getHeadToHead(opponentId) {
       const opponent = TEAMS[opponentId];

@@ -151,3 +151,40 @@ export interface MatchFilter {
   /** upcoming = agendados/ao vivo; results = encerrados. */
   when?: 'upcoming' | 'results';
 }
+
+/** Confronto de mata-mata (ida/volta ou jogo único). */
+export interface KnockoutTie {
+  id: string;
+  home: Team;
+  away: Team;
+  legs: { label: string; score?: Score }[];
+  /** Placar agregado (somado), quando houver jogos disputados. */
+  aggregate?: Score;
+  penalties?: Score;
+  winnerId?: string;
+  /** Jogo ainda não disputado / a definir. */
+  pending?: boolean;
+}
+
+export interface KnockoutRound {
+  name: string;
+  ties: KnockoutTie[];
+}
+
+export interface CompetitionPhase {
+  key: string;
+  label: string;
+  kind: 'table' | 'knockout';
+  tables?: StandingsTable[];
+  rounds?: KnockoutRound[];
+  /** Legenda das zonas (para tabelas de grupos). */
+  legend?: { zone: NonNullable<StandingRow['zone']>; label: string }[];
+}
+
+/** Visão completa de uma competição: tabela(s) e/ou chaveamento. */
+export interface CompetitionOverview {
+  competitionId: CompetitionId;
+  title: string;
+  phases: CompetitionPhase[];
+  note?: string;
+}

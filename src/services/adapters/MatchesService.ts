@@ -1,6 +1,7 @@
 import type {
   Competition,
   CompetitionId,
+  CompetitionOverview,
   HeadToHead,
   Match,
   MatchDetail,
@@ -19,6 +20,8 @@ export interface MatchesService {
   getMatch(id: string): Promise<MatchDetail>;
   getCompetitions(): Promise<Competition[]>;
   getStandings(competitionId: CompetitionId): Promise<StandingsTable>;
+  /** Tabela(s) e chaveamento por fase (grupos, mata-mata). */
+  getCompetitionOverview(competitionId: CompetitionId): Promise<CompetitionOverview>;
   getHeadToHead(opponentId: string): Promise<HeadToHead>;
   getSquad(): Promise<Player[]>;
   getPlayer(id: string): Promise<Player>;
