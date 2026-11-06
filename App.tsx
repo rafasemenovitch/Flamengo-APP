@@ -1,4 +1,6 @@
 import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -7,6 +9,9 @@ import { AlertHost, ClubCrest, fontFiles, palette, ThemeProvider, useTheme } fro
 import { RootNavigator } from '@/navigation/RootNavigator';
 import { OnboardingGate } from '@/features/onboarding/Onboarding';
 import { AppStateProvider } from '@/state/AppStateProvider';
+
+// Mantém a abertura nativa (escudo sobre fundo preto) até as fontes carregarem.
+SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 function ThemedApp() {
   const { scheme } = useTheme();
@@ -24,8 +29,13 @@ function ThemedApp() {
 
 export default function App() {
   const [fontsLoaded, fontError] = useFonts(fontFiles);
+  const ready = fontsLoaded || !!fontError;
 
-  if (!fontsLoaded && !fontError) {
+  useEffect(() => {
+    if (ready) SplashScreen.hideAsync().catch(() => undefined);
+  }, [ready]);
+
+  if (!ready) {
     // Splash mínimo enquanto as fontes carregam (fundo do tema escuro padrão).
     return (
       <View style={{ flex: 1, backgroundColor: palette.ink950, alignItems: 'center', justifyContent: 'center' }}>

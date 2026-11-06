@@ -15,11 +15,25 @@
       "bundleIdentifier": "com.example.flamengoapp"
     },
     "android": {
-      "package": "com.example.flamengoapp"
+      "package": "com.example.flamengoapp",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/brand/adaptive-icon.png",
+        "backgroundColor": "#0A0A0C"
+      }
     },
     "plugins": [
       "expo-font",
-      "expo-status-bar"
-    ]
+      "expo-status-bar",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/brand/splash.png",
+          "imageWidth": 140,
+          "resizeMode": "contain",
+          "backgroundColor": "#0A0A0C"
+        }
+      ]
+    ],
+    "icon": "./assets/brand/icon.png"
   }
 }

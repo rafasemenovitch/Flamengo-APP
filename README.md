@@ -87,7 +87,8 @@ Tudo no modo `demo`. Na interface, os itens simulados levam o selo **DEMO**:
 - [x] Fase 3: Jogos, Ingressos + Modo Maracanã, Nação (loja, sócio, gamificação, rankings, Passaporte, comunidade), Perfil, Configurações e Assistente Fla
 
 ### Roteiro de demonstração
-1. Home: use o seletor amarelo **Dev · estado do jogo** para alternar entre pré-jogo, dia de jogo, ao vivo e pós-jogo.
+0. Primeira abertura: boas-vindas em 3 passos (rever em Perfil → Configurações → Rever boas-vindas).
+1. Home: **toque e segure a saudação** ("Boa tarde, Rafael") para abrir os controles escondidos da demonstração e alternar entre pré-jogo, dia de jogo, ao vivo e pós-jogo.
    No modo **Ao vivo**, o relógio avança (1 min de jogo a cada 4 s) e o 3º gol, aos 83', dispara o alerta de gol.
 2. Comprar ingresso: escolha o setor no mapa → "Compra simulada" → carteira com QR DEMONSTRATIVO.
 3. Modo Maracanã: portão, horário de chegada, mapa com serviços, filas e transporte.
