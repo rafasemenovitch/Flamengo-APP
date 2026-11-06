@@ -87,7 +87,7 @@ export function QuickActions({ matchday }: { matchday: boolean }) {
     { key: 'ingressos', label: 'Ingressos', icon: 'ticket', onPress: () => navigation.navigate('Tabs', { screen: 'Ingressos' }) },
     { key: 'loja', label: 'Loja', icon: 'bag-handle', onPress: () => navigation.navigate('Store'), badge: cartCount },
     { key: 'socio', label: 'Sócio-Torcedor', icon: 'card', onPress: () => navigation.navigate('Membership') },
-    { key: 'flatv', label: 'FlaTV', icon: 'play-circle', onPress: () => navigation.navigate('VideoDetail', { videoId: 'v2' }) },
+    { key: 'flatv', label: 'FlaTV', icon: 'play-circle', onPress: () => navigation.navigate('FlaTV') },
   ];
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: layout.gutter, gap: spacing.sm }}>

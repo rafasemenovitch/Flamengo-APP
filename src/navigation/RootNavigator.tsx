@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import { useReduceMotion } from '@/hooks/useReduceMotion';
 import { useTheme } from '@/design-system';
 import { AssistantScreen } from '@/features/assistant/AssistantScreen';
+import { FlaTVScreen, NewsListScreen } from '@/features/content/ContentListScreens';
 import { NewsDetailScreen } from '@/features/content/NewsDetailScreen';
 import { NotificationsScreen } from '@/features/content/NotificationsScreen';
 import { VideoDetailScreen } from '@/features/content/VideoDetailScreen';
@@ -64,6 +65,8 @@ export function RootNavigator() {
         <Stack.Screen name="MatchDetail" component={MatchDetailScreen} />
         <Stack.Screen name="PlayerProfile" component={PlayerProfileScreen} />
         <Stack.Screen name="Standings" component={StandingsScreen} />
+        <Stack.Screen name="News" component={NewsListScreen} />
+        <Stack.Screen name="FlaTV" component={FlaTVScreen} />
         <Stack.Screen name="NewsDetail" component={NewsDetailScreen} />
         <Stack.Screen name="VideoDetail" component={VideoDetailScreen} />
         <Stack.Screen name="Notifications" component={NotificationsScreen} />

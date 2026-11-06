@@ -25,6 +25,8 @@ export type RootStackParamList = {
   PlayerProfile: { playerId: string };
   Standings: { competitionId?: CompetitionId } | undefined;
   // Conteúdo
+  News: undefined;
+  FlaTV: undefined;
   NewsDetail: { articleId: string };
   VideoDetail: { videoId: string };
   Notifications: undefined;

@@ -1,4 +1,4 @@
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback } from 'react';
 import { View } from 'react-native';
 
@@ -38,6 +38,14 @@ export function HomeScreen() {
   const match = featured.data;
   const matchday = !!match && match.status === 'scheduled' && isToday(match.kickoff);
   const plan = useAsync(async () => (matchday && match ? services.stadium.getMatchDayPlan(match.id) : undefined), [matchday, match?.id]);
+
+  // Ao voltar para a Home (ex.: depois de ler as notificações), atualiza o badge.
+  const refreshNotifications = notifications.refresh;
+  useFocusEffect(
+    useCallback(() => {
+      refreshNotifications();
+    }, [refreshNotifications])
+  );
 
   const refreshing = featured.refreshing || news.refreshing || videos.refreshing;
   const onRefresh = useCallback(() => {
@@ -84,7 +92,7 @@ export function HomeScreen() {
       )}
 
       <View style={section}>
-        <SectionHeader title="Últimas notícias" onAction={() => navigation.navigate('NewsDetail', { articleId: news.data?.[0]?.id ?? 'n1' })} actionLabel="Ler" />
+        <SectionHeader title="Últimas notícias" onAction={() => navigation.navigate('News')} />
         {news.error ? (
           <ErrorState compact onRetry={news.reload} />
         ) : (
@@ -93,7 +101,7 @@ export function HomeScreen() {
       </View>
 
       <View style={section}>
-        <SectionHeader title="FlaTV" subtitle="Vídeos em destaque" />
+        <SectionHeader title="FlaTV" subtitle="Vídeos em destaque" onAction={() => navigation.navigate('FlaTV')} />
         {videos.error ? (
           <ErrorState compact onRetry={videos.reload} />
         ) : (
