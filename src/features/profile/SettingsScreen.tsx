@@ -1,7 +1,10 @@
 import { useNavigation } from '@react-navigation/native';
-import { Alert, Switch, View } from 'react-native';
+import { useState } from 'react';
+import { Alert, Switch, TextInput, View } from 'react-native';
 
 import {
+  Button,
+  fonts,
   ListGroup,
   ListItem,
   Screen,
@@ -53,6 +56,15 @@ export function SettingsScreen() {
 
   return (
     <Screen title="Configurações">
+      {profile && (
+        <ProfileEditor
+          key={profile.id}
+          name={profile.name}
+          city={profile.city}
+          onSave={(name, city) => updateProfile({ name, firstName: name.split(' ')[0] ?? name, city })}
+        />
+      )}
+      <View style={{ height: 48 }} />
       <SectionHeader title="Aparência" />
       <SegmentedControl<ThemePreference>
         segments={[
@@ -171,5 +183,58 @@ export function SettingsScreen() {
         </Text>
       </View>
     </Screen>
+  );
+}
+
+/** "Seus dados": edição simples de nome e cidade (login real numa fase futura). */
+function ProfileEditor({
+  name,
+  city,
+  onSave,
+}: {
+  name: string;
+  city: string;
+  onSave: (name: string, city: string) => void;
+}) {
+  const { colors, layout, radius } = useTheme();
+  const [n, setN] = useState(name);
+  const [c, setC] = useState(city);
+  const dirty = n.trim() !== name || c.trim() !== city;
+  const field = (label: string, value: string, set: (v: string) => void) => (
+    <View style={{ gap: 6 }}>
+      <Text variant="labelM" tone="secondary">
+        {label}
+      </Text>
+      <TextInput
+        value={value}
+        onChangeText={set}
+        accessibilityLabel={label}
+        placeholderTextColor={colors.inkTertiary}
+        style={{
+          height: 52,
+          borderRadius: radius.m,
+          paddingHorizontal: 16,
+          backgroundColor: colors.bgRaised,
+          color: colors.inkPrimary,
+          fontFamily: fonts.regular,
+          fontSize: 16,
+        }}
+      />
+    </View>
+  );
+  return (
+    <View>
+      <SectionHeader title="Seus dados" subtitle="Conta demonstrativa" />
+      <View style={{ paddingHorizontal: layout.gutter, gap: 16 }}>
+        {field('Nome', n, setN)}
+        {field('Cidade', c, setC)}
+        <Button
+          label="Salvar"
+          size="sm"
+          disabled={!dirty || !n.trim()}
+          onPress={() => onSave(n.trim(), c.trim())}
+        />
+      </View>
+    </View>
   );
 }

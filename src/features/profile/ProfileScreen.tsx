@@ -60,7 +60,7 @@ export function ProfileScreen() {
           label="Editar"
           variant="secondary"
           size="sm"
-          onPress={() => Alert.alert('Em breve', 'A edição de dados chega junto com o login real.')}
+          onPress={() => navigation.navigate('Settings')}
         />
       </View>
 
@@ -89,16 +89,6 @@ export function ProfileScreen() {
             onPress={() => navigation.navigate('Membership')}
           />
           <ListItem
-            icon="notifications-outline"
-            title="Notificações"
-            onPress={() => navigation.navigate('Settings')}
-          />
-          <ListItem
-            icon="lock-closed-outline"
-            title="Privacidade"
-            onPress={() => navigation.navigate('Settings')}
-          />
-          <ListItem
             icon="help-circle-outline"
             title="Ajuda"
             subtitle="Fale com o Assistente Fla"
@@ -107,6 +97,7 @@ export function ProfileScreen() {
           <ListItem
             icon="settings-outline"
             title="Configurações"
+            subtitle="Seus dados, notificações, privacidade e aparência"
             onPress={() => navigation.navigate('Settings')}
           />
           <ListItem
