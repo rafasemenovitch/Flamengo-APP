@@ -14,6 +14,7 @@ import { MatchesScreen } from '@/features/matches/MatchesScreen';
 import { NationScreen } from '@/features/nation/NationScreen';
 import { ProfileScreen } from '@/features/profile/ProfileScreen';
 import { TicketsScreen } from '@/features/tickets/TicketsScreen';
+import { AppHeader } from './AppHeader';
 import { AssistantFab } from './AssistantFab';
 import type { TabParamList } from './types';
 
@@ -68,7 +69,9 @@ function TabNavigatorInner() {
       <Tab.Navigator
         tabBar={(props) => <MeasuredTabBar {...props} onHeight={setBarHeight} />}
         screenOptions={{
-          headerShown: false,
+          // Cabeçalho fixo com o logo e o sino em todas as abas principais.
+          headerShown: true,
+          header: () => <AppHeader />,
           tabBarActiveTintColor: colors.accentText,
           tabBarInactiveTintColor: colors.inkTertiary,
           tabBarStyle: {

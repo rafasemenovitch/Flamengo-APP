@@ -5,6 +5,7 @@ import { View } from 'react-native';
 import { EmptyState, ErrorState, Screen, Skeleton, Text, useTheme } from '@/design-system';
 import { useAsync } from '@/hooks/useAsync';
 import { services } from '@/services';
+import { useAppState } from '@/state/AppStateProvider';
 import type { AppNotification } from '@/types/fan';
 import { formatRelative } from '@/utils/format';
 
@@ -20,13 +21,14 @@ const ICON: Record<AppNotification['kind'], keyof typeof Ionicons.glyphMap> = {
 export function NotificationsScreen() {
   const { colors, layout } = useTheme();
   const q = useAsync(() => services.profile.getNotifications());
+  const { refreshNotifications } = useAppState();
 
   useEffect(() => {
     // Marca como lidas ao sair da tela (o ponto do sino some ao voltar para a Home).
     return () => {
-      services.profile.markNotificationsRead();
+      services.profile.markNotificationsRead().then(refreshNotifications);
     };
-  }, []);
+  }, [refreshNotifications]);
 
   return (
     <Screen title="Notificações" refreshing={q.refreshing} onRefresh={q.refresh}>

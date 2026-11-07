@@ -1,4 +1,7 @@
 """
+ATENÇÃO: o ícone e o splash atuais vêm da arte oficial em LOGO/ (CRF vermelho
+em fundo preto). Rodar este script SOBRESCREVE com o escudo genérico antigo.
+
 Gera ícone do app, ícone adaptativo (Android) e imagem do splash a partir do
 escudo GENÉRICO de placeholder (o mesmo desenhado em brand.tsx).
 

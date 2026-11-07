@@ -28,7 +28,7 @@ export function HomeHeader({
 }) {
   const navigation = useNavigation();
   const { profile, progress } = useAppState();
-  const { colors, layout } = useTheme();
+  const { layout } = useTheme();
   const name = profile?.firstName ?? 'torcedor';
   return (
     <View
@@ -72,27 +72,6 @@ export function HomeHeader({
           </Pressable>
         )}
       </View>
-      <Pressable
-        onPress={() => navigation.navigate('Notifications')}
-        accessibilityRole="button"
-        accessibilityLabel={unread ? `Notificações, ${unread} novas` : 'Notificações'}
-        style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
-      >
-        <Ionicons name="notifications-outline" size={24} color={colors.inkPrimary} />
-        {unread > 0 && (
-          <View
-            style={{
-              position: 'absolute',
-              top: 10,
-              right: 11,
-              width: 6,
-              height: 6,
-              borderRadius: 3,
-              backgroundColor: colors.accent,
-            }}
-          />
-        )}
-      </Pressable>
     </View>
   );
 }

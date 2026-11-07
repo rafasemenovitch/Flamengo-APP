@@ -11,13 +11,13 @@ import type { ImageSourcePropType } from 'react-native';
 export const brandAssets: {
   /** Escudo do clube (PNG transparente, quadrado, >= 512px). */
   crest: ImageSourcePropType | null;
-  /** Logotipo horizontal para o cabeçalho. */
+  /** Logotipo horizontal para o cabeçalho (texto branco + CRF vermelho, fundo transparente). */
   wordmark: ImageSourcePropType | null;
   /** Ilustração do mascote para popups de aviso (fase futura). */
   mascot: ImageSourcePropType | null;
 } = {
   crest: null,
-  wordmark: null,
+  wordmark: require('./wordmark.png'),
   mascot: null,
 };
 

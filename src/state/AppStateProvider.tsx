@@ -19,6 +19,8 @@ interface AppState {
   refreshProgress: () => Promise<void>;
   setCart: (cart: Cart) => void;
   cartCount: number;
+  unreadNotifications: number;
+  refreshNotifications: () => Promise<void>;
 }
 
 const Ctx = createContext<AppState | null>(null);
@@ -27,6 +29,12 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<FanProfile | null>(null);
   const [progress, setProgress] = useState<FanProgress | null>(null);
   const [cart, setCart] = useState<Cart | null>(null);
+  const [unreadNotifications, setUnread] = useState(0);
+
+  const refreshNotifications = useCallback(async () => {
+    const list = await services.profile.getNotifications();
+    setUnread(list.filter((n) => !n.read).length);
+  }, []);
 
   const refreshProgress = useCallback(async () => {
     setProgress(await services.gamification.getProgress());
@@ -44,7 +52,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     // Carga inicial assíncrona; o setState acontece depois da resposta.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     refreshProgress().catch(() => undefined);
-  }, [refreshProgress]);
+    refreshNotifications().catch(() => undefined);
+  }, [refreshProgress, refreshNotifications]);
 
   const updateProfile = useCallback(async (patch: Partial<Omit<FanProfile, 'id'>>) => {
     // Otimista: a UI responde na hora; o serviço confirma depois.
@@ -73,8 +82,19 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       refreshProgress,
       setCart,
       cartCount: cart?.items.reduce((s, i) => s + i.quantity, 0) ?? 0,
+      unreadNotifications,
+      refreshNotifications,
     }),
-    [profile, progress, cart, updateProfile, toggleFavoritePlayer, refreshProgress]
+    [
+      profile,
+      progress,
+      cart,
+      updateProfile,
+      toggleFavoritePlayer,
+      refreshProgress,
+      unreadNotifications,
+      refreshNotifications,
+    ]
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

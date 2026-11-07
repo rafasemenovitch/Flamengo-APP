@@ -16,7 +16,7 @@ import type { MatchDetail } from '@/types/match';
 import { formatMatchDate } from '@/utils/format';
 
 /** Compacto o bastante para os atalhos aparecerem sem rolar (tela de ~844pt). */
-const HERO_HEIGHT = 380;
+const HERO_HEIGHT = 340;
 
 /**
  * Hero do próximo jogo (especificação 12.9): sangria total, foto tratada,

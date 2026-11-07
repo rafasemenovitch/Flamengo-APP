@@ -1,4 +1,6 @@
+import { HeaderShownContext } from '@react-navigation/elements';
 import { useNavigation } from '@react-navigation/native';
+import { useContext } from 'react';
 import type { ReactNode } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
@@ -45,6 +47,9 @@ export function Screen({
   // Telas com FAB: 96px extras para nada ficar coberto (especificação 6 e 12.15).
   const bottomPad = reserveFab ? spacing.x96 + spacing.xl : spacing.xxl;
   const fab = useFabVisibility();
+  // Abaixo de um cabeçalho de navegação (abas), a área segura do topo já foi tratada.
+  const parentHeaderShown = useContext(HeaderShownContext);
+  const safeEdges = parentHeaderShown ? edges.filter((e) => e !== 'top') : edges;
 
   const header = hasHeader && (
     <View style={[styles.header, { paddingHorizontal: spacing.sm, minHeight: 52 }]}>
@@ -90,7 +95,7 @@ export function Screen({
   );
 
   return (
-    <SafeAreaView edges={edges} style={[styles.flex, { backgroundColor: colors.background }]}>
+    <SafeAreaView edges={safeEdges} style={[styles.flex, { backgroundColor: colors.background }]}>
       {header}
       {inner}
     </SafeAreaView>
