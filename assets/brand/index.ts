@@ -5,17 +5,25 @@ import type { ImageSourcePropType } from 'react-native';
  * O que for `null` é desenhado por placeholders próprios.
  */
 export const brandAssets: {
-  /** Monograma CRF vermelho (fundo transparente): escudo do Flamengo sobre fundo preto. */
+  /**
+   * Escudo do Flamengo como TIME em partidas, tabelas, escalações e bolões.
+   * Fica `null`: escudos de times virão da API de dados esportivos.
+   */
   crest: ImageSourcePropType | null;
-  /** Monograma CRF branco: sobre fotos e blocos vermelhos, e marca-d'água. */
-  crestWhite: ImageSourcePropType | null;
+  /**
+   * Monograma CRF como MARCA DO APP (nunca no lugar de escudo de time):
+   * carteirinha, comemoração de gol, boas-vindas e assinatura da Home.
+   */
+  monogramRed: ImageSourcePropType | null;
+  monogramWhite: ImageSourcePropType | null;
   /** Logotipo horizontal para o cabeçalho (texto branco + CRF vermelho, fundo transparente). */
   wordmark: ImageSourcePropType | null;
   /** Ilustração do mascote para popups de aviso (fase futura). */
   mascot: ImageSourcePropType | null;
 } = {
-  crest: require('./crf-red.png'),
-  crestWhite: require('./crf-white.png'),
+  crest: null,
+  monogramRed: require('./crf-red.png'),
+  monogramWhite: require('./crf-white.png'),
   wordmark: require('./wordmark.png'),
   mascot: null,
 };

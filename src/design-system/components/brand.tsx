@@ -29,12 +29,13 @@ export interface CrestTeam {
 export function Crest({ team, size = 40, onMedia }: { team: CrestTeam; size?: number; onMedia?: boolean }) {
   const { colors } = useTheme();
   const label = `Escudo ${team.shortName ?? team.code}`;
-  // Flamengo: monograma CRF (vermelho no fundo preto; branco sobre foto/vermelho).
-  const clubMark = onMedia ? (brandAssets.crestWhite ?? brandAssets.crest) : brandAssets.crest;
-  if (team.id === CLUB.id && clubMark) {
+  // Escudos de times virão da API de dados esportivos; até lá, placeholder.
+  // `onMedia` fica reservado para a versão clara do escudo oficial, se a API oferecer.
+  void onMedia;
+  if (team.id === CLUB.id && brandAssets.crest) {
     return (
       <Image
-        source={clubMark}
+        source={brandAssets.crest}
         style={{ width: size, height: size }}
         resizeMode="contain"
         accessibilityLabel={label}
@@ -90,7 +91,7 @@ export function Monogram({
   opacity?: number;
   style?: StyleProp<ImageStyle>;
 }) {
-  const source = color === 'white' ? brandAssets.crestWhite : brandAssets.crest;
+  const source = color === 'white' ? brandAssets.monogramWhite : brandAssets.monogramRed;
   if (!source) return null;
   return (
     <Image

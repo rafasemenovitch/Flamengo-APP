@@ -14,7 +14,7 @@ import {
 import { Pressable, ScrollView, StyleSheet, Switch, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Avatar, Button, ClubCrest, Mascot, palette, Text, useTheme } from '@/design-system';
+import { Avatar, Button, Mascot, Monogram, palette, Text, useTheme } from '@/design-system';
 import { useAsync } from '@/hooks/useAsync';
 import { services } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
@@ -122,7 +122,7 @@ function OnboardingFlow({ onDone }: { onDone: () => void }) {
             }}
           >
             <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-              <ClubCrest size={72} onMedia />
+              <Monogram color="white" width={76} />
               <Mascot pose="fan-welcome" size={120} />
             </View>
             <View style={{ gap: spacing.sm }}>
