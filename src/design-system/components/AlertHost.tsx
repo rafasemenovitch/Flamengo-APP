@@ -14,6 +14,7 @@ import { useReduceMotion } from '@/hooks/useReduceMotion';
 import { haptic } from '@/utils/haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Mascot, type MascotPose } from '../mascot';
+import { Monogram } from './brand';
 import { useTheme } from '../theme/ThemeProvider';
 import { Button } from './Button';
 import { Text } from './Text';
@@ -230,6 +231,7 @@ function GoalCelebration({
           padding: 20,
         }}
       >
+        <Monogram color="white" width={420} opacity={0.08} style={{ position: 'absolute' }} />
         <Animated.View
           style={{
             transform: [{ scale: t.interpolate({ inputRange: [0, 1], outputRange: [0.85, 1] }) }],

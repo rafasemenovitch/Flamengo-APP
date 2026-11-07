@@ -122,7 +122,7 @@ function OnboardingFlow({ onDone }: { onDone: () => void }) {
             }}
           >
             <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-              <ClubCrest size={72} />
+              <ClubCrest size={72} onMedia />
               <Mascot pose="fan-welcome" size={120} />
             </View>
             <View style={{ gap: spacing.sm }}>

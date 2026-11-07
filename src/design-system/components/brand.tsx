@@ -26,13 +26,15 @@ export interface CrestTeam {
  * automaticamente quando `brandAssets.crest` for preenchido.
  * Tamanhos: 20 (lista) · 28 (ingresso) · 40 (palpite) · 56 (hero).
  */
-export function Crest({ team, size = 40 }: { team: CrestTeam; size?: number }) {
+export function Crest({ team, size = 40, onMedia }: { team: CrestTeam; size?: number; onMedia?: boolean }) {
   const { colors } = useTheme();
   const label = `Escudo ${team.shortName ?? team.code}`;
-  if (team.id === CLUB.id && brandAssets.crest) {
+  // Flamengo: monograma CRF (vermelho no fundo preto; branco sobre foto/vermelho).
+  const clubMark = onMedia ? (brandAssets.crestWhite ?? brandAssets.crest) : brandAssets.crest;
+  if (team.id === CLUB.id && clubMark) {
     return (
       <Image
-        source={brandAssets.crest}
+        source={clubMark}
         style={{ width: size, height: size }}
         resizeMode="contain"
         accessibilityLabel={label}
@@ -66,8 +68,38 @@ export function Crest({ team, size = 40 }: { team: CrestTeam; size?: number }) {
 }
 
 /** Escudo do Flamengo (atalho para <Crest team={CLUB} />). */
-export function ClubCrest({ size = 40 }: { size?: number }) {
-  return <Crest team={CLUB} size={size} />;
+export function ClubCrest({ size = 40, onMedia }: { size?: number; onMedia?: boolean }) {
+  return <Crest team={CLUB} size={size} onMedia={onMedia} />;
+}
+
+/** Proporção do monograma recortado (600 × 577). */
+const MONOGRAM_RATIO = 577 / 600;
+
+/**
+ * Monograma CRF como elemento gráfico (marca-d'água). Uso parcimonioso:
+ * carteirinha, comemoração de gol, boas-vindas e assinatura da Home.
+ */
+export function Monogram({
+  color = 'red',
+  width,
+  opacity = 1,
+  style,
+}: {
+  color?: 'red' | 'white';
+  width: number;
+  opacity?: number;
+  style?: StyleProp<ImageStyle>;
+}) {
+  const source = color === 'white' ? brandAssets.crestWhite : brandAssets.crest;
+  if (!source) return null;
+  return (
+    <Image
+      source={source}
+      accessible={false}
+      style={[{ width, height: width * MONOGRAM_RATIO, opacity }, style]}
+      resizeMode="contain"
+    />
+  );
 }
 
 /** @deprecated use <Crest team={...} />. */

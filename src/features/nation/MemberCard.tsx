@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
-import { Crest, DemoBadge, Text, TreatedImage, useTheme } from '@/design-system';
+import { Crest, DemoBadge, Monogram, Text, TreatedImage, useTheme } from '@/design-system';
 import { CLUB } from '@/data/demo/seed';
 import type { Membership, MembershipPlan } from '@/types/commerce';
 import { formatFullDate } from '@/utils/format';
@@ -33,6 +33,12 @@ export function MemberCard({ membership, plan }: { membership: Membership; plan:
         aspect="wide"
         style={[StyleSheet.absoluteFill, { opacity: 0.2 }]}
       />
+      <Monogram
+        color="white"
+        width={240}
+        opacity={0.12}
+        style={{ position: 'absolute', right: -56, bottom: -48 }}
+      />
       <View style={{ flex: 1, padding: 20, justifyContent: 'space-between' }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <Text variant="displayM" tone="onPrimary" style={{ flex: 1 }} numberOfLines={2}>
@@ -51,7 +57,7 @@ export function MemberCard({ membership, plan }: { membership: Membership; plan:
             <Text variant="bodyS" tone="onPrimary" style={{ opacity: 0.85 }}>
               Válida até {formatFullDate(membership.validUntil)}
             </Text>
-            <Crest team={CLUB} size={28} />
+            <Crest team={CLUB} size={28} onMedia />
           </View>
         </View>
       </View>

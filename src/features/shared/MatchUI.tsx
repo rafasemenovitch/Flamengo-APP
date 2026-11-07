@@ -202,7 +202,7 @@ export function MatchList({
 export function TeamBlock({ team, onMedia }: { team: Team; onMedia?: boolean }) {
   return (
     <View style={{ alignItems: 'center', width: 96, gap: 8 }}>
-      <Crest team={team} size={56} />
+      <Crest team={team} size={56} onMedia={onMedia} />
       <Text
         variant="displayM"
         tone={onMedia ? 'onMedia' : 'primary'}

@@ -2,7 +2,16 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Animated, View } from 'react-native';
 
-import { EmptyState, ErrorState, Screen, SectionTitle, Skeleton, useTheme } from '@/design-system';
+import {
+  EmptyState,
+  ErrorState,
+  Monogram,
+  Screen,
+  SectionTitle,
+  Skeleton,
+  Text,
+  useTheme,
+} from '@/design-system';
 import { HList, NewsLead, NewsRow, VideoTile } from '@/features/shared/ContentCards';
 import { PollCard, PredictionCard, QuizCard } from '@/features/shared/Engagement';
 import { StandingsTable } from '@/features/shared/MatchUI';
@@ -252,6 +261,14 @@ export function HomeScreen() {
           <QuizCard />
         </View>
       </Reveal>
+
+      {/* Assinatura discreta no fim do feed. */}
+      <View style={{ alignItems: 'center', gap: 12, marginTop: 64 }}>
+        <Monogram width={36} />
+        <Text variant="bodyS" tone="tertiary">
+          Uma vez Flamengo, sempre Flamengo.
+        </Text>
+      </View>
     </Screen>
   );
 }

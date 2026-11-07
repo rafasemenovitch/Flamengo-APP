@@ -1,22 +1,21 @@
 import type { ImageSourcePropType } from 'react-native';
 
 /**
- * PONTO ÚNICO de material de marca. Hoje não temos licença de escudo, logo
- * nem fotos oficiais: tudo é `null`, e os componentes desenham placeholders
- * próprios (ver src/design-system/components/brand/).
- *
- * Quando houver material autorizado, basta trocar `null` por `require(...)`:
- *   crest: require('./crest.png'),
+ * PONTO ÚNICO de material de marca (artes em LOGO/, recortadas aqui).
+ * O que for `null` é desenhado por placeholders próprios.
  */
 export const brandAssets: {
-  /** Escudo do clube (PNG transparente, quadrado, >= 512px). */
+  /** Monograma CRF vermelho (fundo transparente): escudo do Flamengo sobre fundo preto. */
   crest: ImageSourcePropType | null;
+  /** Monograma CRF branco: sobre fotos e blocos vermelhos, e marca-d'água. */
+  crestWhite: ImageSourcePropType | null;
   /** Logotipo horizontal para o cabeçalho (texto branco + CRF vermelho, fundo transparente). */
   wordmark: ImageSourcePropType | null;
   /** Ilustração do mascote para popups de aviso (fase futura). */
   mascot: ImageSourcePropType | null;
 } = {
-  crest: null,
+  crest: require('./crf-red.png'),
+  crestWhite: require('./crf-white.png'),
   wordmark: require('./wordmark.png'),
   mascot: null,
 };
