@@ -1,0 +1,64 @@
+{
+  "personagem": "Assistente Fla",
+  "descricao": "Urubu, mascote do app, no papel de assistente virtual de IA. Sempre com headset vermelho. Use estas imagens SOMENTE no contexto do Assistente Fla (chat, botão flutuante, balões de ajuda). Fora do assistente, o mascote aparece sem headset (outras levas).",
+  "formato": "PNG com fundo transparente, 512x512, enquadramento de rosto e ombros. Todas na mesma escala e alinhamento: o headset tem a mesma largura e posição em todas, então dá para trocar uma pela outra sem o personagem pular na tela.",
+  "padrao": "assistente-fla_01_neutro-acolhedor_avatar-padrao.png",
+  "fallback": "Se nenhum estado abaixo se aplicar, use a pose padrão (01).",
+  "poses": [
+    {
+      "arquivo": "assistente-fla_01_neutro-acolhedor_avatar-padrao.png",
+      "expressao": "Neutro, simpático, sorriso fechado, olhando para a câmera",
+      "usar_quando": ["avatar padrão do assistente", "ícone do botão flutuante", "cabeçalho do chat", "mensagens informativas neutras"],
+      "evitar_quando": ["momentos de comemoração", "erros"],
+      "versao_alta_resolucao": "alta-resolucao/assistente-fla_01_neutro-acolhedor_avatar-padrao_1024.png"
+    },
+    {
+      "arquivo": "assistente-fla_02_acenando-ola_inicio-da-conversa.png",
+      "expressao": "Acenando com a mão aberta, sorriso aberto",
+      "usar_quando": ["abertura do chat", "primeira mensagem de boas-vindas", "tela vazia do chat antes da primeira pergunta"],
+      "evitar_quando": ["no meio de uma conversa já iniciada"]
+    },
+    {
+      "arquivo": "assistente-fla_03_falando-explicando_respondendo.png",
+      "expressao": "Falando, bico aberto, gesticulando com a mão",
+      "usar_quando": ["resposta com explicação ou instruções", "respostas longas", "orientações passo a passo (portões, ingressos, planos do sócio)"],
+      "evitar_quando": ["respostas de erro"]
+    },
+    {
+      "arquivo": "assistente-fla_04_pensando_processando-resposta.png",
+      "expressao": "Mão no queixo, olhar para cima, pensativo",
+      "usar_quando": ["estado de carregamento enquanto a resposta é gerada", "indicador de 'digitando...'"],
+      "evitar_quando": ["resposta já entregue"]
+    },
+    {
+      "arquivo": "assistente-fla_05_confuso_nao-entendeu-a-pergunta.png",
+      "expressao": "Sobrancelha erguida, bico entreaberto, mão aberta em dúvida",
+      "usar_quando": ["pergunta ambígua ou incompreensível", "pedido de reformulação", "assistente precisa de mais detalhes do usuário"],
+      "evitar_quando": ["falhas técnicas (use a 06)"]
+    },
+    {
+      "arquivo": "assistente-fla_06_sem-graca_informacao-nao-encontrada.png",
+      "expressao": "Sorriso amarelo, mão atrás da cabeça, sem graça",
+      "usar_quando": ["informação não encontrada ou indisponível", "pergunta fora do escopo oficial", "erro técnico dentro do chat", "funcionalidade ainda não disponível"],
+      "evitar_quando": ["telas de erro fora do chat (usar as poses do mascote sem headset)"]
+    },
+    {
+      "arquivo": "assistente-fla_07_piscando-joinha_dando-dica.png",
+      "expressao": "Piscando um olho, joinha, sorriso de canto",
+      "usar_quando": ["dicas e sugestões", "atalhos e recursos que o usuário não conhece", "confirmação de ação concluída ('pronto!')"],
+      "evitar_quando": ["respostas sérias ou de erro"]
+    },
+    {
+      "arquivo": "assistente-fla_08_muito-feliz_agradecendo-fim-da-conversa.png",
+      "expressao": "Olhos fechados de alegria, bico aberto, punhos cerrados comemorando",
+      "usar_quando": ["usuário agradece", "encerramento da conversa", "notícia muito positiva dada pelo assistente (vitória, conquista, benefício liberado)"],
+      "evitar_quando": ["respostas neutras", "derrotas ou notícias ruins"]
+    }
+  ],
+  "regras": [
+    "Uma imagem por mensagem do assistente, escolhida pelo estado da resposta.",
+    "Não espelhar horizontalmente: o microfone fica sempre do lado esquerdo do personagem.",
+    "Em avatares circulares pequenos (até 48px), recortar do topo do headset até a gola.",
+    "Escudo na camisa é marca registrada do Flamengo: uso apenas demonstrativo até haver autorização."
+  ]
+}

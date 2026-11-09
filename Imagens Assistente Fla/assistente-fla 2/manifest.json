@@ -1,0 +1,41 @@
+{
+  "personagem": "Assistente Fla",
+  "descricao": "Urubu, mascote do app, no papel de assistente virtual de IA. Sempre com headset vermelho. Use estas imagens SOMENTE no contexto do Assistente Fla (chat, botão flutuante, balões de ajuda, tooltips, onboarding guiado). Fora do assistente, o mascote aparece sem headset (outras pastas).",
+  "padrao": "expressoes/assistente-fla_01_neutro-acolhedor_avatar-padrao.png",
+  "fallback": "Se nenhum estado se aplicar, use a pose padrão (01).",
+  "grupos": {
+    "expressoes": {
+      "formato": "PNG transparente 512x512, rosto e ombros. Mesma escala e alinhamento em todas: dá para trocar uma pela outra no mesmo lugar (ex.: avatar ao lado da mensagem) sem o personagem pular.",
+      "uso_principal": "Avatar do assistente ao lado de cada mensagem do chat, escolhido pelo estado da resposta."
+    },
+    "gestos": {
+      "formato": "PNG transparente 640x640, da cintura para cima, ancorado na borda inferior. Enquadramento varia um pouco entre as poses; não são feitas para troca no mesmo lugar.",
+      "uso_principal": "Ilustrações maiores: balões de ajuda, tooltips, cards de orientação, telas de onboarding e estados especiais do chat."
+    }
+  },
+  "poses": [
+    {"arquivo": "expressoes/assistente-fla_01_neutro-acolhedor_avatar-padrao.png", "expressao": "Neutro, simpático, sorriso fechado, olhando para a câmera", "usar_quando": ["avatar padrão do assistente", "ícone do botão flutuante", "cabeçalho do chat", "mensagens informativas neutras"], "evitar_quando": ["comemorações", "erros"], "versao_alta_resolucao": "alta-resolucao/assistente-fla_01_neutro-acolhedor_avatar-padrao_1024.png"},
+    {"arquivo": "expressoes/assistente-fla_02_acenando-ola_inicio-da-conversa.png", "expressao": "Acenando com a mão aberta, sorriso aberto", "usar_quando": ["primeira mensagem de boas-vindas no chat"], "evitar_quando": ["no meio de uma conversa já iniciada"]},
+    {"arquivo": "expressoes/assistente-fla_03_falando-explicando_respondendo.png", "expressao": "Falando, bico aberto, gesticulando", "usar_quando": ["resposta com explicação", "respostas longas", "orientações sobre ingressos, portões, planos do sócio"], "evitar_quando": ["respostas de erro"]},
+    {"arquivo": "expressoes/assistente-fla_04_pensando_processando-resposta.png", "expressao": "Mão no queixo, olhar para cima", "usar_quando": ["carregando a resposta", "indicador de 'digitando...'"], "evitar_quando": ["resposta já entregue"]},
+    {"arquivo": "expressoes/assistente-fla_05_confuso_nao-entendeu-a-pergunta.png", "expressao": "Sobrancelha erguida, mão aberta em dúvida", "usar_quando": ["pergunta ambígua", "pedir que o usuário reformule ou dê mais detalhes"], "evitar_quando": ["falhas técnicas (use 06)"]},
+    {"arquivo": "expressoes/assistente-fla_06_sem-graca_informacao-nao-encontrada.png", "expressao": "Sorriso amarelo, mão atrás da cabeça", "usar_quando": ["informação não encontrada", "pergunta fora do escopo oficial", "erro técnico dentro do chat", "recurso ainda indisponível"], "evitar_quando": ["telas de erro fora do chat (usar mascote sem headset)"]},
+    {"arquivo": "expressoes/assistente-fla_07_piscando-joinha_dando-dica.png", "expressao": "Piscando, joinha, sorriso de canto", "usar_quando": ["dicas e sugestões", "apresentar um atalho ou recurso que o usuário não conhece"], "evitar_quando": ["respostas sérias ou de erro", "confirmação de ação concluída (use 09)"]},
+    {"arquivo": "expressoes/assistente-fla_08_muito-feliz_agradecendo-fim-da-conversa.png", "expressao": "Olhos fechados de alegria, punhos cerrados", "usar_quando": ["usuário agradece", "encerramento da conversa", "notícia muito positiva (vitória, conquista, benefício liberado)"], "evitar_quando": ["respostas neutras", "derrotas ou notícias ruins"]},
+    {"arquivo": "gestos/assistente-fla_09_continencia_missao-cumprida.png", "expressao": "Continência com dois dedos, sorriso confiante", "usar_quando": ["ação concluída pelo assistente", "pedido resolvido", "configuração salva com ajuda do assistente"], "evitar_quando": ["respostas que ainda dependem do usuário"]},
+    {"arquivo": "gestos/assistente-fla_10_apontando-para-o-lado_destacar-balao-ou-conteudo.png", "expressao": "Apontando para a direita da imagem, animado", "usar_quando": ["personagem à esquerda de um balão de texto ou card", "tooltip que indica algo ao lado"], "evitar_quando": ["layout com o conteúdo à esquerda do personagem (não espelhar)"]},
+    {"arquivo": "gestos/assistente-fla_11_apontando-para-cima_destacar-botao-ou-aviso.png", "expressao": "Indicador para cima, empolgado", "usar_quando": ["destacar um botão ou aviso acima do personagem", "'atenção' / 'olha isso'", "novidade importante"], "evitar_quando": []},
+    {"arquivo": "gestos/assistente-fla_12_mostrando-celular_apresentar-tela-ou-recurso-do-app.png", "expressao": "Segura um celular com a tela em branco e aponta para ele", "usar_quando": ["onboarding que apresenta um recurso do app", "tutorial", "a tela branca do celular pode receber um print de outra tela do app"], "evitar_quando": []},
+    {"arquivo": "gestos/assistente-fla_13_lupa_buscando-informacao.png", "expressao": "Olhando por uma lupa, piscando um olho", "usar_quando": ["busca dentro do chat", "procurando jogos, notícias ou jogadores", "estado de carregamento de uma busca"], "evitar_quando": ["resultado já encontrado"]},
+    {"arquivo": "gestos/assistente-fla_14_prancheta_checklist-ou-passo-a-passo.png", "expressao": "Escrevendo numa prancheta, concentrado", "usar_quando": ["checklist (ex.: o que levar ao estádio)", "instruções passo a passo", "resumo de pedido ou cadastro"], "evitar_quando": ["mensagens emotivas"]},
+    {"arquivo": "gestos/assistente-fla_15_mapa-com-pin_como-chegar-ou-localizacao.png", "expressao": "Mapa aberto com pin vermelho, apontando o local", "usar_quando": ["como chegar ao Maracanã", "qual portão usar", "transporte e estacionamento", "Modo Maracanã quando o assistente orienta"], "evitar_quando": []},
+    {"arquivo": "gestos/assistente-fla_16_bracos-abertos_como-posso-ajudar.png", "expressao": "Braços abertos, palmas para cima, acolhedor", "usar_quando": ["tela inicial vazia do chat", "convite para fazer uma pergunta", "card de entrada do assistente na Home"], "evitar_quando": ["no meio de uma conversa"]}
+  ],
+  "regras": [
+    "Uma imagem por mensagem do assistente, escolhida pelo estado da resposta.",
+    "Avatar ao lado das mensagens: usar apenas a pasta expressoes. Ilustrações maiores: pasta gestos.",
+    "Não espelhar horizontalmente: o microfone fica sempre do lado esquerdo do personagem.",
+    "Em avatares circulares pequenos (até 48px), recortar do topo do headset até a gola.",
+    "O escudo na camisa é marca registrada do Flamengo: uso apenas demonstrativo até haver autorização."
+  ]
+}
