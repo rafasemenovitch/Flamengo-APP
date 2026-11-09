@@ -34,5 +34,6 @@ export function createLiveServices(): Services {
     assistant: notImplemented('assistant'),
     auth: notImplemented('auth'),
     profile: notImplemented('profile'),
+    bolao: notImplemented('bolao'),
   };
 }

@@ -18,7 +18,8 @@ const WORDMARK_RATIO = 1200 / 170;
 export function AppHeader() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-  const { colors, layout } = useTheme();
+  const { colors, layout, scheme } = useTheme();
+  const wordmark = scheme === 'light' ? brandAssets.wordmarkDark : brandAssets.wordmark;
   const { unreadNotifications } = useAppState();
   const logoHeight = 22;
 
@@ -41,9 +42,9 @@ export function AppHeader() {
         }}
       >
         <View style={{ flex: 1 }} accessible accessibilityRole="header" accessibilityLabel="Flamengo App">
-          {brandAssets.wordmark ? (
+          {wordmark ? (
             <Image
-              source={brandAssets.wordmark}
+              source={wordmark}
               style={{ height: logoHeight, width: logoHeight * WORDMARK_RATIO }}
               resizeMode="contain"
             />

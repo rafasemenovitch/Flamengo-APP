@@ -46,6 +46,12 @@ export type RootStackParamList = {
   Rankings: undefined;
   Passport: undefined;
   Community: undefined;
+  // Bolão
+  Bolao: { tab?: 'palpites' | 'boloes' | 'regras' } | undefined;
+  BolaoGuess: { matchId: string };
+  BolaoPool: { poolId: string; tab?: 'classificacao' | 'rodada' | 'convidar' };
+  BolaoCreate: undefined;
+  BolaoJoin: { code?: string } | undefined;
   // Perfil
   Settings: undefined;
   EditProfile: undefined;

@@ -13,7 +13,7 @@ import {
   useTheme,
 } from '@/design-system';
 import { HList, NewsLead, NewsRow, VideoTile } from '@/features/shared/ContentCards';
-import { PollCard, PredictionCard, QuizCard } from '@/features/shared/Engagement';
+import { PollCard } from '@/features/shared/Engagement';
 import { StandingsTable } from '@/features/shared/MatchUI';
 import { useAsync } from '@/hooks/useAsync';
 import { useDemoScenario, useLiveMatch } from '@/hooks/useMatch';
@@ -22,7 +22,14 @@ import { services } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
 import { formatDuration, formatRelative } from '@/utils/format';
 import { HeroMatchCard } from './HeroMatchCard';
-import { DemoControlsSheet, HomeHeader, LevelStrip, MatchdayBanner, QuickActions } from './HomeParts';
+import {
+  DemoControlsSheet,
+  HomeHeader,
+  LevelStrip,
+  MatchdayBanner,
+  NationInvite,
+  QuickActions,
+} from './HomeParts';
 
 function isToday(iso: string) {
   return new Date(iso).toDateString() === new Date().toDateString();
@@ -253,16 +260,7 @@ export function HomeScreen() {
       </Reveal>
 
       <Reveal index={6} style={{ marginTop: 48 }}>
-        <SectionTitle
-          title="Jogue com a Nação"
-          action="Meus pontos"
-          onAction={() => navigation.navigate('Gamification')}
-        />
-        <View style={{ paddingHorizontal: layout.gutter, gap: 32 }}>
-          {match && match.status === 'scheduled' && <PredictionCard match={match} />}
-          <PollCard />
-          <QuizCard />
-        </View>
+        <NationInvite />
       </Reveal>
 
       {/* Assinatura discreta no fim do feed. */}

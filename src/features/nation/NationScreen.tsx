@@ -1,99 +1,152 @@
-import { useNavigation } from '@react-navigation/native';
-import { useState } from 'react';
-import { View } from 'react-native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { Pressable, View } from 'react-native';
 
-import { Button, Filters, Screen, SectionTitle, Skeleton, TabHeader, Text, useTheme } from '@/design-system';
+import { Button, Monogram, Screen, SectionTitle, Skeleton, TabHeader, Text, useTheme } from '@/design-system';
+import { closesIn } from '@/features/bolao/BolaoParts';
 import { PollCard, QuizCard } from '@/features/shared/Engagement';
 import { StreakCount } from '@/features/shared/Flame';
 import { CaravanRow, GroupRow } from './CommunityScreen';
 import { useAsync } from '@/hooks/useAsync';
 import { services } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
-import type { PredictionPool } from '@/types/gamification';
 import { formatNumber } from '@/utils/format';
 
-/** Bolões: o ranking que importa é entre amigos (substitui o ranking solto). */
-function PoolsSection({ pools }: { pools: PredictionPool[] }) {
+/**
+ * Entrada do Bolão da Nação: o próximo jogo para palpitar e as posições nos
+ * bolões. Tudo o mais (palpites, grupos, convites, regras) fica no Bolão.
+ */
+function BolaoEntry() {
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
   const { colors, layout, radius } = useTheme();
-  const [poolId, setPoolId] = useState(pools[0]?.id ?? '');
-  const pool = pools.find((p) => p.id === poolId) ?? pools[0];
-  if (!pool) return null;
+  const q = useAsync(async () => {
+    const [summary, matches, pools] = await Promise.all([
+      services.bolao.getSummary(),
+      services.bolao.getMatches(),
+      services.bolao.getMyPools(),
+    ]);
+    return {
+      summary,
+      next: matches.open.find((m) => !m.locked),
+      pools: pools.filter((p) => p.status === 'member'),
+    };
+  }, [isFocused]);
+
+  if (!q.data)
+    return (
+      <View style={{ paddingHorizontal: layout.gutter }}>
+        <Skeleton height={280} radius={radius.l} />
+      </View>
+    );
+  const { summary, next, pools } = q.data;
   return (
-    <View style={{ gap: 16 }}>
-      <Filters
-        segments={pools.map((p) => ({ key: p.id, label: p.name }))}
-        value={pool.id}
-        onChange={setPoolId}
-      />
-      <View
-        style={{
-          marginHorizontal: layout.gutter,
-          backgroundColor: colors.bgRaised,
-          borderRadius: radius.l,
+    <View style={{ marginHorizontal: layout.gutter, borderRadius: radius.l, overflow: 'hidden' }}>
+      <Pressable
+        onPress={() => navigation.navigate('Bolao')}
+        accessibilityRole="button"
+        accessibilityLabel="Abrir o Bolão da Nação"
+        style={({ pressed }) => ({
+          backgroundColor: colors.bgRed,
           padding: 20,
           gap: 16,
-        }}
+          opacity: pressed ? 0.9 : 1,
+        })}
       >
-        <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
-            <Text variant="displayXl">{pool.userPosition}º</Text>
-            <Text variant="bodyS" tone="secondary">
-              de {pool.members}
+        <Monogram
+          color="white"
+          width={150}
+          opacity={0.1}
+          style={{ position: 'absolute', right: -30, top: -20 }}
+        />
+        <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+          <Text variant="displayM" tone="onPrimary">
+            Bolão da Nação
+          </Text>
+          <View style={{ alignItems: 'flex-end' }}>
+            <Text variant="displayM" tone="onPrimary">
+              {summary.totalPoints}
+            </Text>
+            <Text variant="bodyS" tone="onPrimary" style={{ opacity: 0.8 }}>
+              pontos
             </Text>
           </View>
-          <Text variant="labelM" tone="brand">
-            {pool.userPoints} pts
-          </Text>
         </View>
-        <View>
-          {pool.leaderboard.map((e, i) => (
-            <View
-              key={e.name}
-              style={{
+        {next && (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View style={{ flex: 1 }}>
+              <Text variant="titleS" tone="onPrimary">
+                {next.match.homeTeam.shortName} × {next.match.awayTeam.shortName}
+              </Text>
+              <Text variant="bodyS" tone="onPrimary" style={{ opacity: 0.8 }}>
+                {next.guess
+                  ? `Seu palpite: ${next.guess.home} × ${next.guess.away}`
+                  : closesIn(next.match.kickoff)}
+              </Text>
+            </View>
+            <Button
+              label={next.guess ? 'Mudar' : 'Palpitar'}
+              variant="light"
+              size="sm"
+              onPress={() => navigation.navigate('BolaoGuess', { matchId: next.match.id })}
+            />
+          </View>
+        )}
+      </Pressable>
+      <View style={{ backgroundColor: colors.bgRaised }}>
+        {pools.slice(0, 3).map((p, i) => {
+          const pos = p.members.findIndex((m) => m.isYou) + 1;
+          return (
+            <Pressable
+              key={p.id}
+              onPress={() => navigation.navigate('BolaoPool', { poolId: p.id })}
+              accessibilityRole="button"
+              style={({ pressed }) => ({
                 flexDirection: 'row',
                 alignItems: 'center',
                 gap: 12,
-                height: 44,
+                paddingHorizontal: 20,
+                minHeight: 56,
                 borderTopWidth: i ? 1 : 0,
                 borderColor: colors.lineHairline,
-              }}
+                opacity: pressed ? 0.7 : 1,
+              })}
             >
-              {e.isYou && (
-                <View
-                  style={{
-                    position: 'absolute',
-                    left: -20,
-                    top: 10,
-                    bottom: 10,
-                    width: 3,
-                    backgroundColor: colors.accent,
-                  }}
-                />
-              )}
-              <Text variant="numericTable" tone="secondary" style={{ width: 20 }}>
-                {e.isYou ? pool.userPosition : i + 1}
+              <Text variant="displayS" style={{ width: 44 }}>
+                {pos}º
               </Text>
-              <Text
-                variant="titleS"
-                style={{ flex: 1, color: e.isYou ? colors.accentText : colors.inkPrimary }}
-              >
-                {e.name}
+              <Text variant="titleS" numberOfLines={1} style={{ flex: 1 }}>
+                {p.name}
               </Text>
               <Text variant="bodyS" tone="tertiary">
-                {e.exactScores} na mosca
+                {p.members.length} pessoas
               </Text>
-              <Text variant="numericTable" style={{ width: 40, textAlign: 'right' }}>
-                {e.points}
-              </Text>
-            </View>
-          ))}
+            </Pressable>
+          );
+        })}
+        <View
+          style={{
+            flexDirection: 'row',
+            gap: 12,
+            padding: 16,
+            borderTopWidth: 1,
+            borderColor: colors.lineHairline,
+          }}
+        >
+          <Button
+            label="Criar bolão"
+            variant="secondary"
+            size="sm"
+            onPress={() => navigation.navigate('BolaoCreate')}
+            style={{ flex: 1 }}
+          />
+          <Button
+            label="Entrar com código"
+            variant="secondary"
+            size="sm"
+            onPress={() => navigation.navigate('BolaoJoin')}
+            style={{ flex: 1 }}
+          />
         </View>
-        <Button
-          label="Dar meu palpite"
-          onPress={() => navigation.navigate('Tabs', { screen: 'Inicio' })}
-          fullWidth
-        />
       </View>
     </View>
   );
@@ -104,7 +157,6 @@ export function NationScreen() {
   const navigation = useNavigation();
   const { colors, layout, radius } = useTheme();
   const { progress } = useAppState();
-  const pools = useAsync(() => services.gamification.getPools());
   const groups = useAsync(() => services.gamification.getCommunityGroups());
   const myGroups = groups.data?.filter((g) => g.joined) ?? [];
   const caravan = groups.data?.find((g) => g.caravan && !g.joined);
@@ -177,14 +229,8 @@ export function NationScreen() {
       </View>
 
       <View style={{ marginTop: 48 }}>
-        <SectionTitle title="Bolões" />
-        {pools.data ? (
-          <PoolsSection pools={pools.data} />
-        ) : (
-          <View style={{ paddingHorizontal: layout.gutter }}>
-            <Skeleton height={280} radius={radius.l} />
-          </View>
-        )}
+        <SectionTitle title="Bolão" action="Abrir" onAction={() => navigation.navigate('Bolao')} />
+        <BolaoEntry />
       </View>
 
       {/* Comunidade: logo depois dos bolões, é o coração da Nação. */}

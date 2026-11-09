@@ -185,14 +185,14 @@ function statsFor(seed: MatchSeed, score: Score, progress: number): MatchStat[] 
   const scale = (n: number) => Math.round(n * progress);
   const dec = (n: number) => Math.round(n * progress * 100) / 100;
   const flaShots = 12 + (h % 8);
-  const oppShots = 6 + ((h >> 3) % 7);
+  const oppShots = 6 + ((h >>> 3) % 7);
   const flaScore = seed.isHome ? score.home : score.away;
   const oppScore = seed.isHome ? score.away : score.home;
   // Valores do ponto de vista do Flamengo; depois orientados para mandante/visitante.
   const rows: [string, string, MatchStat['group'], number, number, string?][] = [
     ['possession', 'Posse de bola', 'geral', flaPossession, 100 - flaPossession, '%'],
-    ['xg', 'Gols esperados (xG)', 'geral', dec(1.4 + (h % 9) / 10), dec(0.5 + ((h >> 2) % 7) / 10)],
-    ['bigChances', 'Grandes chances', 'geral', scale(3 + (h % 3)), scale(1 + ((h >> 1) % 2))],
+    ['xg', 'Gols esperados (xG)', 'geral', dec(1.4 + (h % 9) / 10), dec(0.5 + ((h >>> 2) % 7) / 10)],
+    ['bigChances', 'Grandes chances', 'geral', scale(3 + (h % 3)), scale(1 + ((h >>> 1) % 2))],
     ['shots', 'Finalizações', 'ataque', scale(flaShots), scale(oppShots)],
     [
       'onTarget',
@@ -208,16 +208,16 @@ function statsFor(seed: MatchSeed, score: Score, progress: number): MatchStat[] 
       scale(Math.round(flaShots * 0.38)),
       scale(Math.round(oppShots * 0.45)),
     ],
-    ['corners', 'Escanteios', 'ataque', scale(4 + (h % 5)), scale(2 + ((h >> 2) % 5))],
-    ['offsides', 'Impedimentos', 'ataque', scale(1 + (h % 3)), scale((h >> 5) % 3)],
-    ['passes', 'Passes', 'passes', scale(540 + (h % 60)), scale(380 + ((h >> 3) % 60))],
-    ['passAcc', 'Precisão dos passes', 'passes', 88 + (h % 5), 79 + ((h >> 2) % 6), '%'],
-    ['crosses', 'Cruzamentos', 'passes', scale(14 + (h % 8)), scale(9 + ((h >> 1) % 6))],
-    ['tackles', 'Desarmes', 'defesa', scale(14 + (h % 6)), scale(18 + ((h >> 3) % 6))],
-    ['interceptions', 'Interceptações', 'defesa', scale(7 + (h % 4)), scale(9 + ((h >> 2) % 5))],
-    ['saves', 'Defesas do goleiro', 'defesa', scale(1 + ((h >> 4) % 3)), scale(3 + (h % 4))],
-    ['fouls', 'Faltas', 'disciplina', scale(10 + (h % 6)), scale(12 + ((h >> 4) % 6))],
-    ['yellow', 'Cartões amarelos', 'disciplina', scale(1 + (h % 2)), scale(2 + ((h >> 3) % 2))],
+    ['corners', 'Escanteios', 'ataque', scale(4 + (h % 5)), scale(2 + ((h >>> 2) % 5))],
+    ['offsides', 'Impedimentos', 'ataque', scale(1 + (h % 3)), scale((h >>> 5) % 3)],
+    ['passes', 'Passes', 'passes', scale(540 + (h % 60)), scale(380 + ((h >>> 3) % 60))],
+    ['passAcc', 'Precisão dos passes', 'passes', 88 + (h % 5), 79 + ((h >>> 2) % 6), '%'],
+    ['crosses', 'Cruzamentos', 'passes', scale(14 + (h % 8)), scale(9 + ((h >>> 1) % 6))],
+    ['tackles', 'Desarmes', 'defesa', scale(14 + (h % 6)), scale(18 + ((h >>> 3) % 6))],
+    ['interceptions', 'Interceptações', 'defesa', scale(7 + (h % 4)), scale(9 + ((h >>> 2) % 5))],
+    ['saves', 'Defesas do goleiro', 'defesa', scale(1 + ((h >>> 4) % 3)), scale(3 + (h % 4))],
+    ['fouls', 'Faltas', 'disciplina', scale(10 + (h % 6)), scale(12 + ((h >>> 4) % 6))],
+    ['yellow', 'Cartões amarelos', 'disciplina', scale(1 + (h % 2)), scale(2 + ((h >>> 3) % 2))],
   ];
   return rows.map(([key, label, group, fla, opp, unit]) => ({
     key,
@@ -235,9 +235,9 @@ function previewFor(seed: MatchSeed): NonNullable<MatchDetail['preview']> {
   const fla: [number, number, number, number, number, number] = [2.1, 0.8, 58, 15.4, 12, 71];
   const opp: [number, number, number, number, number, number] = [
     1.2 + (h % 6) / 10,
-    1.0 + ((h >> 2) % 5) / 10,
+    1.0 + ((h >>> 2) % 5) / 10,
     46 + (h % 9),
-    10.8 + ((h >> 1) % 30) / 10,
+    10.8 + ((h >>> 1) % 30) / 10,
     5 + (h % 6),
     48 + (h % 18),
   ];
@@ -339,7 +339,7 @@ function toSummary(d: MatchDetail): Match {
   return summary;
 }
 
-function allDetails() {
+export function allDetails() {
   return MATCH_SEEDS.map(buildDetail).sort((a, b) => a.kickoff.localeCompare(b.kickoff));
 }
 
@@ -595,7 +595,7 @@ export function createMockMatchesService(): MatchesService {
         competition: 'Brasileirão',
         home: i % 2 === 0 ? CLUB.shortName : opponent.shortName,
         away: i % 2 === 0 ? opponent.shortName : CLUB.shortName,
-        score: { home: (h >> i) % 3, away: (h >> (i + 2)) % 3 },
+        score: { home: (h >>> i) % 3, away: (h >>> (i + 2)) % 3 },
       }));
       const result: HeadToHead = {
         opponent,

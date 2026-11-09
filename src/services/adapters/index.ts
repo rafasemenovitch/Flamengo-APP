@@ -1,4 +1,5 @@
 import type { AssistantService } from './AssistantService';
+import type { BolaoService } from './BolaoService';
 import type { FlaTVService, NewsService, RecommendationService } from './ContentService';
 import type { GamificationService } from './GamificationService';
 import type { MatchesService } from './MatchesService';
@@ -9,6 +10,7 @@ import type { StoreService } from './StoreService';
 import type { TicketsService } from './TicketsService';
 
 export type * from './AssistantService';
+export type * from './BolaoService';
 export type * from './ContentService';
 export type * from './GamificationService';
 export type * from './MatchesService';
@@ -32,4 +34,5 @@ export interface Services {
   assistant: AssistantService;
   auth: AuthService;
   profile: ProfileService;
+  bolao: BolaoService;
 }

@@ -1,5 +1,6 @@
 import type { Services } from '@/services/adapters';
 import { createMockAssistantService } from './assistant';
+import { createMockBolaoService } from './bolao';
 import { createMockMembershipService, createMockStoreService } from './commerce';
 import { createMockFlaTVService, createMockNewsService, createMockRecommendationService } from './content';
 import { createMockGamificationService } from './gamification';
@@ -38,5 +39,6 @@ export function createMockServices(): Services {
     }),
     auth: createMockAuthService(),
     profile,
+    bolao: createMockBolaoService(),
   };
 }

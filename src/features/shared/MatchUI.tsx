@@ -201,7 +201,7 @@ export function MatchList({
 /** Bloco de time do hero: escudo 56 + nome display.m. */
 export function TeamBlock({ team, onMedia }: { team: Team; onMedia?: boolean }) {
   return (
-    <View style={{ alignItems: 'center', width: 96, gap: 8 }}>
+    <View style={{ alignItems: 'center', width: 140, gap: 8 }}>
       <Crest team={team} size={56} onMedia={onMedia} />
       <Text
         variant="displayM"
@@ -243,7 +243,7 @@ export function ScoreBoard({
             {match.score.home}–{match.score.away}
           </Text>
         ) : (
-          <Text variant="displayM" tone={tone} style={{ opacity: 0.6 }}>
+          <Text variant="displayM" tone={tone} style={{ opacity: 0.6, fontFamily: fonts.regular }}>
             ×
           </Text>
         )}

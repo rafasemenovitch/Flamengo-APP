@@ -3,7 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Modal, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Button, LiveIndicator, Mascot, Text, useTheme } from '@/design-system';
+import { Button, LiveIndicator, Mascot, Monogram, Text, useTheme } from '@/design-system';
 import { useDemoMember } from '@/hooks/useMatch';
 import { DEMO_SCENARIOS, IS_DEMO, type DemoScenario } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
@@ -326,6 +326,59 @@ export function QuickActions({ matchday }: { matchday: boolean }) {
         </Pressable>
       ))}
     </View>
+  );
+}
+
+/**
+ * Convite para a Nação (não interativo): bolão, quiz e enquetes moram lá.
+ * Um bloco só, para não poluir a Home com cards de jogo.
+ */
+export function NationInvite() {
+  const navigation = useNavigation();
+  const { colors, layout, radius } = useTheme();
+  return (
+    <Pressable
+      onPress={() => navigation.navigate('Tabs', { screen: 'Nacao' })}
+      accessibilityRole="button"
+      accessibilityLabel="Bolão, quiz do dia e enquetes. Ir para a Nação"
+      style={({ pressed }) => ({
+        marginHorizontal: layout.gutter,
+        backgroundColor: colors.bgRaised,
+        borderRadius: radius.l,
+        padding: 24,
+        gap: 20,
+        overflow: 'hidden',
+        opacity: pressed ? 0.85 : 1,
+      })}
+    >
+      <Monogram width={160} opacity={0.08} style={{ position: 'absolute', right: -36, top: -28 }} />
+      <View style={{ gap: 8 }}>
+        <Text variant="displayM">Jogue com a Nação</Text>
+        <Text variant="bodyM" tone="secondary" style={{ maxWidth: 280 }}>
+          Monte seu bolão com os amigos, responda o quiz do dia e vote nas enquetes da torcida.
+        </Text>
+      </View>
+      <View style={{ flexDirection: 'row', gap: 24 }}>
+        {(
+          [
+            ['trophy-outline', 'Bolão'],
+            ['help-circle-outline', 'Quiz'],
+            ['stats-chart-outline', 'Enquetes'],
+          ] as const
+        ).map(([icon, label]) => (
+          <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Ionicons name={icon} size={18} color={colors.accentText} />
+            <Text variant="labelM">{label}</Text>
+          </View>
+        ))}
+      </View>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+        <Text variant="labelButton" tone="brand">
+          Ir para a Nação
+        </Text>
+        <Ionicons name="arrow-forward" size={18} color={colors.accentText} />
+      </View>
+    </Pressable>
   );
 }
 

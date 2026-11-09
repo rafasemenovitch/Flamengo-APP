@@ -28,6 +28,10 @@ import { ProductScreen } from '@/features/nation/store/ProductScreen';
 import { RankingsScreen } from '@/features/nation/gamification/RankingsScreen';
 import { StoreScreen } from '@/features/nation/store/StoreScreen';
 import { FavoritesScreen, HistoryScreen } from '@/features/profile/ProfileScreen';
+import { BolaoCreateScreen, BolaoJoinScreen } from '@/features/bolao/BolaoFormScreens';
+import { BolaoGuessScreen } from '@/features/bolao/BolaoGuessScreen';
+import { BolaoPoolScreen } from '@/features/bolao/BolaoPoolScreen';
+import { BolaoScreen } from '@/features/bolao/BolaoScreen';
 import { EditProfileScreen } from '@/features/profile/EditProfileScreen';
 import { SettingsScreen } from '@/features/profile/SettingsScreen';
 import { StadiumModeScreen } from '@/features/stadium/StadiumModeScreen';
@@ -101,6 +105,11 @@ export function RootNavigator() {
         <Stack.Screen name="Rankings" component={RankingsScreen} />
         <Stack.Screen name="Passport" component={PassportScreen} />
         <Stack.Screen name="Community" component={CommunityScreen} />
+        <Stack.Screen name="Bolao" component={BolaoScreen} />
+        <Stack.Screen name="BolaoGuess" component={BolaoGuessScreen} />
+        <Stack.Screen name="BolaoPool" component={BolaoPoolScreen} />
+        <Stack.Screen name="BolaoCreate" component={BolaoCreateScreen} />
+        <Stack.Screen name="BolaoJoin" component={BolaoJoinScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
         <Stack.Screen name="Favorites" component={FavoritesScreen} />

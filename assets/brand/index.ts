@@ -18,6 +18,8 @@ export const brandAssets: {
   monogramWhite: ImageSourcePropType | null;
   /** Logotipo horizontal para o cabeçalho (texto branco + CRF vermelho, fundo transparente). */
   wordmark: ImageSourcePropType | null;
+  /** Mesmo logo com o texto em preto, para o tema claro. */
+  wordmarkDark: ImageSourcePropType | null;
   /** Ilustração do mascote para popups de aviso (fase futura). */
   mascot: ImageSourcePropType | null;
 } = {
@@ -25,6 +27,7 @@ export const brandAssets: {
   monogramRed: require('./crf-red.png'),
   monogramWhite: require('./crf-white.png'),
   wordmark: require('./wordmark.png'),
+  wordmarkDark: require('./wordmark-dark.png'),
   mascot: null,
 };
 

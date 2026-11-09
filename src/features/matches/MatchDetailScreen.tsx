@@ -92,12 +92,20 @@ export function MatchDetailScreen({ route }: RootScreenProps<'MatchDetail'>) {
         </View>
       </TreatedImage>
 
-      {m.status === 'scheduled' && m.ticketsOnSale && (
-        <View style={{ paddingHorizontal: layout.gutter, marginTop: 20 }}>
+      {m.status === 'scheduled' && (isFla(m.homeTeam) || isFla(m.awayTeam)) && (
+        <View style={{ paddingHorizontal: layout.gutter, marginTop: 20, flexDirection: 'row', gap: 12 }}>
+          {m.ticketsOnSale && (
+            <Button
+              label="Comprar ingresso"
+              onPress={() => navigation.navigate('TicketPurchase', { matchId: m.id })}
+              style={{ flex: 1.3 }}
+            />
+          )}
           <Button
-            label="Comprar ingresso"
-            onPress={() => navigation.navigate('TicketPurchase', { matchId: m.id })}
-            fullWidth
+            label="Palpite no bolão"
+            variant="secondary"
+            onPress={() => navigation.navigate('BolaoGuess', { matchId: m.id })}
+            style={{ flex: 1 }}
           />
         </View>
       )}
