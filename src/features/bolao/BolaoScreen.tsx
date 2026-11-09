@@ -311,9 +311,13 @@ function RulesTab() {
         <RuleRow label="Coringa" detail="Dobra todos os pontos do jogo. Um por mês" value={2} suffix="×" />
       </RuleBlock>
       <RuleBlock title="Temporada">
-        <RuleRow label="Campeão brasileiro" value={30} prefix="+" />
-        <RuleRow label="Artilheiro do Flamengo no ano" value={20} prefix="+" />
-        <RuleRow label="Até onde vai na Libertadores" value={15} prefix="+" />
+        <RuleRow label="Artilheiro do Flamengo no ano" value={25} prefix="+" />
+        <RuleRow
+          label="Maior garçom do Flamengo no ano"
+          detail="Mais difícil de prever, vale mais"
+          value={30}
+          prefix="+"
+        />
       </RuleBlock>
       <View style={{ gap: 12 }}>
         <SectionTitle title="Prêmio" />
@@ -324,6 +328,7 @@ function RulesTab() {
       <View style={{ gap: 12 }}>
         <SectionTitle title="Como funciona" />
         {paragraph('Seu palpite vale para todos os seus bolões. Dá para mudar até o apito inicial.')}
+        {paragraph('Os pontos do bolão também contam na Temporada da Nação, a trilha de prêmios do app.')}
         {paragraph('Os palpites dos amigos ficam escondidos até a bola rolar.')}
         {paragraph(
           'Empate na classificação: vence quem tem mais placares exatos, depois mais resultados certos.'

@@ -1,26 +1,5 @@
-import type {
-  CommunityGroup,
-  FanLevel,
-  Medal,
-  PassportStamp,
-  Poll,
-  PredictionPool,
-  RankingEntry,
-} from '@/types/gamification';
+import type { CommunityGroup, Medal, PassportStamp, Poll, PredictionPool } from '@/types/gamification';
 import { demoDate } from './clock';
-
-export const LEVELS: FanLevel[] = [
-  { level: 1, name: 'Torcedor', minPoints: 0 },
-  { level: 2, name: 'Arquibancada', minPoints: 500 },
-  { level: 3, name: 'Geral', minPoints: 1500 },
-  { level: 4, name: 'Raça', minPoints: 3000 },
-  { level: 5, name: 'Nação', minPoints: 5000 },
-  { level: 6, name: 'Manto Sagrado', minPoints: 8000 },
-  { level: 7, name: 'Lenda', minPoints: 12000 },
-];
-
-export const FAN_POINTS = 3480;
-export const FAN_WEEKLY_POINTS = 240;
 
 export const MEDALS: Medal[] = [
   {
@@ -250,41 +229,6 @@ export const MEDALS: Medal[] = [
   },
 ];
 
-export const RANKINGS: Record<'geral' | 'semanal' | 'estado' | 'amigos', RankingEntry[]> = {
-  geral: [
-    { position: 1, fanName: 'Marina S.', city: 'Rio de Janeiro', points: 15420 },
-    { position: 2, fanName: 'Carlos E.', city: 'Niterói', points: 14980 },
-    { position: 3, fanName: 'Juliana P.', city: 'Belém', points: 14210 },
-    { position: 4, fanName: 'Rodrigo M.', city: 'Brasília', points: 13870 },
-    { position: 5, fanName: 'Ana L.', city: 'Recife', points: 13340 },
-    { position: 6, fanName: 'Felipe R.', city: 'São Paulo', points: 12990 },
-    { position: 7, fanName: 'Bianca T.', city: 'Manaus', points: 12750 },
-    { position: 8, fanName: 'Gustavo A.', city: 'Salvador', points: 12400 },
-    { position: 12_480, fanName: 'Você', city: 'Rio de Janeiro', points: 3480, isCurrentUser: true },
-  ],
-  semanal: [
-    { position: 1, fanName: 'Pedro H.', city: 'Duque de Caxias', points: 980 },
-    { position: 2, fanName: 'Marina S.', city: 'Rio de Janeiro', points: 940 },
-    { position: 3, fanName: 'Letícia V.', city: 'Fortaleza', points: 910 },
-    { position: 4, fanName: 'Tiago C.', city: 'Vitória', points: 860 },
-    { position: 5, fanName: 'Camila F.', city: 'Rio de Janeiro', points: 820 },
-    { position: 1_204, fanName: 'Você', city: 'Rio de Janeiro', points: 240, isCurrentUser: true },
-  ],
-  estado: [
-    { position: 1, fanName: 'Marina S.', city: 'Rio de Janeiro', points: 15420 },
-    { position: 2, fanName: 'Carlos E.', city: 'Niterói', points: 14980 },
-    { position: 3, fanName: 'Pedro H.', city: 'Duque de Caxias', points: 11800 },
-    { position: 4, fanName: 'Camila F.', city: 'Rio de Janeiro', points: 11250 },
-    { position: 3_310, fanName: 'Você', city: 'Rio de Janeiro', points: 3480, isCurrentUser: true },
-  ],
-  amigos: [
-    { position: 1, fanName: 'Bruno (amigo)', city: 'Rio de Janeiro', points: 4210 },
-    { position: 2, fanName: 'Você', city: 'Rio de Janeiro', points: 3480, isCurrentUser: true },
-    { position: 3, fanName: 'Lívia (amiga)', city: 'Niterói', points: 2950 },
-    { position: 4, fanName: 'Marcos (amigo)', city: 'Rio de Janeiro', points: 1870 },
-  ],
-};
-
 export const POOLS: PredictionPool[] = [
   {
     id: 'pool1',
@@ -360,7 +304,7 @@ export const QUIZZES = [
     ],
     correctOptionId: 'b',
     explanation: 'O estádio foi inaugurado em 1950, para a Copa do Mundo daquele ano.',
-    points: 50,
+    points: 10,
   },
 ];
 

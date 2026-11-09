@@ -544,19 +544,22 @@ const ANSWERS: Record<string, Answer> = {
   },
   'ganhar-pontos': () =>
     reply({
-      text: 'Dá pra somar pontos assim:',
+      text: 'Uma pontuação só para o app inteiro, que zera todo ano. Os pontos levam aos prêmios da trilha:',
       expression: 'talking',
       gesture: 'clipboard',
       card: {
         kind: 'steps',
         steps: [
-          'Palpite do jogo: +10',
-          'Acertar o quiz do dia: +50',
-          'Votar na enquete: +5',
-          'Ir ao estádio: carimbo no Passaporte',
+          'Bolão: placar exato 10, artilheiro +6, garçom +5',
+          'Ir ao estádio: 30 (fora de casa, 50)',
+          'Pé quente: 60, 80 e 100 por 3, 4 e 5 vitórias seguidas',
+          'Quiz do dia: 10 · enquete: 2',
         ],
       },
-      actions: [{ label: 'Jogar agora', route: 'Nacao', primary: true }],
+      actions: [
+        { label: 'Ver a trilha de prêmios', route: 'Trail', primary: true },
+        { label: 'Como ganhar pontos', route: 'Trail', params: { tab: 'ganhar' } },
+      ],
     }),
   'pe-quente': async ({ gamification }) => {
     const p = await gamification.getProgress();
@@ -569,9 +572,9 @@ const ANSWERS: Record<string, Answer> = {
   },
   bolao: () =>
     reply({
-      text: 'No bolão você palpita o placar com seus amigos. Placar na mosca vale mais. O ranking de cada bolão fica na aba Nação.',
+      text: 'No Bolão da Nação você palpita placar, quem marca e quem dá a assistência, e disputa com os amigos. Os pontos também contam na temporada.',
       expression: 'talking',
-      actions: [{ label: 'Ver meus bolões', route: 'Nacao', primary: true }],
+      actions: [{ label: 'Abrir o bolão', route: 'Bolao', primary: true }],
       followUps: ['ganhar-pontos'],
     }),
 

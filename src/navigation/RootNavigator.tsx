@@ -32,6 +32,7 @@ import { BolaoCreateScreen, BolaoJoinScreen } from '@/features/bolao/BolaoFormSc
 import { BolaoGuessScreen } from '@/features/bolao/BolaoGuessScreen';
 import { BolaoPoolScreen } from '@/features/bolao/BolaoPoolScreen';
 import { BolaoScreen } from '@/features/bolao/BolaoScreen';
+import { TrailScreen } from '@/features/nation/gamification/TrailScreen';
 import { EditProfileScreen } from '@/features/profile/EditProfileScreen';
 import { SettingsScreen } from '@/features/profile/SettingsScreen';
 import { StadiumModeScreen } from '@/features/stadium/StadiumModeScreen';
@@ -102,6 +103,7 @@ export function RootNavigator() {
         />
         <Stack.Screen name="Membership" component={MembershipScreen} />
         <Stack.Screen name="Gamification" component={GamificationScreen} />
+        <Stack.Screen name="Trail" component={TrailScreen} />
         <Stack.Screen name="Rankings" component={RankingsScreen} />
         <Stack.Screen name="Passport" component={PassportScreen} />
         <Stack.Screen name="Community" component={CommunityScreen} />

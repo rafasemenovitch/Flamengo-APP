@@ -17,6 +17,49 @@ export interface FanProgress {
   /** Pé quente dos amigos, para comparação. */
   luckyFriends: { name: string; streak: number }[];
   weeklyPoints: number;
+  /** A pontuação é da temporada: zera todo 1º de janeiro. */
+  season: { year: number; endsAt: string };
+  /** Próximo prêmio da trilha ainda não alcançado. */
+  nextReward?: TrailReward;
+}
+
+/** De onde vêm os pontos da temporada. */
+export type PointsSource =
+  'bolao' | 'quiz' | 'enquete' | 'presenca' | 'pe-quente' | 'conquista' | 'socio' | 'loja';
+
+/** Lançamento no extrato de pontos. */
+export interface PointsEntry {
+  id: string;
+  source: PointsSource;
+  label: string;
+  points: number;
+  date: string;
+}
+
+/** Regra de pontuação (tela "Como ganhar"). */
+export interface PointsRule {
+  id: string;
+  group: 'jogo' | 'estadio' | 'dia' | 'torcedor';
+  title: string;
+  detail?: string;
+  /** Texto do valor, ex.: "10", "60 · 80 · 100". */
+  points: string;
+}
+
+/** Prêmio da trilha da temporada (estilo "trilha de recompensas"). */
+export interface TrailReward {
+  id: string;
+  /** Pontos da temporada para liberar. */
+  points: number;
+  title: string;
+  detail: string;
+  kind: 'desconto' | 'digital' | 'sorteio' | 'experiencia' | 'socio';
+  icon: string;
+  /** Só para sócios-torcedores. */
+  membersOnly?: boolean;
+  /** Código do cupom depois de resgatado. */
+  claimedCode?: string;
+  claimedAt?: string;
 }
 
 export type MedalGroup =
@@ -42,7 +85,7 @@ export interface RankingEntry {
   isCurrentUser?: boolean;
 }
 
-export type RankingScope = 'geral' | 'semanal' | 'estado' | 'amigos';
+export type RankingScope = 'brasil' | 'estado' | 'amigos';
 
 export interface Prediction {
   matchId: string;

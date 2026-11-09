@@ -1,5 +1,5 @@
 import { demoDate } from '@/data/demo/clock';
-import { SQUAD, TEAMS } from '@/data/demo/seed';
+import { SQUAD } from '@/data/demo/seed';
 import type { BolaoService } from '@/services/adapters';
 import type {
   BolaoGuess,
@@ -52,36 +52,25 @@ const guesses = new Map<string, BolaoGuess>(
   ])
 );
 
+const forwards = SQUAD.filter((p) => p.position === 'Atacante' || p.position === 'Meia');
+
 const seasonPicks: BolaoSeasonPick[] = [
-  {
-    id: 'sp-bra',
-    question: 'Quem será o campeão brasileiro?',
-    points: 30,
-    locksAt: demoDate(12, '23:59'),
-    options: ['fla', 'pal', 'bot', 'cru', 'flu'].map((id) => ({
-      id,
-      label: id === FLA ? 'Flamengo' : (TEAMS[id]?.name ?? id),
-    })),
-    choiceId: 'fla',
-  },
   {
     id: 'sp-art',
     question: 'Quem será o artilheiro do Flamengo na temporada?',
-    points: 20,
+    points: 25,
     locksAt: demoDate(12, '23:59'),
-    options: SQUAD.filter((p) => p.position === 'Atacante' || p.position === 'Meia')
-      .slice(0, 8)
-      .map((p) => ({ id: p.id, label: p.shortName })),
+    options: forwards.slice(0, 9).map((p) => ({ id: p.id, label: p.shortName })),
+    choiceId: 'p09',
   },
   {
-    id: 'sp-lib',
-    question: 'Até onde o Flamengo vai na Libertadores?',
-    points: 15,
-    locksAt: demoDate(20, '23:59'),
-    options: [
-      { id: 'campeao', label: 'Campeão' },
-      { id: 'vice', label: 'Vice-campeão' },
-    ],
+    id: 'sp-garcom',
+    question: 'Quem vai dar mais assistências pelo Flamengo?',
+    points: 30,
+    locksAt: demoDate(12, '23:59'),
+    options: SQUAD.filter((p) => p.position !== 'Goleiro' && p.position !== 'Zagueiro')
+      .slice(0, 10)
+      .map((p) => ({ id: p.id, label: p.shortName })),
   },
 ];
 
@@ -297,6 +286,11 @@ function fakeGuess(seedKey: string) {
   const away = [0, 1, 0, 1, 1, 0, 2, 0][(h >>> 3) % 8]!;
   const attackers = SQUAD.filter((p) => p.position === 'Atacante' || p.position === 'Meia');
   return { home, away, scorerId: attackers[(h >>> 5) % attackers.length]!.id };
+}
+
+/** Pontos do bolão na temporada (entram na pontuação geral da Nação). */
+export function bolaoSeasonPoints() {
+  return yourTotals().points;
 }
 
 export function createMockBolaoService(): BolaoService {

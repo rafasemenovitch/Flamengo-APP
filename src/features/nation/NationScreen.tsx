@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { Pressable, View } from 'react-native';
 
@@ -184,35 +185,71 @@ export function NationScreen() {
           <Skeleton height={160} radius={8} />
         ) : (
           <>
-            <Text variant="overline" tone="secondary">
-              Nível {progress.level.level}
-            </Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-              <Text variant="displayL">{progress.level.name}</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
-                <Text variant="displayXl">{formatNumber(progress.points)}</Text>
-                <Text variant="bodyS" tone="secondary">
-                  pts
-                </Text>
-              </View>
-            </View>
-            <View
-              accessibilityRole="progressbar"
-              accessibilityValue={{ min: 0, max: 100, now: Math.round(toNext * 100) }}
-              style={{
-                height: 4,
-                borderRadius: radius.full,
-                backgroundColor: colors.bgRaised2,
-                overflow: 'hidden',
-              }}
+            {/* Temporada: nível, pontos e o próximo prêmio da trilha. */}
+            <Pressable
+              onPress={() => navigation.navigate('Trail')}
+              accessibilityRole="button"
+              accessibilityLabel={`Temporada: nível ${progress.level.name}, ${formatNumber(progress.points)} pontos. Abrir a trilha de prêmios`}
+              style={({ pressed }) => ({ gap: 12, opacity: pressed ? 0.8 : 1 })}
             >
-              <View style={{ width: `${toNext * 100}%`, height: '100%', backgroundColor: colors.accent }} />
-            </View>
-            <Text variant="bodyS" tone="secondary">
-              {progress.nextLevel
-                ? `${formatNumber(progress.nextLevel.minPoints - progress.points)} pts para ${progress.nextLevel.name}`
-                : 'Nível máximo'}
-            </Text>
+              <Text variant="bodyS" tone="secondary">
+                Temporada {progress.season.year} · nível {progress.level.level}
+              </Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                <Text variant="displayL" tone="brand">
+                  {progress.level.name}
+                </Text>
+                <View style={{ alignItems: 'flex-end' }}>
+                  <Text variant="displayL">{formatNumber(progress.points)}</Text>
+                  <Text variant="bodyS" tone="secondary">
+                    pontos
+                  </Text>
+                </View>
+              </View>
+              <View
+                accessibilityRole="progressbar"
+                accessibilityValue={{ min: 0, max: 100, now: Math.round(toNext * 100) }}
+                style={{
+                  height: 4,
+                  borderRadius: radius.full,
+                  backgroundColor: colors.bgRaised2,
+                  overflow: 'hidden',
+                }}
+              >
+                <View style={{ width: `${toNext * 100}%`, height: '100%', backgroundColor: colors.accent }} />
+              </View>
+              <Text variant="bodyS" tone="secondary">
+                {progress.nextLevel
+                  ? `${formatNumber(progress.nextLevel.minPoints - progress.points)} pontos para ${progress.nextLevel.name}`
+                  : 'Nível máximo da temporada'}
+              </Text>
+              {progress.nextReward && (
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 12,
+                    marginTop: 8,
+                    padding: 16,
+                    borderRadius: radius.l,
+                    backgroundColor: colors.bgRaised,
+                  }}
+                >
+                  <Ionicons
+                    name={progress.nextReward.icon as keyof typeof Ionicons.glyphMap}
+                    size={24}
+                    color={colors.accentText}
+                  />
+                  <View style={{ flex: 1 }}>
+                    <Text variant="bodyS" tone="secondary">
+                      Próximo prêmio · faltam {formatNumber(progress.nextReward.points - progress.points)}
+                    </Text>
+                    <Text variant="titleS">{progress.nextReward.title}</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color={colors.inkTertiary} />
+                </View>
+              )}
+            </Pressable>
 
             {/* Pé quente: vitórias seguidas nos jogos em que você foi */}
             <View style={{ marginTop: 40, flexDirection: 'row', alignItems: 'center', gap: 16 }}>

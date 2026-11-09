@@ -15,14 +15,14 @@ describe('pontuação do bolão', () => {
   it('errou o resultado mas acertou os gols de um time vale 2', () => {
     expect(scoreGuess({ home: 2, away: 3 }, { home: 2, away: 1 }).total).toBe(2);
   });
-  it('artilheiro +4, garçom +3 e coringa dobra', () => {
+  it('artilheiro +6, garçom +5 e coringa dobra', () => {
     const p = scoreGuess(
       { home: 2, away: 1, scorerId: 'p09', assistId: 'p10', joker: true },
       { home: 2, away: 1 },
       ['p09'],
       ['p10']
     );
-    expect(p.total).toBe((10 + 4 + 3) * 2);
+    expect(p.total).toBe((10 + 6 + 5) * 2);
   });
   it('aceita código digitado ou link colado', () => {
     expect(normalizeCode(' nacao26 ')).toBe('NACAO26');

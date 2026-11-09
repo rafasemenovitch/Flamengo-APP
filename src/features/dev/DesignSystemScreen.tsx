@@ -195,7 +195,7 @@ export function DesignSystemScreen() {
             large
             onPress={() => undefined}
           />
-          <ListItem title="Rankings" subtitle="Geral, semanal, amigos" large onPress={() => undefined} />
+          <ListItem title="Rankings" subtitle="Brasil, estado, amigos" large onPress={() => undefined} />
         </ListGroup>
       </View>
 

@@ -78,9 +78,9 @@ export const DEMO_HISTORY: HistoryEntry[] = [
   {
     id: 'h2',
     kind: 'points',
-    title: '+50 pontos',
+    title: '+18 pontos no bolão',
     date: demoDate(-3, '18:00'),
-    detail: 'Palpite certo do vencedor',
+    detail: 'Resultado e saldo, gol de Arantes e assistência de JP Lins',
   },
   {
     id: 'h3',
@@ -125,8 +125,8 @@ export const DEMO_NOTIFICATIONS: AppNotification[] = [
   {
     id: 'nt3',
     kind: 'gamification',
-    title: 'Você subiu no ranking semanal',
-    body: 'Agora você está entre os 1.300 primeiros.',
+    title: 'Você subiu no ranking da temporada',
+    body: 'Você está em 2º entre os amigos. Faltam 118 pontos para o nível Amor.',
     createdAt: demoDate(-1, '20:00'),
     read: true,
   },

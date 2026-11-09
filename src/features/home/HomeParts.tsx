@@ -75,9 +75,9 @@ export function LevelStrip() {
   if (!progress) return null;
   return (
     <Pressable
-      onPress={() => navigation.navigate('Tabs', { screen: 'Nacao' })}
+      onPress={() => navigation.navigate('Trail')}
       accessibilityRole="button"
-      accessibilityLabel={`Nível ${progress.level.level}, ${progress.level.name}, ${formatNumber(progress.points)} pontos. Abrir Nação`}
+      accessibilityLabel={`Nível ${progress.level.level}, ${progress.level.name}, ${formatNumber(progress.points)} pontos. Abrir a trilha da temporada`}
       style={({ pressed }) => ({ paddingHorizontal: layout.gutter, gap: 10, opacity: pressed ? 0.7 : 1 })}
     >
       <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
@@ -113,6 +113,19 @@ export function LevelStrip() {
           }}
         />
       </View>
+      {progress.nextReward && (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <Ionicons
+            name={progress.nextReward.icon as keyof typeof Ionicons.glyphMap}
+            size={16}
+            color={colors.accentText}
+          />
+          <Text variant="bodyS" tone="secondary" numberOfLines={1} style={{ flex: 1 }}>
+            Próximo prêmio: {progress.nextReward.title}
+          </Text>
+          <Ionicons name="chevron-forward" size={16} color={colors.inkTertiary} />
+        </View>
+      )}
     </Pressable>
   );
 }

@@ -43,6 +43,7 @@ export type RootStackParamList = {
   CheckoutResult: { orderId: string; total: number; kind: 'store' | 'tickets' };
   Membership: undefined;
   Gamification: undefined;
+  Trail: { tab?: 'trilha' | 'ganhar' | 'extrato' } | undefined;
   Rankings: undefined;
   Passport: undefined;
   Community: undefined;

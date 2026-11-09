@@ -6,8 +6,8 @@ export const BOLAO_RULES = {
   diff: 7,
   result: 5,
   goals: 2,
-  scorer: 4,
-  assist: 3,
+  scorer: 6,
+  assist: 5,
   /** Participantes mínimos para o campeão do bolão ganhar o prêmio. */
   prizeMinMembers: 10,
   prizeDiscountPct: 20,
@@ -21,7 +21,7 @@ const sign = (n: number) => (n > 0 ? 1 : n < 0 ? -1 : 0);
  * - Vencedor (ou empate) e saldo de gols: 7
  * - Só o vencedor (ou empate): 5
  * - Errou o resultado mas acertou os gols de um dos times: 2
- * - Artilheiro escolhido marcou: +4 · Garçom escolhido deu assistência: +3
+ * - Artilheiro escolhido marcou: +6 · Garçom escolhido deu assistência: +5
  * - Coringa: dobra o total do jogo
  */
 export function scoreGuess(
