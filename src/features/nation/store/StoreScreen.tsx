@@ -92,7 +92,7 @@ export function StoreScreen({ route }: RootScreenProps<'Store'>) {
     >
       <View style={{ paddingHorizontal: layout.gutter, paddingBottom: spacing.md }}>
         <Text variant="caption" tone="secondary">
-          Produtos e preços demonstrativos · desconto de sócio aplicado no carrinho
+          Produtos demonstrativos
         </Text>
       </View>
       <SegmentedControl segments={CATS} value={cat} onChange={setCat} accessibilityLabel="Categorias" />

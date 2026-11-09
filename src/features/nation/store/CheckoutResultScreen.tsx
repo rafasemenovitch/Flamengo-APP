@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import { Animated, View } from 'react-native';
 
-import { Badge, Button, Card, Screen, Text, useTheme, Mascot } from '@/design-system';
+import { Badge, Button, Screen, Text, useTheme, Mascot } from '@/design-system';
 import { useReduceMotion } from '@/hooks/useReduceMotion';
 import type { RootScreenProps } from '@/navigation/types';
 import { useAppState } from '@/state/AppStateProvider';
@@ -40,26 +40,13 @@ export function CheckoutResultScreen({ route }: RootScreenProps<'CheckoutResult'
           <Text variant="displayM" align="center">
             {kind === 'tickets' ? 'Ingressos na carteira!' : 'Pedido confirmado!'}
           </Text>
-          <Text variant="body" tone="secondary" align="center">
-            Esta é uma demonstração: nenhum pagamento foi feito e nada será entregue.
-          </Text>
         </View>
-        <Card style={{ alignSelf: 'stretch' }}>
-          <View style={{ gap: spacing.sm }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text variant="callout" tone="secondary">
-                Pedido
-              </Text>
-              <Text variant="callout">{orderId}</Text>
-            </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text variant="callout" tone="secondary">
-                Total simulado
-              </Text>
-              <Text variant="bodyStrong">{formatCurrency(total)}</Text>
-            </View>
-          </View>
-        </Card>
+        <Text variant="displayXl" align="center">
+          {formatCurrency(total)}
+        </Text>
+        <Text variant="bodyS" tone="tertiary" align="center">
+          Pedido {orderId} · nada foi cobrado
+        </Text>
         <View style={{ alignSelf: 'stretch', gap: spacing.sm }}>
           {kind === 'tickets' ? (
             <Button

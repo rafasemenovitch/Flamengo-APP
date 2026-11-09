@@ -3,14 +3,13 @@ import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import {
-  Badge,
   Button,
   ErrorState,
   IconButton,
-  MediaImage,
   Screen,
   Skeleton,
   Text,
+  TreatedImage,
   useAlerts,
   useTheme,
 } from '@/design-system';
@@ -21,11 +20,12 @@ import { useAppState } from '@/state/AppStateProvider';
 import { formatCurrency } from '@/utils/format';
 import { haptic } from '@/utils/haptics';
 
+/** Produto: foto, nome, preço e preço de sócio, tamanhos e adicionar. */
 export function ProductScreen({ route }: RootScreenProps<'Product'>) {
   const navigation = useNavigation();
-  const { colors, spacing, layout, radius } = useTheme();
+  const { colors, layout, radius } = useTheme();
   const { setCart, cartCount } = useAppState();
-  const { showAlert } = useAlerts();
+  const { showToast } = useAlerts();
   const q = useAsync(() => services.store.getProduct(route.params.productId), [route.params.productId]);
   const [size, setSize] = useState<string>();
   const [adding, setAdding] = useState(false);
@@ -33,10 +33,7 @@ export function ProductScreen({ route }: RootScreenProps<'Product'>) {
   if (q.loading)
     return (
       <Screen title="Produto">
-        <View style={{ padding: layout.gutter, gap: spacing.lg }}>
-          <Skeleton height={340} radius={24} />
-          <Skeleton height={120} />
-        </View>
+        <Skeleton height={390} radius={0} />
       </Screen>
     );
   if (q.error || !q.data)
@@ -54,15 +51,7 @@ export function ProductScreen({ route }: RootScreenProps<'Product'>) {
     try {
       setCart(await services.store.addToCart(p.id, size));
       haptic.success();
-      showAlert({
-        id: `cart-${p.id}-${size}-${Date.now()}`,
-        variant: 'info',
-        title: 'Adicionado ao carrinho',
-        message: `${p.name}${size ? ` · tamanho ${size}` : ''}`,
-        primary: { label: 'Ver carrinho', onPress: () => navigation.navigate('Cart') },
-        secondary: { label: 'Continuar comprando' },
-        showMascot: false,
-      });
+      showToast('Adicionado ao carrinho.');
     } finally {
       setAdding(false);
     }
@@ -70,83 +59,68 @@ export function ProductScreen({ route }: RootScreenProps<'Product'>) {
 
   return (
     <Screen
-      title="Produto"
+      title="Loja"
       headerRight={
         <IconButton
           icon="bag-handle-outline"
+          variant="plain"
           accessibilityLabel="Carrinho"
           badgeCount={cartCount}
           onPress={() => navigation.navigate('Cart')}
         />
       }
     >
-      <View style={{ paddingHorizontal: layout.gutter, gap: spacing.lg }}>
-        <MediaImage
-          imageKey={p.imageKey}
-          icon="shirt-outline"
-          style={{ aspectRatio: 1, borderRadius: radius.xl }}
-        >
+      <TreatedImage imageKey={p.imageKey} aspect="square" style={{ aspectRatio: 1 }} />
+      <View style={{ paddingHorizontal: layout.gutter, paddingTop: 24, gap: 24 }}>
+        <View style={{ gap: 8 }}>
           {p.tag && (
-            <Badge label={p.tag} tone="solidBrand" style={{ position: 'absolute', top: 12, left: 12 }} />
+            <Text variant="overline" tone="brand">
+              {p.tag}
+            </Text>
           )}
-        </MediaImage>
-        <View style={{ gap: spacing.xs }}>
-          <Text variant="h1">{p.name}</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: spacing.sm }}>
-            <Text variant="number">{formatCurrency(p.price)}</Text>
-            {p.compareAtPrice && (
-              <Text variant="callout" tone="tertiary" style={{ textDecorationLine: 'line-through' }}>
-                {formatCurrency(p.compareAtPrice)}
-              </Text>
-            )}
+          <Text variant="displayM">{p.name}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 12 }}>
+            <Text variant="displayS">{formatCurrency(p.price)}</Text>
+            <Text variant="labelM" tone="brand">
+              Sócio {formatCurrency(memberPrice)}
+            </Text>
           </View>
-          <Text variant="callout" tone="brand">
-            Sócio paga {formatCurrency(memberPrice)} ({p.memberDiscountPct}% off)
-          </Text>
         </View>
 
         {needsSize && (
-          <View style={{ gap: spacing.sm }}>
-            <Text variant="title">Tamanho</Text>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
-              {p.sizes!.map((s) => {
-                const sel = s === size;
-                return (
-                  <Pressable
-                    key={s}
-                    onPress={() => setSize(s)}
-                    accessibilityRole="radio"
-                    accessibilityState={{ selected: sel }}
-                    accessibilityLabel={`Tamanho ${s}`}
-                    style={{
-                      minWidth: 52,
-                      height: 44,
-                      paddingHorizontal: spacing.md,
-                      borderRadius: radius.md,
-                      borderWidth: 1.5,
-                      borderColor: sel ? colors.primary : colors.border,
-                      backgroundColor: sel ? colors.primarySubtle : colors.surface,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Text variant="label" tone={sel ? 'brand' : 'primary'}>
-                      {s}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            {p.sizes!.map((s) => {
+              const sel = s === size;
+              return (
+                <Pressable
+                  key={s}
+                  onPress={() => setSize(s)}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: sel }}
+                  accessibilityLabel={`Tamanho ${s}`}
+                  style={{
+                    minWidth: 52,
+                    height: 44,
+                    paddingHorizontal: 12,
+                    borderRadius: radius.s,
+                    borderWidth: sel ? 0 : 1,
+                    borderColor: colors.lineHairline,
+                    backgroundColor: sel ? colors.inkPrimary : 'transparent',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Text variant="labelM" style={{ color: sel ? colors.bgCanvas : colors.inkPrimary }}>
+                    {s}
+                  </Text>
+                </Pressable>
+              );
+            })}
           </View>
         )}
 
-        <Text variant="body" tone="secondary">
-          {p.description}
-        </Text>
-
         <Button
-          label={needsSize && !size ? 'Escolha um tamanho' : 'Adicionar ao carrinho'}
-          icon="bag-add"
+          label={needsSize && !size ? 'Escolha o tamanho' : 'Adicionar ao carrinho'}
           disabled={needsSize && !size}
           loading={adding}
           onPress={add}
