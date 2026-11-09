@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 
@@ -10,6 +10,7 @@ import {
   Filters,
   ListGroup,
   ListItem,
+  Monogram,
   Screen,
   SectionTitle,
   Skeleton,
@@ -21,23 +22,29 @@ import { useAsync } from '@/hooks/useAsync';
 import { services } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
 import { MemberCard } from '@/features/nation/MemberCard';
+import { Stamp } from '@/features/nation/gamification/Stamp';
+import { Flame } from '@/features/shared/Flame';
+import { useDemoMember } from '@/hooks/useMatch';
 import type { ContentCategory } from '@/types/content';
 import type { HistoryEntry } from '@/types/fan';
 import { formatFullDate } from '@/utils/format';
 
 /**
- * Perfil: só o que é do torcedor (sócio, passaporte, conquistas, ídolos).
- * Configurações, histórico e ajuda ficam na engrenagem do cabeçalho.
+ * Perfil: quem é o torcedor (dados, acesso ao estádio, sócio, passaporte,
+ * conquistas, ídolos). Configurações ficam na engrenagem do cabeçalho.
  */
 export function ProfileScreen() {
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
   const { colors, layout, radius } = useTheme();
-  const { profile } = useAppState();
-  const membership = useAsync(() => services.membership.getMembership());
+  const { profile, progress } = useAppState();
+  const [isMember] = useDemoMember();
+  const membership = useAsync(() => services.membership.getMembership(), [isMember]);
   const plans = useAsync(() => services.membership.getPlans());
   const passport = useAsync(() => services.gamification.getPassport());
   const medals = useAsync(() => services.gamification.getMedals());
   const squad = useAsync(() => services.matches.getSquad());
+  const face = useAsync(() => services.profile.getFaceEnrollment(), [isFocused]);
   const plan = plans.data?.find((p) => p.id === membership.data?.planId);
 
   if (!profile)
@@ -50,41 +57,68 @@ export function ProfileScreen() {
     );
 
   const unlocked = medals.data?.filter((m) => m.unlockedAt) ?? [];
-  const wins = passport.data?.filter((p) => p.result === 'Vitória').length ?? 0;
+  const stamps = [...(passport.data ?? [])].sort((a, b) => b.date.localeCompare(a.date));
+  const wins = stamps.filter((p) => p.result === 'Vitória').length;
   const favorites = squad.data?.filter((p) => profile.favoritePlayerIds.includes(p.id)) ?? [];
+  const streak = progress?.luckyStreak ?? 0;
+  const enrolled = face.data?.status === 'enrolled';
 
   return (
     <Screen reserveFab>
       {/* Você */}
-      <View
-        style={{
-          paddingHorizontal: layout.gutter,
-          paddingTop: 24,
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 16,
-        }}
-      >
-        <Avatar name={profile.name} size={80} />
-        <View style={{ flex: 1, gap: 4 }}>
-          <Text variant="displayM" accessibilityRole="header" numberOfLines={1}>
-            {profile.name}
-          </Text>
-          <Text variant="bodyS" tone="secondary">
-            Rubro-negro desde {profile.fanSince}
-          </Text>
+      <View style={{ paddingHorizontal: layout.gutter, paddingTop: 24, gap: 20 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+          <Avatar name={profile.name} size={80} />
+          <View style={{ flex: 1, gap: 4 }}>
+            <Text variant="displayM" accessibilityRole="header" numberOfLines={1}>
+              {profile.name}
+            </Text>
+            <Text variant="bodyM" tone="secondary">
+              Rubro-negro desde {profile.fanSince}
+            </Text>
+          </View>
         </View>
+        <Button
+          label="Editar perfil"
+          variant="secondary"
+          size="sm"
+          onPress={() => navigation.navigate('EditProfile')}
+          fullWidth
+        />
       </View>
 
-      {/* Sócio-Torcedor */}
+      {/* Cadastro facial: só chama atenção enquanto falta */}
+      <View style={{ marginTop: 32 }}>
+        <ListGroup>
+          <ListItem
+            icon="scan-outline"
+            title="Cadastro facial"
+            subtitle={enrolled ? 'Pronto para entrar no Maracanã' : 'Obrigatório para entrar no Maracanã'}
+            trailing={
+              enrolled ? (
+                <Ionicons name="checkmark-circle" size={22} color={colors.success} />
+              ) : (
+                <Text variant="labelM" tone="brand">
+                  Cadastrar
+                </Text>
+              )
+            }
+            onPress={() => navigation.navigate('FaceEnrollment')}
+          />
+        </ListGroup>
+      </View>
+
+      {/* Sócio-Torcedor: carteirinha para quem é; convite para quem não é */}
       <View style={{ marginTop: 48 }}>
         <SectionTitle
           title="Sócio-Torcedor"
-          action="Planos"
+          action={membership.data ? 'Meu plano' : undefined}
           onAction={() => navigation.navigate('Membership')}
         />
         <View style={{ paddingHorizontal: layout.gutter }}>
-          {membership.data && plan ? (
+          {membership.loading || (membership.data && !plan) ? (
+            <Skeleton height={200} radius={radius.l} />
+          ) : membership.data && plan ? (
             <Pressable
               onPress={() => navigation.navigate('Membership')}
               accessibilityRole="button"
@@ -93,34 +127,80 @@ export function ProfileScreen() {
               <MemberCard membership={membership.data} plan={plan} />
             </Pressable>
           ) : (
-            <Skeleton height={200} radius={radius.l} />
+            <View
+              style={{
+                backgroundColor: colors.bgRed,
+                borderRadius: radius.l,
+                padding: 24,
+                gap: 16,
+                overflow: 'hidden',
+              }}
+            >
+              <Monogram
+                color="white"
+                width={200}
+                opacity={0.12}
+                style={{ position: 'absolute', right: -48, bottom: -40 }}
+              />
+              <Text variant="displayM" tone="onPrimary">
+                Seja sócio-torcedor
+              </Text>
+              <Text variant="bodyM" tone="onPrimary" style={{ opacity: 0.85, maxWidth: 260 }}>
+                Prioridade nos ingressos, desconto no Maracanã e na loja.
+              </Text>
+              <Button
+                label="Ver planos de sócio"
+                variant="light"
+                onPress={() => navigation.navigate('Membership')}
+                style={{ alignSelf: 'flex-start' }}
+              />
+            </View>
           )}
         </View>
       </View>
 
-      {/* Passaporte */}
+      {/* Passaporte: pé quente + os últimos carimbos */}
       <View style={{ marginTop: 48 }}>
         <SectionTitle
           title="Passaporte Rubro-Negro"
-          action="Ver"
+          action="Abrir"
           onAction={() => navigation.navigate('Passport')}
         />
         <Pressable
           onPress={() => navigation.navigate('Passport')}
           accessibilityRole="button"
-          style={{ flexDirection: 'row', paddingHorizontal: layout.gutter }}
+          accessibilityLabel={`Passaporte: ${stamps.length} jogos, ${wins} vitórias, pé quente ${streak}`}
+          style={{ paddingHorizontal: layout.gutter, gap: 24 }}
         >
-          {[
-            [String(passport.data?.length ?? '—'), 'jogos no estádio'],
-            [String(wins), 'vitórias'],
-          ].map(([v, l]) => (
-            <View key={l} style={{ flex: 1 }}>
-              <Text variant="displayXl">{v}</Text>
-              <Text variant="bodyS" tone="secondary">
-                {l}
-              </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+            <View style={{ flex: 1.3, flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
+              <Flame size={30} off={streak === 0} />
+              <View>
+                <Text variant="displayXl">{streak}</Text>
+                <Text variant="bodyS" tone="secondary">
+                  pé quente
+                </Text>
+              </View>
             </View>
-          ))}
+            {[
+              [stamps.length, 'jogos'],
+              [wins, 'vitórias'],
+            ].map(([v, l]) => (
+              <View key={l} style={{ flex: 1 }}>
+                <Text variant="displayXl">{v}</Text>
+                <Text variant="bodyS" tone="secondary">
+                  {l}
+                </Text>
+              </View>
+            ))}
+          </View>
+          <View style={{ flexDirection: 'row', marginLeft: -8 }}>
+            {stamps.slice(0, 4).map((s, i) => (
+              <View key={s.id} style={{ marginLeft: i ? -18 : 0 }}>
+                <Stamp stamp={s} size={100} />
+              </View>
+            ))}
+          </View>
         </Pressable>
       </View>
 
@@ -128,7 +208,7 @@ export function ProfileScreen() {
       <View style={{ marginTop: 48 }}>
         <SectionTitle
           title="Conquistas"
-          action={`${unlocked.length}/${medals.data?.length ?? 0}`}
+          action={`${unlocked.length} de ${medals.data?.length ?? 0}`}
           onAction={() => navigation.navigate('Gamification')}
         />
         <ScrollView
@@ -136,39 +216,41 @@ export function ProfileScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: layout.gutter, gap: 16 }}
         >
-          {(medals.data ?? []).map((m) => {
-            const on = !!m.unlockedAt;
-            return (
-              <Pressable
-                key={m.id}
-                onPress={() => navigation.navigate('Gamification')}
-                accessibilityRole="button"
-                accessibilityLabel={m.name}
-                style={{ width: 72, alignItems: 'center', gap: 8 }}
-              >
-                <View
-                  style={{
-                    width: 64,
-                    height: 64,
-                    borderRadius: 32,
-                    borderWidth: 2,
-                    borderColor: on ? colors[m.tier] : colors.lineHairline,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
+          {[...(medals.data ?? [])]
+            .sort((a, b) => Number(!!b.unlockedAt) - Number(!!a.unlockedAt))
+            .map((m) => {
+              const on = !!m.unlockedAt;
+              return (
+                <Pressable
+                  key={m.id}
+                  onPress={() => navigation.navigate('Gamification')}
+                  accessibilityRole="button"
+                  accessibilityLabel={m.name}
+                  style={{ width: 76, alignItems: 'center', gap: 8 }}
                 >
-                  <Ionicons
-                    name={(on ? m.icon : 'lock-closed-outline') as keyof typeof Ionicons.glyphMap}
-                    size={26}
-                    color={on ? colors[m.tier] : colors.inkTertiary}
-                  />
-                </View>
-                <Text variant="bodyS" tone={on ? 'primary' : 'tertiary'} numberOfLines={2} align="center">
-                  {m.name}
-                </Text>
-              </Pressable>
-            );
-          })}
+                  <View
+                    style={{
+                      width: 64,
+                      height: 64,
+                      borderRadius: 32,
+                      borderWidth: 2,
+                      borderColor: on ? colors[m.tier] : colors.lineHairline,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Ionicons
+                      name={(on ? m.icon : 'lock-closed-outline') as keyof typeof Ionicons.glyphMap}
+                      size={26}
+                      color={on ? colors[m.tier] : colors.inkTertiary}
+                    />
+                  </View>
+                  <Text variant="bodyS" tone={on ? 'primary' : 'tertiary'} numberOfLines={2} align="center">
+                    {m.name}
+                  </Text>
+                </Pressable>
+              );
+            })}
         </ScrollView>
       </View>
 

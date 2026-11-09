@@ -41,3 +41,23 @@ export const demoScenario = {
     };
   },
 };
+
+type MemberListener = (isMember: boolean) => void;
+let member = true;
+const memberListeners = new Set<MemberListener>();
+
+/** Torcedor demo é sócio ou não (painel de demonstração). Muda o Perfil e o Sócio-Torcedor. */
+export const demoMember = {
+  get: () => member,
+  set(next: boolean) {
+    if (next === member) return;
+    member = next;
+    memberListeners.forEach((l) => l(next));
+  },
+  subscribe(listener: MemberListener) {
+    memberListeners.add(listener);
+    return () => {
+      memberListeners.delete(listener);
+    };
+  },
+};

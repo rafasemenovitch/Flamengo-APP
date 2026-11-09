@@ -1,3 +1,4 @@
+import { demoMember } from './demoScenario';
 import { BENEFITS, MEMBERSHIP_PLANS, MEMBERSHIP_PROGRAM, PRODUCTS } from '@/data/demo/commerce';
 import { DEMO_MEMBERSHIP } from '@/data/demo/fan';
 import type { MembershipService, StoreService } from '@/services/adapters';
@@ -75,7 +76,7 @@ export function createMockStoreService(): StoreService {
 export function createMockMembershipService(): MembershipService {
   return {
     getPlans: async () => delay(MEMBERSHIP_PLANS),
-    getMembership: async () => delay(DEMO_MEMBERSHIP),
+    getMembership: async () => delay(demoMember.get() ? DEMO_MEMBERSHIP : null),
     getBenefits: async () => delay(BENEFITS),
     getProgramInfo: async () => delay(MEMBERSHIP_PROGRAM, 100),
   };

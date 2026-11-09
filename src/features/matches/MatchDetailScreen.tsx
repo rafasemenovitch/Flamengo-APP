@@ -19,12 +19,12 @@ import {
   useTheme,
 } from '@/design-system';
 import { PollCard } from '@/features/shared/Engagement';
-import { competitionName, isFla, ScoreBoard } from '@/features/shared/MatchUI';
+import { competitionName, isFla, ResultLetter, ScoreBoard } from '@/features/shared/MatchUI';
 import { useAsync } from '@/hooks/useAsync';
 import { useLiveMatch } from '@/hooks/useMatch';
 import type { RootScreenProps } from '@/navigation/types';
 import { services } from '@/services';
-import type { Lineup, MatchDetail, MatchEvent } from '@/types/match';
+import type { Lineup, MatchDetail, MatchEvent, MatchStat } from '@/types/match';
 import { formatMatchDate, formatNumber, formatShortDate } from '@/utils/format';
 
 type Tab = 'resumo' | 'escalacoes' | 'lances' | 'estatisticas' | 'confrontos';
@@ -141,7 +141,13 @@ export function MatchDetailScreen({ route }: RootScreenProps<'MatchDetail'>) {
             />
           ))}
         {tab === 'estatisticas' &&
-          (m.stats ? <Stats m={m} /> : <EmptyState compact title="Sem estatísticas ainda." />)}
+          (m.stats ? (
+            <Stats m={m} />
+          ) : m.preview ? (
+            <PreviewStats m={m} />
+          ) : (
+            <EmptyState compact title="Sem estatísticas ainda." />
+          ))}
         {tab === 'confrontos' && <HeadToHead opponentId={opponent.id} />}
       </View>
     </Screen>
@@ -433,63 +439,187 @@ function Pitch({ lineup }: { lineup: Lineup }) {
   );
 }
 
-/** Barras comparativas de 6px: Flamengo em vermelho, adversário em cinza. */
-function Stats({ m }: { m: MatchDetail }) {
+const STAT_GROUPS: [NonNullable<MatchStat['group']>, string][] = [
+  ['geral', 'Visão geral'],
+  ['ataque', 'Ataque'],
+  ['passes', 'Passes'],
+  ['defesa', 'Defesa'],
+  ['disciplina', 'Disciplina'],
+];
+/** Estatísticas em que o menor número é o melhor. */
+const LOWER_IS_BETTER = new Set(['goalsAgainst', 'fouls', 'yellow', 'offsides']);
+
+function statValue(n: number, unit?: string) {
+  const v = Number.isInteger(n) ? String(n) : n.toFixed(n < 10 ? 2 : 1).replace('.', ',');
+  return `${v}${unit ?? ''}`;
+}
+
+/** Uma linha comparativa: números nas pontas (o melhor em destaque) e duas barras. */
+function StatRow({ m, s }: { m: MatchDetail; s: MatchStat }) {
+  const { colors } = useTheme();
+  const total = s.home + s.away || 1;
+  const lowerBetter = LOWER_IS_BETTER.has(s.key);
+  const homeLeads = lowerBetter ? s.home < s.away : s.home > s.away;
+  const awayLeads = lowerBetter ? s.away < s.home : s.away > s.home;
+  const barColor = (fla: boolean, leads: boolean) =>
+    fla ? colors.accent : leads ? colors.inkPrimary : colors.inkTertiary;
+  return (
+    <View style={{ gap: 8 }} accessible accessibilityLabel={`${s.label}: ${s.home} a ${s.away}`}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <Text variant="numericTable" tone={homeLeads ? 'primary' : 'tertiary'} style={{ width: 64 }}>
+          {statValue(s.home, s.unit)}
+        </Text>
+        <Text variant="bodyM" tone="secondary" align="center" style={{ flex: 1 }}>
+          {s.label}
+        </Text>
+        <Text
+          variant="numericTable"
+          tone={awayLeads ? 'primary' : 'tertiary'}
+          style={{ width: 64, textAlign: 'right' }}
+        >
+          {statValue(s.away, s.unit)}
+        </Text>
+      </View>
+      <View style={{ flexDirection: 'row', gap: 4, height: 4 }}>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            justifyContent: 'flex-end',
+            backgroundColor: colors.bgRaised2,
+            borderRadius: 2,
+            overflow: 'hidden',
+          }}
+        >
+          <View
+            style={{
+              width: `${(s.home / total) * 100}%`,
+              backgroundColor: barColor(isFla(m.homeTeam), homeLeads),
+            }}
+          />
+        </View>
+        <View style={{ flex: 1, backgroundColor: colors.bgRaised2, borderRadius: 2, overflow: 'hidden' }}>
+          <View
+            style={{
+              width: `${(s.away / total) * 100}%`,
+              height: '100%',
+              backgroundColor: barColor(isFla(m.awayTeam), awayLeads),
+            }}
+          />
+        </View>
+      </View>
+    </View>
+  );
+}
+
+/** Posse de bola em destaque: dois números grandes e uma barra única dividida. */
+function Possession({ m, s, title }: { m: MatchDetail; s: MatchStat; title: string }) {
   const { colors, layout } = useTheme();
   const homeColor = isFla(m.homeTeam) ? colors.accent : colors.inkTertiary;
   const awayColor = isFla(m.awayTeam) ? colors.accent : colors.inkTertiary;
   return (
-    <View style={{ paddingHorizontal: layout.gutter, gap: 24 }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-        <Text variant="titleS">{m.homeTeam.shortName}</Text>
-        <Text variant="titleS">{m.awayTeam.shortName}</Text>
+    <View style={{ paddingHorizontal: layout.gutter, gap: 12 }}>
+      <Text variant="bodyM" tone="secondary" align="center">
+        {title}
+      </Text>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <View>
+          <Text variant="displayXl">{statValue(s.home, '%')}</Text>
+          <Text variant="titleS" tone="secondary">
+            {m.homeTeam.shortName}
+          </Text>
+        </View>
+        <View style={{ alignItems: 'flex-end' }}>
+          <Text variant="displayXl">{statValue(s.away, '%')}</Text>
+          <Text variant="titleS" tone="secondary">
+            {m.awayTeam.shortName}
+          </Text>
+        </View>
       </View>
-      {m.stats!.map((s) => {
-        const total = s.home + s.away || 1;
+      <View style={{ flexDirection: 'row', height: 8, gap: 3 }}>
+        <View style={{ flex: s.home, backgroundColor: homeColor, borderRadius: 2 }} />
+        <View style={{ flex: s.away, backgroundColor: awayColor, borderRadius: 2 }} />
+      </View>
+    </View>
+  );
+}
+
+function TeamsHeader({ m }: { m: MatchDetail }) {
+  return (
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+      <Text variant="titleS">{m.homeTeam.shortName}</Text>
+      <Text variant="titleS">{m.awayTeam.shortName}</Text>
+    </View>
+  );
+}
+
+/** Estatísticas da partida, agrupadas como nos apps de estatística (dados demonstrativos). */
+function Stats({ m }: { m: MatchDetail }) {
+  const { layout } = useTheme();
+  const stats = m.stats!;
+  const possession = stats.find((s) => s.key === 'possession');
+  return (
+    <View style={{ gap: 48 }}>
+      {possession && <Possession m={m} s={possession} title="Posse de bola" />}
+      {STAT_GROUPS.map(([g, title]) => {
+        const rows = stats.filter((s) => s.group === g && s.key !== 'possession');
+        if (!rows.length) return null;
         return (
-          <View
-            key={s.key}
-            style={{ gap: 8 }}
-            accessible
-            accessibilityLabel={`${s.label}: ${s.home} a ${s.away}`}
-          >
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
-              <Text variant="numericTable">
-                {s.home}
-                {s.unit ?? ''}
-              </Text>
-              <Text variant="bodyS" tone="secondary">
-                {s.label}
-              </Text>
-              <Text variant="numericTable">
-                {s.away}
-                {s.unit ?? ''}
-              </Text>
-            </View>
-            <View style={{ flexDirection: 'row', gap: 4, height: 6 }}>
-              <View
-                style={{
-                  flex: 1,
-                  flexDirection: 'row',
-                  justifyContent: 'flex-end',
-                  backgroundColor: colors.bgRaised2,
-                  borderRadius: 3,
-                  overflow: 'hidden',
-                }}
-              >
-                <View style={{ width: `${(s.home / total) * 100}%`, backgroundColor: homeColor }} />
-              </View>
-              <View
-                style={{ flex: 1, backgroundColor: colors.bgRaised2, borderRadius: 3, overflow: 'hidden' }}
-              >
-                <View
-                  style={{ width: `${(s.away / total) * 100}%`, height: '100%', backgroundColor: awayColor }}
-                />
-              </View>
+          <View key={g}>
+            <SectionTitle title={title} />
+            <View style={{ paddingHorizontal: layout.gutter, gap: 20 }}>
+              {rows.map((s) => (
+                <StatRow key={s.key} m={m} s={s} />
+              ))}
             </View>
           </View>
         );
       })}
+    </View>
+  );
+}
+
+/** Antes da bola rolar: forma recente e médias da temporada dos dois times. */
+function PreviewStats({ m }: { m: MatchDetail }) {
+  const { layout } = useTheme();
+  const p = m.preview!;
+  const possession = p.stats.find((s) => s.key === 'possession');
+  return (
+    <View style={{ gap: 48 }}>
+      <View>
+        <SectionTitle title="Últimos 5 jogos" />
+        <View style={{ paddingHorizontal: layout.gutter, gap: 16 }}>
+          {(
+            [
+              [m.homeTeam.shortName, p.homeForm],
+              [m.awayTeam.shortName, p.awayForm],
+            ] as const
+          ).map(([name, form]) => (
+            <View key={name} style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text variant="titleM" style={{ flex: 1 }}>
+                {name}
+              </Text>
+              <View style={{ flexDirection: 'row', gap: 12 }}>
+                {form.map((r, i) => (
+                  <ResultLetter key={i} result={r} />
+                ))}
+              </View>
+            </View>
+          ))}
+        </View>
+      </View>
+      {possession && <Possession m={m} s={possession} title="Posse de bola média na temporada" />}
+      <View>
+        <SectionTitle title="Médias na temporada" />
+        <View style={{ paddingHorizontal: layout.gutter, gap: 20 }}>
+          <TeamsHeader m={m} />
+          {p.stats
+            .filter((s) => s.key !== 'possession')
+            .map((s) => (
+              <StatRow key={s.key} m={m} s={s} />
+            ))}
+        </View>
+      </View>
     </View>
   );
 }

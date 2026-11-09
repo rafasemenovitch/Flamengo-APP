@@ -1,14 +1,12 @@
 import { useNavigation } from '@react-navigation/native';
-import { useState } from 'react';
-import { Alert, Switch, TextInput, View } from 'react-native';
+import { Alert, Switch, View } from 'react-native';
 
 import {
   Button,
-  fonts,
   ListGroup,
   ListItem,
   Screen,
-  SectionHeader,
+  SectionTitle,
   SegmentedControl,
   Text,
   useTheme,
@@ -38,7 +36,7 @@ const PRIVACY: [keyof PrivacyPrefs, string, string][] = [
 
 export function SettingsScreen() {
   const navigation = useNavigation();
-  const { colors, spacing, layout } = useTheme();
+  const { colors, layout } = useTheme();
   const { preference, setPreference } = useThemePreference();
   const { profile, updateProfile, unreadNotifications } = useAppState();
   const { replay } = useOnboarding();
@@ -48,49 +46,33 @@ export function SettingsScreen() {
       value={value}
       onValueChange={onChange}
       accessibilityLabel={label}
-      trackColor={{ true: colors.primary, false: colors.surfaceMuted }}
-      thumbColor={colors.onPrimary}
-      ios_backgroundColor={colors.surfaceMuted}
+      trackColor={{ true: colors.accent, false: colors.bgRaised2 }}
+      thumbColor={colors.inkOnRed}
+      ios_backgroundColor={colors.bgRaised2}
     />
   );
 
+  const signOut = () =>
+    Alert.alert(
+      'Conta demonstrativa',
+      'O login real chega numa próxima fase. Sair agora apenas restaura o torcedor demo.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Restaurar demo',
+          style: 'destructive',
+          onPress: () =>
+            services.auth
+              .signOut()
+              .then(() => services.profile.getProfile())
+              .then((p) => updateProfile(p)),
+        },
+      ]
+    );
+
   return (
     <Screen title="Configurações">
-      {profile && (
-        <ProfileEditor
-          key={profile.id}
-          name={profile.name}
-          city={profile.city}
-          email={profile.email}
-          onSave={(name, city, email) =>
-            updateProfile({ name, firstName: name.split(' ')[0] ?? name, city, email })
-          }
-        />
-      )}
-      <View style={{ marginTop: 32 }}>
-        <ListGroup>
-          <ListItem
-            icon="notifications-outline"
-            title="Notificações"
-            trailing={
-              unreadNotifications > 0 ? (
-                <Text variant="labelM" tone="brand">
-                  {unreadNotifications} novas
-                </Text>
-              ) : undefined
-            }
-            onPress={() => navigation.navigate('Notifications')}
-          />
-          <ListItem icon="time-outline" title="Histórico" onPress={() => navigation.navigate('History')} />
-          <ListItem
-            icon="help-circle-outline"
-            title="Ajuda"
-            onPress={() => navigation.navigate('Assistant')}
-          />
-        </ListGroup>
-      </View>
-      <View style={{ height: 48 }} />
-      <SectionHeader title="Aparência" />
+      <SectionTitle title="Aparência" />
       <SegmentedControl<ThemePreference>
         segments={[
           { key: 'dark', label: 'Escuro' },
@@ -104,8 +86,12 @@ export function SettingsScreen() {
 
       {profile && (
         <>
-          <View style={{ marginTop: spacing.xxl }}>
-            <SectionHeader title="Notificações" />
+          <View style={{ marginTop: 48 }}>
+            <SectionTitle
+              title="Notificações"
+              action={unreadNotifications > 0 ? `${unreadNotifications} novas` : 'Recebidas'}
+              onAction={() => navigation.navigate('Notifications')}
+            />
             <ListGroup>
               {NOTIF.map(([k, title, sub]) => (
                 <ListItem
@@ -122,8 +108,8 @@ export function SettingsScreen() {
             </ListGroup>
           </View>
 
-          <View style={{ marginTop: spacing.xxl }}>
-            <SectionHeader title="Privacidade" />
+          <View style={{ marginTop: 48 }}>
+            <SectionTitle title="Privacidade" />
             <ListGroup>
               {PRIVACY.map(([k, title, sub]) => (
                 <ListItem
@@ -142,119 +128,55 @@ export function SettingsScreen() {
         </>
       )}
 
-      <View style={{ marginTop: spacing.xxl }}>
-        <SectionHeader title="Sobre" />
+      <View style={{ marginTop: 48 }}>
+        <SectionTitle title="Atividade" />
+        <ListGroup>
+          <ListItem
+            icon="time-outline"
+            title="Histórico"
+            subtitle="Ingressos, compras, pontos e conquistas"
+            onPress={() => navigation.navigate('History')}
+          />
+        </ListGroup>
+      </View>
+
+      <View style={{ marginTop: 48 }}>
+        <SectionTitle title="Ajuda" />
+        <ListGroup>
+          <ListItem
+            icon="chatbubble-ellipses-outline"
+            title="Falar com o Assistente Fla"
+            onPress={() => navigation.navigate('Assistant')}
+          />
+          <ListItem icon="play-circle-outline" title="Rever boas-vindas" onPress={replay} />
+        </ListGroup>
+      </View>
+
+      <View style={{ marginTop: 48 }}>
+        <SectionTitle title="Sobre" />
         <ListGroup>
           <ListItem
             icon="information-circle-outline"
-            title="Flamengo App · versão conceito"
-            subtitle={`Fonte de dados: ${DATA_SOURCE === 'demo' ? 'demonstrativa' : 'integrações reais'}`}
+            title="Flamengo App"
+            subtitle={`Versão conceito · dados ${DATA_SOURCE === 'demo' ? 'demonstrativos' : 'reais'}`}
           />
           {__DEV__ && (
             <ListItem
               icon="color-palette-outline"
               title="Catálogo do design system"
-              subtitle="Só em desenvolvimento"
               onPress={() => navigation.navigate('DesignSystem')}
             />
           )}
-          <ListItem icon="play-circle-outline" title="Rever boas-vindas" onPress={replay} />
-          <ListItem icon="easel-outline" title="Modo apresentação" subtitle="Segure o seu nome na Home" />
-          <ListItem
-            icon="flask-outline"
-            title="O que é demonstrativo"
-            subtitle="Placares, ingressos, pagamentos e pontos são simulados"
-          />
-          <ListItem
-            icon="log-out-outline"
-            title="Sair"
-            destructive
-            onPress={() =>
-              Alert.alert(
-                'Conta demonstrativa',
-                'O login real chega numa próxima fase. Sair agora apenas restaura o torcedor demo.',
-                [
-                  { text: 'Cancelar', style: 'cancel' },
-                  {
-                    text: 'Restaurar demo',
-                    style: 'destructive',
-                    onPress: () =>
-                      services.auth
-                        .signOut()
-                        .then(() => services.profile.getProfile())
-                        .then((p) => updateProfile(p)),
-                  },
-                ]
-              )
-            }
-          />
         </ListGroup>
-        <Text
-          variant="footnote"
-          tone="tertiary"
-          align="center"
-          style={{ marginTop: spacing.xl, paddingHorizontal: layout.gutter }}
-        >
+      </View>
+
+      <View style={{ marginTop: 48, paddingHorizontal: layout.gutter, gap: 16 }}>
+        <Button label="Sair da conta" variant="secondary" onPress={signOut} fullWidth />
+        <Text variant="bodyS" tone="tertiary" align="center">
           Conceito independente, sem vínculo oficial.
         </Text>
       </View>
+      <View style={{ height: 32 }} />
     </Screen>
-  );
-}
-
-/** "Seus dados": edição simples de nome e cidade (login real numa fase futura). */
-function ProfileEditor({
-  name,
-  city,
-  email,
-  onSave,
-}: {
-  name: string;
-  city: string;
-  email: string;
-  onSave: (name: string, city: string, email: string) => void;
-}) {
-  const { colors, layout, radius } = useTheme();
-  const [n, setN] = useState(name);
-  const [c, setC] = useState(city);
-  const [e, setE] = useState(email);
-  const dirty = n.trim() !== name || c.trim() !== city || e.trim() !== email;
-  const field = (label: string, value: string, set: (v: string) => void) => (
-    <View style={{ gap: 6 }}>
-      <Text variant="labelM" tone="secondary">
-        {label}
-      </Text>
-      <TextInput
-        value={value}
-        onChangeText={set}
-        accessibilityLabel={label}
-        placeholderTextColor={colors.inkTertiary}
-        style={{
-          height: 52,
-          borderRadius: radius.m,
-          paddingHorizontal: 16,
-          backgroundColor: colors.bgRaised,
-          color: colors.inkPrimary,
-          fontFamily: fonts.regular,
-          fontSize: 16,
-        }}
-      />
-    </View>
-  );
-  return (
-    <View>
-      <SectionHeader title="Seus dados" />
-      <View style={{ paddingHorizontal: layout.gutter, gap: 16 }}>
-        {field('Nome', n, setN)}
-        {field('Cidade', c, setC)}
-        {field('E-mail', e, setE)}
-        <Button
-          label="Salvar"
-          size="sm"
-          disabled={!dirty || !n.trim()}
-          onPress={() => onSave(n.trim(), c.trim(), e.trim())}
-        />
-      </View>
-    </View>
   );
 }

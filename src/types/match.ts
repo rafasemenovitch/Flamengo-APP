@@ -82,6 +82,7 @@ export interface MatchStat {
   away: number;
   /** Ex.: '%' para posse de bola. */
   unit?: string;
+  group?: 'geral' | 'ataque' | 'passes' | 'defesa' | 'disciplina';
 }
 
 export interface Match {
@@ -108,6 +109,8 @@ export interface MatchDetail extends Match {
   events: MatchEvent[];
   lineups?: { home: Lineup; away: Lineup };
   stats?: MatchStat[];
+  /** Antes do jogo: médias da temporada e últimos 5 jogos de cada time. */
+  preview?: { stats: MatchStat[]; homeForm: ('W' | 'D' | 'L')[]; awayForm: ('W' | 'D' | 'L')[] };
   referee?: string;
   attendance?: number;
   /** Enquete de craque do jogo (pós-jogo). */

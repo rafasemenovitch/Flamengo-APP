@@ -28,6 +28,7 @@ import { ProductScreen } from '@/features/nation/store/ProductScreen';
 import { RankingsScreen } from '@/features/nation/gamification/RankingsScreen';
 import { StoreScreen } from '@/features/nation/store/StoreScreen';
 import { FavoritesScreen, HistoryScreen } from '@/features/profile/ProfileScreen';
+import { EditProfileScreen } from '@/features/profile/EditProfileScreen';
 import { SettingsScreen } from '@/features/profile/SettingsScreen';
 import { StadiumModeScreen } from '@/features/stadium/StadiumModeScreen';
 import { FaceEnrollmentScreen } from '@/features/tickets/FaceEnrollmentScreen';
@@ -101,6 +102,7 @@ export function RootNavigator() {
         <Stack.Screen name="Passport" component={PassportScreen} />
         <Stack.Screen name="Community" component={CommunityScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
+        <Stack.Screen name="EditProfile" component={EditProfileScreen} />
         <Stack.Screen name="Favorites" component={FavoritesScreen} />
         <Stack.Screen name="History" component={HistoryScreen} />
         {__DEV__ && <Stack.Screen name="DesignSystem" component={DesignSystemScreen} />}

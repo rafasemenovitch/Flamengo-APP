@@ -182,30 +182,92 @@ function lineupsFor(seed: MatchSeed) {
 function statsFor(seed: MatchSeed, score: Score, progress: number): MatchStat[] {
   const h = hash(seed.id);
   const flaPossession = 52 + (h % 12);
-  const homePoss = seed.isHome ? flaPossession : 100 - flaPossession;
   const scale = (n: number) => Math.round(n * progress);
+  const dec = (n: number) => Math.round(n * progress * 100) / 100;
   const flaShots = 12 + (h % 8);
   const oppShots = 6 + ((h >> 3) % 7);
-  const [homeShots, awayShots] = seed.isHome ? [flaShots, oppShots] : [oppShots, flaShots];
-  return [
-    { key: 'possession', label: 'Posse de bola', home: homePoss, away: 100 - homePoss, unit: '%' },
-    { key: 'shots', label: 'Finalizações', home: scale(homeShots), away: scale(awayShots) },
-    {
-      key: 'onTarget',
-      label: 'No gol',
-      home: Math.max(score.home, scale(Math.round(homeShots * 0.42))),
-      away: Math.max(score.away, scale(Math.round(awayShots * 0.4))),
-    },
-    { key: 'corners', label: 'Escanteios', home: scale(4 + (h % 5)), away: scale(2 + ((h >> 2) % 5)) },
-    { key: 'fouls', label: 'Faltas', home: scale(10 + (h % 6)), away: scale(12 + ((h >> 4) % 6)) },
-    {
-      key: 'passes',
-      label: 'Passes certos',
-      home: scale(seed.isHome ? 480 : 360),
-      away: scale(seed.isHome ? 340 : 470),
-    },
-    { key: 'offsides', label: 'Impedimentos', home: scale(1 + (h % 3)), away: scale((h >> 5) % 3) },
+  const flaScore = seed.isHome ? score.home : score.away;
+  const oppScore = seed.isHome ? score.away : score.home;
+  // Valores do ponto de vista do Flamengo; depois orientados para mandante/visitante.
+  const rows: [string, string, MatchStat['group'], number, number, string?][] = [
+    ['possession', 'Posse de bola', 'geral', flaPossession, 100 - flaPossession, '%'],
+    ['xg', 'Gols esperados (xG)', 'geral', dec(1.4 + (h % 9) / 10), dec(0.5 + ((h >> 2) % 7) / 10)],
+    ['bigChances', 'Grandes chances', 'geral', scale(3 + (h % 3)), scale(1 + ((h >> 1) % 2))],
+    ['shots', 'Finalizações', 'ataque', scale(flaShots), scale(oppShots)],
+    [
+      'onTarget',
+      'No gol',
+      'ataque',
+      Math.max(flaScore, scale(Math.round(flaShots * 0.42))),
+      Math.max(oppScore, scale(Math.round(oppShots * 0.4))),
+    ],
+    [
+      'offTarget',
+      'Para fora',
+      'ataque',
+      scale(Math.round(flaShots * 0.38)),
+      scale(Math.round(oppShots * 0.45)),
+    ],
+    ['corners', 'Escanteios', 'ataque', scale(4 + (h % 5)), scale(2 + ((h >> 2) % 5))],
+    ['offsides', 'Impedimentos', 'ataque', scale(1 + (h % 3)), scale((h >> 5) % 3)],
+    ['passes', 'Passes', 'passes', scale(540 + (h % 60)), scale(380 + ((h >> 3) % 60))],
+    ['passAcc', 'Precisão dos passes', 'passes', 88 + (h % 5), 79 + ((h >> 2) % 6), '%'],
+    ['crosses', 'Cruzamentos', 'passes', scale(14 + (h % 8)), scale(9 + ((h >> 1) % 6))],
+    ['tackles', 'Desarmes', 'defesa', scale(14 + (h % 6)), scale(18 + ((h >> 3) % 6))],
+    ['interceptions', 'Interceptações', 'defesa', scale(7 + (h % 4)), scale(9 + ((h >> 2) % 5))],
+    ['saves', 'Defesas do goleiro', 'defesa', scale(1 + ((h >> 4) % 3)), scale(3 + (h % 4))],
+    ['fouls', 'Faltas', 'disciplina', scale(10 + (h % 6)), scale(12 + ((h >> 4) % 6))],
+    ['yellow', 'Cartões amarelos', 'disciplina', scale(1 + (h % 2)), scale(2 + ((h >> 3) % 2))],
   ];
+  return rows.map(([key, label, group, fla, opp, unit]) => ({
+    key,
+    label,
+    group,
+    unit,
+    home: seed.isHome ? fla : opp,
+    away: seed.isHome ? opp : fla,
+  }));
+}
+
+/** Médias da temporada (pré-jogo), no estilo dos apps de estatística. */
+function previewFor(seed: MatchSeed): NonNullable<MatchDetail['preview']> {
+  const h = hash(seed.opponentId);
+  const fla: [number, number, number, number, number, number] = [2.1, 0.8, 58, 15.4, 12, 71];
+  const opp: [number, number, number, number, number, number] = [
+    1.2 + (h % 6) / 10,
+    1.0 + ((h >> 2) % 5) / 10,
+    46 + (h % 9),
+    10.8 + ((h >> 1) % 30) / 10,
+    5 + (h % 6),
+    48 + (h % 18),
+  ];
+  const defs: [string, string, string?][] = [
+    ['goalsFor', 'Gols marcados por jogo'],
+    ['goalsAgainst', 'Gols sofridos por jogo'],
+    ['possession', 'Posse de bola média', '%'],
+    ['shots', 'Finalizações por jogo'],
+    ['cleanSheets', 'Jogos sem sofrer gol'],
+    ['ppg', 'Aproveitamento', '%'],
+  ];
+  const stats = defs.map(([key, label, unit], i) => ({
+    key,
+    label,
+    unit,
+    home: seed.isHome ? fla[i]! : opp[i]!,
+    away: seed.isHome ? opp[i]! : fla[i]!,
+  }));
+  const flaForm: ('W' | 'D' | 'L')[] = ['W', 'W', 'D', 'W', 'W'];
+  const forms: ('W' | 'D' | 'L')[][] = [
+    ['W', 'L', 'D', 'W', 'L'],
+    ['D', 'W', 'W', 'L', 'D'],
+    ['L', 'D', 'W', 'W', 'W'],
+  ];
+  const oppForm = forms[h % forms.length]!;
+  return {
+    stats,
+    homeForm: seed.isHome ? flaForm : oppForm,
+    awayForm: seed.isHome ? oppForm : flaForm,
+  };
 }
 
 function buildDetail(seed: MatchSeed): MatchDetail {
@@ -239,6 +301,7 @@ function buildDetail(seed: MatchSeed): MatchDetail {
       events: [...events].reverse(),
       lineups: lineupsFor(seed),
       stats: started && score ? statsFor(seed, score, Math.min(1, st.order / FULLTIME_ORDER)) : undefined,
+      preview: started ? undefined : previewFor(seed),
       attendance: st.status === 'finished' ? 71_204 : undefined,
       manOfTheMatchPollId: st.status === 'finished' ? 'poll-motm' : undefined,
       highlightsVideoId: st.status === 'finished' ? FEATURED_HIGHLIGHTS.id : undefined,
@@ -256,6 +319,7 @@ function buildDetail(seed: MatchSeed): MatchDetail {
     events: [...events].reverse(),
     lineups: finished || seed.dayOffset <= 2 ? lineupsFor(seed) : undefined,
     stats: finished && seed.score ? statsFor(seed, seed.score, 1) : undefined,
+    preview: finished ? undefined : previewFor(seed),
     attendance: seed.attendance,
   };
 }
@@ -265,6 +329,7 @@ function toSummary(d: MatchDetail): Match {
     events: _e,
     lineups: _l,
     stats: _s,
+    preview: _p,
     referee: _r,
     attendance: _a,
     manOfTheMatchPollId: _m,

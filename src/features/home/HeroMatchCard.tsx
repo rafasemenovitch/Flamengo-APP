@@ -13,7 +13,7 @@ import {
 } from '@/design-system';
 import { competitionName, ScoreBoard } from '@/features/shared/MatchUI';
 import type { MatchDetail } from '@/types/match';
-import { formatMatchDate } from '@/utils/format';
+import { formatDayLabel, formatTime } from '@/utils/format';
 
 /** Compacto o bastante para os atalhos aparecerem sem rolar (tela de ~844pt). */
 const HERO_HEIGHT = 340;
@@ -36,25 +36,31 @@ export function HeroMatchCard({ match, loading }: { match?: MatchDetail; loading
     .filter((e) => e.type === 'goal' || e.type === 'penalty-goal' || e.type === 'own-goal');
   const openMatch = () => navigation.navigate('MatchDetail', { matchId: match.id });
 
-  const meta = live
-    ? match.venue.name
-    : finished
-      ? `encerrado · ${match.venue.name}`
-      : `${formatMatchDate(match.kickoff)} · ${match.venue.name}`;
-
   return (
     <TreatedImage imageKey={`hero-${match.id}`} aspect="hero" overlay style={{ height: HERO_HEIGHT }}>
       <View style={{ flex: 1, padding: layout.gutter, justifyContent: 'space-between' }}>
-        <View style={{ gap: 6 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text variant="overline" tone="onMedia">
-              {competitionName(match.competitionId)} · {match.stage}
+        {/* Competição à esquerda, dia e hora à direita: leitura direta, sem linha de metadados. */}
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 16 }}>
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text variant="displayS" tone="onMedia">
+              {competitionName(match.competitionId)}
             </Text>
-            <DemoBadge />
+            <Text variant="bodyM" tone="onMedia" style={{ opacity: 0.8 }}>
+              {match.stage}, no {match.venue.name}
+            </Text>
           </View>
-          <Text variant="bodyM" tone="onMedia" style={{ opacity: 0.8 }}>
-            {meta}
-          </Text>
+          {!live && !finished ? (
+            <View style={{ alignItems: 'flex-end', gap: 2 }}>
+              <Text variant="displayS" tone="onMedia">
+                {formatTime(match.kickoff)}
+              </Text>
+              <Text variant="bodyM" tone="onMedia" style={{ opacity: 0.8 }}>
+                {formatDayLabel(match.kickoff)}
+              </Text>
+            </View>
+          ) : (
+            <DemoBadge />
+          )}
         </View>
 
         <View style={{ gap: 12 }}>

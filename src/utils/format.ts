@@ -25,6 +25,17 @@ export function formatMatchDate(iso: string) {
   return `${WEEKDAYS[d.getDay()]}, ${pad(d.getDate())} ${MONTHS[d.getMonth()]} · ${formatTime(iso)}`;
 }
 
+/** "Hoje" · "Amanhã" · "Sáb, 14 nov" (sem a hora). */
+export function formatDayLabel(iso: string) {
+  const d = new Date(iso);
+  const diff = dayDiff(iso);
+  if (diff === 0) return 'Hoje';
+  if (diff === 1) return 'Amanhã';
+  if (diff === -1) return 'Ontem';
+  const wd = WEEKDAYS[d.getDay()]!;
+  return `${wd[0]!.toUpperCase()}${wd.slice(1)}, ${pad(d.getDate())} ${MONTHS[d.getMonth()]}`;
+}
+
 /** "08 nov" */
 export function formatShortDate(iso: string) {
   const d = new Date(iso);

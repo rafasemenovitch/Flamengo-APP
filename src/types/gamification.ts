@@ -19,7 +19,8 @@ export interface FanProgress {
   weeklyPoints: number;
 }
 
-export type MedalGroup = 'presenca' | 'palpites' | 'conhecimento' | 'comunidade' | 'especiais';
+export type MedalGroup =
+  'presenca' | 'estrada' | 'palpites' | 'conhecimento' | 'comunidade' | 'manto' | 'socio' | 'especiais';
 
 export interface Medal {
   id: string;
@@ -94,7 +95,12 @@ export interface PassportStamp {
   label: string;
   date: string;
   venue: string;
-  result: string;
+  result: 'Vitória' | 'Empate' | 'Derrota';
+  /** Ex.: "Brasileirão". */
+  competition: string;
+  /** Placar do ponto de vista do Flamengo, ex.: "2 × 1". */
+  score: string;
+  opponent: string;
 }
 
 export interface CommunityGroup {
@@ -105,4 +111,10 @@ export interface CommunityGroup {
   description: string;
   joined: boolean;
   nextMeetup?: string;
+  /** Grupo reconhecido pelo clube (consulados, embaixadas). */
+  verified?: boolean;
+  /** Grupo fechado entre amigos. */
+  private?: boolean;
+  /** Caravana organizada pelo grupo para um jogo. */
+  caravan?: { match: string; departure: string; date: string; seatsLeft: number; price: number };
 }

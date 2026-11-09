@@ -7,7 +7,7 @@ import { createMockMatchesService } from './matches';
 import { createMockAuthService, createMockProfileService } from './profile';
 import { createMockStadiumService, createMockTicketsService } from './tickets';
 
-export { demoScenario, DEMO_SCENARIOS, type DemoScenario } from './demoScenario';
+export { demoMember, demoScenario, DEMO_SCENARIOS, type DemoScenario } from './demoScenario';
 
 export function createMockServices(): Services {
   const matches = createMockMatchesService();

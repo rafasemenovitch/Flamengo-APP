@@ -18,11 +18,14 @@ import type { Medal } from '@/types/gamification';
 import { formatFullDate } from '@/utils/format';
 
 const GROUP_LABEL: Record<Medal['group'], string> = {
-  presenca: 'Presença',
+  presenca: 'Arquibancada',
+  estrada: 'Na estrada',
   palpites: 'Palpites',
   conhecimento: 'Conhecimento',
   comunidade: 'Comunidade',
-  especiais: 'Especiais',
+  manto: 'Manto',
+  socio: 'Sócio-Torcedor',
+  especiais: 'Momentos especiais',
 };
 const TIER_LABEL = { gold: 'Ouro', silver: 'Prata', bronze: 'Bronze' } as const;
 

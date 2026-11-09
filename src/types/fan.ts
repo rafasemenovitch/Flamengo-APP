@@ -16,11 +16,26 @@ export interface PrivacyPrefs {
   personalizedContent: boolean;
 }
 
+export type Gender = 'masculino' | 'feminino' | 'outro' | 'nao-informar';
+
 export interface FanProfile {
   id: string;
+  /** Nome completo (como no documento). */
   name: string;
+  /** Como o torcedor quer ser chamado no app. */
   firstName: string;
   email: string;
+  /** Celular com DDD. */
+  phone: string;
+  cpf: string;
+  /** AAAA-MM-DD */
+  birthDate: string;
+  gender: Gender;
+  cep: string;
+  street: string;
+  number: string;
+  complement: string;
+  neighborhood: string;
   city: string;
   state: string;
   fanSince: number;

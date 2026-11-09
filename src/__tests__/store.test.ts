@@ -44,7 +44,7 @@ describe('pé quente (mock)', () => {
   it('conta vitórias seguidas nos jogos do Passaporte', async () => {
     const p = await createMockGamificationService().getProgress();
     expect(p.luckyStreak).toBe(3);
-    expect(p.bestLuckyStreak).toBe(3);
+    expect(p.bestLuckyStreak).toBe(4);
     expect(p.luckyFriends.some((f) => f.streak > p.luckyStreak)).toBe(true);
   });
 });

@@ -1,12 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { useAlerts } from '@/design-system';
-import { demoScenario, IS_DEMO, services, type DemoScenario } from '@/services';
+import { demoMember, demoScenario, IS_DEMO, services, type DemoScenario } from '@/services';
 import type { MatchDetail } from '@/types/match';
 import { navigationRef } from '@/navigation/navigationRef';
 import { useAsync } from './useAsync';
 
 /** Cenário demo atual (pré/dia de jogo/ao vivo/pós) com re-render ao mudar. */
+/** Torcedor demo é sócio? (painel de demonstração) */
+export function useDemoMember(): [boolean, (v: boolean) => void] {
+  const [isMember, setIsMember] = useState(demoMember.get());
+  useEffect(() => demoMember.subscribe(setIsMember), []);
+  return [isMember, demoMember.set];
+}
+
 export function useDemoScenario(): [DemoScenario, (s: DemoScenario) => void] {
   const [scenario, setScenario] = useState(demoScenario.get());
   useEffect(() => demoScenario.subscribe(setScenario), []);

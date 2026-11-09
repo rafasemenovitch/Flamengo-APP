@@ -4,12 +4,19 @@ import { Modal, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button, LiveIndicator, Mascot, Text, useTheme } from '@/design-system';
+import { useDemoMember } from '@/hooks/useMatch';
 import { DEMO_SCENARIOS, IS_DEMO, type DemoScenario } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
+import type { FanProgress } from '@/types/gamification';
 import type { MatchDetail } from '@/types/match';
 import type { MatchDayPlan } from '@/types/stadium';
 import { formatNumber, shiftTime } from '@/utils/format';
 import { haptic } from '@/utils/haptics';
+
+function levelProgress(p: FanProgress) {
+  if (!p.nextLevel) return 1;
+  return (p.points - p.level.minPoints) / (p.nextLevel.minPoints - p.level.minPoints);
+}
 
 function greeting() {
   const h = new Date().getHours();
@@ -28,7 +35,7 @@ export function HomeHeader({
 }) {
   const navigation = useNavigation();
   const { profile, progress } = useAppState();
-  const { layout } = useTheme();
+  const { colors, layout } = useTheme();
   const name = profile?.firstName ?? 'torcedor';
   return (
     <View
@@ -60,15 +67,44 @@ export function HomeHeader({
           <Pressable
             onPress={() => navigation.navigate('Tabs', { screen: 'Nacao' })}
             accessibilityRole="button"
-            style={{ flexDirection: 'row', marginTop: 4, minHeight: 24 }}
+            accessibilityLabel={`Nível ${progress.level.level}, ${progress.level.name}, ${formatNumber(progress.points)} pontos. Abrir Nação`}
+            style={({ pressed }) => ({ marginTop: 20, gap: 10, opacity: pressed ? 0.7 : 1 })}
           >
-            <Text variant="labelM" tone="brand">
-              Nível {progress.level.level} · {progress.level.name}
-            </Text>
-            <Text variant="labelM" tone="secondary">
-              {' '}
-              · {formatNumber(progress.points)} pts
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+              <View>
+                <Text variant="bodyS" tone="secondary">
+                  Nível {progress.level.level}
+                </Text>
+                <Text variant="displayM" tone="brand">
+                  {progress.level.name}
+                </Text>
+              </View>
+              <View style={{ alignItems: 'flex-end' }}>
+                <Text variant="bodyS" tone="secondary">
+                  {progress.nextLevel
+                    ? `${formatNumber(progress.nextLevel.minPoints - progress.points)} para ${progress.nextLevel.name}`
+                    : 'Nível máximo'}
+                </Text>
+                <Text variant="displayM">
+                  {formatNumber(progress.points)}
+                  <Text variant="bodyM" tone="secondary">
+                    {' '}
+                    pts
+                  </Text>
+                </Text>
+              </View>
+            </View>
+            <View
+              style={{ height: 3, backgroundColor: colors.bgRaised2, borderRadius: 2, overflow: 'hidden' }}
+            >
+              <View
+                style={{
+                  height: '100%',
+                  width: `${Math.round(levelProgress(progress) * 100)}%`,
+                  backgroundColor: colors.accent,
+                }}
+              />
+            </View>
           </Pressable>
         )}
       </View>
@@ -165,10 +201,57 @@ export function DemoControlsSheet({
                 </Pressable>
               );
             })}
+            <MemberToggle />
           </SafeAreaView>
         </Pressable>
       </Pressable>
     </Modal>
+  );
+}
+
+/** Na demonstração: ver o app como sócio ou como torcedor sem plano. */
+function MemberToggle() {
+  const { colors } = useTheme();
+  const [isMember, setMember] = useDemoMember();
+  return (
+    <View style={{ marginTop: 12, gap: 8 }}>
+      <Text variant="titleL">Torcedor</Text>
+      <View style={{ flexDirection: 'row', gap: 8 }}>
+        {(
+          [
+            [true, 'Sócio'],
+            [false, 'Não sócio'],
+          ] as const
+        ).map(([v, label]) => {
+          const on = v === isMember;
+          return (
+            <Pressable
+              key={label}
+              onPress={() => {
+                haptic.select();
+                setMember(v);
+              }}
+              accessibilityRole="radio"
+              accessibilityState={{ selected: on }}
+              style={{
+                flex: 1,
+                height: 44,
+                borderRadius: 8,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: on ? colors.inkPrimary : 'transparent',
+                borderWidth: on ? 0 : 1,
+                borderColor: colors.lineHairline,
+              }}
+            >
+              <Text variant="labelM" style={{ color: on ? colors.bgCanvas : colors.inkSecondary }}>
+                {label}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
   );
 }
 

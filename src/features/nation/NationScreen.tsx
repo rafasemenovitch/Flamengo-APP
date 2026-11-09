@@ -2,19 +2,10 @@ import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
 import { View } from 'react-native';
 
-import {
-  Button,
-  Filters,
-  ListGroup,
-  ListItem,
-  Screen,
-  SectionTitle,
-  Skeleton,
-  TabHeader,
-  Text,
-  useTheme,
-} from '@/design-system';
+import { Button, Filters, Screen, SectionTitle, Skeleton, TabHeader, Text, useTheme } from '@/design-system';
 import { PollCard, QuizCard } from '@/features/shared/Engagement';
+import { Flame } from '@/features/shared/Flame';
+import { CaravanRow, GroupRow } from './CommunityScreen';
 import { useAsync } from '@/hooks/useAsync';
 import { services } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
@@ -104,23 +95,19 @@ function PoolsSection({ pools }: { pools: PredictionPool[] }) {
           fullWidth
         />
       </View>
-      <View style={{ paddingHorizontal: layout.gutter }}>
-        <Button
-          label="Ranking geral da Nação"
-          variant="link"
-          onPress={() => navigation.navigate('Rankings')}
-        />
-      </View>
     </View>
   );
 }
 
-/** Nação: a comunidade (pontos, pé quente, bolões, quiz, enquetes, grupos, ranking). */
+/** Nação: a comunidade (pontos, pé quente, bolões, grupos e caravanas, quiz, enquetes). */
 export function NationScreen() {
   const navigation = useNavigation();
   const { colors, layout, radius } = useTheme();
   const { progress } = useAppState();
   const pools = useAsync(() => services.gamification.getPools());
+  const groups = useAsync(() => services.gamification.getCommunityGroups());
+  const myGroups = groups.data?.filter((g) => g.joined) ?? [];
+  const caravan = groups.data?.find((g) => g.caravan && !g.joined);
   const toNext = progress?.nextLevel
     ? (progress.points - progress.level.minPoints) / (progress.nextLevel.minPoints - progress.level.minPoints)
     : 1;
@@ -128,7 +115,17 @@ export function NationScreen() {
 
   return (
     <Screen reserveFab>
-      <TabHeader title="Nação" />
+      <TabHeader
+        title="Nação"
+        right={
+          <Button
+            label="Ver ranking geral"
+            variant="secondary"
+            size="sm"
+            onPress={() => navigation.navigate('Rankings')}
+          />
+        }
+      />
 
       {/* Nível + pé quente: sem card, sem gradiente. */}
       <View style={{ paddingHorizontal: layout.gutter, marginTop: 48, gap: 12 }}>
@@ -171,10 +168,11 @@ export function NationScreen() {
               <Text variant="overline" tone="secondary">
                 Pé quente
               </Text>
-              <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 10, marginTop: 6 }}>
+                <Flame size={30} off={progress.luckyStreak === 0} />
                 <Text variant="displayXl">{progress.luckyStreak}</Text>
-                <Text variant="bodyM" tone="secondary">
-                  {progress.luckyStreak === 1 ? 'vitória seguida' : 'vitórias seguidas'} no estádio
+                <Text variant="bodyM" tone="secondary" style={{ flex: 1, marginBottom: 4 }}>
+                  {progress.luckyStreak === 1 ? 'vitória seguida' : 'vitórias seguidas'} com você no estádio
                 </Text>
               </View>
               <Text variant="bodyS" tone={rival ? 'brand' : 'secondary'}>
@@ -196,6 +194,43 @@ export function NationScreen() {
         )}
       </View>
 
+      {/* Comunidade: logo depois dos bolões, é o coração da Nação. */}
+      <View style={{ marginTop: 48 }}>
+        <SectionTitle
+          title="Grupos da torcida"
+          action="Ver todos"
+          onAction={() => navigation.navigate('Community')}
+        />
+        {groups.loading ? (
+          <View style={{ paddingHorizontal: layout.gutter }}>
+            <Skeleton height={160} radius={8} />
+          </View>
+        ) : (
+          <View style={{ borderTopWidth: 1, borderColor: colors.lineHairline }}>
+            {myGroups.map((g) => (
+              <GroupRow key={g.id} group={g} onPress={() => navigation.navigate('Community')} />
+            ))}
+            {caravan && <CaravanRow group={caravan} />}
+          </View>
+        )}
+        <View style={{ flexDirection: 'row', gap: 12, paddingHorizontal: layout.gutter, marginTop: 16 }}>
+          <Button
+            label="Achar grupos"
+            variant="secondary"
+            size="sm"
+            onPress={() => navigation.navigate('Community')}
+            style={{ flex: 1 }}
+          />
+          <Button
+            label="Criar grupo"
+            variant="secondary"
+            size="sm"
+            onPress={() => navigation.navigate('Community')}
+            style={{ flex: 1 }}
+          />
+        </View>
+      </View>
+
       <View style={{ marginTop: 48, paddingHorizontal: layout.gutter }}>
         <QuizCard />
       </View>
@@ -205,13 +240,6 @@ export function NationScreen() {
         <View style={{ paddingHorizontal: layout.gutter }}>
           <PollCard />
         </View>
-      </View>
-
-      <View style={{ marginTop: 48 }}>
-        <ListGroup>
-          <ListItem large title="Grupos da torcida" onPress={() => navigation.navigate('Community')} />
-          <ListItem large title="Ranking geral" onPress={() => navigation.navigate('Rankings')} />
-        </ListGroup>
       </View>
     </Screen>
   );

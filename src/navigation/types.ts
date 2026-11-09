@@ -48,6 +48,7 @@ export type RootStackParamList = {
   Community: undefined;
   // Perfil
   Settings: undefined;
+  EditProfile: undefined;
   Favorites: undefined;
   History: undefined;
   // Dev
