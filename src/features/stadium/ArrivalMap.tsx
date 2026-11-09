@@ -4,26 +4,25 @@ import { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
-import { Button, Card, Text, useTheme } from '@/design-system';
+import { Button, Text, useTheme } from '@/design-system';
 import type { LatLng, Stadium, TransportMode } from '@/types/stadium';
 import { formatDistance, openDirections, suggestArrival, travelModeFor } from './directions';
 
 export const TRANSPORT_ICON: Record<TransportMode, keyof typeof Ionicons.glyphMap> = {
-  metro: 'subway',
-  train: 'train',
-  bus: 'bus',
-  brt: 'bus',
-  app: 'car',
-  walk: 'walk',
+  metro: 'subway-outline',
+  train: 'train-outline',
+  bus: 'bus-outline',
+  brt: 'bus-outline',
+  app: 'car-outline',
+  walk: 'walk-outline',
 };
 
 /**
- * Mapa real da região (Apple Maps no iOS, Google Maps no Android) com
- * estádio, portões, estações e a posição do torcedor. Sugere o melhor
- * caminho e abre a rota real no app de mapas.
+ * Mapa real (Apple Maps no iOS, Google no Android) com estádio, portões,
+ * estações e a posição do torcedor; sugere o caminho e abre a rota real.
  */
 export function ArrivalMap({ stadium }: { stadium: Stadium }) {
-  const { colors, spacing, radius, scheme } = useTheme();
+  const { colors, radius, scheme } = useTheme();
   const mapRef = useRef<MapView>(null);
   const [user, setUser] = useState<LatLng>();
   const [locating, setLocating] = useState(false);
@@ -52,7 +51,6 @@ export function ArrivalMap({ stadium }: { stadium: Stadium }) {
     }
   };
 
-  // Se a permissão já foi dada antes, localiza sozinho.
   useEffect(() => {
     Location.getForegroundPermissionsAsync()
       .then(({ status }) => {
@@ -65,16 +63,8 @@ export function ArrivalMap({ stadium }: { stadium: Stadium }) {
   const suggestion = user ? suggestArrival(user, stadium.coords, stadium.transport) : undefined;
 
   return (
-    <View style={{ gap: spacing.md }}>
-      <View
-        style={{
-          height: 300,
-          borderRadius: radius.lg,
-          overflow: 'hidden',
-          borderWidth: 1,
-          borderColor: colors.border,
-        }}
-      >
+    <View style={{ gap: 16 }}>
+      <View style={{ height: 300, borderRadius: radius.l, overflow: 'hidden' }}>
         <MapView
           ref={mapRef}
           style={{ flex: 1 }}
@@ -84,117 +74,90 @@ export function ArrivalMap({ stadium }: { stadium: Stadium }) {
           userInterfaceStyle={scheme}
           accessibilityLabel="Mapa da região do Maracanã"
         >
-          <Marker
-            coordinate={stadium.coords}
-            title={stadium.name}
-            description={stadium.address}
-            pinColor={colors.primary}
-          />
+          <Marker coordinate={stadium.coords} title={stadium.name} pinColor={colors.accent} />
           {stadium.gates.map((g) => (
-            <Marker key={g.id} coordinate={g.coords} title={g.label} description={g.access}>
+            <Marker key={g.id} coordinate={g.coords} title={g.label}>
               <View
                 style={{
                   width: 24,
                   height: 24,
                   borderRadius: 12,
-                  backgroundColor: colors.primary,
+                  backgroundColor: colors.accent,
                   borderWidth: 2,
-                  borderColor: colors.onPrimary,
+                  borderColor: colors.inkOnRed,
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <Text variant="label" tone="onPrimary" style={{ fontSize: 11, lineHeight: 13 }}>
+                <Text variant="labelM" tone="onPrimary" style={{ fontSize: 11, lineHeight: 13 }}>
                   {g.id}
                 </Text>
               </View>
             </Marker>
           ))}
           {stadium.transport.map((t) => (
-            <Marker key={t.id} coordinate={t.coords} title={t.title} description={t.details}>
+            <Marker key={t.id} coordinate={t.coords} title={t.title}>
               <View
                 style={{
                   width: 30,
                   height: 30,
                   borderRadius: 15,
-                  backgroundColor: colors.surfaceElevated,
+                  backgroundColor: colors.bgCanvas,
                   borderWidth: 1.5,
-                  borderColor: colors.info,
+                  borderColor: colors.inkPrimary,
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <Ionicons name={TRANSPORT_ICON[t.mode]} size={16} color={colors.info} />
+                <Ionicons name={TRANSPORT_ICON[t.mode]} size={16} color={colors.inkPrimary} />
               </View>
             </Marker>
           ))}
         </MapView>
       </View>
-      <Text variant="footnote" tone="tertiary">
-        Posições de portões e pontos são aproximadas. As rotas são calculadas pelo app de mapas.
-      </Text>
 
       {suggestion ? (
-        <Card variant="tinted">
-          <View style={{ gap: spacing.sm }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
-              <Ionicons name="navigate" size={18} color={colors.primaryText} />
-              <Text variant="title" style={{ flex: 1 }}>
-                Você está a {formatDistance(suggestion.toStadium)} do estádio
-              </Text>
-            </View>
-            {suggestion.kind === 'walk' ? (
-              <>
-                <Text variant="callout" tone="secondary">
-                  Dá para ir a pé. Escolha o portão do seu setor e trace a rota.
-                </Text>
-                <Button
-                  label="Rota a pé até o estádio"
-                  icon="walk"
-                  onPress={() => openDirections({ query: stadium.mapsQuery, label: stadium.name }, 'walking')}
-                  fullWidth
-                />
-              </>
-            ) : (
-              <>
-                <Text variant="callout" tone="secondary">
-                  Sugestão: vá até <Text variant="bodyStrong">{suggestion.point.title}</Text> e entre pelo
-                  Portão {suggestion.point.bestGateIds.join(' ou ')} (~{suggestion.point.walkMinutes} min a pé
-                  da estação).
-                </Text>
-                <Button
-                  label="Traçar rota"
-                  icon="map"
-                  onPress={() =>
-                    openDirections(
-                      { query: suggestion.point.mapsQuery, label: suggestion.point.title },
-                      travelModeFor(suggestion.point.mode)
-                    )
-                  }
-                  fullWidth
-                />
-              </>
-            )}
-          </View>
-        </Card>
-      ) : (
-        <Card>
-          <View style={{ gap: spacing.sm }}>
-            <Text variant="title">Qual o melhor caminho para você?</Text>
-            <Text variant="callout" tone="secondary">
-              {denied
-                ? 'Sem acesso à localização. Você pode liberar nos ajustes do celular ou escolher um ponto abaixo.'
-                : 'Use sua localização para ver a estação e o portão mais indicados.'}
-            </Text>
+        suggestion.kind === 'walk' ? (
+          <>
+            <Text variant="titleM">Você está a {formatDistance(suggestion.toStadium)}: dá pra ir a pé</Text>
             <Button
-              label="Usar minha localização"
-              icon="locate"
-              loading={locating}
-              onPress={locate}
+              label="Rota a pé"
+              icon="walk-outline"
+              onPress={() => openDirections({ query: stadium.mapsQuery, label: stadium.name }, 'walking')}
               fullWidth
             />
-          </View>
-        </Card>
+          </>
+        ) : (
+          <>
+            <View>
+              <Text variant="overline" tone="secondary">
+                Melhor caminho · {formatDistance(suggestion.toStadium)}
+              </Text>
+              <Text variant="titleM">
+                {suggestion.point.title.replace(' — ', ' · ')} → Portão {suggestion.point.bestGateIds[0]}
+              </Text>
+            </View>
+            <Button
+              label="Traçar rota"
+              icon="navigate-outline"
+              onPress={() =>
+                openDirections(
+                  { query: suggestion.point.mapsQuery, label: suggestion.point.title },
+                  travelModeFor(suggestion.point.mode)
+                )
+              }
+              fullWidth
+            />
+          </>
+        )
+      ) : (
+        <Button
+          label={denied ? 'Liberar localização' : 'Usar minha localização'}
+          icon="locate-outline"
+          loading={locating}
+          onPress={locate}
+          fullWidth
+        />
       )}
     </View>
   );
