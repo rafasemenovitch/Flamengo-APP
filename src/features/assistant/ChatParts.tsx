@@ -12,7 +12,7 @@ import type {
   AssistantGesture,
   AssistantTopic,
 } from '@/types/fan';
-import { EXPRESSION_AVATAR, GESTURE } from './poses';
+import { EXPRESSION_AVATAR, EXPRESSION_FULL, GESTURE } from './poses';
 
 /** Avatar circular do assistente (recorte do headset à gola). Troca a expressão no mesmo lugar. */
 export function AssistantAvatar({ expression, size }: { expression: AssistantExpression; size: number }) {
@@ -40,6 +40,26 @@ export function GestureImage({ gesture, size }: { gesture: AssistantGesture; siz
   return (
     <Image
       source={GESTURE[gesture]}
+      style={{ width: size, height: size }}
+      resizeMode="contain"
+      accessibilityIgnoresInvertColors
+    />
+  );
+}
+
+/** Reação do mascote em uma mensagem: gesto (se houver) ou expressão. Uma imagem por mensagem. */
+export function Reaction({
+  expression,
+  gesture,
+  size,
+}: {
+  expression: AssistantExpression;
+  gesture?: AssistantGesture;
+  size: number;
+}) {
+  return (
+    <Image
+      source={gesture ? GESTURE[gesture] : EXPRESSION_FULL[expression]}
       style={{ width: size, height: size }}
       resizeMode="contain"
       accessibilityIgnoresInvertColors

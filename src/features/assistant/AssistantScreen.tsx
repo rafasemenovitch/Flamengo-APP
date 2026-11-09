@@ -1,5 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FlatList, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -8,7 +7,7 @@ import { useAsync } from '@/hooks/useAsync';
 import { navigateByName } from '@/navigation/navigationRef';
 import type { RootScreenProps } from '@/navigation/types';
 import { services } from '@/services';
-import type { AssistantAction, AssistantExpression, AssistantReply } from '@/types/fan';
+import type { AssistantAction, AssistantReply } from '@/types/fan';
 import { haptic } from '@/utils/haptics';
 import {
   Appear,
@@ -16,6 +15,7 @@ import {
   ChatActions,
   ChatCard,
   GestureImage,
+  Reaction,
   QuestionSheet,
   TypingDots,
 } from './ChatParts';
@@ -27,15 +27,15 @@ type Msg =
   | { id: string; role: 'pending'; search: boolean };
 
 const WELCOME: AssistantReply = {
-  text: 'Fala, rubro-negro! Eu sou o Assistente Fla. Toque em "Fazer pergunta" e escolha um tema. Sempre que der, eu te levo direto pra tela certa.',
+  text: 'Fala, rubro-negro! Toque em "Fazer pergunta" e escolha um tema.',
   expression: 'wave',
   grounded: true,
   sources: [],
   followUps: ['proximo-jogo', 'meu-portao', 'meus-pontos'],
 };
 
-/** Avatar grande o bastante para ver o mascote mudar de reação a cada mensagem. */
-const AVATAR = 64;
+/** Tamanho da reação do mascote ao lado de cada resposta. */
+const REACTION = 112;
 
 let seq = 0;
 const nid = () => `m${Date.now()}-${seq++}`;
@@ -54,16 +54,6 @@ export function AssistantScreen({ navigation, route }: RootScreenProps<'Assistan
   const busy = messages.some((m) => m.role === 'pending');
   const list = useRef<FlatList<Msg>>(null);
   const started = useRef(false);
-
-  // Expressão atual do cabeçalho: acompanha a última reação do mascote.
-  const headerExpression: AssistantExpression = useMemo(() => {
-    for (let i = messages.length - 1; i >= 0; i--) {
-      const m = messages[i]!;
-      if (m.role === 'pending') return 'thinking';
-      if (m.role === 'assistant') return m.reply.expression ?? 'neutral';
-    }
-    return 'neutral';
-  }, [messages]);
 
   const ask = async (questionId: string) => {
     const q = services.assistant.findQuestion(questionId);
@@ -122,9 +112,6 @@ export function AssistantScreen({ navigation, route }: RootScreenProps<'Assistan
           <Text variant="titleL" align="center">
             Como posso ajudar?
           </Text>
-          <Text variant="bodyM" tone="secondary" align="center" style={{ maxWidth: 300 }}>
-            Jogos, ingressos, Maracanã, sócio, loja e seus pontos.
-          </Text>
         </View>
       );
     }
@@ -154,11 +141,7 @@ export function AssistantScreen({ navigation, route }: RootScreenProps<'Assistan
       return (
         <Appear>
           <View style={{ marginTop: 16, flexDirection: 'row', alignItems: 'flex-end', gap: 10 }}>
-            {item.search ? (
-              <GestureImage gesture="magnifier" size={96} />
-            ) : (
-              <AssistantAvatar expression="thinking" size={AVATAR} />
-            )}
+            <Reaction expression="thinking" gesture={item.search ? 'magnifier' : undefined} size={REACTION} />
             <View
               style={{
                 backgroundColor: colors.bgRaised,
@@ -171,11 +154,6 @@ export function AssistantScreen({ navigation, route }: RootScreenProps<'Assistan
                 gap: 8,
               }}
             >
-              {item.search && (
-                <Text variant="bodyM" tone="secondary">
-                  Buscando
-                </Text>
-              )}
               <TypingDots />
             </View>
           </View>
@@ -189,10 +167,11 @@ export function AssistantScreen({ navigation, route }: RootScreenProps<'Assistan
     return (
       <Appear>
         <View style={{ marginTop: 16, gap: 10 }}>
-          {/* Gesto grande acima da resposta (menos quando aponta para o card ao lado). */}
-          {r.gesture && !sideBySide && <GestureImage gesture={r.gesture} size={136} />}
-          <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 10 }}>
-            <AssistantAvatar expression={r.expression ?? 'neutral'} size={AVATAR} />
+          {/* Uma única reação por resposta: o gesto (se houver) ou a expressão. */}
+          <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
+            {!sideBySide && (
+              <Reaction expression={r.expression ?? 'neutral'} gesture={r.gesture} size={REACTION} />
+            )}
             <View
               style={{
                 flexShrink: 1,
@@ -206,13 +185,11 @@ export function AssistantScreen({ navigation, route }: RootScreenProps<'Assistan
               <Text variant="bodyL">{r.text}</Text>
             </View>
           </View>
-          <View style={{ marginLeft: AVATAR + 10, gap: 10 }}>
+          <View style={{ gap: 10 }}>
             {r.card &&
               (sideBySide ? (
-                <View
-                  style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 4, marginLeft: -(AVATAR + 10) }}
-                >
-                  <GestureImage gesture="point-side" size={104} />
+                <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 4 }}>
+                  <Reaction expression={r.expression ?? 'neutral'} gesture="point-side" size={REACTION} />
                   <View style={{ flex: 1 }}>
                     <ChatCard card={r.card} onOpen={open} />
                   </View>
@@ -221,16 +198,8 @@ export function AssistantScreen({ navigation, route }: RootScreenProps<'Assistan
                 <ChatCard card={r.card} onOpen={open} />
               ))}
             {!!r.actions?.length && <ChatActions actions={r.actions} onAction={onAction} />}
-            {!!r.sources.length && r.sources[0] !== 'Informação do app (dados demonstrativos)' && (
-              <Text variant="bodyS" tone="tertiary">
-                Fonte: {r.sources.join(' · ')}
-              </Text>
-            )}
             {isLast && !busy && !!r.followUps?.length && (
               <View style={{ gap: 8, marginTop: 4 }}>
-                <Text variant="overline" tone="tertiary">
-                  Perguntas relacionadas
-                </Text>
                 {r.followUps.map((id) => {
                   const q = services.assistant.findQuestion(id);
                   if (!q) return null;
@@ -280,7 +249,7 @@ export function AssistantScreen({ navigation, route }: RootScreenProps<'Assistan
           borderColor: colors.lineHairline,
         }}
       >
-        <AssistantAvatar expression={headerExpression} size={52} />
+        <AssistantAvatar expression="neutral" size={44} />
         <View style={{ flex: 1 }}>
           <Text variant="titleS" accessibilityRole="header">
             Assistente Fla
@@ -325,20 +294,6 @@ export function AssistantScreen({ navigation, route }: RootScreenProps<'Assistan
           disabled={busy || !topics.data}
           fullWidth
         />
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: 6,
-            marginTop: 8,
-          }}
-        >
-          <Ionicons name="information-circle-outline" size={14} color={colors.inkTertiary} />
-          <Text variant="bodyS" tone="tertiary">
-            Respostas com base nas informações do app
-          </Text>
-        </View>
       </View>
 
       {topics.data && (

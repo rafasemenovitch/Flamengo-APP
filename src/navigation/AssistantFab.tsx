@@ -58,6 +58,9 @@ export function AssistantFab({
             height: layout.fabSize,
             borderRadius: layout.fabSize / 2,
             backgroundColor: colors.accent,
+            // Borda escura fina: separa o botão do hero vermelho da Home.
+            borderWidth: 2,
+            borderColor: colors.bgCanvas,
           },
         ]}
       >
