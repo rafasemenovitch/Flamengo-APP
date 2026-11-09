@@ -5,6 +5,7 @@ import { View } from 'react-native';
 import {
   EmptyState,
   ErrorState,
+  FilterBar,
   Filters,
   Screen,
   Skeleton,
@@ -92,7 +93,12 @@ export function MatchesScreen({ route }: TabScreenProps<'Jogos'>) {
             }}
           />
         ) : (
-          <Filters accessibilityLabel="Competição" segments={FILTERS} value={filter} onChange={setFilter} />
+          <FilterBar
+            groups={[{ key: 'competition', title: 'Competição', options: FILTERS }]}
+            value={{ competition: filter }}
+            defaults={{ competition: 'todas' }}
+            onApply={(v) => setFilter(v.competition as Filter)}
+          />
         )}
       </View>
 

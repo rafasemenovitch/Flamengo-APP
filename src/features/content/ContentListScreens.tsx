@@ -3,10 +3,10 @@ import { useMemo, useState } from 'react';
 import { useWindowDimensions, View } from 'react-native';
 
 import {
-  Button,
   EmptyState,
   ErrorState,
-  Filters,
+  FilterBar,
+  type FilterValues,
   Screen,
   Skeleton,
   Tabs,
@@ -35,6 +35,16 @@ const CATEGORIES: { key: 'todas' | ContentCategory; label: string }[] = [
     label: CATEGORY_LABEL[c],
   })),
 ];
+const SORTS = [
+  { key: 'recentes', label: 'Mais recentes' },
+  { key: 'antigos', label: 'Mais antigos' },
+];
+const DEFAULT_QUERY: ContentQuery = {
+  period: 'tudo',
+  category: 'todas',
+  sort: 'recentes',
+  duration: 'qualquer',
+};
 const DURATIONS: { key: Duration; label: string }[] = [
   { key: 'qualquer', label: 'Qualquer duração' },
   { key: 'curtos', label: 'Até 5 min' },
@@ -51,13 +61,7 @@ export function ContentHubScreen() {
   const { layout } = useTheme();
   const { width } = useWindowDimensions();
   const [hub, setHub] = useState<Hub>(route.name === 'FlaTV' ? 'flatv' : 'noticias');
-  const [q, setQ] = useState<ContentQuery>({
-    period: 'tudo',
-    category: 'todas',
-    sort: 'recentes',
-    duration: 'qualquer',
-  });
-  const set = (patch: Partial<ContentQuery>) => setQ((cur) => ({ ...cur, ...patch }));
+  const [q, setQ] = useState<ContentQuery>(DEFAULT_QUERY);
 
   const news = useAsync(() => services.news.getLatest(100));
   const videos = useAsync(() => services.flatv.getVideos());
@@ -72,7 +76,7 @@ export function ContentHubScreen() {
   const tileWidth = Math.min(width, 600) - layout.gutter * 2;
 
   return (
-    <Screen title="Notícias e FlaTV" refreshing={source.refreshing} onRefresh={source.refresh}>
+    <Screen title="Mídia" refreshing={source.refreshing} onRefresh={source.refresh}>
       <Tabs<Hub>
         segments={[
           { key: 'noticias', label: 'Notícias' },
@@ -81,48 +85,28 @@ export function ContentHubScreen() {
         value={hub}
         onChange={setHub}
       />
-      <View style={{ gap: 8, marginTop: 12 }}>
-        <Filters
-          accessibilityLabel="Período"
-          segments={PERIODS}
-          value={q.period}
-          onChange={(period) => set({ period })}
-        />
-        <Filters
-          accessibilityLabel="Categoria"
-          segments={CATEGORIES}
-          value={q.category}
-          onChange={(category) => set({ category })}
-        />
-        {hub === 'flatv' && (
-          <Filters
-            accessibilityLabel="Duração"
-            segments={DURATIONS}
-            value={q.duration}
-            onChange={(duration) => set({ duration })}
-          />
-        )}
-      </View>
-
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingHorizontal: layout.gutter,
-          marginTop: 16,
-        }}
-      >
-        <Text variant="bodyS" tone="secondary">
-          {source.loading
-            ? 'Carregando…'
-            : `${count} ${hub === 'noticias' ? (count === 1 ? 'notícia' : 'notícias') : count === 1 ? 'vídeo' : 'vídeos'}`}
-        </Text>
-        <Button
-          label={q.sort === 'recentes' ? 'Mais recentes' : 'Mais antigos'}
-          variant="link"
-          icon={q.sort === 'recentes' ? 'arrow-down' : 'arrow-up'}
-          onPress={() => set({ sort: q.sort === 'recentes' ? 'antigos' : 'recentes' })}
+      <View style={{ marginTop: 16 }}>
+        <FilterBar
+          groups={[
+            { key: 'sort', title: 'Ordenar por', options: SORTS },
+            { key: 'period', title: 'Período', options: PERIODS },
+            { key: 'category', title: 'Categoria', options: CATEGORIES },
+            ...(hub === 'flatv' ? [{ key: 'duration', title: 'Duração', options: DURATIONS }] : []),
+          ]}
+          value={q as unknown as FilterValues}
+          defaults={DEFAULT_QUERY as unknown as FilterValues}
+          onApply={(v) => setQ(v as unknown as ContentQuery)}
+          count={(v) => {
+            const cq = v as unknown as ContentQuery;
+            return hub === 'noticias'
+              ? filterContent(news.data ?? [], { ...cq, duration: 'qualquer' }).length
+              : filterContent(videos.data ?? [], cq).length;
+          }}
+          countLabel={(n) =>
+            hub === 'noticias'
+              ? `${n} ${n === 1 ? 'notícia' : 'notícias'}`
+              : `${n} ${n === 1 ? 'vídeo' : 'vídeos'}`
+          }
         />
       </View>
 

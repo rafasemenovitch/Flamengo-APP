@@ -4,7 +4,7 @@ import { View } from 'react-native';
 
 import { Button, Filters, Screen, SectionTitle, Skeleton, TabHeader, Text, useTheme } from '@/design-system';
 import { PollCard, QuizCard } from '@/features/shared/Engagement';
-import { Flame } from '@/features/shared/Flame';
+import { StreakCount } from '@/features/shared/Flame';
 import { CaravanRow, GroupRow } from './CommunityScreen';
 import { useAsync } from '@/hooks/useAsync';
 import { services } from '@/services';
@@ -111,7 +111,6 @@ export function NationScreen() {
   const toNext = progress?.nextLevel
     ? (progress.points - progress.level.minPoints) / (progress.nextLevel.minPoints - progress.level.minPoints)
     : 1;
-  const rival = progress?.luckyFriends.find((f) => f.streak > progress.luckyStreak);
 
   return (
     <Screen reserveFab>
@@ -164,20 +163,14 @@ export function NationScreen() {
             </Text>
 
             {/* Pé quente: vitórias seguidas nos jogos em que você foi */}
-            <View style={{ marginTop: 32 }}>
-              <Text variant="overline" tone="secondary">
-                Pé quente
-              </Text>
-              <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 10, marginTop: 6 }}>
-                <Flame size={30} off={progress.luckyStreak === 0} />
-                <Text variant="displayXl">{progress.luckyStreak}</Text>
-                <Text variant="bodyM" tone="secondary" style={{ flex: 1, marginBottom: 4 }}>
+            <View style={{ marginTop: 40, flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+              <StreakCount value={progress.luckyStreak} />
+              <View style={{ flex: 1, paddingBottom: 6 }}>
+                <Text variant="titleM">Pé quente</Text>
+                <Text variant="bodyM" tone="secondary">
                   {progress.luckyStreak === 1 ? 'vitória seguida' : 'vitórias seguidas'} com você no estádio
                 </Text>
               </View>
-              <Text variant="bodyS" tone={rival ? 'brand' : 'secondary'}>
-                {rival ? `${rival.name} tem ${rival.streak}` : 'Você lidera entre os amigos'}
-              </Text>
             </View>
           </>
         )}
@@ -213,22 +206,6 @@ export function NationScreen() {
             {caravan && <CaravanRow group={caravan} />}
           </View>
         )}
-        <View style={{ flexDirection: 'row', gap: 12, paddingHorizontal: layout.gutter, marginTop: 16 }}>
-          <Button
-            label="Achar grupos"
-            variant="secondary"
-            size="sm"
-            onPress={() => navigation.navigate('Community')}
-            style={{ flex: 1 }}
-          />
-          <Button
-            label="Criar grupo"
-            variant="secondary"
-            size="sm"
-            onPress={() => navigation.navigate('Community')}
-            style={{ flex: 1 }}
-          />
-        </View>
       </View>
 
       <View style={{ marginTop: 48, paddingHorizontal: layout.gutter }}>

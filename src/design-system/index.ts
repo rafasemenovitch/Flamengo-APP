@@ -11,6 +11,7 @@ export * from './components/Button';
 export * from './components/Card';
 export * from './components/Countdown';
 export * from './components/FabVisibility';
+export * from './components/FilterSheet';
 export * from './components/IconButton';
 export * from './components/ListItem';
 export * from './components/LiveIndicator';

@@ -33,9 +33,8 @@ export function HomeHeader({
   matchday: boolean;
   onSecretLongPress?: () => void;
 }) {
-  const navigation = useNavigation();
-  const { profile, progress } = useAppState();
-  const { colors, layout } = useTheme();
+  const { profile } = useAppState();
+  const { layout } = useTheme();
   const name = profile?.firstName ?? 'torcedor';
   return (
     <View
@@ -63,52 +62,58 @@ export function HomeHeader({
             {name}
           </Text>
         </Pressable>
-        {progress && (
-          <Pressable
-            onPress={() => navigation.navigate('Tabs', { screen: 'Nacao' })}
-            accessibilityRole="button"
-            accessibilityLabel={`Nível ${progress.level.level}, ${progress.level.name}, ${formatNumber(progress.points)} pontos. Abrir Nação`}
-            style={({ pressed }) => ({ marginTop: 20, gap: 10, opacity: pressed ? 0.7 : 1 })}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-              <View>
-                <Text variant="bodyS" tone="secondary">
-                  Nível {progress.level.level}
-                </Text>
-                <Text variant="displayM" tone="brand">
-                  {progress.level.name}
-                </Text>
-              </View>
-              <View style={{ alignItems: 'flex-end' }}>
-                <Text variant="bodyS" tone="secondary">
-                  {progress.nextLevel
-                    ? `${formatNumber(progress.nextLevel.minPoints - progress.points)} para ${progress.nextLevel.name}`
-                    : 'Nível máximo'}
-                </Text>
-                <Text variant="displayM">
-                  {formatNumber(progress.points)}
-                  <Text variant="bodyM" tone="secondary">
-                    {' '}
-                    pts
-                  </Text>
-                </Text>
-              </View>
-            </View>
-            <View
-              style={{ height: 3, backgroundColor: colors.bgRaised2, borderRadius: 2, overflow: 'hidden' }}
-            >
-              <View
-                style={{
-                  height: '100%',
-                  width: `${Math.round(levelProgress(progress) * 100)}%`,
-                  backgroundColor: colors.accent,
-                }}
-              />
-            </View>
-          </Pressable>
-        )}
       </View>
     </View>
+  );
+}
+
+/** Nível e pontos do torcedor (abre a Nação). Fica abaixo dos atalhos. */
+export function LevelStrip() {
+  const navigation = useNavigation();
+  const { progress } = useAppState();
+  const { colors, layout } = useTheme();
+  if (!progress) return null;
+  return (
+    <Pressable
+      onPress={() => navigation.navigate('Tabs', { screen: 'Nacao' })}
+      accessibilityRole="button"
+      accessibilityLabel={`Nível ${progress.level.level}, ${progress.level.name}, ${formatNumber(progress.points)} pontos. Abrir Nação`}
+      style={({ pressed }) => ({ paddingHorizontal: layout.gutter, gap: 10, opacity: pressed ? 0.7 : 1 })}
+    >
+      <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+        <View>
+          <Text variant="bodyS" tone="secondary">
+            Nível {progress.level.level}
+          </Text>
+          <Text variant="displayM" tone="brand">
+            {progress.level.name}
+          </Text>
+        </View>
+        <View style={{ alignItems: 'flex-end' }}>
+          <Text variant="bodyS" tone="secondary">
+            {progress.nextLevel
+              ? `${formatNumber(progress.nextLevel.minPoints - progress.points)} para ${progress.nextLevel.name}`
+              : 'Nível máximo'}
+          </Text>
+          <Text variant="displayM">
+            {formatNumber(progress.points)}
+            <Text variant="bodyM" tone="secondary">
+              {' '}
+              pts
+            </Text>
+          </Text>
+        </View>
+      </View>
+      <View style={{ height: 3, backgroundColor: colors.bgRaised2, borderRadius: 2, overflow: 'hidden' }}>
+        <View
+          style={{
+            height: '100%',
+            width: `${Math.round(levelProgress(progress) * 100)}%`,
+            backgroundColor: colors.accent,
+          }}
+        />
+      </View>
+    </Pressable>
   );
 }
 
@@ -270,7 +275,7 @@ type Shortcut = {
 export function QuickActions({ matchday }: { matchday: boolean }) {
   const navigation = useNavigation();
   const { colors, layout } = useTheme();
-  // Ordem pedida: Maracanã (sempre, com ponto ao vivo em dia de jogo), Sócio, Loja, FlaTV.
+  // Ordem pedida: Maracanã (sempre, com ponto ao vivo em dia de jogo), Sócio, Loja, Mídia (notícias + FlaTV).
   const items: Shortcut[] = [
     {
       key: 'maraca',
@@ -282,10 +287,10 @@ export function QuickActions({ matchday }: { matchday: boolean }) {
     { key: 'socio', label: 'Sócio', icon: 'card-outline', onPress: () => navigation.navigate('Membership') },
     { key: 'loja', label: 'Loja', icon: 'bag-handle-outline', onPress: () => navigation.navigate('Store') },
     {
-      key: 'flatv',
-      label: 'FlaTV',
-      icon: 'play-circle-outline',
-      onPress: () => navigation.navigate('FlaTV'),
+      key: 'midia',
+      label: 'Mídia',
+      icon: 'newspaper-outline',
+      onPress: () => navigation.navigate('News'),
     },
   ];
   return (

@@ -1,5 +1,5 @@
 import { Image, View } from 'react-native';
-import Svg, { Circle, Defs, Path, Polygon, Text as SvgText, TextPath } from 'react-native-svg';
+import Svg, { Circle, G, Polygon, Text as SvgText } from 'react-native-svg';
 
 import { brandAssets } from '@assets/brand';
 import { fonts, useTheme, withAlpha } from '@/design-system';
@@ -28,6 +28,68 @@ function star(cx: number, cy: number, r: number) {
   return pts.join(' ');
 }
 
+/** Largura aproximada de cada letra (em em) da Schibsted Bold em caixa alta. */
+function charWidth(c: string) {
+  if (c === ' ' || c === '·') return 0.32;
+  if ('IJ1'.includes(c)) return 0.36;
+  if ('MW'.includes(c)) return 0.86;
+  if ('ÃÁÂÀÉÊÍÓÔÕÚÇ'.includes(c)) return 0.68;
+  return 0.66;
+}
+
+/**
+ * Texto em arco, letra por letra, centrado no topo (ou na base) do carimbo.
+ * O textAnchor do TextPath não funciona no react-native-svg; assim a
+ * centralização é exata e o carimbo fica simétrico.
+ */
+function ArcText({
+  text,
+  radius,
+  fill,
+  bottom,
+  fontSize = 12.5,
+  spacing = 1.8,
+}: {
+  text: string;
+  radius: number;
+  fill: string;
+  bottom?: boolean;
+  fontSize?: number;
+  spacing?: number;
+}) {
+  const chars = [...text];
+  const widths = chars.map((c) => charWidth(c) * fontSize + spacing);
+  const total = widths.reduce((a, b) => a + b, 0) - spacing;
+  let acc = 0;
+  return (
+    <G>
+      {chars.map((c, i) => {
+        const mid = acc + (widths[i]! - spacing) / 2;
+        acc += widths[i]!;
+        const offset = (mid - total / 2) / radius; // radianos a partir do centro do arco
+        const theta = bottom ? Math.PI / 2 - offset : -Math.PI / 2 + offset;
+        const x = 100 + radius * Math.cos(theta);
+        const y = 100 + radius * Math.sin(theta);
+        const deg = (theta * 180) / Math.PI + (bottom ? -90 : 90);
+        return (
+          <SvgText
+            key={i}
+            x={x}
+            y={y}
+            fill={fill}
+            fontFamily={fonts.bold}
+            fontSize={fontSize}
+            textAnchor="middle"
+            transform={`rotate(${deg} ${x} ${y})`}
+          >
+            {c}
+          </SvgText>
+        );
+      })}
+    </G>
+  );
+}
+
 /**
  * Carimbo do Passaporte: aro duplo com o nome da competição e a data,
  * o CRF no centro e o placar. Vitória em vermelho, empate em branco,
@@ -36,7 +98,7 @@ function star(cx: number, cy: number, r: number) {
 export function Stamp({ stamp, size }: { stamp: PassportStamp; size: number }) {
   const { colors } = useTheme();
   const rnd = seeded(stamp.id);
-  const rotate = (rnd() - 0.5) * 18;
+  const rotate = (rnd() - 0.5) * 12;
   const ink =
     stamp.result === 'Vitória'
       ? colors.accentText
@@ -61,22 +123,10 @@ export function Stamp({ stamp, size }: { stamp: PassportStamp; size: number }) {
       style={{ width: size, height: size, transform: [{ rotate: `${rotate}deg` }] }}
     >
       <Svg width={size} height={size} viewBox="0 0 200 200">
-        <Defs>
-          <Path id={`top-${stamp.id}`} d="M 20 100 A 80 80 0 0 1 180 100" />
-          <Path id={`bot-${stamp.id}`} d="M 11 100 A 89 89 0 0 0 189 100" />
-        </Defs>
         <Circle cx={100} cy={100} r={95} stroke={ink} strokeWidth={5} fill="none" />
         <Circle cx={100} cy={100} r={73} stroke={ink} strokeWidth={1.6} fill="none" />
-        <SvgText fill={ink} fontFamily={fonts.bold} fontSize={12.5} letterSpacing={1.6}>
-          <TextPath href={`#top-${stamp.id}`} startOffset="50%" textAnchor="middle">
-            {top}
-          </TextPath>
-        </SvgText>
-        <SvgText fill={ink} fontFamily={fonts.bold} fontSize={12.5} letterSpacing={2}>
-          <TextPath href={`#bot-${stamp.id}`} startOffset="50%" textAnchor="middle">
-            {date}
-          </TextPath>
-        </SvgText>
+        <ArcText text={top} radius={80} fill={ink} />
+        <ArcText text={date} radius={89} fill={ink} bottom />
         <Polygon points={star(16, 100, 5)} fill={ink} />
         <Polygon points={star(184, 100, 5)} fill={ink} />
         <SvgText

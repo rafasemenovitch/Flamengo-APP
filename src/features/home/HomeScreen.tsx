@@ -22,7 +22,7 @@ import { services } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
 import { formatDuration, formatRelative } from '@/utils/format';
 import { HeroMatchCard } from './HeroMatchCard';
-import { DemoControlsSheet, HomeHeader, MatchdayBanner, QuickActions } from './HomeParts';
+import { DemoControlsSheet, HomeHeader, LevelStrip, MatchdayBanner, QuickActions } from './HomeParts';
 
 function isToday(iso: string) {
   return new Date(iso).toDateString() === new Date().toDateString();
@@ -130,6 +130,10 @@ export function HomeScreen() {
 
       <Reveal index={0} style={{ marginTop: 24 }}>
         <QuickActions matchday={matchday} />
+      </Reveal>
+
+      <Reveal index={1} style={{ marginTop: 32 }}>
+        <LevelStrip />
       </Reveal>
 
       {matchday && match && (

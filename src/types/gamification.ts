@@ -115,6 +115,8 @@ export interface CommunityGroup {
   verified?: boolean;
   /** Grupo fechado entre amigos. */
   private?: boolean;
+  /** Quem publica os avisos da comunidade (os demais acompanham). */
+  host?: string;
   /** Caravana organizada pelo grupo para um jogo. */
   caravan?: { match: string; departure: string; date: string; seatsLeft: number; price: number };
 }

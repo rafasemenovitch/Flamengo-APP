@@ -1,16 +1,24 @@
-import { View } from 'react-native';
+import { View, type StyleProp, type ViewStyle } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
-import { useTheme } from '@/design-system';
+import { Text, useTheme } from '@/design-system';
 
 /**
  * Foguinho do pé quente: chama desenhada (vermelho com miolo claro), no
  * lugar do ícone genérico. Apagada quando a sequência está zerada.
  */
-export function Flame({ size = 28, off = false }: { size?: number; off?: boolean }) {
+export function Flame({
+  size = 28,
+  off = false,
+  style,
+}: {
+  size?: number;
+  off?: boolean;
+  style?: StyleProp<ViewStyle>;
+}) {
   const { colors } = useTheme();
   return (
-    <View accessible={false} style={{ width: size, height: size * 1.2 }}>
+    <View accessible={false} style={[{ width: size, height: size * 1.2 }, style]}>
       <Svg width={size} height={size * 1.2} viewBox="0 0 40 48">
         <Path
           d="M21.5 1.5c1.6 7.4-2.3 11.4-6.2 15.6C11.6 21.1 7 25.6 7 32.4 7 40.4 12.9 46.5 20.4 46.5S34 40.6 34 32.9c0-5.3-2.3-9.4-5.1-12.4-.2 3.6-1.7 6.1-4.2 7.3 1.4-9.4-.5-19.2-3.2-26.3z"
@@ -27,6 +35,20 @@ export function Flame({ size = 28, off = false }: { size?: number; off?: boolean
           />
         )}
       </Svg>
+    </View>
+  );
+}
+
+/**
+ * Número do pé quente com o foguinho na mesma linha de base dos algarismos
+ * (medido nas métricas da Anybody: o "3" ocupa de ~10% a ~78% da altura da linha).
+ */
+export function StreakCount({ value, size = 'xl' }: { value: number | string; size?: 'xl' | 'hero' }) {
+  const hero = size === 'hero';
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: hero ? 10 : 6 }}>
+      <Flame size={hero ? 50 : 34} off={value === 0} style={{ marginTop: hero ? 4 : 1 }} />
+      <Text variant={hero ? 'displayHero' : 'displayXl'}>{value}</Text>
     </View>
   );
 }

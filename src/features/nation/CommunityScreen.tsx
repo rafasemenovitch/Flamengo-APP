@@ -49,6 +49,10 @@ function groupLine(g: CommunityGroup) {
   return `${g.region.split(' — ')[0]} · ${formatCompact(g.members)} membros`;
 }
 
+function hostLine(g: CommunityGroup) {
+  return g.host ? `Anfitrião: ${g.host}` : undefined;
+}
+
 /** Linha de grupo: nome, alcance e o próximo encontro; barra vermelha se você participa. */
 export function GroupRow({
   group: g,
@@ -98,6 +102,11 @@ export function GroupRow({
         {description && (
           <Text variant="bodyS" tone="tertiary" style={{ marginTop: 4 }}>
             {g.description}
+          </Text>
+        )}
+        {description && hostLine(g) && (
+          <Text variant="bodyS" tone="tertiary">
+            {hostLine(g)}
           </Text>
         )}
         {g.joined && g.nextMeetup && (
@@ -160,7 +169,6 @@ export function CaravanRow({ group: g }: { group: CommunityGroup }) {
 /** Comunidade: seus grupos, caravanas para o próximo jogo e grupos para entrar. */
 export function CommunityScreen() {
   const { colors, layout } = useTheme();
-  const { showToast } = useAlerts();
   const q = useAsync(() => services.gamification.getCommunityGroups());
   const [overrides, setOverrides] = useState<Record<string, CommunityGroup>>({});
   const toggle = async (id: string) => {
@@ -174,15 +182,11 @@ export function CommunityScreen() {
 
   return (
     <Screen title="Grupos da torcida" refreshing={q.refreshing} onRefresh={q.refresh}>
-      <View style={{ paddingHorizontal: layout.gutter, gap: 16 }}>
+      <View style={{ paddingHorizontal: layout.gutter }}>
         <Text variant="bodyL" tone="secondary">
-          Junte os amigos, ache rubro-negros da sua cidade e vá ao jogo de caravana.
+          Rubro-negros do seu bairro, da sua cidade e do mundo. O anfitrião publica os avisos, encontros e
+          caravanas; você acompanha e participa.
         </Text>
-        <Button
-          label="Criar um grupo"
-          onPress={() => showToast('Criação de grupos chega com o login real.')}
-          fullWidth
-        />
       </View>
 
       {q.loading ? (

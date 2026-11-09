@@ -1,13 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
 
 import {
   Avatar,
   Button,
   EmptyState,
-  Filters,
+  FilterBar,
   ListGroup,
   ListItem,
   Monogram,
@@ -23,7 +23,7 @@ import { services } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
 import { MemberCard } from '@/features/nation/MemberCard';
 import { Stamp } from '@/features/nation/gamification/Stamp';
-import { Flame } from '@/features/shared/Flame';
+import { StreakCount } from '@/features/shared/Flame';
 import { useDemoMember } from '@/hooks/useMatch';
 import type { ContentCategory } from '@/types/content';
 import type { HistoryEntry } from '@/types/fan';
@@ -37,6 +37,7 @@ export function ProfileScreen() {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const { colors, layout, radius } = useTheme();
+  const { width } = useWindowDimensions();
   const { profile, progress } = useAppState();
   const [isMember] = useDemoMember();
   const membership = useAsync(() => services.membership.getMembership(), [isMember]);
@@ -61,6 +62,7 @@ export function ProfileScreen() {
   const wins = stamps.filter((p) => p.result === 'Vitória').length;
   const favorites = squad.data?.filter((p) => profile.favoritePlayerIds.includes(p.id)) ?? [];
   const streak = progress?.luckyStreak ?? 0;
+  const stampSize = Math.floor((width - layout.gutter * 2 - 24) / 3);
   const enrolled = face.data?.status === 'enrolled';
 
   return (
@@ -172,33 +174,30 @@ export function ProfileScreen() {
           accessibilityLabel={`Passaporte: ${stamps.length} jogos, ${wins} vitórias, pé quente ${streak}`}
           style={{ paddingHorizontal: layout.gutter, gap: 24 }}
         >
-          <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-            <View style={{ flex: 1.3, flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
-              <Flame size={30} off={streak === 0} />
-              <View>
-                <Text variant="displayXl">{streak}</Text>
-                <Text variant="bodyS" tone="secondary">
-                  pé quente
-                </Text>
-              </View>
+          {/* Três colunas iguais, números e legendas na mesma linha. */}
+          <View style={{ flexDirection: 'row' }}>
+            <View style={{ flex: 1 }}>
+              <Text variant="displayXl">{stamps.length}</Text>
+              <Text variant="bodyS" tone="secondary">
+                jogos
+              </Text>
             </View>
-            {[
-              [stamps.length, 'jogos'],
-              [wins, 'vitórias'],
-            ].map(([v, l]) => (
-              <View key={l} style={{ flex: 1 }}>
-                <Text variant="displayXl">{v}</Text>
-                <Text variant="bodyS" tone="secondary">
-                  {l}
-                </Text>
-              </View>
-            ))}
+            <View style={{ flex: 1 }}>
+              <Text variant="displayXl">{wins}</Text>
+              <Text variant="bodyS" tone="secondary">
+                vitórias
+              </Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <StreakCount value={streak} />
+              <Text variant="bodyS" tone="secondary">
+                pé quente
+              </Text>
+            </View>
           </View>
-          <View style={{ flexDirection: 'row', marginLeft: -8 }}>
-            {stamps.slice(0, 4).map((s, i) => (
-              <View key={s.id} style={{ marginLeft: i ? -18 : 0 }}>
-                <Stamp stamp={s} size={100} />
-              </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            {stamps.slice(0, 3).map((s) => (
+              <Stamp key={s.id} stamp={s} size={stampSize} />
             ))}
           </View>
         </Pressable>
@@ -399,16 +398,25 @@ export function HistoryScreen() {
   const items = history.data?.filter((h) => hist === 'todos' || h.kind === hist);
   return (
     <Screen title="Histórico">
-      <Filters<HistFilter>
-        segments={[
-          { key: 'todos', label: 'Tudo' },
-          { key: 'ticket', label: 'Ingressos' },
-          { key: 'purchase', label: 'Compras' },
-          { key: 'points', label: 'Pontos' },
-          { key: 'medal', label: 'Conquistas' },
+      <FilterBar
+        groups={[
+          {
+            key: 'kind',
+            title: 'Mostrar',
+            options: [
+              { key: 'todos', label: 'Tudo' },
+              { key: 'ticket', label: 'Ingressos' },
+              { key: 'purchase', label: 'Compras' },
+              { key: 'points', label: 'Pontos' },
+              { key: 'medal', label: 'Conquistas' },
+            ],
+          },
         ]}
-        value={hist}
-        onChange={setHist}
+        value={{ kind: hist }}
+        defaults={{ kind: 'todos' }}
+        onApply={(v) => setHist(v.kind as HistFilter)}
+        count={(v) => history.data?.filter((h) => v.kind === 'todos' || h.kind === v.kind).length ?? 0}
+        countLabel={(n) => `${n} ${n === 1 ? 'registro' : 'registros'}`}
       />
       <View style={{ marginTop: 16 }}>
         {history.loading ? null : items?.length === 0 ? (

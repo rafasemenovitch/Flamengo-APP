@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Pressable, useWindowDimensions, View } from 'react-native';
 
 import { EmptyState, ErrorState, Screen, Skeleton, Text, useTheme } from '@/design-system';
-import { Flame } from '@/features/shared/Flame';
+import { StreakCount } from '@/features/shared/Flame';
 import { isFla } from '@/features/shared/MatchUI';
 import { useAsync } from '@/hooks/useAsync';
 import { services } from '@/services';
@@ -31,22 +31,19 @@ export function PassportScreen() {
   return (
     <Screen title="Passaporte" refreshing={q.refreshing} onRefresh={q.refresh}>
       <View style={{ paddingHorizontal: layout.gutter, gap: 24 }}>
-        <View style={{ gap: 4 }}>
-          <Text variant="bodyM" tone="secondary">
-            Pé quente
-          </Text>
-          <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 12 }}>
-            <Flame size={44} off={streak === 0} />
-            <Text variant="displayHero">{progress ? streak : '—'}</Text>
-          </View>
-          <Text variant="bodyL">
-            {streak === 1 ? 'vitória seguida' : 'vitórias seguidas'} com você no estádio
-          </Text>
-          {progress && (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20 }}>
+          <StreakCount value={progress ? streak : '—'} size="hero" />
+          <View style={{ flex: 1, paddingBottom: 8 }}>
+            <Text variant="titleM">Pé quente</Text>
             <Text variant="bodyM" tone="secondary">
-              Sua melhor sequência: {progress.bestLuckyStreak}
+              {streak === 1 ? 'vitória seguida' : 'vitórias seguidas'} com você no estádio
             </Text>
-          )}
+            {progress && (
+              <Text variant="bodyS" tone="tertiary" style={{ marginTop: 4 }}>
+                Melhor sequência: {progress.bestLuckyStreak}
+              </Text>
+            )}
+          </View>
         </View>
         <View style={{ flexDirection: 'row' }}>
           {[
