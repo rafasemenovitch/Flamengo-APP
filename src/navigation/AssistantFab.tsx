@@ -1,8 +1,9 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { Animated, StyleSheet } from 'react-native';
 
 import { PressableScale, useTheme } from '@/design-system';
-import { AssistantAvatar } from '@/features/assistant/ChatParts';
+
 import { useReduceMotion } from '@/hooks/useReduceMotion';
 
 /**
@@ -60,7 +61,7 @@ export function AssistantFab({
           },
         ]}
       >
-        <AssistantAvatar expression="neutral" size={50} />
+        <Ionicons name="chatbubble-ellipses-outline" size={24} color={colors.inkOnRed} />
       </PressableScale>
     </Animated.View>
   );
