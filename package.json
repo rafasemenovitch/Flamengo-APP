@@ -13,7 +13,7 @@
     "format": "prettier --write \"src/**/*.{ts,tsx}\" App.tsx",
     "test": "jest",
     "check": "tsc --noEmit && expo lint && jest",
-    "publicar": "npx eas-cli@latest update --branch demo --message \"Versão de demonstração\" --non-interactive"
+    "publicar": "npx eas-cli@latest update --branch demo --environment preview --message \"Versão de demonstração\" --non-interactive"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",

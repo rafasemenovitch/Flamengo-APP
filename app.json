@@ -19,7 +19,15 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/brand/adaptive-icon.png",
         "backgroundColor": "#0A0A0C"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.CAMERA",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
     },
     "plugins": [
       "expo-font",
@@ -50,6 +58,15 @@
     "icon": "./assets/brand/icon.png",
     "runtimeVersion": {
       "policy": "sdkVersion"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "fc684d85-dbe4-483e-8330-44e088324fd7"
+      }
+    },
+    "owner": "rafasemenovitch",
+    "updates": {
+      "url": "https://u.expo.dev/fc684d85-dbe4-483e-8330-44e088324fd7"
     }
   }
 }
