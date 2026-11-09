@@ -101,9 +101,6 @@ function PoolsSection({ pools }: { pools: PredictionPool[] }) {
             </View>
           ))}
         </View>
-        <Text variant="bodyS" tone="secondary">
-          Próximo palpite: {pool.nextMatchLabel}. Placar exato vale mais.
-        </Text>
         <Button
           label="Dar meu palpite"
           onPress={() => navigation.navigate('Tabs', { screen: 'Inicio' })}
@@ -138,7 +135,7 @@ export function NationScreen() {
 
   return (
     <Screen reserveFab>
-      <TabHeader title="Nação" subtitle="A maior torcida do Brasil, num lugar só" />
+      <TabHeader title="Nação" />
 
       {/* Nível + pé quente: sem card, sem gradiente. */}
       <View style={{ paddingHorizontal: layout.gutter, marginTop: 48, gap: 12 }}>
@@ -185,9 +182,7 @@ export function NationScreen() {
                   seguidas
                 </Text>
                 <Text variant="bodyS" tone="secondary">
-                  {rival
-                    ? `${rival.name} está com ${rival.streak}. Mais ${rival.streak - progress.luckyStreak} no estádio e você alcança.`
-                    : 'Você é o mais pé quente entre os amigos.'}
+                  {rival ? `${rival.name} tem ${rival.streak}` : 'Você lidera entre os amigos'}
                 </Text>
               </View>
             </View>
@@ -196,7 +191,7 @@ export function NationScreen() {
       </View>
 
       <View style={{ marginTop: 48 }}>
-        <SectionTitle title="Bolões" subtitle="Acerte o placar e suba no ranking dos amigos" />
+        <SectionTitle title="Bolões" />
         {pools.data ? (
           <PoolsSection pools={pools.data} />
         ) : (
@@ -229,18 +224,8 @@ export function NationScreen() {
             }
             onPress={() => navigation.navigate('Passport')}
           />
-          <ListItem
-            large
-            title="Conquistas"
-            subtitle="Suas medalhas"
-            onPress={() => navigation.navigate('Gamification')}
-          />
-          <ListItem
-            large
-            title="Comunidade"
-            subtitle="Grupos de torcedores por região"
-            onPress={() => navigation.navigate('Community')}
-          />
+          <ListItem large title="Conquistas" onPress={() => navigation.navigate('Gamification')} />
+          <ListItem large title="Comunidade" onPress={() => navigation.navigate('Community')} />
         </ListGroup>
       </View>
 

@@ -80,7 +80,7 @@ export function SettingsScreen() {
       {profile && (
         <>
           <View style={{ marginTop: spacing.xxl }}>
-            <SectionHeader title="Notificações" subtitle="Avisos no app (push chega numa fase futura)" />
+            <SectionHeader title="Notificações" />
             <ListGroup>
               {NOTIF.map(([k, title, sub]) => (
                 <ListItem
@@ -133,21 +133,12 @@ export function SettingsScreen() {
               onPress={() => navigation.navigate('DesignSystem')}
             />
           )}
-          <ListItem
-            icon="play-circle-outline"
-            title="Rever boas-vindas"
-            subtitle="Mostra de novo a apresentação inicial"
-            onPress={replay}
-          />
-          <ListItem
-            icon="easel-outline"
-            title="Modo apresentação"
-            subtitle="Na Home, toque e segure a saudação para trocar o momento do jogo"
-          />
+          <ListItem icon="play-circle-outline" title="Rever boas-vindas" onPress={replay} />
+          <ListItem icon="easel-outline" title="Modo apresentação" subtitle="Segure o seu nome na Home" />
           <ListItem
             icon="flask-outline"
             title="O que é demonstrativo"
-            subtitle="Placares, ingressos, QR, pagamentos, carteirinha, benefícios e pontos são simulados. Escudo e fotos são placeholders."
+            subtitle="Placares, ingressos, pagamentos e pontos são simulados"
           />
           <ListItem
             icon="log-out-outline"
@@ -179,7 +170,7 @@ export function SettingsScreen() {
           align="center"
           style={{ marginTop: spacing.xl, paddingHorizontal: layout.gutter }}
         >
-          Conceito independente, sem vínculo oficial. Nenhuma marca, foto ou dado oficial do clube é usado.
+          Conceito independente, sem vínculo oficial.
         </Text>
       </View>
     </Screen>
@@ -224,7 +215,7 @@ function ProfileEditor({
   );
   return (
     <View>
-      <SectionHeader title="Seus dados" subtitle="Conta demonstrativa" />
+      <SectionHeader title="Seus dados" />
       <View style={{ paddingHorizontal: layout.gutter, gap: 16 }}>
         {field('Nome', n, setN)}
         {field('Cidade', c, setC)}

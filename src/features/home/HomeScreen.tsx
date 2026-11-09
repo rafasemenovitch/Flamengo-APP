@@ -192,7 +192,7 @@ export function HomeScreen() {
       </Reveal>
 
       <Reveal index={4} style={{ marginTop: 48 }}>
-        <SectionTitle title="Para você" subtitle="Pelos seus jogadores favoritos e interesses" />
+        <SectionTitle title="Para você" />
         {forYou.loading ? (
           <View style={{ paddingHorizontal: layout.gutter }}>
             <Skeleton height={72} radius={8} />
@@ -251,7 +251,6 @@ export function HomeScreen() {
       <Reveal index={6} style={{ marginTop: 48 }}>
         <SectionTitle
           title="Jogue com a Nação"
-          subtitle="Pontos virtuais, sem apostas"
           action="Meus pontos"
           onAction={() => navigation.navigate('Gamification')}
         />

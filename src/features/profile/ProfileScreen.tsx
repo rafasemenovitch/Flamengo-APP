@@ -72,12 +72,7 @@ export function ProfileScreen() {
             subtitle={`${profile.favoritePlayerIds.length} seguidos · interesses`}
             onPress={() => navigation.navigate('Favorites')}
           />
-          <ListItem
-            icon="time-outline"
-            title="Histórico"
-            subtitle="Ingressos, compras, pontos, conquistas"
-            onPress={() => navigation.navigate('History')}
-          />
+          <ListItem icon="time-outline" title="Histórico" onPress={() => navigation.navigate('History')} />
           <ListItem
             icon="wallet-outline"
             title="Meus ingressos"
@@ -91,13 +86,11 @@ export function ProfileScreen() {
           <ListItem
             icon="help-circle-outline"
             title="Ajuda"
-            subtitle="Fale com o Assistente Fla"
             onPress={() => navigation.navigate('Assistant')}
           />
           <ListItem
             icon="settings-outline"
             title="Configurações"
-            subtitle="Seus dados, notificações, privacidade e aparência"
             onPress={() => navigation.navigate('Settings')}
           />
           <ListItem
@@ -146,7 +139,7 @@ export function FavoritesScreen() {
 
   return (
     <Screen title="Favoritos">
-      <SectionTitle title="Jogadores" subtitle="Toque para seguir. Toque longo abre o perfil." />
+      <SectionTitle title="Jogadores" />
       {squad.loading ? (
         <View style={{ paddingHorizontal: layout.gutter }}>
           <Skeleton height={96} radius={8} />

@@ -4,27 +4,27 @@ import { useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import {
-  Badge,
-  Card,
+  Button,
   ErrorState,
-  MediaImage,
   ProgressBar,
   Screen,
-  SectionHeader,
+  SectionTitle,
   Skeleton,
   Text,
+  TreatedImage,
   useTheme,
+  withAlpha,
 } from '@/design-system';
-import { CATEGORY_LABEL, VideoCard } from '@/features/shared/ContentCards';
+import { NewsRow } from '@/features/shared/ContentCards';
 import { useAsync } from '@/hooks/useAsync';
 import type { RootScreenProps } from '@/navigation/types';
 import { services } from '@/services';
 import { formatCompact, formatDuration, formatRelative } from '@/utils/format';
 
-/** FlaTV. Sem vídeos oficiais: o "player" simula a reprodução sobre um placeholder. */
+/** FlaTV. Sem vídeos oficiais: o "player" simula a reprodução sobre a imagem. */
 export function VideoDetailScreen({ route }: RootScreenProps<'VideoDetail'>) {
   const navigation = useNavigation();
-  const { colors, spacing, layout, radius } = useTheme();
+  const { colors, layout } = useTheme();
   const q = useAsync(() => services.flatv.getVideo(route.params.videoId), [route.params.videoId]);
   const more = useAsync(() => services.flatv.getVideos());
   const [playing, setPlaying] = useState(false);
@@ -40,10 +40,7 @@ export function VideoDetailScreen({ route }: RootScreenProps<'VideoDetail'>) {
   if (q.loading)
     return (
       <Screen title="FlaTV">
-        <View style={{ padding: layout.gutter, gap: spacing.lg }}>
-          <Skeleton height={210} radius={radius.lg} />
-          <Skeleton height={80} />
-        </View>
+        <Skeleton height={220} radius={0} />
       </Screen>
     );
   if (q.error || !q.data)
@@ -56,107 +53,69 @@ export function VideoDetailScreen({ route }: RootScreenProps<'VideoDetail'>) {
 
   return (
     <Screen title="FlaTV">
-      <View style={{ paddingHorizontal: layout.gutter, gap: spacing.lg }}>
-        <Pressable
-          onPress={() => setPlaying((p) => !p)}
-          accessibilityRole="button"
-          accessibilityLabel={playing ? 'Pausar' : 'Reproduzir'}
-        >
-          <MediaImage
-            imageKey={v.imageKey}
-            icon="videocam-outline"
-            scrim
-            style={{ aspectRatio: 16 / 9, borderRadius: radius.lg }}
-          >
-            <View style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center' }]}>
-              <Ionicons
-                name={playing ? 'pause' : 'play'}
-                size={48}
-                color={colors.onPrimary}
-                style={{ marginLeft: playing ? 0 : 3 }}
-              />
-            </View>
-            <View
-              style={{
-                position: 'absolute',
-                left: spacing.md,
-                right: spacing.md,
-                bottom: spacing.md,
-                gap: 6,
-              }}
-            >
-              <ProgressBar
-                value={pos / v.durationSec}
-                height={4}
-                color={colors.primary}
-                track="rgba(255,255,255,0.25)"
-              />
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <Text variant="footnote" tone="onMedia">
-                  {formatDuration(pos)}
-                </Text>
-                <Text variant="footnote" tone="onMedia">
-                  {formatDuration(v.durationSec)}
-                </Text>
-              </View>
-            </View>
-            <Badge
-              label="Player demonstrativo"
-              tone="onMedia"
-              style={{ position: 'absolute', top: spacing.md, left: spacing.md }}
-            />
-          </MediaImage>
-        </Pressable>
-
-        <View style={{ gap: spacing.sm }}>
-          <View style={{ flexDirection: 'row', gap: spacing.sm }}>
-            <Badge label={CATEGORY_LABEL[v.category]} tone="brand" />
-            {v.membersOnly && <Badge label="Exclusivo sócio" tone="solidBrand" icon="star" />}
+      <Pressable
+        onPress={() => setPlaying((p) => !p)}
+        accessibilityRole="button"
+        accessibilityLabel={playing ? 'Pausar' : 'Reproduzir'}
+      >
+        <TreatedImage imageKey={v.imageKey} aspect="video" overlay style={{ aspectRatio: 16 / 9 }}>
+          <View style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center' }]}>
+            <Ionicons name={playing ? 'pause' : 'play'} size={48} color={colors.inkOnRed} />
           </View>
-          <Text variant="h2">{v.title}</Text>
-          <Text variant="caption" tone="secondary">
-            {formatCompact(v.views)} visualizações · {formatRelative(v.publishedAt)}
+          <View style={{ position: 'absolute', left: 16, right: 16, bottom: 12, gap: 6 }}>
+            <ProgressBar
+              value={pos / v.durationSec}
+              height={3}
+              color={colors.accent}
+              track={withAlpha(colors.inkOnRed, 0.25)}
+            />
+            <Text variant="labelM" tone="onMedia">
+              {formatDuration(pos)} / {formatDuration(v.durationSec)}
+            </Text>
+          </View>
+        </TreatedImage>
+      </Pressable>
+
+      <View style={{ paddingHorizontal: layout.gutter, paddingTop: 24, gap: 12 }}>
+        {v.membersOnly && (
+          <Text variant="overline" tone="brand">
+            Exclusivo sócio
           </Text>
-          <Text variant="body" tone="secondary">
-            {v.description}
-          </Text>
-        </View>
+        )}
+        <Text variant="displayM">{v.title}</Text>
+        <Text variant="bodyS" tone="tertiary">
+          {formatCompact(v.views)} visualizações · {formatRelative(v.publishedAt)}
+        </Text>
         {v.matchId && (
-          <Card
+          <Button
+            label="Ver a partida"
+            variant="link"
             onPress={() => navigation.navigate('MatchDetail', { matchId: v.matchId! })}
-            accessibilityLabel="Ver a partida"
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
-              <Ionicons name="football" size={22} color={colors.primaryText} />
-              <Text variant="bodyStrong" style={{ flex: 1 }}>
-                Ver estatísticas da partida
-              </Text>
-              <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
-            </View>
-          </Card>
+          />
         )}
       </View>
 
-      <View style={{ marginTop: spacing.xxl }}>
-        <SectionHeader title="A seguir" />
-        <View style={{ paddingHorizontal: layout.gutter, gap: spacing.md }}>
-          {more.data
-            ?.filter((x) => x.id !== v.id)
-            .slice(0, 4)
-            .map((x) => (
-              <VideoCard
-                key={x.id}
-                video={x}
-                onPress={() =>
-                  navigation.navigate({
-                    name: 'VideoDetail',
-                    params: { videoId: x.id },
-                    key: `video-${x.id}`,
-                  } as never)
-                }
-              />
-            ))}
-        </View>
+      <View style={{ marginTop: 32 }}>
+        <SectionTitle title="A seguir" />
+        {more.data
+          ?.filter((x) => x.id !== v.id)
+          .slice(0, 4)
+          .map((x) => (
+            <NewsRow
+              key={x.id}
+              video
+              title={x.title}
+              imageKey={x.imageKey}
+              meta={formatDuration(x.durationSec)}
+              onPress={() =>
+                navigation.navigate({
+                  name: 'VideoDetail',
+                  params: { videoId: x.id },
+                  key: `video-${x.id}`,
+                } as never)
+              }
+            />
+          ))}
       </View>
     </Screen>
   );

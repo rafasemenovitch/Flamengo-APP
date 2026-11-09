@@ -2,36 +2,32 @@ import { useNavigation } from '@react-navigation/native';
 import { Share, View } from 'react-native';
 
 import {
-  Badge,
   ErrorState,
   IconButton,
-  MediaImage,
   Screen,
-  SectionHeader,
+  SectionTitle,
   Skeleton,
   Text,
+  TreatedImage,
   useTheme,
 } from '@/design-system';
-import { CATEGORY_LABEL, HList, NewsCard } from '@/features/shared/ContentCards';
+import { CATEGORY_LABEL, NewsRow } from '@/features/shared/ContentCards';
 import { useAsync } from '@/hooks/useAsync';
 import type { RootScreenProps } from '@/navigation/types';
 import { services } from '@/services';
-import { formatMatchDate } from '@/utils/format';
+import { formatRelative } from '@/utils/format';
 
+/** Notícia: foto em sangria, título grande, texto corrido e "Leia também" em linhas. */
 export function NewsDetailScreen({ route }: RootScreenProps<'NewsDetail'>) {
   const navigation = useNavigation();
-  const { spacing, layout, radius } = useTheme();
+  const { layout } = useTheme();
   const q = useAsync(() => services.news.getArticle(route.params.articleId), [route.params.articleId]);
-  const more = useAsync(() => services.news.getLatest(8));
+  const more = useAsync(() => services.news.getLatest(6));
 
   if (q.loading)
     return (
       <Screen title="Notícia">
-        <View style={{ padding: layout.gutter, gap: spacing.lg }}>
-          <Skeleton height={220} radius={radius.xl} />
-          <Skeleton height={28} />
-          <Skeleton height={200} />
-        </View>
+        <Skeleton height={240} radius={0} />
       </Screen>
     );
   if (q.error || !q.data)
@@ -50,50 +46,36 @@ export function NewsDetailScreen({ route }: RootScreenProps<'NewsDetail'>) {
           icon="share-outline"
           variant="plain"
           accessibilityLabel="Compartilhar"
-          onPress={() => Share.share({ message: `${a.title} — Flamengo App (demo)` })}
+          onPress={() => Share.share({ message: `${a.title} — Flamengo App` })}
         />
       }
     >
-      <View style={{ paddingHorizontal: layout.gutter, gap: spacing.lg }}>
-        <MediaImage
-          imageKey={a.imageKey}
-          icon="newspaper-outline"
-          style={{ height: 220, borderRadius: radius.xl }}
-        />
-        <View style={{ gap: spacing.sm }}>
-          <View style={{ flexDirection: 'row', gap: spacing.sm }}>
-            <Badge label={CATEGORY_LABEL[a.category]} tone="brand" />
-            <Badge label="Texto demonstrativo" tone="demo" />
-          </View>
-          <Text variant="h1">{a.title}</Text>
-          <Text variant="caption" tone="secondary">
-            {a.author} · {formatMatchDate(a.publishedAt)} · {a.readMinutes} min de leitura
-          </Text>
-        </View>
-        <Text variant="title" tone="secondary">
+      <TreatedImage imageKey={a.imageKey} aspect="wide" style={{ aspectRatio: 16 / 10 }} />
+      <View style={{ paddingHorizontal: layout.gutter, paddingTop: 24, gap: 16 }}>
+        <Text variant="displayM">{a.title}</Text>
+        <Text variant="bodyS" tone="tertiary">
+          {formatRelative(a.publishedAt)} · {a.readMinutes} min
+        </Text>
+        <Text variant="titleM" tone="secondary">
           {a.summary}
         </Text>
         {a.body.map((p, i) => (
-          <Text key={i} variant="body" style={{ lineHeight: 25 }}>
+          <Text key={i} variant="bodyL">
             {p}
           </Text>
         ))}
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
-          {a.tags.map((t) => (
-            <Badge key={t} label={`#${t}`} tone="neutral" />
-          ))}
-        </View>
       </View>
-      <View style={{ marginTop: spacing.xxl }}>
-        <SectionHeader title="Leia também" />
-        <HList
-          data={more.data?.filter((n) => n.id !== a.id)}
-          loading={more.loading}
-          itemWidth={260}
-          keyOf={(n) => n.id}
-          renderItem={(n) => (
-            <NewsCard
-              article={n}
+      <View style={{ marginTop: 48 }}>
+        <SectionTitle title="Leia também" />
+        {more.data
+          ?.filter((n) => n.id !== a.id)
+          .slice(0, 3)
+          .map((n) => (
+            <NewsRow
+              key={n.id}
+              title={n.title}
+              imageKey={n.imageKey}
+              meta={`${n.readMinutes} min · ${formatRelative(n.publishedAt)}`}
               onPress={() =>
                 navigation.navigate({
                   name: 'NewsDetail',
@@ -102,8 +84,7 @@ export function NewsDetailScreen({ route }: RootScreenProps<'NewsDetail'>) {
                 } as never)
               }
             />
-          )}
-        />
+          ))}
       </View>
     </Screen>
   );

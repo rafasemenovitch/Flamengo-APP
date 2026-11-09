@@ -46,7 +46,7 @@ export function TicketsScreen() {
         sales.refresh();
       }}
     >
-      <TabHeader title="Ingressos" subtitle="Compra simulada · nenhum valor é cobrado" />
+      <TabHeader title="Ingressos" subtitle="Compra simulada" />
 
       <View style={{ marginTop: 48 }}>
         <SectionTitle
@@ -102,7 +102,7 @@ export function TicketsScreen() {
       </View>
 
       <View style={{ marginTop: 48 }}>
-        <SectionTitle title="Venda aberta" subtitle="Sócios têm prioridade e desconto" />
+        <SectionTitle title="Venda aberta" />
         {sales.loading ? (
           <View style={{ paddingHorizontal: layout.gutter, gap: 16 }}>
             <Skeleton height={80} radius={8} />

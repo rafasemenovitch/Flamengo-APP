@@ -6,17 +6,17 @@ import {
   ErrorState,
   MediaImage,
   Screen,
-  SectionHeader,
+  SectionTitle,
   Skeleton,
   Text,
   useTheme,
 } from '@/design-system';
-import { HList, NewsCard, VideoCard } from '@/features/shared/ContentCards';
+import { NewsRow } from '@/features/shared/ContentCards';
 import { useAsync } from '@/hooks/useAsync';
 import type { RootScreenProps } from '@/navigation/types';
 import { services } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
-import { formatFullDate } from '@/utils/format';
+import { formatDuration, formatFullDate } from '@/utils/format';
 
 function age(birth: string) {
   const b = new Date(birth);
@@ -141,28 +141,31 @@ export function PlayerProfileScreen({ route }: RootScreenProps<'PlayerProfile'>)
 
       {relatedNews.length > 0 && (
         <View style={{ marginTop: spacing.xxl }}>
-          <SectionHeader title="Notícias" />
-          <HList
-            data={relatedNews}
-            itemWidth={260}
-            keyOf={(n) => n.id}
-            renderItem={(n) => (
-              <NewsCard article={n} onPress={() => navigation.navigate('NewsDetail', { articleId: n.id })} />
-            )}
-          />
+          <SectionTitle title="Notícias" />
+          {relatedNews.slice(0, 3).map((n) => (
+            <NewsRow
+              key={n.id}
+              title={n.title}
+              imageKey={n.imageKey}
+              meta={`${n.readMinutes} min`}
+              onPress={() => navigation.navigate('NewsDetail', { articleId: n.id })}
+            />
+          ))}
         </View>
       )}
       {relatedVideos.length > 0 && (
         <View style={{ marginTop: spacing.xxl }}>
-          <SectionHeader title="Vídeos" />
-          <HList
-            data={relatedVideos}
-            itemWidth={240}
-            keyOf={(v) => v.id}
-            renderItem={(v) => (
-              <VideoCard video={v} onPress={() => navigation.navigate('VideoDetail', { videoId: v.id })} />
-            )}
-          />
+          <SectionTitle title="Vídeos" />
+          {relatedVideos.slice(0, 3).map((v) => (
+            <NewsRow
+              key={v.id}
+              video
+              title={v.title}
+              imageKey={v.imageKey}
+              meta={formatDuration(v.durationSec)}
+              onPress={() => navigation.navigate('VideoDetail', { videoId: v.id })}
+            />
+          ))}
         </View>
       )}
     </Screen>

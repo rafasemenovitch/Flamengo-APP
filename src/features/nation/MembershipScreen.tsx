@@ -74,7 +74,7 @@ export function MembershipScreen() {
       )}
 
       <View style={{ marginTop: 48 }}>
-        <SectionTitle title={`Programa ${info.name}`} subtitle="Como funciona" />
+        <SectionTitle title={`Programa ${info.name}`} />
         <ListGroup>
           {benefits.map((b) => (
             <ListItem key={b.id} title={b.title} subtitle={b.description} />
@@ -83,7 +83,7 @@ export function MembershipScreen() {
       </View>
 
       <View style={{ marginTop: 48 }}>
-        <SectionTitle title="Planos" subtitle="Valores mensais de referência" />
+        <SectionTitle title="Planos" />
         <View style={{ paddingHorizontal: layout.gutter, gap: 12 }}>
           {plans.map((p) => {
             const current = p.id === plan?.id;

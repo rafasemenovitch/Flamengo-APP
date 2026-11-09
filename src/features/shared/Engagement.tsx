@@ -244,7 +244,7 @@ export function PollCard({ pollId, onVoted }: { pollId?: string; onVoted?: () =>
         ))}
       </View>
       <Text variant="bodyS" tone="secondary">
-        {voted ? 'Voto registrado. +5 pts' : 'Vote e ganhe 5 pts'}
+        {voted ? 'Voto registrado' : '+5 pts ao votar'}
       </Text>
     </View>
   );

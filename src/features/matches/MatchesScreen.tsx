@@ -65,7 +65,7 @@ export function MatchesScreen({ route }: TabScreenProps<'Jogos'>) {
       refreshing={view === 'tabela' ? table.refreshing : matches.refreshing}
       onRefresh={view === 'tabela' ? table.refresh : matches.refresh}
     >
-      <TabHeader title="Jogos" subtitle="Temporada 2026 · dados demonstrativos" />
+      <TabHeader title="Jogos" />
 
       <View style={{ marginTop: 24 }}>
         <Tabs
