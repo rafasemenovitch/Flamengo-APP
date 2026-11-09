@@ -1,30 +1,20 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback } from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
-import {
-  Badge,
-  Button,
-  Card,
-  DemoBadge,
-  ErrorState,
-  Screen,
-  Skeleton,
-  Text,
-  useTheme,
-} from '@/design-system';
+import { Button, DemoBadge, ErrorState, Screen, Skeleton, Text, useTheme } from '@/design-system';
 import { DemoQRCode } from '@/features/shared/DemoQRCode';
 import { useAsync } from '@/hooks/useAsync';
 import type { RootScreenProps } from '@/navigation/types';
 import { services } from '@/services';
-import { formatCurrency, formatMatchDate } from '@/utils/format';
+import { formatMatchDate } from '@/utils/format';
 
+/** Ingresso aberto: QR demonstrativo, setor/portão/lugar e acesso pelo rosto. */
 export function TicketDetailScreen({ route }: RootScreenProps<'TicketDetail'>) {
   const navigation = useNavigation();
-  const { colors, spacing, layout } = useTheme();
+  const { colors, layout } = useTheme();
   const face = useAsync(() => services.profile.getFaceEnrollment());
-  // Atualiza o status ao voltar do cadastro facial.
   const refreshFace = face.refresh;
   useFocusEffect(useCallback(() => void refreshFace(), [refreshFace]));
   const q = useAsync(async () => {
@@ -37,7 +27,7 @@ export function TicketDetailScreen({ route }: RootScreenProps<'TicketDetail'>) {
     return (
       <Screen title="Ingresso">
         <View style={{ padding: layout.gutter }}>
-          <Skeleton height={480} radius={24} />
+          <Skeleton height={480} radius={16} />
         </View>
       </Screen>
     );
@@ -48,84 +38,71 @@ export function TicketDetailScreen({ route }: RootScreenProps<'TicketDetail'>) {
       </Screen>
     );
   const { ticket: t, match: m } = q.data;
+  const enrolled = face.data?.status === 'enrolled';
 
   return (
     <Screen title="Ingresso" headerRight={<DemoBadge />}>
-      <View style={{ paddingHorizontal: layout.gutter, gap: spacing.lg }}>
-        <Card variant="elevated" padding="lg">
-          <View style={{ alignItems: 'center', gap: spacing.lg }}>
-            <View style={{ alignItems: 'center', gap: 2 }}>
-              <Text variant="h2" align="center">
-                {m.homeTeam.shortName} × {m.awayTeam.shortName}
-              </Text>
-              <Text variant="caption" tone="secondary" align="center">
-                {formatMatchDate(m.kickoff)} · {m.venue.name}
-              </Text>
-            </View>
-            <DemoQRCode payload={t.qrPayload} size={240} />
-            <Text variant="footnote" tone="demo" align="center">
-              QR Code demonstrativo. Não é válido para entrada no estádio.
+      <View style={{ paddingHorizontal: layout.gutter, gap: 4 }}>
+        <Text variant="displayM">
+          {m.homeTeam.shortName} × {m.awayTeam.shortName}
+        </Text>
+        <Text variant="bodyS" tone="secondary">
+          {formatMatchDate(m.kickoff)} · {m.venue.name}
+        </Text>
+      </View>
+
+      <View style={{ alignItems: 'center', marginTop: 24 }}>
+        <DemoQRCode payload={t.qrPayload} size={260} />
+      </View>
+
+      <View style={{ flexDirection: 'row', paddingHorizontal: layout.gutter, marginTop: 24 }}>
+        {[
+          ['Setor', t.sectorName],
+          ['Portão', t.gate],
+          ['Lugar', t.seat.replace('Fila ', '').replace(' · Cadeira ', '-')],
+        ].map(([k, v]) => (
+          <View key={k} style={{ flex: k === 'Setor' ? 1.6 : 1 }}>
+            <Text variant="overline" tone="tertiary">
+              {k}
             </Text>
-            <View style={{ flexDirection: 'row', alignSelf: 'stretch' }}>
-              {[
-                ['Setor', t.sectorName],
-                ['Portão', t.gate],
-                ['Lugar', t.seat],
-              ].map(([k, v]) => (
-                <View key={k} style={{ flex: 1, alignItems: 'center' }}>
-                  <Text variant="overline" tone="tertiary">
-                    {k}
-                  </Text>
-                  <Text variant="bodyStrong" align="center">
-                    {v}
-                  </Text>
-                </View>
-              ))}
-            </View>
-            <Text variant="caption" tone="secondary">
-              {t.holderName} · {formatCurrency(t.price)} (simulado)
+            <Text variant="titleM" numberOfLines={1}>
+              {v}
             </Text>
           </View>
-        </Card>
-        <Card variant={face.data?.status === 'enrolled' ? 'surface' : 'tinted'}>
-          <View style={{ gap: spacing.md }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
-              <Ionicons
-                name="scan"
-                size={28}
-                color={face.data?.status === 'enrolled' ? colors.success : colors.primaryText}
-              />
-              <View style={{ flex: 1 }}>
-                <Text variant="title">Entrada por reconhecimento facial</Text>
-                <Text variant="caption" tone="secondary">
-                  {face.data?.status === 'enrolled'
-                    ? 'Ativa: na catraca, seu rosto confirma este ingresso.'
-                    : 'Cadastre seu rosto para entrar no estádio.'}
-                </Text>
-              </View>
-              {face.data?.status === 'enrolled' && <Badge label="Ativa" tone="success" icon="checkmark" />}
-            </View>
-            {face.data?.status !== 'enrolled' ? (
-              <Button
-                label="Cadastrar meu rosto"
-                icon="camera"
-                onPress={() => navigation.navigate('FaceEnrollment')}
-                fullWidth
-              />
-            ) : (
-              <Button
-                label="Refazer cadastro"
-                variant="ghost"
-                size="sm"
-                onPress={() => navigation.navigate('FaceEnrollment')}
-              />
-            )}
-          </View>
-        </Card>
+        ))}
+      </View>
+
+      <Pressable
+        onPress={() => navigation.navigate('FaceEnrollment')}
+        accessibilityRole="button"
+        accessibilityLabel={
+          enrolled ? 'Entrada pelo rosto ativa. Refazer cadastro' : 'Cadastrar rosto para entrar no estádio'
+        }
+        style={({ pressed }) => ({
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 16,
+          minHeight: 64,
+          marginTop: 32,
+          paddingHorizontal: layout.gutter,
+          borderTopWidth: 1,
+          borderBottomWidth: 1,
+          borderColor: colors.lineHairline,
+          opacity: pressed ? 0.7 : 1,
+        })}
+      >
+        <Ionicons name="scan-outline" size={24} color={enrolled ? colors.success : colors.accentText} />
+        <Text variant="titleS" style={{ flex: 1 }}>
+          {enrolled ? 'Entrada pelo rosto ativa' : 'Cadastrar meu rosto'}
+        </Text>
+        <Ionicons name="chevron-forward" size={16} color={colors.inkTertiary} />
+      </Pressable>
+
+      <View style={{ paddingHorizontal: layout.gutter, marginTop: 24 }}>
         <Button
-          label="Ver meu setor no mapa do estádio"
-          icon="map"
+          label="Ver meu setor no mapa"
           variant="secondary"
+          icon="map-outline"
           onPress={() => navigation.navigate('StadiumMode', { sectorId: t.sectorId })}
           fullWidth
         />

@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import { Image, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Badge, Button, Card, IconButton, palette, Screen, Text, useTheme, Mascot } from '@/design-system';
+import { Badge, Button, IconButton, Mascot, palette, Screen, Text, useTheme } from '@/design-system';
 import type { RootScreenProps } from '@/navigation/types';
 import { services } from '@/services';
 import { haptic } from '@/utils/haptics';
@@ -94,7 +94,7 @@ export function FaceEnrollmentScreen({ navigation }: RootScreenProps<'FaceEnroll
               align="center"
               style={{ paddingHorizontal: layout.gutter }}
             >
-              Centralize o rosto no contorno, sem boné nem óculos escuros, em local iluminado.
+              Rosto no contorno, sem boné nem óculos
             </Text>
             <Pressable
               onPress={capture}
@@ -120,7 +120,7 @@ export function FaceEnrollmentScreen({ navigation }: RootScreenProps<'FaceEnroll
   }
 
   return (
-    <Screen title="Acesso por reconhecimento facial">
+    <Screen title="Entrada pelo rosto">
       <View style={{ paddingHorizontal: layout.gutter, gap: spacing.lg }}>
         {step === 'intro' && (
           <>
@@ -129,31 +129,7 @@ export function FaceEnrollmentScreen({ navigation }: RootScreenProps<'FaceEnroll
               <Text variant="displayM" align="center">
                 Entre no Maracanã com o seu rosto
               </Text>
-              <Text variant="body" tone="secondary" align="center">
-                O acesso ao estádio é feito por reconhecimento facial. Cadastre seu rosto uma vez e ele fica
-                vinculado à sua conta: na catraca, a leitura confirma seu ingresso.
-              </Text>
             </View>
-            <Card>
-              <View style={{ gap: spacing.md }}>
-                {[
-                  ['person-circle', 'Uma foto de frente, sem acessórios no rosto'],
-                  ['ticket', 'Vale para todos os seus ingressos'],
-                  ['people', 'Convidados fazem o próprio cadastro'],
-                ].map(([icon, label]) => (
-                  <View key={label} style={{ flexDirection: 'row', gap: spacing.md, alignItems: 'center' }}>
-                    <Ionicons
-                      name={icon as keyof typeof Ionicons.glyphMap}
-                      size={20}
-                      color={colors.primaryText}
-                    />
-                    <Text variant="callout" style={{ flex: 1 }}>
-                      {label}
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            </Card>
             <Pressable
               onPress={() => setConsent((c) => !c)}
               accessibilityRole="checkbox"
@@ -188,7 +164,7 @@ export function FaceEnrollmentScreen({ navigation }: RootScreenProps<'FaceEnroll
             )}
             <Button label="Cadastrar meu rosto" icon="camera" disabled={!consent} onPress={start} fullWidth />
             <Text variant="footnote" tone="demo" align="center">
-              Demonstração: a foto não sai do seu celular e não é enviada a nenhum sistema.
+              Demonstração: a foto fica só no seu celular.
             </Text>
           </>
         )}
@@ -208,11 +184,8 @@ export function FaceEnrollmentScreen({ navigation }: RootScreenProps<'FaceEnroll
                 }}
                 accessibilityLabel="Sua foto"
               />
-              <Text variant="h2" align="center">
+              <Text variant="displayM" align="center">
                 Ficou boa?
-              </Text>
-              <Text variant="callout" tone="secondary" align="center">
-                Rosto inteiro visível, de frente e bem iluminado.
               </Text>
             </View>
             <Button label="Usar esta foto" icon="checkmark" loading={saving} onPress={confirm} fullWidth />
@@ -233,7 +206,7 @@ export function FaceEnrollmentScreen({ navigation }: RootScreenProps<'FaceEnroll
               Rosto cadastrado!
             </Text>
             <Text variant="body" tone="secondary" align="center">
-              No dia do jogo, é só olhar para a câmera da catraca do seu portão.
+              Na catraca, é só olhar para a câmera.
             </Text>
             <Badge label="Cadastro demonstrativo" tone="demo" icon="flask-outline" />
             <Button label="Voltar ao ingresso" onPress={() => navigation.goBack()} fullWidth />
