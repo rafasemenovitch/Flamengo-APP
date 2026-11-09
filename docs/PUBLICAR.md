@@ -22,11 +22,23 @@ npm run publicar
 
 O QR Code é o mesmo: quem já abriu recebe a versão nova ao reabrir o app no Expo Go.
 
-## Onde está o QR Code
+## QR Code fixo
 
-Em https://expo.dev → seu projeto **flamengo-app** → **Updates** → branch **demo** →
-botão **Preview** (mostra o QR Code). Dá para salvar a imagem ou o link e mandar para
-outras pessoas (elas também precisam do Expo Go instalado).
+Uma vez só, crie o canal `demo` (ligado ao branch `demo`):
+
+```bash
+npx eas-cli@latest channel:create demo
+```
+
+QR Code fixo: [`docs/qrcode-expo-go.png`](qrcode-expo-go.png). Sempre abre a versão mais
+recente publicada. Link equivalente (para mandar por mensagem):
+
+```
+exp://u.expo.dev/fc684d85-dbe4-483e-8330-44e088324fd7?channel-name=demo&runtime-version=exposdk%3A58.0.0
+```
+
+No painel (https://expo.dev → flamengo-app → Updates) cada publicação também tem um QR
+próprio, mas ele aponta só para aquela versão.
 
 ## Observações
 
