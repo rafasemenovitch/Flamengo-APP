@@ -1,8 +1,8 @@
-import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { Animated, StyleSheet } from 'react-native';
 
-import { Mascot, PressableScale, hasMascot, useTheme } from '@/design-system';
+import { PressableScale, useTheme } from '@/design-system';
+import { AssistantAvatar } from '@/features/assistant/ChatParts';
 import { useReduceMotion } from '@/hooks/useReduceMotion';
 
 /**
@@ -60,11 +60,7 @@ export function AssistantFab({
           },
         ]}
       >
-        {hasMascot('assistant-neutral') ? (
-          <Mascot pose="assistant-neutral" size={48} />
-        ) : (
-          <Ionicons name="chatbubble-ellipses-outline" size={24} color={colors.inkOnRed} />
-        )}
+        <AssistantAvatar expression="neutral" size={50} />
       </PressableScale>
     </Animated.View>
   );

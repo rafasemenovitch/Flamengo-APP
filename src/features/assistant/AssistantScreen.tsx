@@ -1,139 +1,268 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  TextInput,
-  View,
-} from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { FlatList, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import {
-  Button,
-  fonts,
-  hasMascot,
-  IconButton,
-  Mascot,
-  Text,
-  useTheme,
-  type MascotPose,
-} from '@/design-system';
+import { Button, IconButton, Text, useTheme } from '@/design-system';
 import { useAsync } from '@/hooks/useAsync';
 import { navigateByName } from '@/navigation/navigationRef';
 import type { RootScreenProps } from '@/navigation/types';
 import { services } from '@/services';
-import type { AssistantMessage, AssistantReply } from '@/types/fan';
+import type { AssistantAction, AssistantExpression, AssistantReply } from '@/types/fan';
+import { haptic } from '@/utils/haptics';
+import {
+  Appear,
+  AssistantAvatar,
+  ChatActions,
+  ChatCard,
+  GestureImage,
+  QuestionSheet,
+  TypingDots,
+} from './ChatParts';
 
-type Msg = AssistantMessage & { reply?: AssistantReply };
+type Msg =
+  | { id: string; role: 'intro' }
+  | { id: string; role: 'user'; text: string }
+  | { id: string; role: 'assistant'; reply: AssistantReply }
+  | { id: string; role: 'pending'; search: boolean };
 
-/** Avatar do assistente: pose `assistant-*` ou um ponto de marca enquanto não há imagem. */
-function AssistantAvatar({ pose, size }: { pose: MascotPose; size: number }) {
-  const { colors } = useTheme();
-  if (hasMascot(pose)) {
-    return (
-      <View style={{ width: size, height: size, borderRadius: size / 2, overflow: 'hidden' }}>
-        <Mascot pose={pose} size={size} />
-      </View>
-    );
-  }
-  return (
-    <View
-      style={{
-        width: size,
-        height: size,
-        borderRadius: size / 2,
-        backgroundColor: colors.accent,
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <Ionicons name="chatbubble-ellipses-outline" size={size * 0.5} color={colors.inkOnRed} />
-    </View>
-  );
-}
+const WELCOME: AssistantReply = {
+  text: 'Fala, rubro-negro! Eu sou o Assistente Fla. Toque em "Fazer pergunta" e escolha um tema. Sempre que der, eu te levo direto pra tela certa.',
+  expression: 'wave',
+  grounded: true,
+  sources: [],
+  followUps: ['proximo-jogo', 'meu-portao', 'meus-pontos'],
+};
 
-/** Assistente Fla (especificação 13.6). Base: ChatThreadScreen do Zuno. */
+let seq = 0;
+const nid = () => `m${Date.now()}-${seq++}`;
+
+/**
+ * Assistente Fla: conversa com perguntas prontas (sem teclado). O mascote,
+ * na skin "modo assistente", muda de reação conforme a conversa: acena,
+ * pensa, busca com a lupa, explica, aponta, mostra o mapa, fica sem graça...
+ */
 export function AssistantScreen({ navigation, route }: RootScreenProps<'Assistant'>) {
   const { colors, layout, radius } = useTheme();
-  const [messages, setMessages] = useState<Msg[]>([]);
-  const [draft, setDraft] = useState('');
-  const [thinking, setThinking] = useState(false);
-  const listRef = useRef<FlatList<Msg>>(null);
-  const suggestions = useAsync(() => services.assistant.getSuggestions());
-  const asked = useRef(false);
+  const topics = useAsync(() => services.assistant.getTopics());
+  const [messages, setMessages] = useState<Msg[]>([{ id: 'intro', role: 'intro' }]);
+  const [sheet, setSheet] = useState(false);
+  const [asked, setAsked] = useState<Set<string>>(new Set());
+  const busy = messages.some((m) => m.role === 'pending');
+  const list = useRef<FlatList<Msg>>(null);
+  const started = useRef(false);
 
-  const lastReply = [...messages].reverse().find((m) => m.role === 'assistant')?.reply;
-  const avatarPose: MascotPose = thinking
-    ? 'assistant-thinking'
-    : lastReply && !lastReply.grounded
-      ? 'assistant-sorry'
-      : 'assistant-neutral';
+  // Expressão atual do cabeçalho: acompanha a última reação do mascote.
+  const headerExpression: AssistantExpression = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i]!;
+      if (m.role === 'pending') return 'thinking';
+      if (m.role === 'assistant') return m.reply.expression ?? 'neutral';
+    }
+    return 'neutral';
+  }, [messages]);
 
-  const send = async (text: string) => {
-    const q = text.trim();
-    if (!q || thinking) return;
+  const ask = async (questionId: string) => {
+    const q = services.assistant.findQuestion(questionId);
+    if (!q || busy) return;
+    haptic.select();
+    setSheet(false);
+    setAsked((s) => new Set(s).add(q.id));
+    const pendingId = nid();
     setMessages((m) => [
       ...m,
-      { id: `u-${Date.now()}`, role: 'user', text: q, createdAt: new Date().toISOString() },
+      { id: nid(), role: 'user', text: q.text },
+      { id: pendingId, role: 'pending', search: !!q.search },
     ]);
-    setDraft('');
-    setThinking(true);
-    try {
-      const reply = await services.assistant.ask(q, messages);
-      setMessages((m) => [
-        ...m,
-        {
-          id: `a-${Date.now()}`,
-          role: 'assistant',
-          text: reply.text,
-          sources: reply.sources,
-          createdAt: new Date().toISOString(),
-          reply,
-        },
-      ]);
-    } catch {
-      setMessages((m) => [
-        ...m,
-        {
-          id: `e-${Date.now()}`,
-          role: 'assistant',
-          text: 'Perdemos o sinal. Tenta de novo em instantes?',
-          createdAt: new Date().toISOString(),
-        },
-      ]);
-    } finally {
-      setThinking(false);
-    }
+    const reply = await services.assistant.answer(q.id);
+    setMessages((m) => m.map((x) => (x.id === pendingId ? { id: pendingId, role: 'assistant', reply } : x)));
   };
 
+  // Boas-vindas (aceno) e pergunta inicial vinda de outra tela.
   useEffect(() => {
+    if (started.current) return;
+    started.current = true;
+    const t = setTimeout(
+      () => setMessages((m) => [...m, { id: nid(), role: 'assistant', reply: WELCOME }]),
+      350
+    );
     const initial = route.params?.initialQuestion;
-    if (initial && !asked.current) {
-      asked.current = true;
-      send(initial);
-    }
+    const match = initial
+      ? topics.data?.flatMap((tp) => tp.questions).find((q) => q.text === initial)
+      : undefined;
+    if (match) setTimeout(() => ask(match.id), 900);
+    return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [route.params?.initialQuestion]);
+  }, [topics.data]);
 
   useEffect(() => {
-    const t = setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 80);
+    const t = setTimeout(() => list.current?.scrollToEnd({ animated: true }), 120);
     return () => clearTimeout(t);
-  }, [messages.length, thinking]);
+  }, [messages]);
 
-  const goTo = (r: string, params?: Record<string, string>) => {
+  const open = (r: string, params?: Record<string, string>) => {
     navigation.goBack();
     setTimeout(() => navigateByName(r, params), 250);
   };
+  const onAction = (a: AssistantAction) => {
+    if (a.askId) ask(a.askId);
+    else if (a.route) open(a.route, a.params);
+  };
 
-  const empty = messages.length === 0;
+  const lastAssistantId = [...messages].reverse().find((m) => m.role === 'assistant')?.id;
+
+  const renderItem = ({ item }: { item: Msg }) => {
+    if (item.role === 'intro') {
+      return (
+        <View style={{ alignItems: 'center', paddingTop: 8, paddingBottom: 24, gap: 12 }}>
+          <GestureImage gesture="open-arms" size={180} />
+          <Text variant="titleL" align="center">
+            Como posso ajudar?
+          </Text>
+          <Text variant="bodyM" tone="secondary" align="center" style={{ maxWidth: 300 }}>
+            Jogos, ingressos, Maracanã, sócio, loja e seus pontos.
+          </Text>
+        </View>
+      );
+    }
+    if (item.role === 'user') {
+      return (
+        <Appear>
+          <View style={{ alignItems: 'flex-end', marginTop: 16 }}>
+            <View
+              style={{
+                maxWidth: '80%',
+                backgroundColor: colors.accent,
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                borderRadius: radius.l,
+                borderBottomRightRadius: 4,
+              }}
+            >
+              <Text variant="bodyL" tone="onPrimary">
+                {item.text}
+              </Text>
+            </View>
+          </View>
+        </Appear>
+      );
+    }
+    if (item.role === 'pending') {
+      return (
+        <Appear>
+          <View style={{ marginTop: 16, flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
+            {item.search ? (
+              <GestureImage gesture="magnifier" size={96} />
+            ) : (
+              <AssistantAvatar expression="thinking" size={36} />
+            )}
+            <View
+              style={{
+                backgroundColor: colors.bgRaised,
+                paddingHorizontal: 16,
+                paddingVertical: 14,
+                borderRadius: radius.l,
+                borderBottomLeftRadius: 4,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 8,
+              }}
+            >
+              {item.search && (
+                <Text variant="bodyM" tone="secondary">
+                  Buscando
+                </Text>
+              )}
+              <TypingDots />
+            </View>
+          </View>
+        </Appear>
+      );
+    }
+
+    const r = item.reply;
+    const isLast = item.id === lastAssistantId;
+    const sideBySide = r.gesture === 'point-side' && r.card;
+    return (
+      <Appear>
+        <View style={{ marginTop: 16, gap: 10 }}>
+          {/* Gesto grande acima da resposta (menos quando aponta para o card ao lado). */}
+          {r.gesture && !sideBySide && <GestureImage gesture={r.gesture} size={136} />}
+          <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
+            <AssistantAvatar expression={r.expression ?? 'neutral'} size={36} />
+            <View
+              style={{
+                maxWidth: '82%',
+                backgroundColor: colors.bgRaised,
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                borderRadius: radius.l,
+                borderBottomLeftRadius: 4,
+              }}
+            >
+              <Text variant="bodyL">{r.text}</Text>
+            </View>
+          </View>
+          <View style={{ marginLeft: 44, gap: 10 }}>
+            {r.card &&
+              (sideBySide ? (
+                <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 4, marginLeft: -44 }}>
+                  <GestureImage gesture="point-side" size={104} />
+                  <View style={{ flex: 1 }}>
+                    <ChatCard card={r.card} onOpen={open} />
+                  </View>
+                </View>
+              ) : (
+                <ChatCard card={r.card} onOpen={open} />
+              ))}
+            {!!r.actions?.length && <ChatActions actions={r.actions} onAction={onAction} />}
+            {!!r.sources.length && r.sources[0] !== 'Informação do app (dados demonstrativos)' && (
+              <Text variant="bodyS" tone="tertiary">
+                Fonte: {r.sources.join(' · ')}
+              </Text>
+            )}
+            {isLast && !busy && !!r.followUps?.length && (
+              <View style={{ gap: 8, marginTop: 4 }}>
+                <Text variant="overline" tone="tertiary">
+                  Perguntas relacionadas
+                </Text>
+                {r.followUps.map((id) => {
+                  const q = services.assistant.findQuestion(id);
+                  if (!q) return null;
+                  return (
+                    <Pressable
+                      key={id}
+                      onPress={() => ask(id)}
+                      accessibilityRole="button"
+                      style={({ pressed }) => ({
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 8,
+                        minHeight: 40,
+                        paddingHorizontal: 12,
+                        borderRadius: radius.s,
+                        borderWidth: 1,
+                        borderColor: colors.lineHairline,
+                        alignSelf: 'flex-start',
+                        opacity: pressed ? 0.6 : 1,
+                      })}
+                    >
+                      <Text variant="labelM" tone="secondary">
+                        {q.text}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            )}
+          </View>
+        </View>
+      </Appear>
+    );
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bgCanvas }} edges={['top', 'bottom']}>
-      {/* Cabeçalho compacto */}
       <View
         style={{
           flexDirection: 'row',
@@ -141,12 +270,12 @@ export function AssistantScreen({ navigation, route }: RootScreenProps<'Assistan
           gap: 12,
           paddingLeft: layout.gutter,
           paddingRight: 8,
-          height: 56,
+          height: 60,
           borderBottomWidth: 1,
           borderColor: colors.lineHairline,
         }}
       >
-        <AssistantAvatar pose={avatarPose} size={32} />
+        <AssistantAvatar expression={headerExpression} size={40} />
         <View style={{ flex: 1 }}>
           <Text variant="titleS" accessibilityRole="header">
             Assistente Fla
@@ -154,7 +283,7 @@ export function AssistantScreen({ navigation, route }: RootScreenProps<'Assistan
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: colors.success }} />
             <Text variant="bodyS" tone="secondary">
-              {thinking ? 'consultando a base oficial…' : 'online'}
+              {busy ? 'digitando…' : 'online'}
             </Text>
           </View>
         </View>
@@ -166,177 +295,56 @@ export function AssistantScreen({ navigation, route }: RootScreenProps<'Assistan
         />
       </View>
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        {empty ? (
-          <ScrollView
-            contentContainerStyle={{
-              flexGrow: 1,
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: layout.gutter,
-              gap: 24,
-            }}
-          >
-            <Mascot pose="assistant-wave" size={120} />
-            <Text variant="titleL" align="center">
-              Fala, rubro-negro! Como posso ajudar?
-            </Text>
-            <Text variant="bodyM" tone="secondary" align="center">
-              Jogos, ingressos, Maracanã, sócio e loja. Respondo só com informação oficial e aviso quando não
-              sei.
-            </Text>
-          </ScrollView>
-        ) : (
-          <FlatList
-            ref={listRef}
-            data={messages}
-            keyExtractor={(m) => m.id}
-            contentContainerStyle={{ padding: layout.gutter }}
-            renderItem={({ item, index }) => {
-              const mine = item.role === 'user';
-              const prev = messages[index - 1];
-              const gap = index === 0 ? 0 : prev?.role === item.role ? 8 : 16;
-              return (
-                <View
-                  style={{
-                    marginTop: gap,
-                    flexDirection: 'row',
-                    alignItems: 'flex-end',
-                    gap: 8,
-                    justifyContent: mine ? 'flex-end' : 'flex-start',
-                  }}
-                >
-                  {!mine && (
-                    <AssistantAvatar
-                      pose={item.reply && !item.reply.grounded ? 'assistant-sorry' : 'assistant-neutral'}
-                      size={28}
-                    />
-                  )}
-                  <View style={{ maxWidth: '80%', gap: 8, alignItems: mine ? 'flex-end' : 'flex-start' }}>
-                    <View
-                      style={{
-                        paddingHorizontal: 16,
-                        paddingVertical: 12,
-                        borderRadius: radius.l,
-                        borderBottomRightRadius: mine ? 4 : radius.l,
-                        borderBottomLeftRadius: mine ? radius.l : 4,
-                        backgroundColor: mine ? colors.accent : colors.bgRaised,
-                      }}
-                    >
-                      <Text variant="bodyL" tone={mine ? 'onPrimary' : 'primary'}>
-                        {item.text}
-                      </Text>
-                      {!!item.sources?.length && (
-                        <Text variant="bodyS" tone="tertiary" style={{ marginTop: 8 }}>
-                          Fonte: {item.sources.join(' · ')}
-                        </Text>
-                      )}
-                    </View>
-                    {item.reply?.action && (
-                      <Button
-                        label={item.reply.action.label}
-                        variant="link"
-                        onPress={() => goTo(item.reply!.action!.route, item.reply!.action!.params)}
-                      />
-                    )}
-                  </View>
-                </View>
-              );
-            }}
-            ListFooterComponent={
-              thinking ? (
-                <View
-                  style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 16 }}
-                  accessibilityLabel="Assistente digitando"
-                >
-                  <AssistantAvatar pose="assistant-thinking" size={28} />
-                  <ActivityIndicator color={colors.accentText} size="small" />
-                </View>
-              ) : undefined
-            }
-          />
-        )}
+      <FlatList
+        ref={list}
+        data={messages}
+        keyExtractor={(m) => m.id}
+        renderItem={renderItem}
+        contentContainerStyle={{ padding: layout.gutter, paddingBottom: 24 }}
+        showsVerticalScrollIndicator={false}
+      />
 
-        {messages.length <= 2 && !!suggestions.data?.length && (
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-            contentContainerStyle={{ paddingHorizontal: layout.gutter, gap: 8, paddingBottom: 12 }}
-            style={{ flexGrow: 0 }}
-          >
-            {suggestions.data.slice(0, 4).map((s) => (
-              <Pressable
-                key={s}
-                onPress={() => send(s)}
-                accessibilityRole="button"
-                style={({ pressed }) => ({
-                  height: 32,
-                  paddingHorizontal: 12,
-                  borderRadius: radius.s,
-                  borderWidth: 1,
-                  borderColor: colors.lineHairline,
-                  justifyContent: 'center',
-                  opacity: pressed ? 0.6 : 1,
-                })}
-              >
-                <Text variant="labelM" tone="secondary">
-                  {s}
-                </Text>
-              </Pressable>
-            ))}
-          </ScrollView>
-        )}
-
+      <View
+        style={{
+          paddingHorizontal: layout.gutter,
+          paddingTop: 12,
+          paddingBottom: 8,
+          borderTopWidth: 1,
+          borderColor: colors.lineHairline,
+        }}
+      >
+        <Button
+          label="Fazer pergunta"
+          icon="chatbubble-ellipses-outline"
+          onPress={() => setSheet(true)}
+          disabled={busy || !topics.data}
+          fullWidth
+        />
         <View
           style={{
             flexDirection: 'row',
+            justifyContent: 'center',
             alignItems: 'center',
-            gap: 8,
-            paddingHorizontal: layout.gutter,
-            paddingVertical: 8,
-            borderTopWidth: 1,
-            borderColor: colors.lineHairline,
+            gap: 6,
+            marginTop: 8,
           }}
         >
-          <TextInput
-            value={draft}
-            onChangeText={setDraft}
-            placeholder="Pergunte ao Assistente Fla"
-            placeholderTextColor={colors.inkTertiary}
-            onSubmitEditing={() => send(draft)}
-            returnKeyType="send"
-            accessibilityLabel="Mensagem para o assistente"
-            style={{
-              flex: 1,
-              height: 52,
-              borderRadius: radius.m,
-              paddingHorizontal: 16,
-              backgroundColor: colors.bgRaised,
-              color: colors.inkPrimary,
-              fontFamily: fonts.regular,
-              fontSize: 16,
-            }}
-          />
-          <Pressable
-            onPress={() => send(draft)}
-            disabled={!draft.trim() || thinking}
-            accessibilityRole="button"
-            accessibilityLabel="Enviar"
-            hitSlop={4}
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 20,
-              backgroundColor: draft.trim() ? colors.accent : colors.bgRaised2,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Ionicons name="arrow-up" size={20} color={draft.trim() ? colors.inkOnRed : colors.inkTertiary} />
-          </Pressable>
+          <Ionicons name="information-circle-outline" size={14} color={colors.inkTertiary} />
+          <Text variant="bodyS" tone="tertiary">
+            Respostas com base nas informações do app
+          </Text>
         </View>
-      </KeyboardAvoidingView>
+      </View>
+
+      {topics.data && (
+        <QuestionSheet
+          visible={sheet}
+          topics={topics.data}
+          asked={asked}
+          onClose={() => setSheet(false)}
+          onPick={ask}
+        />
+      )}
     </SafeAreaView>
   );
 }

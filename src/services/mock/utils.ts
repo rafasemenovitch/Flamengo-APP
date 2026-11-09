@@ -1,6 +1,9 @@
 /** Latência simulada para os estados de carregamento aparecerem como num app real. */
+const IS_TEST = process.env.NODE_ENV === 'test';
+
 export function delay<T>(value: T, ms = 350 + Math.random() * 350): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(structuredCloneSafe(value)), ms));
+  // Nos testes automatizados, sem espera artificial.
+  return new Promise((resolve) => setTimeout(() => resolve(structuredCloneSafe(value)), IS_TEST ? 0 : ms));
 }
 
 /** Cópia defensiva: a UI nunca recebe referências aos objetos internos do mock. */

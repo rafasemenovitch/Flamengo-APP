@@ -12,18 +12,31 @@ export { demoScenario, DEMO_SCENARIOS, type DemoScenario } from './demoScenario'
 export function createMockServices(): Services {
   const matches = createMockMatchesService();
   const tickets = createMockTicketsService();
+  const stadium = createMockStadiumService();
+  const store = createMockStoreService();
+  const membership = createMockMembershipService();
+  const gamification = createMockGamificationService();
+  const profile = createMockProfileService();
   return {
     matches,
     news: createMockNewsService(),
     flatv: createMockFlaTVService(),
     recommendations: createMockRecommendationService(),
     tickets,
-    stadium: createMockStadiumService(),
-    store: createMockStoreService(),
-    membership: createMockMembershipService(),
-    gamification: createMockGamificationService(),
-    assistant: createMockAssistantService({ matches, tickets }),
+    stadium,
+    store,
+    membership,
+    gamification,
+    assistant: createMockAssistantService({
+      matches,
+      tickets,
+      stadium,
+      store,
+      membership,
+      gamification,
+      profile,
+    }),
     auth: createMockAuthService(),
-    profile: createMockProfileService(),
+    profile,
   };
 }

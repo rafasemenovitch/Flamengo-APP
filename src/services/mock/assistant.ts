@@ -1,5 +1,6 @@
 import { ASSISTANT_SUGGESTIONS, FAQ } from '@/data/demo/faq';
-import type { AssistantService, MatchesService, TicketsService } from '@/services/adapters';
+import type { AssistantService } from '@/services/adapters';
+import { answerQuestion, findQuestion, TOPICS, type ScriptDeps } from './assistantScript';
 import type { AssistantReply } from '@/types/fan';
 import { formatMatchDate } from '@/utils/format';
 import { delay, normalize } from './utils';
@@ -19,11 +20,12 @@ const has = (q: string, ...words: string[]) => words.some((w) => q.includes(w));
  * Para trocar por um LLM, implemente AssistantService em services/live
  * mantendo a mesma regra.
  */
-export function createMockAssistantService(deps: {
-  matches: MatchesService;
-  tickets: TicketsService;
-}): AssistantService {
+export function createMockAssistantService(deps: ScriptDeps): AssistantService {
   return {
+    getTopics: async () => delay(TOPICS, 50),
+    findQuestion,
+    // Pausa curta: o mascote "pensa" (ou "busca") antes de responder.
+    answer: async (id) => delay(await answerQuestion(id, deps), 900),
     getSuggestions: async () => delay(ASSISTANT_SUGGESTIONS, 100),
     async ask(question) {
       const q = normalize(question);
