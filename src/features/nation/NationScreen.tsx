@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
 import { View } from 'react-native';
@@ -21,8 +20,6 @@ import { services } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
 import type { PredictionPool } from '@/types/gamification';
 import { formatNumber } from '@/utils/format';
-import { MemberCard } from './MemberCard';
-import { ProductCard } from './store/StoreScreen';
 
 /** Bolões: o ranking que importa é entre amigos (substitui o ranking solto). */
 function PoolsSection({ pools }: { pools: PredictionPool[] }) {
@@ -118,16 +115,12 @@ function PoolsSection({ pools }: { pools: PredictionPool[] }) {
   );
 }
 
-/** Nação: o centro é a parte gamificada; sócio e loja vêm depois. */
+/** Nação: a comunidade (pontos, pé quente, bolões, quiz, enquetes, grupos, ranking). */
 export function NationScreen() {
   const navigation = useNavigation();
   const { colors, layout, radius } = useTheme();
   const { progress } = useAppState();
-  const membership = useAsync(() => services.membership.getMembership());
-  const plans = useAsync(() => services.membership.getPlans());
-  const products = useAsync(() => services.store.getProducts());
   const pools = useAsync(() => services.gamification.getPools());
-  const plan = plans.data?.find((p) => p.id === membership.data?.planId);
   const toNext = progress?.nextLevel
     ? (progress.points - progress.level.minPoints) / (progress.nextLevel.minPoints - progress.level.minPoints)
     : 1;
@@ -173,18 +166,20 @@ export function NationScreen() {
                 : 'Nível máximo'}
             </Text>
 
-            {/* Pé quente */}
-            <View style={{ marginTop: 24, flexDirection: 'row', alignItems: 'center', gap: 16 }}>
-              <Ionicons name="flame-outline" size={32} color={colors.warning} />
-              <View style={{ flex: 1 }}>
-                <Text variant="titleM">
-                  Pé quente: {progress.luckyStreak} {progress.luckyStreak === 1 ? 'vitória' : 'vitórias'}{' '}
-                  seguidas
-                </Text>
-                <Text variant="bodyS" tone="secondary">
-                  {rival ? `${rival.name} tem ${rival.streak}` : 'Você lidera entre os amigos'}
+            {/* Pé quente: vitórias seguidas nos jogos em que você foi */}
+            <View style={{ marginTop: 32 }}>
+              <Text variant="overline" tone="secondary">
+                Pé quente
+              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
+                <Text variant="displayXl">{progress.luckyStreak}</Text>
+                <Text variant="bodyM" tone="secondary">
+                  {progress.luckyStreak === 1 ? 'vitória seguida' : 'vitórias seguidas'} no estádio
                 </Text>
               </View>
+              <Text variant="bodyS" tone={rival ? 'brand' : 'secondary'}>
+                {rival ? `${rival.name} tem ${rival.streak}` : 'Você lidera entre os amigos'}
+              </Text>
             </View>
           </>
         )}
@@ -214,56 +209,9 @@ export function NationScreen() {
 
       <View style={{ marginTop: 48 }}>
         <ListGroup>
-          <ListItem
-            large
-            title="Passaporte Rubro-Negro"
-            subtitle={
-              progress
-                ? `Seus jogos no estádio · ${progress.luckyStreak} de pé quente`
-                : 'Seus jogos no estádio'
-            }
-            onPress={() => navigation.navigate('Passport')}
-          />
-          <ListItem large title="Conquistas" onPress={() => navigation.navigate('Gamification')} />
-          <ListItem large title="Comunidade" onPress={() => navigation.navigate('Community')} />
+          <ListItem large title="Grupos da torcida" onPress={() => navigation.navigate('Community')} />
+          <ListItem large title="Ranking geral" onPress={() => navigation.navigate('Rankings')} />
         </ListGroup>
-      </View>
-
-      <View style={{ marginTop: 48 }}>
-        <SectionTitle
-          title="Sócio-Torcedor"
-          action="Ver planos"
-          onAction={() => navigation.navigate('Membership')}
-        />
-        <View style={{ paddingHorizontal: layout.gutter, gap: 12 }}>
-          {membership.data && plan ? (
-            <>
-              <MemberCard membership={membership.data} plan={plan} />
-              <Text variant="bodyS" tone="secondary">
-                {plan.ticketDiscountPct}% sobre a inteira no Maracanã · prioridade {plan.ticketPriority} na
-                compra
-              </Text>
-            </>
-          ) : (
-            <Skeleton height={200} radius={radius.l} />
-          )}
-        </View>
-      </View>
-
-      <View style={{ marginTop: 48 }}>
-        <SectionTitle title="Loja" action="Ver loja" onAction={() => navigation.navigate('Store')} />
-        <View style={{ paddingHorizontal: layout.gutter, flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-          {products.loading
-            ? [0, 1].map((i) => <Skeleton key={i} width="48%" height={240} radius={radius.l} />)
-            : products.data?.slice(0, 2).map((p) => (
-                <View key={p.id} style={{ width: '48%', flexGrow: 1 }}>
-                  <ProductCard
-                    product={p}
-                    onPress={() => navigation.navigate('Product', { productId: p.id })}
-                  />
-                </View>
-              ))}
-        </View>
       </View>
     </Screen>
   );

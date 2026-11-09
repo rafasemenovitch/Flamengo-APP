@@ -58,7 +58,7 @@ export function HomeHeader({
         </Pressable>
         {progress && (
           <Pressable
-            onPress={() => navigation.navigate('Gamification')}
+            onPress={() => navigation.navigate('Tabs', { screen: 'Nacao' })}
             accessibilityRole="button"
             style={{ flexDirection: 'row', marginTop: 4, minHeight: 24 }}
           >

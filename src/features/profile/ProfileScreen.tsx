@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 
 import {
   Avatar,
@@ -20,15 +20,25 @@ import { CATEGORY_LABEL } from '@/features/shared/ContentCards';
 import { useAsync } from '@/hooks/useAsync';
 import { services } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
+import { MemberCard } from '@/features/nation/MemberCard';
 import type { ContentCategory } from '@/types/content';
 import type { HistoryEntry } from '@/types/fan';
 import { formatFullDate } from '@/utils/format';
 
-/** Perfil (especificação 13.5): cabeçalho e linhas. */
+/**
+ * Perfil: só o que é do torcedor (sócio, passaporte, conquistas, ídolos).
+ * Configurações, histórico e ajuda ficam na engrenagem do cabeçalho.
+ */
 export function ProfileScreen() {
   const navigation = useNavigation();
-  const { layout } = useTheme();
-  const { profile, progress, updateProfile } = useAppState();
+  const { colors, layout, radius } = useTheme();
+  const { profile } = useAppState();
+  const membership = useAsync(() => services.membership.getMembership());
+  const plans = useAsync(() => services.membership.getPlans());
+  const passport = useAsync(() => services.gamification.getPassport());
+  const medals = useAsync(() => services.gamification.getMedals());
+  const squad = useAsync(() => services.matches.getSquad());
+  const plan = plans.data?.find((p) => p.id === membership.data?.planId);
 
   if (!profile)
     return (
@@ -39,85 +49,163 @@ export function ProfileScreen() {
       </Screen>
     );
 
+  const unlocked = medals.data?.filter((m) => m.unlockedAt) ?? [];
+  const wins = passport.data?.filter((p) => p.result === 'Vitória').length ?? 0;
+  const favorites = squad.data?.filter((p) => profile.favoritePlayerIds.includes(p.id)) ?? [];
+
   return (
     <Screen reserveFab>
-      <View style={{ paddingHorizontal: layout.gutter, paddingTop: 24, alignItems: 'flex-start', gap: 12 }}>
+      {/* Você */}
+      <View
+        style={{
+          paddingHorizontal: layout.gutter,
+          paddingTop: 24,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 16,
+        }}
+      >
         <Avatar name={profile.name} size={80} />
-        <View style={{ gap: 4 }}>
-          <Text variant="displayM" accessibilityRole="header">
+        <View style={{ flex: 1, gap: 4 }}>
+          <Text variant="displayM" accessibilityRole="header" numberOfLines={1}>
             {profile.name}
           </Text>
-          {progress && (
-            <Text variant="labelM" tone="brand">
-              Nível {progress.level.level} · {progress.level.name}
-            </Text>
-          )}
           <Text variant="bodyS" tone="secondary">
-            {profile.city} · rubro-negro desde {profile.fanSince} · conta demonstrativa
+            Rubro-negro desde {profile.fanSince}
           </Text>
         </View>
-        <Button
-          label="Editar"
-          variant="secondary"
-          size="sm"
-          onPress={() => navigation.navigate('Settings')}
-        />
       </View>
 
+      {/* Sócio-Torcedor */}
       <View style={{ marginTop: 48 }}>
-        <ListGroup>
-          <ListItem
-            icon="heart-outline"
-            title="Jogadores favoritos"
-            subtitle={`${profile.favoritePlayerIds.length} seguidos · interesses`}
-            onPress={() => navigation.navigate('Favorites')}
-          />
-          <ListItem icon="time-outline" title="Histórico" onPress={() => navigation.navigate('History')} />
-          <ListItem
-            icon="wallet-outline"
-            title="Meus ingressos"
-            onPress={() => navigation.navigate('TicketWallet')}
-          />
-          <ListItem
-            icon="card-outline"
-            title="Sócio-Torcedor"
-            onPress={() => navigation.navigate('Membership')}
-          />
-          <ListItem
-            icon="help-circle-outline"
-            title="Ajuda"
-            onPress={() => navigation.navigate('Assistant')}
-          />
-          <ListItem
-            icon="settings-outline"
-            title="Configurações"
-            onPress={() => navigation.navigate('Settings')}
-          />
-          <ListItem
-            icon="log-out-outline"
-            title="Sair"
-            destructive
-            chevron={false}
-            onPress={() =>
-              Alert.alert(
-                'Conta demonstrativa',
-                'O login real chega numa próxima fase. Sair agora apenas restaura o torcedor demo.',
-                [
-                  { text: 'Cancelar', style: 'cancel' },
-                  {
-                    text: 'Restaurar demo',
-                    style: 'destructive',
-                    onPress: () =>
-                      services.auth
-                        .signOut()
-                        .then(() => services.profile.getProfile())
-                        .then((p) => updateProfile(p)),
-                  },
-                ]
-              )
-            }
-          />
-        </ListGroup>
+        <SectionTitle
+          title="Sócio-Torcedor"
+          action="Planos"
+          onAction={() => navigation.navigate('Membership')}
+        />
+        <View style={{ paddingHorizontal: layout.gutter }}>
+          {membership.data && plan ? (
+            <Pressable
+              onPress={() => navigation.navigate('Membership')}
+              accessibilityRole="button"
+              accessibilityLabel={`Carteirinha ${plan.name}`}
+            >
+              <MemberCard membership={membership.data} plan={plan} />
+            </Pressable>
+          ) : (
+            <Skeleton height={200} radius={radius.l} />
+          )}
+        </View>
+      </View>
+
+      {/* Passaporte */}
+      <View style={{ marginTop: 48 }}>
+        <SectionTitle
+          title="Passaporte Rubro-Negro"
+          action="Ver"
+          onAction={() => navigation.navigate('Passport')}
+        />
+        <Pressable
+          onPress={() => navigation.navigate('Passport')}
+          accessibilityRole="button"
+          style={{ flexDirection: 'row', paddingHorizontal: layout.gutter }}
+        >
+          {[
+            [String(passport.data?.length ?? '—'), 'jogos no estádio'],
+            [String(wins), 'vitórias'],
+          ].map(([v, l]) => (
+            <View key={l} style={{ flex: 1 }}>
+              <Text variant="displayXl">{v}</Text>
+              <Text variant="bodyS" tone="secondary">
+                {l}
+              </Text>
+            </View>
+          ))}
+        </Pressable>
+      </View>
+
+      {/* Conquistas */}
+      <View style={{ marginTop: 48 }}>
+        <SectionTitle
+          title="Conquistas"
+          action={`${unlocked.length}/${medals.data?.length ?? 0}`}
+          onAction={() => navigation.navigate('Gamification')}
+        />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: layout.gutter, gap: 16 }}
+        >
+          {(medals.data ?? []).map((m) => {
+            const on = !!m.unlockedAt;
+            return (
+              <Pressable
+                key={m.id}
+                onPress={() => navigation.navigate('Gamification')}
+                accessibilityRole="button"
+                accessibilityLabel={m.name}
+                style={{ width: 72, alignItems: 'center', gap: 8 }}
+              >
+                <View
+                  style={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: 32,
+                    borderWidth: 2,
+                    borderColor: on ? colors[m.tier] : colors.lineHairline,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Ionicons
+                    name={(on ? m.icon : 'lock-closed-outline') as keyof typeof Ionicons.glyphMap}
+                    size={26}
+                    color={on ? colors[m.tier] : colors.inkTertiary}
+                  />
+                </View>
+                <Text variant="bodyS" tone={on ? 'primary' : 'tertiary'} numberOfLines={2} align="center">
+                  {m.name}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+      </View>
+
+      {/* Ídolos */}
+      <View style={{ marginTop: 48 }}>
+        <SectionTitle title="Meus ídolos" action="Editar" onAction={() => navigation.navigate('Favorites')} />
+        {favorites.length === 0 ? (
+          <View style={{ paddingHorizontal: layout.gutter }}>
+            <Button
+              label="Escolher jogadores"
+              variant="secondary"
+              size="sm"
+              onPress={() => navigation.navigate('Favorites')}
+            />
+          </View>
+        ) : (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: layout.gutter, gap: 16 }}
+          >
+            {favorites.map((p) => (
+              <Pressable
+                key={p.id}
+                onPress={() => navigation.navigate('PlayerProfile', { playerId: p.id })}
+                accessibilityRole="button"
+                accessibilityLabel={p.shortName}
+                style={{ width: 72, alignItems: 'center', gap: 8 }}
+              >
+                <Avatar name={p.shortName} number={p.number} size={56} />
+                <Text variant="labelM" numberOfLines={1} align="center">
+                  {p.shortName}
+                </Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        )}
       </View>
     </Screen>
   );

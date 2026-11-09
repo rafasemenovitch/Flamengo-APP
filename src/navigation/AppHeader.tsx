@@ -55,10 +55,10 @@ export function AppHeader() {
           )}
         </View>
         <Pressable
-          onPress={() => navigation.navigate('Notifications')}
+          onPress={() => navigation.navigate('Settings')}
           accessibilityRole="button"
           accessibilityLabel={
-            unreadNotifications ? `Notificações, ${unreadNotifications} novas` : 'Notificações'
+            unreadNotifications ? `Configurações. ${unreadNotifications} notificações novas` : 'Configurações'
           }
           style={({ pressed }) => ({
             width: 44,
@@ -68,7 +68,7 @@ export function AppHeader() {
             opacity: pressed ? 0.6 : 1,
           })}
         >
-          <Ionicons name="notifications-outline" size={24} color={colors.inkPrimary} />
+          <Ionicons name="settings-outline" size={24} color={colors.inkPrimary} />
           {unreadNotifications > 0 && (
             <View
               style={{

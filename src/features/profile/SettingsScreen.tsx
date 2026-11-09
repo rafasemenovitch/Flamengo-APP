@@ -40,7 +40,7 @@ export function SettingsScreen() {
   const navigation = useNavigation();
   const { colors, spacing, layout } = useTheme();
   const { preference, setPreference } = useThemePreference();
-  const { profile, updateProfile } = useAppState();
+  const { profile, updateProfile, unreadNotifications } = useAppState();
   const { replay } = useOnboarding();
 
   const toggle = (value: boolean, onChange: (v: boolean) => void, label: string) => (
@@ -61,9 +61,34 @@ export function SettingsScreen() {
           key={profile.id}
           name={profile.name}
           city={profile.city}
-          onSave={(name, city) => updateProfile({ name, firstName: name.split(' ')[0] ?? name, city })}
+          email={profile.email}
+          onSave={(name, city, email) =>
+            updateProfile({ name, firstName: name.split(' ')[0] ?? name, city, email })
+          }
         />
       )}
+      <View style={{ marginTop: 32 }}>
+        <ListGroup>
+          <ListItem
+            icon="notifications-outline"
+            title="Notificações"
+            trailing={
+              unreadNotifications > 0 ? (
+                <Text variant="labelM" tone="brand">
+                  {unreadNotifications} novas
+                </Text>
+              ) : undefined
+            }
+            onPress={() => navigation.navigate('Notifications')}
+          />
+          <ListItem icon="time-outline" title="Histórico" onPress={() => navigation.navigate('History')} />
+          <ListItem
+            icon="help-circle-outline"
+            title="Ajuda"
+            onPress={() => navigation.navigate('Assistant')}
+          />
+        </ListGroup>
+      </View>
       <View style={{ height: 48 }} />
       <SectionHeader title="Aparência" />
       <SegmentedControl<ThemePreference>
@@ -181,16 +206,19 @@ export function SettingsScreen() {
 function ProfileEditor({
   name,
   city,
+  email,
   onSave,
 }: {
   name: string;
   city: string;
-  onSave: (name: string, city: string) => void;
+  email: string;
+  onSave: (name: string, city: string, email: string) => void;
 }) {
   const { colors, layout, radius } = useTheme();
   const [n, setN] = useState(name);
   const [c, setC] = useState(city);
-  const dirty = n.trim() !== name || c.trim() !== city;
+  const [e, setE] = useState(email);
+  const dirty = n.trim() !== name || c.trim() !== city || e.trim() !== email;
   const field = (label: string, value: string, set: (v: string) => void) => (
     <View style={{ gap: 6 }}>
       <Text variant="labelM" tone="secondary">
@@ -219,11 +247,12 @@ function ProfileEditor({
       <View style={{ paddingHorizontal: layout.gutter, gap: 16 }}>
         {field('Nome', n, setN)}
         {field('Cidade', c, setC)}
+        {field('E-mail', e, setE)}
         <Button
           label="Salvar"
           size="sm"
           disabled={!dirty || !n.trim()}
-          onPress={() => onSave(n.trim(), c.trim())}
+          onPress={() => onSave(n.trim(), c.trim(), e.trim())}
         />
       </View>
     </View>
