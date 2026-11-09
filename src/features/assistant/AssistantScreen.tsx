@@ -34,6 +34,9 @@ const WELCOME: AssistantReply = {
   followUps: ['proximo-jogo', 'meu-portao', 'meus-pontos'],
 };
 
+/** Avatar grande o bastante para ver o mascote mudar de reação a cada mensagem. */
+const AVATAR = 64;
+
 let seq = 0;
 const nid = () => `m${Date.now()}-${seq++}`;
 
@@ -150,11 +153,11 @@ export function AssistantScreen({ navigation, route }: RootScreenProps<'Assistan
     if (item.role === 'pending') {
       return (
         <Appear>
-          <View style={{ marginTop: 16, flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
+          <View style={{ marginTop: 16, flexDirection: 'row', alignItems: 'flex-end', gap: 10 }}>
             {item.search ? (
               <GestureImage gesture="magnifier" size={96} />
             ) : (
-              <AssistantAvatar expression="thinking" size={36} />
+              <AssistantAvatar expression="thinking" size={AVATAR} />
             )}
             <View
               style={{
@@ -188,11 +191,11 @@ export function AssistantScreen({ navigation, route }: RootScreenProps<'Assistan
         <View style={{ marginTop: 16, gap: 10 }}>
           {/* Gesto grande acima da resposta (menos quando aponta para o card ao lado). */}
           {r.gesture && !sideBySide && <GestureImage gesture={r.gesture} size={136} />}
-          <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
-            <AssistantAvatar expression={r.expression ?? 'neutral'} size={36} />
+          <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 10 }}>
+            <AssistantAvatar expression={r.expression ?? 'neutral'} size={AVATAR} />
             <View
               style={{
-                maxWidth: '82%',
+                flexShrink: 1,
                 backgroundColor: colors.bgRaised,
                 paddingHorizontal: 16,
                 paddingVertical: 12,
@@ -203,10 +206,12 @@ export function AssistantScreen({ navigation, route }: RootScreenProps<'Assistan
               <Text variant="bodyL">{r.text}</Text>
             </View>
           </View>
-          <View style={{ marginLeft: 44, gap: 10 }}>
+          <View style={{ marginLeft: AVATAR + 10, gap: 10 }}>
             {r.card &&
               (sideBySide ? (
-                <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 4, marginLeft: -44 }}>
+                <View
+                  style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 4, marginLeft: -(AVATAR + 10) }}
+                >
                   <GestureImage gesture="point-side" size={104} />
                   <View style={{ flex: 1 }}>
                     <ChatCard card={r.card} onOpen={open} />
@@ -270,12 +275,12 @@ export function AssistantScreen({ navigation, route }: RootScreenProps<'Assistan
           gap: 12,
           paddingLeft: layout.gutter,
           paddingRight: 8,
-          height: 60,
+          height: 72,
           borderBottomWidth: 1,
           borderColor: colors.lineHairline,
         }}
       >
-        <AssistantAvatar expression={headerExpression} size={40} />
+        <AssistantAvatar expression={headerExpression} size={52} />
         <View style={{ flex: 1 }}>
           <Text variant="titleS" accessibilityRole="header">
             Assistente Fla
