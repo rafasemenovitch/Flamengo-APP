@@ -38,7 +38,6 @@ export function CartScreen() {
     return (
       <Screen title="Carrinho" scroll={false}>
         <EmptyState
-          pose="fan-empty-cart"
           title="Seu carrinho está vazio."
           message="O manto novo está te esperando."
           actionLabel="Ir para a loja"

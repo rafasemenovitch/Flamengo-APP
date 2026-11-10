@@ -36,20 +36,22 @@ export interface AlertRequest {
   primary: AlertAction;
   secondary?: AlertAction;
   priority?: AlertPriority;
-  /** Mostra o mascote (quando `brandAssets.mascot` existir). Padrão: true. */
+  /** Mostra o mascote. Padrão: true quando há pose (do aviso ou do tipo). */
   showMascot?: boolean;
+  /** Pose do mascote para este aviso (ex.: vitória, empate ou derrota no fim de jogo). */
+  pose?: MascotPose;
 }
 
 const PRIORITY_RANK: Record<AlertPriority, number> = { critical: 0, high: 1, normal: 2, low: 3 };
 
 /** Pose do mascote (`fan-*`) por tipo de aviso. */
-const VARIANT_POSE: Record<AlertVariant, MascotPose> = {
+const VARIANT_POSE: Record<AlertVariant, MascotPose | undefined> = {
   goal: 'fan-goal',
-  matchStart: 'fan-tense',
+  matchStart: 'fan-scarf',
   matchEnd: 'fan-victory',
   achievement: 'fan-trophy',
-  info: 'fan-confident',
-  warning: 'fan-complain',
+  info: undefined,
+  warning: undefined,
 };
 
 interface QueuedAlert extends AlertRequest {
@@ -121,6 +123,7 @@ export function AlertHost({ children }: { children: ReactNode }) {
 
 function AlertModal({ alert, onClose }: { alert: QueuedAlert; onClose: (action?: AlertAction) => void }) {
   const { colors, spacing, radius, motion } = useTheme();
+  const pose = alert.showMascot === false ? undefined : (alert.pose ?? VARIANT_POSE[alert.variant]);
   const reduceMotion = useReduceMotion();
   const opacity = useState(() => new Animated.Value(reduceMotion ? 1 : 0))[0];
   const translateY = useState(() => new Animated.Value(reduceMotion ? 0 : 24))[0];
@@ -150,6 +153,12 @@ function AlertModal({ alert, onClose }: { alert: QueuedAlert; onClose: (action?:
           accessibilityViewIsModal
         >
           <Pressable onPress={() => undefined} accessible={false}>
+            {pose && (
+              // O mascote "sai" de cima do cartão, como nos pop-ups de jogos.
+              <View style={{ alignItems: 'center', marginBottom: -56, zIndex: 1 }}>
+                <Mascot pose={pose} size={156} />
+              </View>
+            )}
             <View
               style={[
                 styles.card,
@@ -157,16 +166,12 @@ function AlertModal({ alert, onClose }: { alert: QueuedAlert; onClose: (action?:
                   backgroundColor: colors.bgRaised,
                   borderRadius: radius.l,
                   padding: spacing.xl,
+                  paddingTop: pose ? 64 : spacing.xl,
                   gap: spacing.lg,
                   borderColor: colors.lineHairline,
                 },
               ]}
             >
-              {alert.showMascot !== false && (
-                <View style={{ alignItems: 'center' }}>
-                  <Mascot pose={VARIANT_POSE[alert.variant]} size={120} />
-                </View>
-              )}
               <View style={{ gap: spacing.xs }}>
                 <Text variant="displayM" align="center" accessibilityRole="header">
                   {alert.title}
@@ -238,7 +243,7 @@ function GoalCelebration({
             opacity: t,
           }}
         >
-          <Mascot pose="fan-goal" size={180} />
+          <Mascot pose={alert.pose ?? 'fan-goal'} size={200} />
         </Animated.View>
         <Animated.View
           style={{ transform: [{ scale: t.interpolate({ inputRange: [0, 1], outputRange: [1.3, 1] }) }] }}

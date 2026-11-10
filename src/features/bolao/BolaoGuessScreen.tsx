@@ -184,7 +184,7 @@ function GuessForm({
 }) {
   const navigation = useNavigation();
   const { colors, layout } = useTheme();
-  const { showToast } = useAlerts();
+  const { showToast, showAlert } = useAlerts();
   const m = item.match;
   const [home, setHome] = useState(item.guess?.home ?? 0);
   const [away, setAway] = useState(item.guess?.away ?? 0);
@@ -201,8 +201,22 @@ function GuessForm({
     try {
       await services.bolao.saveGuess({ matchId: m.id, home, away, scorerId, assistId, joker });
       haptic.success();
-      showToast(item.guess ? 'Palpite atualizado.' : 'Palpite salvo. Boa sorte!');
       navigation.goBack();
+      showAlert({
+        id: `guess-${m.id}-${Date.now()}`,
+        variant: 'info',
+        pose: 'fan-high-five',
+        title: item.guess ? 'Palpite atualizado!' : 'Palpite feito!',
+        message: [
+          `${m.homeTeam.shortName} ${home} × ${away} ${m.awayTeam.shortName}`,
+          scorer ? `gol de ${scorer.shortName}` : undefined,
+          joker ? 'com coringa' : undefined,
+        ]
+          .filter(Boolean)
+          .join(', ')
+          .concat(`. Vale até ${maxPoints(joker)} pontos.`),
+        primary: { label: 'Fechar' },
+      });
     } catch (e) {
       showToast(e instanceof Error ? e.message : 'Não deu para salvar.');
     } finally {

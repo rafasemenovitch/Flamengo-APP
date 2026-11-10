@@ -6,7 +6,7 @@ import { Pressable, View } from 'react-native';
 import {
   Button,
   ErrorState,
-  Monogram,
+  Mascot,
   Screen,
   SectionTitle,
   Skeleton,
@@ -41,13 +41,10 @@ function BolaoHero({ best }: { best?: { pos: number; name: string } }) {
         overflow: 'hidden',
       }}
     >
-      <Monogram
-        color="white"
-        width={220}
-        opacity={0.1}
-        style={{ position: 'absolute', right: -50, top: -30 }}
-      />
-      <Text variant="displayL" tone="onPrimary">
+      <View style={{ position: 'absolute', right: 4, top: 12 }} accessible={false}>
+        <Mascot pose="fan-trophy" size={104} />
+      </View>
+      <Text variant="displayL" tone="onPrimary" style={{ paddingRight: 104 }}>
         Bolão da Nação
       </Text>
       <View style={{ flexDirection: 'row' }}>

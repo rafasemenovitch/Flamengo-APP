@@ -43,7 +43,6 @@ export function NotificationsScreen() {
       ) : q.data?.length === 0 ? (
         <EmptyState
           compact
-          pose="fan-notifications"
           title="Nada por aqui ainda."
           message="Não perca nenhum gol. Ative as notificações."
         />

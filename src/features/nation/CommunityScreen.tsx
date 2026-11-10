@@ -5,6 +5,7 @@ import { Pressable, View } from 'react-native';
 import {
   Button,
   ErrorState,
+  Mascot,
   Screen,
   SectionTitle,
   Skeleton,
@@ -182,11 +183,12 @@ export function CommunityScreen() {
 
   return (
     <Screen title="Grupos da torcida" refreshing={q.refreshing} onRefresh={q.refresh}>
-      <View style={{ paddingHorizontal: layout.gutter }}>
-        <Text variant="bodyL" tone="secondary">
+      <View style={{ paddingHorizontal: layout.gutter, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <Text variant="bodyL" tone="secondary" style={{ flex: 1 }}>
           Rubro-negros do seu bairro, da sua cidade e do mundo. O anfitrião publica os avisos, encontros e
           caravanas; você acompanha e participa.
         </Text>
+        <Mascot pose="fan-community" size={104} />
       </View>
 
       {q.loading ? (

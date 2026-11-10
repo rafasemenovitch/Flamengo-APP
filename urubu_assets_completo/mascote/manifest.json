@@ -1,0 +1,517 @@
+{
+  "personagem": "Urubu (mascote torcedor)",
+  "descricao": "Mascote do app no papel de torcedor, SEM headset. Use em todo o app fora do Assistente Fla: Home, Central de Jogos, notificações, gamificação, loja, telas vazias. Nunca use estas imagens como avatar do Assistente Fla (para isso, use a pasta assistente-fla).",
+  "grupos": {
+    "emocoes-de-jogo": {
+      "formato": "PNG transparente 640x640, da cintura para cima, ancorado na borda inferior e centralizado. Todas na mesma escala de personagem: dá para trocar uma pela outra no mesmo lugar (ex.: card do jogo ao vivo mudando conforme o placar).",
+      "uso_principal": "Reações a eventos de partida: card do jogo na Home, notificações push, Central de Jogos, resumo pós-jogo."
+    },
+    "modo-maracana": {
+      "formato": "PNG transparente 640x640, da cintura para cima, ancorado na borda inferior e centralizado, mesma escala de personagem que emocoes-de-jogo.",
+      "uso_principal": "Modo Maracanã: área aberta a QUALQUER torcedor, com ou sem ingresso (rotas, mapa interativo, alimentação, filas, ativações). Não use estas poses para indicar posse de ingresso."
+    },
+    "ingressos-loja-socio": {
+      "formato": "PNG transparente 640x640, da cintura para cima, ancorado na borda inferior e centralizado, mesma escala de personagem das outras pastas do mascote.",
+      "uso_principal": "Telas de compra e titularidade: Ingressos (compra e carteira), Loja oficial e Sócio-Torcedor. Poses 18 e 19 indicam que o usuário TEM ingresso: use só em telas de ingresso, nunca no Modo Maracanã."
+    },
+    "gamificacao-comunidade": {
+      "formato": "PNG transparente 640x640, da cintura para cima, ancorado na borda inferior e centralizado, mesma escala de personagem das outras pastas do mascote.",
+      "uso_principal": "Aba Nação: pontos, níveis, medalhas, rankings, bolões e palpites (pontos virtuais, sem apostas), quizzes, enquetes, Passaporte Rubro-Negro e comunidades por região."
+    },
+    "corpo-inteiro-destaque": {
+      "formato": "PNG transparente 800x800, CORPO INTEIRO, pés ancorados a 16px da borda inferior, centralizado. Cabeça no mesmo tamanho entre as poses desta pasta (o tamanho difere das pastas de cintura para cima).",
+      "uso_principal": "Momentos de tela grande: splash, onboarding, comemoração em tela cheia, carregamento. Resolução nativa limitada (~700px de altura): para splash em telas grandes, prefira uma versão em alta resolução quando existir."
+    },
+    "telas-vazias-e-erros": {
+      "formato": "PNG transparente 800x800, CORPO INTEIRO, pés ancorados a 16px da borda inferior, centralizado. Mesma escala de personagem que corpo-inteiro-destaque.",
+      "uso_principal": "Estados do app FORA do chat: listas vazias, erros, manutenção, permissões. Erros dentro do chat do assistente usam assistente-fla/expressoes (05 e 06)."
+    }
+  },
+  "poses": [
+    {
+      "arquivo": "emocoes-de-jogo/mascote_01_gritando-gol_gol-do-flamengo.png",
+      "expressao": "Gritando, bico bem aberto, punhos fechados no peito",
+      "usar_quando": [
+        "gol do Flamengo",
+        "notificação de gol",
+        "card ao vivo logo após um gol"
+      ],
+      "evitar_quando": [
+        "gol do adversário"
+      ]
+    },
+    {
+      "arquivo": "emocoes-de-jogo/mascote_02_tenso-roendo-unhas_jogo-apertado-ou-penaltis.png",
+      "expressao": "Roendo as unhas, olhos arregalados",
+      "usar_quando": [
+        "jogo empatado nos minutos finais",
+        "disputa de pênaltis",
+        "acréscimos",
+        "contagem regressiva para jogo decisivo"
+      ],
+      "evitar_quando": [
+        "jogo tranquilo ou já decidido"
+      ]
+    },
+    {
+      "arquivo": "emocoes-de-jogo/mascote_03_maos-na-cabeca_quase-gol-ou-lance-perigoso.png",
+      "expressao": "Mãos na cabeça, bico aberto de surpresa",
+      "usar_quando": [
+        "chance perdida",
+        "bola na trave",
+        "lance perigoso no lance a lance",
+        "pênalti perdido"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "emocoes-de-jogo/mascote_04_reclamando_marcacao-polemica-ou-var.png",
+      "expressao": "Braços abertos, palmas para cima, indignado mas cômico",
+      "usar_quando": [
+        "revisão do VAR",
+        "gol anulado",
+        "cartão ou pênalti contra o Flamengo"
+      ],
+      "evitar_quando": [
+        "conteúdo institucional ou sério"
+      ]
+    },
+    {
+      "arquivo": "emocoes-de-jogo/mascote_05_cachecol-erguido_cantando-apoio-da-torcida.png",
+      "expressao": "Cachecol erguido acima da cabeça, cantando",
+      "usar_quando": [
+        "dia de jogo",
+        "pré-jogo e escalação divulgada",
+        "convocação da torcida",
+        "Modo Maracanã ativo"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "emocoes-de-jogo/mascote_06_bracos-para-cima_vitoria-fim-de-jogo.png",
+      "expressao": "Braços para cima, olhos fechados de alegria",
+      "usar_quando": [
+        "vitória (fim de jogo)",
+        "classificação ou título",
+        "notificação de fim de jogo com vitória"
+      ],
+      "evitar_quando": [
+        "empate ou derrota"
+      ]
+    },
+    {
+      "arquivo": "emocoes-de-jogo/mascote_07_ombros-encolhidos_empate.png",
+      "expressao": "Ombros encolhidos, palmas para cima, sorriso leve",
+      "usar_quando": [
+        "empate (fim de jogo)",
+        "notificação de fim de jogo com empate"
+      ],
+      "evitar_quando": [
+        "vitória ou derrota"
+      ]
+    },
+    {
+      "arquivo": "emocoes-de-jogo/mascote_08_triste-punho-no-peito_derrota-seguimos-juntos.png",
+      "expressao": "Triste, olhos úmidos, sorriso pequeno e corajoso, punho no peito",
+      "usar_quando": [
+        "derrota (fim de jogo)",
+        "eliminação",
+        "notificação de fim de jogo com derrota"
+      ],
+      "evitar_quando": [
+        "vitória ou empate"
+      ]
+    },
+    {
+      "arquivo": "emocoes-de-jogo/mascote_09_mao-no-escudo_orgulho-rubro-negro.png",
+      "expressao": "Confiante, mão fechada sobre o escudo",
+      "usar_quando": [
+        "orgulho de ser torcedor",
+        "Sócio-Torcedor: adesão ou renovação",
+        "perfil: 'torcedor desde'",
+        "datas históricas do clube"
+      ],
+      "evitar_quando": [
+        "após derrota (use 08)"
+      ]
+    },
+    {
+      "arquivo": "modo-maracana/mascote_10_indicando-caminho_rotas-e-como-chegar.png",
+      "expressao": "Braço esticado indicando um caminho com a mão aberta",
+      "usar_quando": [
+        "rotas e como chegar ao Maracanã",
+        "direção de portões, setores ou serviços no mapa"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "modo-maracana/mascote_11_mochila_a-caminho-do-estadio-transporte.png",
+      "expressao": "De mochila, empolgado",
+      "usar_quando": [
+        "opções de transporte (metrô, ônibus, carro)",
+        "estacionamento",
+        "'saia de casa agora'"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "modo-maracana/mascote_12_olhando-relogio_filas-e-horario-de-chegada.png",
+      "expressao": "Olhando o relógio de pulso",
+      "usar_quando": [
+        "tempo de fila",
+        "horário recomendado de chegada",
+        "abertura dos portões",
+        "contagem regressiva para o jogo"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "modo-maracana/mascote_13_binoculo_explorar-mapa-do-estadio.png",
+      "expressao": "Olhando por um binóculo, curioso",
+      "usar_quando": [
+        "entrada do mapa interativo do Maracanã",
+        "explorar setores, banheiros, bares e lojas",
+        "busca de serviços no estádio"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "modo-maracana/mascote_14_cachorro-quente-e-refrigerante_alimentacao.png",
+      "expressao": "Cachorro-quente e copo de refrigerante, animado",
+      "usar_quando": [
+        "alimentação e bares no estádio",
+        "pedido antecipado de comida (futuro)"
+      ],
+      "evitar_quando": [
+        "qualquer conteúdo sobre bebida alcoólica: o mascote nunca deve ser associado a álcool"
+      ]
+    },
+    {
+      "arquivo": "modo-maracana/mascote_15_lanterna-do-celular_ativacoes-no-estadio.png",
+      "expressao": "Celular erguido com a lanterna acesa",
+      "usar_quando": [
+        "ativações no estádio (festa de luzes, mosaico)",
+        "ações interativas ao vivo para quem está no estádio"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "modo-maracana/mascote_16_selfie_experiencias-no-estadio.png",
+      "expressao": "Tirando selfie, alegre",
+      "usar_quando": [
+        "experiências e pontos de foto no estádio",
+        "compartilhar a presença no jogo",
+        "Passaporte Rubro-Negro: registrar jogo assistido"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "modo-maracana/mascote_17_cachecol-bracos-abertos_chegamos-ao-maracana.png",
+      "expressao": "Cachecol no pescoço, braços abertos, sorriso largo",
+      "usar_quando": [
+        "entrada/boas-vindas do Modo Maracanã",
+        "usuário chegou ao estádio"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "ingressos-loja-socio/mascote_18_mostrando-ingresso_ingresso-comprado.png",
+      "expressao": "Mostrando um ingresso de papel, sorrindo",
+      "usar_quando": [
+        "compra de ingresso concluída (simulada)",
+        "lista de jogos à venda",
+        "lembrete: 'você tem ingresso para hoje'"
+      ],
+      "evitar_quando": [
+        "Modo Maracanã (aberto a quem não tem ingresso)"
+      ]
+    },
+    {
+      "arquivo": "ingressos-loja-socio/mascote_19_mostrando-celular_ingresso-digital-carteira.png",
+      "expressao": "Mostrando celular com tela branca e apontando",
+      "usar_quando": [
+        "carteira de ingressos digitais",
+        "como usar o ingresso no celular",
+        "a tela branca pode receber um print do ingresso DEMO"
+      ],
+      "evitar_quando": [
+        "Modo Maracanã"
+      ]
+    },
+    {
+      "arquivo": "ingressos-loja-socio/mascote_20_sacola-de-compras_loja.png",
+      "expressao": "Segurando sacola vermelha, empolgado",
+      "usar_quando": [
+        "entrada da Loja oficial",
+        "compra concluída (simulada)",
+        "carrinho com itens"
+      ],
+      "evitar_quando": [
+        "carrinho vazio (use pose de tela vazia)"
+      ]
+    },
+    {
+      "arquivo": "ingressos-loja-socio/mascote_21_admirando-camisa_produto-da-loja.png",
+      "expressao": "Segurando e admirando uma camisa rubro-negra",
+      "usar_quando": [
+        "lançamento de camisa",
+        "destaque de produto",
+        "página de produto"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "ingressos-loja-socio/mascote_22_caixa-de-entrega_pedido-a-caminho.png",
+      "expressao": "Segurando caixa de papelão, feliz",
+      "usar_quando": [
+        "pedido enviado / a caminho",
+        "histórico de compras",
+        "rastreio de entrega"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "ingressos-loja-socio/mascote_23_cartao-de-socio_carteirinha-socio-torcedor.png",
+      "expressao": "Mostrando cartão de sócio, punho fechado de orgulho",
+      "usar_quando": [
+        "carteirinha digital do Sócio-Torcedor",
+        "área do sócio",
+        "adesão concluída (simulada)"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "ingressos-loja-socio/mascote_24_caixa-de-presente_beneficio-ou-oferta-exclusiva.png",
+      "expressao": "Segurando caixa de presente, surpreso e feliz",
+      "usar_quando": [
+        "benefício liberado para sócio",
+        "oferta exclusiva",
+        "recompensa resgatada"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "ingressos-loja-socio/mascote_25_credencial-vip_experiencia-exclusiva.png",
+      "expressao": "Credencial VIP no pescoço, orgulhoso",
+      "usar_quando": [
+        "experiências exclusivas para sócios (visita ao CT, tour, camarote)",
+        "sorteios de experiências"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "gamificacao-comunidade/mascote_26_erguendo-trofeu_conquista-desbloqueada.png",
+      "expressao": "Erguendo troféu dourado, sorriso enorme",
+      "usar_quando": [
+        "conquista desbloqueada",
+        "topo do ranking",
+        "vencedor de bolão (pontos virtuais)"
+      ],
+      "evitar_quando": [
+        "títulos reais do clube: use fotos oficiais quando houver"
+      ]
+    },
+    {
+      "arquivo": "gamificacao-comunidade/mascote_27_medalha-no-peito_medalha-ou-badge-ganha.png",
+      "expressao": "Medalha no pescoço, punho de orgulho",
+      "usar_quando": [
+        "nova medalha ou badge",
+        "tela de conquistas do perfil"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "gamificacao-comunidade/mascote_28_lendo-livro_quiz-historia-do-flamengo.png",
+      "expressao": "Lendo um livro, concentrado",
+      "usar_quando": [
+        "entrada do quiz",
+        "conteúdos de história do clube",
+        "curiosidades"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "gamificacao-comunidade/mascote_29_passaporte-carimbado_passaporte-rubro-negro.png",
+      "expressao": "Mostrando passaporte com carimbos",
+      "usar_quando": [
+        "Passaporte Rubro-Negro",
+        "novo jogo ou estádio registrado"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "gamificacao-comunidade/mascote_30_votando-na-urna_enquetes-e-votacoes.png",
+      "expressao": "Colocando voto na urna",
+      "usar_quando": [
+        "enquetes",
+        "craque do jogo",
+        "gol do mês"
+      ],
+      "evitar_quando": [
+        "temas políticos: nunca"
+      ]
+    },
+    {
+      "arquivo": "gamificacao-comunidade/mascote_31_segurando-estrela_subiu-de-nivel.png",
+      "expressao": "Segurando estrela dourada brilhante",
+      "usar_quando": [
+        "subiu de nível",
+        "pontos ganhos",
+        "recompensa de engajamento"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "gamificacao-comunidade/mascote_32_high-five_palpite-certo-ou-desafio-concluido.png",
+      "expressao": "Mão aberta para um high five",
+      "usar_quando": [
+        "palpite certo no bolão",
+        "desafio concluído",
+        "convite para jogar com amigos"
+      ],
+      "evitar_quando": [
+        "mensagens de bloqueio ou 'pare' (a mão aberta pode ser lida assim fora de contexto)"
+      ]
+    },
+    {
+      "arquivo": "gamificacao-comunidade/mascote_33_bandeira-e-pin_comunidades-por-regiao.png",
+      "expressao": "Bandeirinha rubro-negra e pin de localização",
+      "usar_quando": [
+        "comunidades de torcedores por região",
+        "encontrar torcedores perto",
+        "eventos locais de torcida"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "corpo-inteiro-destaque/mascote_34_corpo-inteiro_bracos-cruzados_abertura-do-app.png",
+      "expressao": "Corpo inteiro, braços cruzados, confiante e simpático",
+      "usar_quando": [
+        "splash / abertura do app",
+        "tela de login",
+        "apresentação do mascote"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "corpo-inteiro-destaque/mascote_35_corpo-inteiro_pulando-de-alegria_comemoracao-tela-cheia.png",
+      "expressao": "Pulando no ar, braços para cima, olhos fechados de alegria",
+      "usar_quando": [
+        "comemoração em tela cheia (gol, vitória, título)",
+        "conquista importante desbloqueada"
+      ],
+      "evitar_quando": [
+        "derrota ou empate"
+      ]
+    },
+    {
+      "arquivo": "corpo-inteiro-destaque/mascote_36_corpo-inteiro_embaixadinha_entretenimento-e-desafios.png",
+      "expressao": "Fazendo embaixadinha com bola branca",
+      "usar_quando": [
+        "minijogos e desafios",
+        "entretenimento e conteúdo leve",
+        "tela de intervalo do jogo"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "corpo-inteiro-destaque/mascote_37_corpo-inteiro_agitando-bandeira_dia-de-jogo-e-convocacao.png",
+      "expressao": "Agitando bandeira rubro-negra grande",
+      "usar_quando": [
+        "dia de jogo",
+        "convocação da torcida",
+        "campanhas e datas comemorativas do clube"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "corpo-inteiro-destaque/mascote_38_corpo-inteiro_correndo_carregamento.png",
+      "expressao": "Correndo em direção à câmera, determinado",
+      "usar_quando": [
+        "telas de carregamento",
+        "'estamos atualizando'",
+        "contagem regressiva para o jogo"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "corpo-inteiro-destaque/mascote_39_corpo-inteiro_acenando_boas-vindas-onboarding.png",
+      "expressao": "Acenando com a mão aberta, sorriso aberto",
+      "usar_quando": [
+        "boas-vindas do onboarding",
+        "primeiro acesso",
+        "cadastro concluído"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "telas-vazias-e-erros/mascote_40_corpo-inteiro_sentado-esperando_nada-por-aqui-ainda.png",
+      "expressao": "Sentado num degrau, queixo nas mãos, paciente",
+      "usar_quando": [
+        "lista vazia genérica",
+        "sem notificações",
+        "nenhum ingresso na carteira",
+        "sem histórico de compras"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "telas-vazias-e-erros/mascote_41_corpo-inteiro_deitado-relaxando_sem-jogos-hoje.png",
+      "expressao": "Deitado relaxando, mãos atrás da cabeça",
+      "usar_quando": [
+        "sem jogos hoje",
+        "período sem partidas (pausa, férias)",
+        "Modo Maracanã fora de dia de jogo"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "telas-vazias-e-erros/mascote_42_corpo-inteiro_radio-antena-torta_erro-de-conexao.png",
+      "expressao": "Mexendo num rádio com antena torta, confuso",
+      "usar_quando": [
+        "sem internet",
+        "erro ao carregar dados",
+        "placar ao vivo indisponível"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "telas-vazias-e-erros/mascote_43_corpo-inteiro_megafone_ativar-notificacoes.png",
+      "expressao": "Chamando com megafone, animado",
+      "usar_quando": [
+        "pedido de permissão de notificações",
+        "convite para ativar alertas de gol",
+        "anúncios importantes"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "telas-vazias-e-erros/mascote_44_corpo-inteiro_dormindo-em-pe_manutencao.png",
+      "expressao": "Dormindo em pé com bolha de sono",
+      "usar_quando": [
+        "manutenção programada",
+        "serviço temporariamente fora do ar",
+        "sessão expirada por inatividade"
+      ],
+      "evitar_quando": []
+    },
+    {
+      "arquivo": "telas-vazias-e-erros/mascote_45_corpo-inteiro_caixa-vazia_carrinho-vazio.png",
+      "expressao": "Olhando dentro de uma caixa vazia, surpreso",
+      "usar_quando": [
+        "carrinho vazio",
+        "busca sem resultados",
+        "nenhum produto encontrado"
+      ],
+      "evitar_quando": []
+    }
+  ],
+  "regras": [
+    "Fim de jogo: vitória -> 06, empate -> 07, derrota -> 08.",
+    "Modo Maracanã e Ingressos são áreas separadas: as poses de modo-maracana valem para quem não tem ingresso; poses de ingresso ficam em outra pasta.",
+    "Não espelhar horizontalmente (o escudo ficaria invertido).",
+    "O escudo na camisa é marca registrada do Flamengo: uso apenas demonstrativo até haver autorização.",
+    "O mascote nunca aparece com bebida alcoólica (público inclui menores; normas do CONAR).",
+    "Bolões e palpites usam apenas pontos virtuais: nunca associar o mascote a apostas ou dinheiro."
+  ]
+}

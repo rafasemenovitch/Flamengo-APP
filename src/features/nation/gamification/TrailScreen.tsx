@@ -179,7 +179,7 @@ function RewardRow({
   onClaimed: (r: TrailReward) => void;
 }) {
   const { colors, layout } = useTheme();
-  const { showToast } = useAlerts();
+  const { showAlert } = useAlerts();
   const [claiming, setClaiming] = useState(false);
   const reached = points >= reward.points;
   const blocked = reward.membersOnly && !isMember;
@@ -188,7 +188,14 @@ function RewardRow({
     try {
       const r = await services.gamification.claimReward(reward.id);
       haptic.success();
-      showToast(`Resgatado! Cupom ${r.claimedCode}`);
+      showAlert({
+        id: `reward-${r.id}`,
+        variant: 'info',
+        pose: 'fan-gift',
+        title: 'Prêmio resgatado!',
+        message: `${r.title}. Seu cupom é ${r.claimedCode} e fica guardado aqui na trilha (demonstrativo).`,
+        primary: { label: 'Fechar' },
+      });
       onClaimed(r);
     } finally {
       setClaiming(false);

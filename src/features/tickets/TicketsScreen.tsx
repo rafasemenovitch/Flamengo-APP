@@ -64,12 +64,7 @@ export function TicketsScreen() {
               onPress={() => navigation.navigate('TicketDetail', { ticketId: nextTicket.id })}
             />
           ) : (
-            <EmptyState
-              compact
-              pose="fan-ticket"
-              title="Nenhum ingresso na carteira."
-              message="Escolha um jogo abaixo."
-            />
+            <EmptyState compact title="Nenhum ingresso na carteira." message="Escolha um jogo abaixo." />
           )}
 
           <Pressable
@@ -111,7 +106,7 @@ export function TicketsScreen() {
         ) : sales.error ? (
           <ErrorState compact onRetry={sales.reload} />
         ) : sales.data?.length === 0 ? (
-          <EmptyState compact pose="fan-no-matches" title="Sem vendas abertas agora." />
+          <EmptyState compact title="Sem vendas abertas agora." />
         ) : (
           <MatchList
             matches={sales.data ?? []}

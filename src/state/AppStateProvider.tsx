@@ -1,5 +1,16 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 
+import { useAlerts } from '@/design-system';
+import { navigateByName } from '@/navigation/navigationRef';
 import { services } from '@/services';
 import type { Cart } from '@/types/commerce';
 import type { FanProfile } from '@/types/fan';
@@ -36,9 +47,27 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setUnread(list.filter((n) => !n.read).length);
   }, []);
 
+  const { showAlert } = useAlerts();
+  const lastLevel = useRef<number | undefined>(undefined);
+
   const refreshProgress = useCallback(async () => {
-    setProgress(await services.gamification.getProgress());
-  }, []);
+    const next = await services.gamification.getProgress();
+    // Subiu de nível na temporada: pop-up com o mascote segurando a estrela.
+    if (lastLevel.current !== undefined && next.level.level > lastLevel.current) {
+      showAlert({
+        id: `level-${next.season.year}-${next.level.level}`,
+        variant: 'achievement',
+        pose: 'fan-level-up',
+        priority: 'high',
+        title: `Você chegou ao nível ${next.level.name}!`,
+        message: 'Tem prêmio novo liberado na trilha da temporada.',
+        primary: { label: 'Ver a trilha', onPress: () => navigateByName('Trail') },
+        secondary: { label: 'Fechar' },
+      });
+    }
+    lastLevel.current = next.level.level;
+    setProgress(next);
+  }, [showAlert]);
 
   useEffect(() => {
     services.profile

@@ -68,7 +68,7 @@ export function PassportScreen() {
         ) : q.error ? (
           <ErrorState compact onRetry={q.reload} />
         ) : stamps.length === 0 ? (
-          <EmptyState compact pose="fan-passport" title="Nenhum carimbo ainda." />
+          <EmptyState compact title="Nenhum carimbo ainda." />
         ) : (
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
             {upcoming && opponent && (

@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import { Image, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Badge, Button, IconButton, Mascot, palette, Screen, Text, useTheme } from '@/design-system';
+import { Badge, Button, IconButton, palette, Screen, Text, useTheme } from '@/design-system';
 import type { RootScreenProps } from '@/navigation/types';
 import { services } from '@/services';
 import { haptic } from '@/utils/haptics';
@@ -125,7 +125,7 @@ export function FaceEnrollmentScreen({ navigation }: RootScreenProps<'FaceEnroll
         {step === 'intro' && (
           <>
             <View style={{ alignItems: 'center', gap: spacing.md, paddingTop: spacing.md }}>
-              <Mascot pose="fan-arrived" size={160} />
+              <Ionicons name="scan-outline" size={64} color={colors.accentText} />
               <Text variant="displayM" align="center">
                 Entre no Maracanã com o seu rosto
               </Text>
@@ -201,7 +201,7 @@ export function FaceEnrollmentScreen({ navigation }: RootScreenProps<'FaceEnroll
 
         {step === 'done' && (
           <View style={{ alignItems: 'center', gap: spacing.lg, paddingTop: spacing.xxl }}>
-            <Mascot pose="fan-high-five" size={160} />
+            <Ionicons name="checkmark-circle" size={72} color={colors.success} />
             <Text variant="displayM" align="center">
               Rosto cadastrado!
             </Text>

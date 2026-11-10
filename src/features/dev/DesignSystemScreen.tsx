@@ -202,7 +202,7 @@ export function DesignSystemScreen() {
       <View style={{ marginTop: 48, gap: 16 }}>
         <SectionTitle title="Mascote, skeleton, estados" />
         <View style={[pad, { flexDirection: 'row', gap: 16 }]}>
-          <Mascot pose="assistant-wave" size={96} />
+          <Mascot pose="fan-welcome" size={96} />
           <Mascot pose="fan-goal" size={96} />
         </View>
         <View style={[pad, { gap: 8 }]}>

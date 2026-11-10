@@ -150,12 +150,7 @@ export function MatchesScreen({ route }: TabScreenProps<'Jogos'>) {
         ) : matches.error ? (
           <ErrorState compact onRetry={matches.reload} />
         ) : matches.data?.length === 0 ? (
-          <EmptyState
-            compact
-            pose="fan-no-matches"
-            title="Nada por aqui ainda."
-            message="Nenhum jogo nesta competição."
-          />
+          <EmptyState compact title="Nada por aqui ainda." message="Nenhum jogo nesta competição." />
         ) : (
           <MatchList
             matches={matches.data ?? []}

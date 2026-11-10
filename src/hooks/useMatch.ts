@@ -70,7 +70,9 @@ export function useLiveMatch(load: () => Promise<MatchDetail>, deps: unknown[], 
       const flaScored = lastGoal?.side === (match.homeTeam.id === 'fla' ? 'home' : 'away');
       showAlert({
         id: `goal-${run}-${goalsNow}`,
-        variant: 'goal',
+        // Gol contra o Flamengo não ganha a tela vermelha de comemoração.
+        variant: flaScored ? 'goal' : 'warning',
+        pose: flaScored ? 'fan-goal' : 'fan-almost',
         priority: 'high',
         title: flaScored ? 'GOOOL DO MENGÃO!' : 'Gol do adversário',
         message: `${lastGoal?.playerName ? `${lastGoal.playerName} (${lastGoal.minute}). ` : ''}${label}`,
@@ -79,10 +81,18 @@ export function useLiveMatch(load: () => Promise<MatchDetail>, deps: unknown[], 
       });
     }
     if (before.status !== 'finished' && match.status === 'finished') {
+      const fla = match.homeTeam.id === 'fla' ? (match.score?.home ?? 0) : (match.score?.away ?? 0);
+      const opp = match.homeTeam.id === 'fla' ? (match.score?.away ?? 0) : (match.score?.home ?? 0);
       showAlert({
         id: `end-${run}`,
         variant: 'matchEnd',
-        title: 'Fim de jogo',
+        pose: fla > opp ? 'fan-victory' : fla === opp ? 'fan-draw' : 'fan-defeat',
+        title:
+          fla > opp
+            ? 'Vitória do Mengão!'
+            : fla === opp
+              ? 'Fim de jogo: empate'
+              : 'Fim de jogo. Seguimos juntos.',
         message: label,
         primary: { label: 'Ver resumo', onPress: goTo },
         secondary: { label: 'Fechar' },

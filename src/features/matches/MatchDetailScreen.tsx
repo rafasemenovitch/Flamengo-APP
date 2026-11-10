@@ -143,7 +143,6 @@ export function MatchDetailScreen({ route }: RootScreenProps<'MatchDetail'>) {
           ) : (
             <EmptyState
               compact
-              pose="fan-tense"
               title="A bola ainda não rolou."
               message="O lance a lance aparece aqui em tempo real."
             />

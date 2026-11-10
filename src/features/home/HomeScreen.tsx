@@ -22,6 +22,7 @@ import { services } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
 import { formatDuration, formatRelative } from '@/utils/format';
 import { HeroMatchCard } from './HeroMatchCard';
+import { useWelcomePopup } from './useWelcomePopup';
 import {
   DemoControlsSheet,
   HomeHeader,
@@ -92,6 +93,7 @@ export function HomeScreen() {
   );
 
   const match = featured.data;
+  useWelcomePopup(match);
   const matchday = !!match && match.status === 'scheduled' && isToday(match.kickoff);
   const plan = useAsync(
     async () => (matchday && match ? services.stadium.getMatchDayPlan(match.id) : undefined),

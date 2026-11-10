@@ -9,7 +9,7 @@ import { Text } from './Text';
 interface StateViewProps {
   title: string;
   message?: string;
-  /** Pose do mascote (sempre `fan-*` fora do chat). */
+  /** Pose do mascote: só em áreas interativas (Nação). Sem pose, sem ilustração. */
   pose?: MascotPose;
   illustration?: ReactNode;
   actionLabel?: string;
@@ -20,15 +20,7 @@ interface StateViewProps {
 }
 
 /** Estado vazio/erro (especificação 12.16): mascote, título, texto curto e botão secundário. */
-function StateView({
-  title,
-  message,
-  pose = 'fan-empty',
-  illustration,
-  actionLabel,
-  onAction,
-  compact,
-}: StateViewProps) {
+function StateView({ title, message, pose, illustration, actionLabel, onAction, compact }: StateViewProps) {
   const { layout } = useTheme();
   return (
     <View
@@ -40,7 +32,7 @@ function StateView({
         flex: compact ? undefined : 1,
       }}
     >
-      {illustration ?? <Mascot pose={pose} size={compact ? 96 : 160} />}
+      {illustration ?? (pose ? <Mascot pose={pose} size={compact ? 96 : 160} /> : null)}
       <View style={{ gap: 8, alignItems: 'center' }}>
         <Text variant="titleM" align="center">
           {title}
@@ -77,7 +69,6 @@ export function ErrorState({
     <StateView
       title={title}
       message={message}
-      pose="fan-offline"
       actionLabel={onRetry ? 'Tentar de novo' : undefined}
       onAction={onRetry}
       compact={compact}

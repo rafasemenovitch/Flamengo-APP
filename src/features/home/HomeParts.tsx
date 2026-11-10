@@ -3,7 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Modal, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Button, LiveIndicator, Mascot, Monogram, Text, useTheme } from '@/design-system';
+import { Button, LiveIndicator, Monogram, Text, useTheme } from '@/design-system';
 import { useDemoMember } from '@/hooks/useMatch';
 import { DEMO_SCENARIOS, IS_DEMO, type DemoScenario } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
@@ -406,16 +406,19 @@ export function MatchdayBanner({ match, plan }: { match: MatchDetail; plan?: Mat
     <View
       style={{ backgroundColor: colors.bgRed, padding: layout.gutter, overflow: 'hidden', minHeight: 140 }}
     >
-      <View style={{ position: 'absolute', right: 8, bottom: -24 }}>
-        <Mascot pose="fan-arrived" size={96} />
-      </View>
-      <View style={{ gap: 8, paddingRight: 96 }}>
+      <Monogram
+        color="white"
+        width={150}
+        opacity={0.12}
+        style={{ position: 'absolute', right: -24, bottom: -30 }}
+      />
+      <View style={{ gap: 8, paddingRight: 64 }}>
         <Text variant="titleL" tone="onPrimary">
           Seu jogo é hoje
         </Text>
         <Text variant="bodyM" tone="onPrimary" style={{ opacity: 0.85 }}>
           Portão {plan.recommendedGateId} · chegue às {arrival}
-          {queue ? ` · fila ~${queue.waitMinutes} min` : ''}
+          {queue ? ` · fila de ${queue.waitMinutes} min` : ''}
         </Text>
         <Button
           label="Abrir Modo Maracanã"
