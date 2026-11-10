@@ -30,7 +30,7 @@ Uma vez só, crie o canal `demo` (ligado ao branch `demo`):
 npx eas-cli@latest channel:create demo
 ```
 
-QR Code fixo: [`docs/qrcode-expo-go.png`](qrcode-expo-go.png). Sempre abre a versão mais
+QR Code fixo: [`QR-CODE-ACESSO-EXPO-GO/QR-CODE-EXPO-GO.png`](../QR-CODE-ACESSO-EXPO-GO/QR-CODE-EXPO-GO.png). Sempre abre a versão mais
 recente publicada. Link equivalente (para mandar por mensagem):
 
 ```

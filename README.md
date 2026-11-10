@@ -6,6 +6,13 @@ comercial, com **dados 100% demonstrativos** e sem nenhum material oficial do cl
 
 Base técnica e estética reaproveitadas do app Zuno (auditoria em [docs/ZUNO_AUDIT.md](docs/ZUNO_AUDIT.md)).
 
+## Ver no celular (QR Code fixo)
+
+<img src="QR-CODE-ACESSO-EXPO-GO/QR-CODE-EXPO-GO.png" width="260" alt="QR Code do app no Expo Go">
+
+Escaneie com o **Expo Go**, logado numa conta membro da organização `flamengo-app` no Expo.
+Instruções: [QR-CODE-ACESSO-EXPO-GO](QR-CODE-ACESSO-EXPO-GO/README.md).
+
 ## Como rodar
 
 Requisitos: Node 20+ e o app **Expo Go** atualizado (SDK 58) no celular, ou um simulador iOS/Android.
