@@ -11,7 +11,9 @@ import {
   Text,
   useTheme,
   useThemePreference,
+  useTypeSet,
   type ThemePreference,
+  type TypeSet,
 } from '@/design-system';
 import { DATA_SOURCE, services } from '@/services';
 import { useOnboarding } from '@/features/onboarding/Onboarding';
@@ -38,6 +40,7 @@ export function SettingsScreen() {
   const navigation = useNavigation();
   const { colors, layout } = useTheme();
   const { preference, setPreference } = useThemePreference();
+  const { typeSet, setTypeSet } = useTypeSet();
   const { profile, updateProfile, unreadNotifications } = useAppState();
   const { replay } = useOnboarding();
 
@@ -83,6 +86,17 @@ export function SettingsScreen() {
         onChange={setPreference}
         accessibilityLabel="Tema"
       />
+      <View style={{ marginTop: 16 }}>
+        <SegmentedControl<TypeSet>
+          segments={[
+            { key: 'sport', label: 'Tipografia nova' },
+            { key: 'classic', label: 'Original' },
+          ]}
+          value={typeSet}
+          onChange={setTypeSet}
+          accessibilityLabel="Tipografia"
+        />
+      </View>
 
       {profile && (
         <>

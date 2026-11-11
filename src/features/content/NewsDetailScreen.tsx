@@ -52,7 +52,7 @@ export function NewsDetailScreen({ route }: RootScreenProps<'NewsDetail'>) {
     >
       <TreatedImage imageKey={a.imageKey} aspect="wide" style={{ aspectRatio: 16 / 10 }} />
       <View style={{ paddingHorizontal: layout.gutter, paddingTop: 24, gap: 16 }}>
-        <Text variant="displayM">{a.title}</Text>
+        <Text variant="headline">{a.title}</Text>
         <Text variant="bodyS" tone="tertiary">
           {formatRelative(a.publishedAt)} · {a.readMinutes} min
         </Text>

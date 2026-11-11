@@ -7,7 +7,6 @@ import Svg, { Path, Text as SvgText } from 'react-native-svg';
 import { brandAssets } from '@assets/brand';
 import { photos, placeholders, type PhotoAspect } from '@assets/photos';
 import { CLUB } from '@/data/demo/seed';
-import { fonts } from '../tokens/typography';
 import { useTheme } from '../theme/ThemeProvider';
 import { Text } from './Text';
 
@@ -27,7 +26,7 @@ export interface CrestTeam {
  * Tamanhos: 20 (lista) · 28 (ingresso) · 40 (palpite) · 56 (hero).
  */
 export function Crest({ team, size = 40, onMedia }: { team: CrestTeam; size?: number; onMedia?: boolean }) {
-  const { colors } = useTheme();
+  const { colors, fonts } = useTheme();
   const label = `Escudo ${team.shortName ?? team.code}`;
   // Escudos de times virão da API de dados esportivos; até lá, placeholder.
   // `onMedia` fica reservado para a versão clara do escudo oficial, se a API oferecer.

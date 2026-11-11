@@ -9,7 +9,6 @@ import {
   Button,
   Crest,
   ErrorState,
-  fonts,
   Screen,
   SectionTitle,
   Skeleton,
@@ -183,7 +182,7 @@ function GuessForm({
   jokerUsed: boolean;
 }) {
   const navigation = useNavigation();
-  const { colors, layout } = useTheme();
+  const { colors, fonts, layout } = useTheme();
   const { showToast, showAlert } = useAlerts();
   const m = item.match;
   const [home, setHome] = useState(item.guess?.home ?? 0);

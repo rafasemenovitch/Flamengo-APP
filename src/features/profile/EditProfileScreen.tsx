@@ -12,7 +12,6 @@ import {
 import {
   Avatar,
   Button,
-  fonts,
   ListGroup,
   ListItem,
   Screen,
@@ -94,7 +93,7 @@ function Field({
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   flex?: number;
 }) {
-  const { colors, radius } = useTheme();
+  const { colors, fonts, radius } = useTheme();
   const [focus, setFocus] = useState(false);
   return (
     <View style={{ gap: 6, flex }}>

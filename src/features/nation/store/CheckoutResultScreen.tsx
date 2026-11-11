@@ -38,7 +38,7 @@ export function CheckoutResultScreen({ route }: RootScreenProps<'CheckoutResult'
         </Animated.View>
         <View style={{ alignItems: 'center', gap: spacing.sm }}>
           <Badge label="Compra simulada" tone="demo" icon="flask-outline" />
-          <Text variant="displayM" align="center">
+          <Text variant="headline" align="center">
             {kind === 'tickets' ? 'Ingressos na carteira!' : 'Pedido confirmado!'}
           </Text>
         </View>

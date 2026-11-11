@@ -126,7 +126,7 @@ export function FaceEnrollmentScreen({ navigation }: RootScreenProps<'FaceEnroll
           <>
             <View style={{ alignItems: 'center', gap: spacing.md, paddingTop: spacing.md }}>
               <Ionicons name="scan-outline" size={64} color={colors.accentText} />
-              <Text variant="displayM" align="center">
+              <Text variant="headline" align="center">
                 Entre no Maracanã com o seu rosto
               </Text>
             </View>
@@ -184,7 +184,7 @@ export function FaceEnrollmentScreen({ navigation }: RootScreenProps<'FaceEnroll
                 }}
                 accessibilityLabel="Sua foto"
               />
-              <Text variant="displayM" align="center">
+              <Text variant="headline" align="center">
                 Ficou boa?
               </Text>
             </View>
@@ -202,7 +202,7 @@ export function FaceEnrollmentScreen({ navigation }: RootScreenProps<'FaceEnroll
         {step === 'done' && (
           <View style={{ alignItems: 'center', gap: spacing.lg, paddingTop: spacing.xxl }}>
             <Ionicons name="checkmark-circle" size={72} color={colors.success} />
-            <Text variant="displayM" align="center">
+            <Text variant="headline" align="center">
               Rosto cadastrado!
             </Text>
             <Text variant="body" tone="secondary" align="center">

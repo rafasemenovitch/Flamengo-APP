@@ -2,7 +2,7 @@ import { Image, View } from 'react-native';
 import Svg, { Circle, G, Polygon, Text as SvgText } from 'react-native-svg';
 
 import { brandAssets } from '@assets/brand';
-import { fonts, useTheme, withAlpha } from '@/design-system';
+import { useTheme, withAlpha } from '@/design-system';
 import type { PassportStamp } from '@/types/gamification';
 
 const MONTHS = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
@@ -57,6 +57,7 @@ function ArcText({
   fontSize?: number;
   spacing?: number;
 }) {
+  const { fonts } = useTheme();
   const chars = [...text];
   const widths = chars.map((c) => charWidth(c) * fontSize + spacing);
   const total = widths.reduce((a, b) => a + b, 0) - spacing;
@@ -96,7 +97,7 @@ function ArcText({
  * derrota apagada. Cada carimbo sai levemente torto e com falhas de tinta.
  */
 export function Stamp({ stamp, size }: { stamp: PassportStamp; size: number }) {
-  const { colors } = useTheme();
+  const { colors, fonts } = useTheme();
   const rnd = seeded(stamp.id);
   const rotate = (rnd() - 0.5) * 12;
   const ink =
@@ -178,7 +179,7 @@ export function Stamp({ stamp, size }: { stamp: PassportStamp; size: number }) {
 
 /** Espaço do próximo carimbo: aro tracejado, à espera do jogo. */
 export function NextStamp({ size, label, date }: { size: number; label: string; date: string }) {
-  const { colors } = useTheme();
+  const { colors, fonts } = useTheme();
   return (
     <View style={{ width: size, height: size }}>
       <Svg width={size} height={size} viewBox="0 0 200 200">

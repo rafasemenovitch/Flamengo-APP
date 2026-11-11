@@ -204,7 +204,7 @@ function StadiumTab({
             <Text variant="overline" tone="secondary">
               {FACILITY_LABEL[facility.type]}
             </Text>
-            <Text variant="displayM">{facility.label}</Text>
+            <Text variant="headline">{facility.label}</Text>
           </View>
         )}
       </View>

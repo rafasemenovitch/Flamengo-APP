@@ -5,7 +5,7 @@ import { Modal, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Rect } from 'react-native-svg';
 
-import { Button, Crest, fonts, Text, useTheme } from '@/design-system';
+import { Button, Crest, Text, useTheme } from '@/design-system';
 import { competitionName } from '@/features/shared/MatchUI';
 import type { BolaoMatch, BolaoPool, BolaoScope } from '@/types/bolao';
 import { BOLAO_RULES, POINTS_LABEL } from '@/utils/bolaoScoring';
@@ -37,6 +37,7 @@ export function ScoreText({
   variant?: DisplayVariant;
   tone?: Tone;
 }) {
+  const { fonts } = useTheme();
   return (
     <Text variant={variant} tone={tone} accessibilityLabel={`${home} a ${away}`}>
       {home}
@@ -62,6 +63,7 @@ export function Signed({
   variant?: DisplayVariant;
   tone?: Tone;
 }) {
+  const { fonts } = useTheme();
   return (
     <Text variant={variant} tone={tone}>
       {prefix ? (

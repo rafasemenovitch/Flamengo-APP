@@ -13,6 +13,15 @@ Base técnica e estética reaproveitadas do app Zuno (auditoria em [docs/ZUNO_AU
 Escaneie com o **Expo Go**, logado numa conta membro da organização `flamengo-app` no Expo.
 Instruções: [QR-CODE-ACESSO-EXPO-GO](QR-CODE-ACESSO-EXPO-GO/README.md).
 
+## Teste tipográfico
+
+Há duas tipografias, trocáveis na hora para comparar: **Perfil → Configurações → Aparência**, ou nos controles escondidos da demo (segurar a saudação da Home).
+
+- **Nova** (padrão): Barlow Condensed ExtraBold nos títulos de impacto, nomes dos times no card principal, placares e cronômetros; Manrope 400–700 no resto.
+- **Original**: Anybody + Schibsted Grotesk.
+
+Tudo fica em `src/design-system/tokens/typography.ts`. Para adotar uma de vez, mude `DEFAULT_TYPE_SET` em `src/design-system/theme/ThemeProvider.tsx`. Fontes locais em `assets/fonts` (licença OFL em `assets/fonts/licenses`).
+
 ## Como rodar
 
 Requisitos: Node 20+ e o app **Expo Go** atualizado (SDK 58) no celular, ou um simulador iOS/Android.

@@ -20,7 +20,6 @@ import {
   Tabs,
   Text,
   TreatedImage,
-  typography,
   useAlerts,
   useTheme,
   type TypographyVariant,
@@ -33,6 +32,7 @@ const SCALE: TypographyVariant[] = [
   'displayL',
   'displayM',
   'displayS',
+  'headline',
   'titleL',
   'titleM',
   'titleS',
@@ -65,7 +65,7 @@ const COLOR_KEYS = [
 
 /** Catálogo do design system (especificação 15.1). Só em desenvolvimento. */
 export function DesignSystemScreen() {
-  const { colors, layout, radius } = useTheme();
+  const { colors, layout, radius, typography } = useTheme();
   const { showAlert, showToast } = useAlerts();
   const [tab, setTab] = useState<'a' | 'b' | 'c'>('a');
   const [filter, setFilter] = useState<'x' | 'y' | 'z'>('x');
