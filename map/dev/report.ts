@@ -47,6 +47,9 @@ const CAT_LETTER: Record<string, string> = {
   informacao: 'i',
   sala_sensorial: 'S',
   bilheteria: 'T',
+  seguranca: 'Sg',
+  juizado: 'J',
+  acolhimento: 'M',
   estacionamento: 'P',
   saida_emergencia: 'X',
 };
@@ -283,7 +286,7 @@ async function main() {
               .join('')}</div>`
           : ''
       }
-      <div class="small">Letras: B banheiro · BA acessível · A alimentação · Be bebidas · L loja · E elevador · ER esc. rolante · Es escada · + saúde · i informação · S sala sensorial · T bilheteria · P estac. · X saída</div>`;
+      <div class="small">Letras: B banheiro · BA acessível · A alimentação · Be bebidas · L loja · E elevador · ER esc. rolante · Es escada · + saúde · i informação · S sala sensorial · T bilheteria · P estac. · X saída · Sg segurança · J Juizado · M acolhimento à mulher</div>`;
     map.once('idle', () => document.body.setAttribute('data-ready', '1'));
   });
 }

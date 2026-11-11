@@ -47,5 +47,73 @@
       ]
     }
   ],
+  "help": [
+    {
+      "id": "seguranca",
+      "name": "Segurança do estádio",
+      "description": "Racismo, assédio ou briga: chame o segurança mais perto ou vá ao posto policial.",
+      "poi": "seguranca-a",
+      "source": [
+        "mprj2025",
+        "agbrasil2025"
+      ]
+    },
+    {
+      "id": "juizado",
+      "name": "Juizado do Torcedor",
+      "description": "Registro de ocorrência e audiência sem sair do estádio.",
+      "poi": "juizado-torcedor",
+      "source": [
+        "escopo2019",
+        "cnn2023"
+      ]
+    },
+    {
+      "id": "acolhimento",
+      "name": "Acolhimento à mulher",
+      "description": "Atendimento a vítimas de assédio e importunação sexual no estádio.",
+      "poi": "acolhimento-mulher",
+      "source": [
+        "alerj2026"
+      ]
+    },
+    {
+      "id": "mprj",
+      "name": "Ouvidoria do MPRJ",
+      "description": "Denúncia de racismo e discriminação, com fotos e vídeos.",
+      "phone": "127",
+      "source": [
+        "mprj2025"
+      ]
+    },
+    {
+      "id": "pm",
+      "name": "Polícia Militar",
+      "description": "Emergência policial.",
+      "phone": "190",
+      "source": [
+        "gov-canais"
+      ]
+    },
+    {
+      "id": "ligue180",
+      "name": "Ligue 180",
+      "description": "Central de Atendimento à Mulher, 24 h.",
+      "phone": "180",
+      "url": "https://www.gov.br/mulheres/pt-br/ligue180",
+      "source": [
+        "gov-canais"
+      ]
+    },
+    {
+      "id": "disque100",
+      "name": "Disque 100",
+      "description": "Direitos humanos: racismo e outras discriminações.",
+      "phone": "100",
+      "source": [
+        "gov-canais"
+      ]
+    }
+  ],
   "defaultLevel": "1"
 }

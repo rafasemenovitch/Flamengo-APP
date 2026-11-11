@@ -101,7 +101,13 @@ export type PoiCategory =
   | 'sala_sensorial'
   | 'bilheteria'
   | 'estacionamento'
-  | 'saida_emergencia';
+  | 'saida_emergencia'
+  /** Posto policial / segurança do estádio. */
+  | 'seguranca'
+  /** Juizado do Torcedor (JECrim) no estádio. */
+  | 'juizado'
+  /** Posto de acolhimento a vítimas de violência de gênero (assédio, importunação). */
+  | 'acolhimento';
 
 export interface Poi extends Sourced {
   id: string;
@@ -143,6 +149,19 @@ export interface TransitStation {
   source: SourceId[];
 }
 
+/** Canal de ajuda e denúncia (racismo, assédio, emergência), mostrado no card "Preciso de ajuda". */
+export interface HelpChannel {
+  id: string;
+  name: string;
+  /** Para que serve, em uma linha. */
+  description: string;
+  phone?: string;
+  url?: string;
+  /** Ponto de interesse no estádio, se houver atendimento presencial. */
+  poi?: string;
+  source: SourceId[];
+}
+
 /** Metadados do estádio: nome, enquadramento da câmera e entorno. */
 export interface Venue {
   id: string;
@@ -156,5 +175,6 @@ export interface Venue {
   bounds: [number, number, number, number];
   attribution: string[];
   transit: TransitStation[];
+  help: HelpChannel[];
   defaultLevel: string;
 }

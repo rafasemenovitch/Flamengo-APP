@@ -57,6 +57,19 @@ describe('dados do estádio', () => {
     expect(levels.ramps.map((r: any) => r.gate).sort()).toEqual(g);
   });
 
+  it('canais de ajuda: segurança, Juizado, acolhimento à mulher e denúncia de racismo', () => {
+    const ids = venue.help.map((h: any) => h.id);
+    for (const id of ['seguranca', 'juizado', 'acolhimento', 'mprj', 'ligue180', 'disque100'])
+      expect(ids).toContain(id);
+    const poiIds = new Set(pois.map((f) => f.properties.id));
+    for (const h of venue.help) {
+      expect(h.source.every((s: string) => SOURCE_IDS.has(s))).toBe(true);
+      if (h.poi) expect(poiIds.has(h.poi)).toBe(true);
+    }
+    for (const cat of ['seguranca', 'juizado', 'acolhimento', 'posto_medico'])
+      expect(pois.some((f) => f.properties.category === cat)).toBe(true);
+  });
+
   it('o nome do estádio vem dos dados', () => {
     expect(venue.name).toBe('Maracanã');
     expect(venue.bounds).toHaveLength(4);

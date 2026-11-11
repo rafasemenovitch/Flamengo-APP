@@ -85,6 +85,45 @@ const SOURCES: Source[] = [
     date: '2023-10-11',
   },
   {
+    id: 'alerj2026',
+    title: 'Lei 10.773/25 prevê postos de apoio às mulheres vítimas de assédio em estádios do Rio',
+    publisher: 'Assembleia Legislativa do Estado do Rio de Janeiro (Alerj)',
+    url: 'https://www.alerj.rj.gov.br/Visualizar/Noticia/85362',
+    date: '2026-06-06',
+    note: 'A lei exige postos avançados de atendimento a vítimas de violência de gênero nos estádios. Em jun/2026 a Alerj ainda ia vistoriar onde fica o posto no Maracanã.',
+  },
+  {
+    id: 'mprj2025',
+    title: 'MPRJ leva Ouvidoria ao Maracanã e reforça combate ao racismo',
+    publisher: 'Ministério Público do Estado do Rio de Janeiro',
+    url: 'https://www.mprj.mp.br/web/guest/visualizar?noticiaId=179306',
+    date: '2025-05-15',
+    note: 'Promotores do GAEDEST nos jogos; denúncia à segurança do estádio, à PM ou ao promotor de plantão; Ouvidoria pelo 127.',
+  },
+  {
+    id: 'agbrasil2025',
+    title: 'Torcedor chileno é preso após gestos racistas em jogo no Maracanã',
+    publisher: 'Agência Brasil',
+    url: 'https://agenciabrasil.ebc.com.br/direitos-humanos/noticia/2025-05/torcedor-chileno-e-preso-apos-gestos-racistas-em-jogo-no-maracana',
+    date: '2025-05-15',
+    note: 'Segurança do estádio acionou o Batalhão Especial de Policiamento em Estádios; audiência de custódia no Juizado Especial do Torcedor.',
+  },
+  {
+    id: 'cnn2023',
+    title: 'Justiça mantém torcedora argentina presa por injúria racial no Maracanã',
+    publisher: 'CNN Brasil',
+    url: 'https://www.cnnbrasil.com.br/nacional/justica-mantem-torcedora-argentina-presa-por-caso-de-injuria-racial-no-maracana/',
+    date: '2023-11-22',
+    note: 'Cita o "posto do Juizado do Torcedor no estádio do Maracanã" (Juizado do Torcedor e dos Grandes Eventos, TJ-RJ).',
+  },
+  {
+    id: 'gov-canais',
+    title: 'Ligue 180 (Central de Atendimento à Mulher) e Disque 100 (Direitos Humanos)',
+    publisher: 'Governo Federal',
+    url: 'https://www.gov.br/mulheres/pt-br/ligue180',
+    date: '2026-11-11',
+  },
+  {
     id: 'osm',
     title: 'OpenStreetMap (Overpass API)',
     publisher: '© OpenStreetMap contributors, ODbL',
@@ -1050,7 +1089,7 @@ MEDICAL.forEach(([level, phi], i) =>
     ring: level,
     source: ['manual2019', 'escopo2019'],
     confidence: 'estimado',
-    note: 'Ambulatório no nível 1 (manual) e postos em todos os níveis (Guia de Escopo, 8 postos). Posição estimada.',
+    note: 'Guia de Escopo: 8 postos médicos (médico, enfermeiro e técnico de enfermagem, com ambulância tipo D) e 9 ambulâncias; casos graves vão a hospital de referência. Ambulatório no nível 1 (manual). Posição estimada.',
   })
 );
 // Atendimento ao torcedor (NFL): Leste e Oeste; resolução de ingressos no nível 1 junto à rampa D / Leste Mais.
@@ -1177,6 +1216,60 @@ for (const [ref, name, note] of [
       [n.lon, n.lat]
     );
 }
+
+// Segurança, Juizado do Torcedor e acolhimento à mulher.
+// JECrim: "Nível Térreo, Setor Norte, próximo ao Acesso E" (Guia de Escopo); posto do Juizado no estádio (CNN, Agência Brasil).
+addPoi({
+  id: 'juizado-torcedor',
+  category: 'juizado',
+  name: 'Juizado do Torcedor',
+  level: null,
+  phi: rampFoot.E.phi - 6,
+  r: facade(rampFoot.E.phi - 6) - 4,
+  source: ['escopo2019', 'cnn2023', 'agbrasil2025'],
+  confidence: 'fonte_unica',
+  note: 'JECrim no térreo, Setor Norte, perto do Acesso E (Guia de Escopo). Existência do posto confirmada por notícias de 2023 e 2025; posição só pelo Guia.',
+});
+// Acolhimento à mulher: exigido pela Lei estadual 10.773/25; local no Maracanã ainda não divulgado.
+addPoi({
+  id: 'acolhimento-mulher',
+  category: 'acolhimento',
+  name: 'Acolhimento à mulher',
+  level: null,
+  phi: rampFoot.E.phi + 6,
+  r: facade(rampFoot.E.phi + 6) - 4,
+  source: ['alerj2026'],
+  confidence: 'estimado',
+  note: 'Posto de atendimento a vítimas de violência de gênero exigido pela Lei 10.773/25. Local não divulgado; estimado junto ao Juizado e ao policiamento, para registrar a ocorrência sem sair do estádio.',
+});
+// Policiamento: Batalhão Especial de Policiamento em Estádios, acionado pela segurança do estádio.
+for (const letter of ['A', 'D']) {
+  const phi = rampFoot[letter].phi + 10;
+  addPoi({
+    id: `seguranca-${letter.toLowerCase()}`,
+    category: 'seguranca',
+    name: 'Posto policial',
+    level: null,
+    phi,
+    r: facade(phi) + 10,
+    source: ['manual2019', 'agbrasil2025'],
+    confidence: 'estimado',
+    note: 'Policiamento pelo Batalhão Especial de Policiamento em Estádios (Agência Brasil 2025; GEPE no manual). Posição do posto estimada junto às rampas monumentais.',
+  });
+}
+// Segurança do estádio: ponto de contato com stewards, um por lado no nível 1.
+for (const phi of [0, 90, 180, 270])
+  addPoi({
+    id: `seguranca-n1-${phi}`,
+    category: 'seguranca',
+    name: 'Segurança do estádio',
+    level: '1',
+    phi: phi + 12,
+    ring: '1',
+    source: ['escopo2019', 'mprj2025'],
+    confidence: 'estimado',
+    note: 'Seguranças e stewards em todos os setores (Guia de Escopo); o MPRJ orienta acionar a segurança do estádio em caso de racismo. Ponto de contato estimado.',
+  });
 
 // ─────────────────────────────────────────────── grafo de caminhos
 type GNode = { id: string; level: string | null; ll: LngLat; ref?: string; z: number };
@@ -1374,6 +1467,58 @@ const venue: Venue = {
       lng: sc.lon,
       lat: sc.lat,
       source: ['osm', 'lance2024'],
+    },
+  ],
+  help: [
+    {
+      id: 'seguranca',
+      name: 'Segurança do estádio',
+      description: 'Racismo, assédio ou briga: chame o segurança mais perto ou vá ao posto policial.',
+      poi: 'seguranca-a',
+      source: ['mprj2025', 'agbrasil2025'],
+    },
+    {
+      id: 'juizado',
+      name: 'Juizado do Torcedor',
+      description: 'Registro de ocorrência e audiência sem sair do estádio.',
+      poi: 'juizado-torcedor',
+      source: ['escopo2019', 'cnn2023'],
+    },
+    {
+      id: 'acolhimento',
+      name: 'Acolhimento à mulher',
+      description: 'Atendimento a vítimas de assédio e importunação sexual no estádio.',
+      poi: 'acolhimento-mulher',
+      source: ['alerj2026'],
+    },
+    {
+      id: 'mprj',
+      name: 'Ouvidoria do MPRJ',
+      description: 'Denúncia de racismo e discriminação, com fotos e vídeos.',
+      phone: '127',
+      source: ['mprj2025'],
+    },
+    {
+      id: 'pm',
+      name: 'Polícia Militar',
+      description: 'Emergência policial.',
+      phone: '190',
+      source: ['gov-canais'],
+    },
+    {
+      id: 'ligue180',
+      name: 'Ligue 180',
+      description: 'Central de Atendimento à Mulher, 24 h.',
+      phone: '180',
+      url: 'https://www.gov.br/mulheres/pt-br/ligue180',
+      source: ['gov-canais'],
+    },
+    {
+      id: 'disque100',
+      name: 'Disque 100',
+      description: 'Direitos humanos: racismo e outras discriminações.',
+      phone: '100',
+      source: ['gov-canais'],
     },
   ],
   defaultLevel: '1',
