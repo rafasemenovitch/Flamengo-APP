@@ -1,0 +1,637 @@
+{
+  "levels": [
+    {
+      "id": "0",
+      "name": "Térreo",
+      "short": "T",
+      "public": false,
+      "order": 0,
+      "floor": 0,
+      "description": "Área de competição, administração, imprensa e acesso VIP."
+    },
+    {
+      "id": "1",
+      "name": "Nível 1",
+      "short": "1",
+      "public": true,
+      "order": 1,
+      "floor": 6,
+      "description": "Arquibancadas inferiores nos quatro lados, Maracanã Mais (Oeste) e Leste Mais (Leste)."
+    },
+    {
+      "id": "2",
+      "name": "Nível 2",
+      "short": "2",
+      "public": true,
+      "order": 2,
+      "floor": 14,
+      "description": "Camarotes Leste e Oeste e arquibancadas superiores Norte e Sul."
+    },
+    {
+      "id": "3",
+      "name": "Nível 3",
+      "short": "3",
+      "public": true,
+      "order": 3,
+      "floor": 19,
+      "description": "Arquibancada Leste Superior, camarotes Oeste e Tribuna de Honra."
+    },
+    {
+      "id": "4",
+      "name": "Nível 4",
+      "short": "4",
+      "public": false,
+      "order": 4,
+      "floor": 23,
+      "description": "Salas de trabalho da imprensa."
+    },
+    {
+      "id": "5",
+      "name": "Nível 5",
+      "short": "5",
+      "public": true,
+      "order": 5,
+      "floor": 27,
+      "description": "Arquibancadas superiores Norte e Sul, cadeiras cativas (Oeste) e imprensa."
+    }
+  ],
+  "sectors": [
+    {
+      "id": "oeste-inferior",
+      "name": "Cadeira Oeste Inferior",
+      "ticketName": "Oeste Inferior",
+      "side": "oeste",
+      "level": "1",
+      "kind": "arquibancada",
+      "blocks": [
+        "101",
+        "102",
+        "103",
+        "104",
+        "105",
+        "106",
+        "107"
+      ],
+      "gates": [
+        "A"
+      ],
+      "ramps": [
+        "rampa-a"
+      ],
+      "source": [
+        "manual2019",
+        "ingressos2025",
+        "ingressos2023"
+      ],
+      "confidence": "confirmado",
+      "note": "Lado, nível e blocos pelas Figs. 12 e 21 do manual; geometria aproximada a partir do contorno do OSM."
+    },
+    {
+      "id": "sul-inferior",
+      "name": "Cadeira Sul Inferior",
+      "ticketName": "Sul",
+      "side": "sul",
+      "level": "1",
+      "kind": "arquibancada",
+      "blocks": [
+        "108",
+        "109",
+        "110",
+        "111",
+        "112",
+        "113",
+        "114",
+        "115"
+      ],
+      "gates": [
+        "B",
+        "C"
+      ],
+      "ramps": [
+        "rampa-b",
+        "rampa-c"
+      ],
+      "visitor": true,
+      "source": [
+        "manual2019",
+        "ingressos2025",
+        "ingressos2023"
+      ],
+      "confidence": "confirmado",
+      "note": "Lado, nível e blocos pelas Figs. 12 e 21 do manual; geometria aproximada a partir do contorno do OSM."
+    },
+    {
+      "id": "leste-inferior",
+      "name": "Cadeira Leste Inferior",
+      "ticketName": "Leste Inferior",
+      "side": "leste",
+      "level": "1",
+      "kind": "arquibancada",
+      "blocks": [
+        "116",
+        "117",
+        "118",
+        "119",
+        "120",
+        "121",
+        "122"
+      ],
+      "gates": [
+        "D"
+      ],
+      "ramps": [
+        "rampa-d"
+      ],
+      "source": [
+        "manual2019",
+        "ingressos2025",
+        "ingressos2023"
+      ],
+      "confidence": "confirmado",
+      "note": "Lado, nível e blocos pelas Figs. 12 e 21 do manual; geometria aproximada a partir do contorno do OSM."
+    },
+    {
+      "id": "norte-inferior",
+      "name": "Cadeira Norte Inferior",
+      "ticketName": "Norte",
+      "side": "norte",
+      "level": "1",
+      "kind": "arquibancada",
+      "blocks": [
+        "123",
+        "124",
+        "125",
+        "126",
+        "127",
+        "128",
+        "129",
+        "130"
+      ],
+      "gates": [
+        "E",
+        "F"
+      ],
+      "ramps": [
+        "rampa-e",
+        "rampa-f"
+      ],
+      "source": [
+        "manual2019",
+        "ingressos2025",
+        "ingressos2023"
+      ],
+      "confidence": "confirmado",
+      "note": "Lado, nível e blocos pelas Figs. 12 e 21 do manual; geometria aproximada a partir do contorno do OSM."
+    },
+    {
+      "id": "camarotes-oeste-2",
+      "name": "Camarotes Oeste (Nível 2)",
+      "side": "oeste",
+      "level": "2",
+      "kind": "camarote",
+      "blocks": [],
+      "gates": [
+        "A"
+      ],
+      "ramps": [
+        "rampa-a"
+      ],
+      "source": [
+        "manual2019"
+      ],
+      "confidence": "fonte_unica",
+      "note": "Lado, nível e blocos pelas Figs. 12 e 21 do manual; geometria aproximada a partir do contorno do OSM."
+    },
+    {
+      "id": "camarotes-leste-2",
+      "name": "Camarotes Leste (Nível 2)",
+      "side": "leste",
+      "level": "2",
+      "kind": "camarote",
+      "blocks": [],
+      "gates": [
+        "D"
+      ],
+      "ramps": [
+        "rampa-d"
+      ],
+      "source": [
+        "manual2019"
+      ],
+      "confidence": "fonte_unica",
+      "note": "Lado, nível e blocos pelas Figs. 12 e 21 do manual; geometria aproximada a partir do contorno do OSM."
+    },
+    {
+      "id": "sul-superior-2",
+      "name": "Cadeira Sul Superior (Nível 2)",
+      "ticketName": "Sul",
+      "side": "sul",
+      "level": "2",
+      "kind": "arquibancada",
+      "blocks": [
+        "201",
+        "202",
+        "203",
+        "204",
+        "205",
+        "206",
+        "207",
+        "208",
+        "209",
+        "210",
+        "211",
+        "212",
+        "213",
+        "214",
+        "215",
+        "216",
+        "217",
+        "218"
+      ],
+      "gates": [
+        "B",
+        "C"
+      ],
+      "ramps": [
+        "rampa-b",
+        "rampa-c"
+      ],
+      "visitor": true,
+      "source": [
+        "manual2019",
+        "ingressos2025",
+        "ingressos2023"
+      ],
+      "confidence": "confirmado",
+      "note": "Lado, nível e blocos pelas Figs. 12 e 21 do manual; geometria aproximada a partir do contorno do OSM."
+    },
+    {
+      "id": "norte-superior-2",
+      "name": "Cadeira Norte Superior (Nível 2)",
+      "ticketName": "Norte",
+      "side": "norte",
+      "level": "2",
+      "kind": "arquibancada",
+      "blocks": [
+        "219",
+        "220",
+        "221",
+        "222",
+        "223",
+        "224",
+        "225",
+        "226",
+        "227",
+        "228",
+        "229",
+        "230",
+        "231",
+        "232",
+        "233",
+        "234",
+        "235",
+        "236",
+        "237",
+        "238"
+      ],
+      "gates": [
+        "E",
+        "F"
+      ],
+      "ramps": [
+        "rampa-e",
+        "rampa-f"
+      ],
+      "source": [
+        "manual2019",
+        "ingressos2025",
+        "ingressos2023"
+      ],
+      "confidence": "confirmado",
+      "note": "Lado, nível e blocos pelas Figs. 12 e 21 do manual; geometria aproximada a partir do contorno do OSM."
+    },
+    {
+      "id": "camarotes-oeste-3",
+      "name": "Camarotes Oeste e Tribuna de Honra (Nível 3)",
+      "side": "oeste",
+      "level": "3",
+      "kind": "tribuna",
+      "blocks": [],
+      "gates": [
+        "A"
+      ],
+      "ramps": [
+        "rampa-a"
+      ],
+      "source": [
+        "manual2019"
+      ],
+      "confidence": "fonte_unica",
+      "note": "Lado, nível e blocos pelas Figs. 12 e 21 do manual; geometria aproximada a partir do contorno do OSM."
+    },
+    {
+      "id": "leste-superior",
+      "name": "Cadeira Leste Superior",
+      "ticketName": "Leste Superior",
+      "side": "leste",
+      "level": "3",
+      "kind": "arquibancada",
+      "blocks": [
+        "301",
+        "302",
+        "303",
+        "304",
+        "305",
+        "306",
+        "307",
+        "308",
+        "309",
+        "310",
+        "311",
+        "312",
+        "313"
+      ],
+      "gates": [
+        "D"
+      ],
+      "ramps": [
+        "rampa-d"
+      ],
+      "source": [
+        "manual2019",
+        "ingressos2025",
+        "ingressos2023"
+      ],
+      "confidence": "confirmado",
+      "note": "Lado, nível e blocos pelas Figs. 12 e 21 do manual; geometria aproximada a partir do contorno do OSM."
+    },
+    {
+      "id": "cativas-oeste",
+      "name": "Cadeiras Cativas (Oeste)",
+      "side": "oeste",
+      "level": "5",
+      "kind": "cativa",
+      "blocks": [
+        "501",
+        "502",
+        "503",
+        "504",
+        "505",
+        "507",
+        "508",
+        "509",
+        "510",
+        "511"
+      ],
+      "gates": [
+        "A"
+      ],
+      "ramps": [
+        "rampa-a"
+      ],
+      "source": [
+        "manual2019"
+      ],
+      "confidence": "fonte_unica",
+      "note": "Lado, nível e blocos pelas Figs. 12 e 21 do manual; geometria aproximada a partir do contorno do OSM."
+    },
+    {
+      "id": "sul-superior-5",
+      "name": "Cadeira Sul Superior (Nível 5)",
+      "ticketName": "Sul",
+      "side": "sul",
+      "level": "5",
+      "kind": "arquibancada",
+      "blocks": [
+        "512",
+        "513",
+        "514",
+        "515",
+        "516",
+        "517",
+        "518",
+        "519",
+        "520",
+        "521",
+        "522",
+        "523",
+        "524",
+        "525",
+        "526",
+        "527",
+        "528",
+        "529"
+      ],
+      "gates": [
+        "B",
+        "C",
+        "D"
+      ],
+      "ramps": [
+        "rampa-b",
+        "rampa-c",
+        "rampa-d"
+      ],
+      "visitor": true,
+      "source": [
+        "manual2019",
+        "ingressos2025",
+        "ingressos2023"
+      ],
+      "confidence": "confirmado",
+      "note": "Lado, nível e blocos pelas Figs. 12 e 21 do manual; geometria aproximada a partir do contorno do OSM."
+    },
+    {
+      "id": "norte-superior-5",
+      "name": "Cadeira Norte Superior (Nível 5)",
+      "ticketName": "Norte",
+      "side": "norte",
+      "level": "5",
+      "kind": "arquibancada",
+      "blocks": [
+        "530",
+        "531",
+        "532",
+        "533",
+        "534",
+        "535",
+        "536",
+        "537",
+        "538",
+        "539",
+        "540",
+        "541",
+        "542",
+        "543",
+        "544",
+        "545",
+        "546",
+        "547"
+      ],
+      "gates": [
+        "E",
+        "F",
+        "D"
+      ],
+      "ramps": [
+        "rampa-e",
+        "rampa-f",
+        "rampa-d"
+      ],
+      "source": [
+        "manual2019",
+        "ingressos2025",
+        "ingressos2023"
+      ],
+      "confidence": "confirmado",
+      "note": "Lado, nível e blocos pelas Figs. 12 e 21 do manual; geometria aproximada a partir do contorno do OSM."
+    },
+    {
+      "id": "maracana-mais",
+      "name": "Maracanã Mais",
+      "ticketName": "Maracanã Mais",
+      "side": "oeste",
+      "level": "1",
+      "kind": "premium",
+      "blocks": [],
+      "gates": [
+        "A"
+      ],
+      "ramps": [
+        "rampa-a"
+      ],
+      "source": [
+        "manual2019",
+        "nfl2026",
+        "ingressos2025"
+      ],
+      "confidence": "confirmado",
+      "note": "Lounge no nível 1 (manual, cap. 2); posição sobre os blocos centrais pela Fig. 21."
+    },
+    {
+      "id": "leste-mais",
+      "name": "Leste Mais",
+      "ticketName": "Leste Mais",
+      "side": "leste",
+      "level": "1",
+      "kind": "premium",
+      "blocks": [],
+      "gates": [
+        "D"
+      ],
+      "ramps": [
+        "rampa-d"
+      ],
+      "source": [
+        "manual2019",
+        "nfl2026",
+        "ingressos2025"
+      ],
+      "confidence": "confirmado",
+      "note": "Lounge no nível 1 (manual, cap. 2); posição sobre os blocos centrais pela Fig. 21."
+    }
+  ],
+  "ramps": [
+    {
+      "id": "rampa-a",
+      "name": "Rampa A",
+      "gate": "A",
+      "monumental": true,
+      "levels": [
+        "1",
+        "2",
+        "3",
+        "5"
+      ],
+      "source": [
+        "manual2019",
+        "osm"
+      ],
+      "confidence": "confirmado"
+    },
+    {
+      "id": "rampa-b",
+      "name": "Rampa B",
+      "gate": "B",
+      "monumental": false,
+      "levels": [
+        "1",
+        "2"
+      ],
+      "source": [
+        "manual2019",
+        "osm"
+      ],
+      "confidence": "confirmado"
+    },
+    {
+      "id": "rampa-c",
+      "name": "Rampa C",
+      "gate": "C",
+      "monumental": false,
+      "levels": [
+        "1",
+        "2"
+      ],
+      "source": [
+        "manual2019",
+        "osm"
+      ],
+      "confidence": "confirmado"
+    },
+    {
+      "id": "rampa-d",
+      "name": "Rampa D",
+      "gate": "D",
+      "monumental": true,
+      "levels": [
+        "1",
+        "2",
+        "3",
+        "5"
+      ],
+      "source": [
+        "manual2019",
+        "osm"
+      ],
+      "confidence": "confirmado",
+      "note": "Também leva ao nível 5 Norte e Sul (manual, Fig. 21)."
+    },
+    {
+      "id": "rampa-e",
+      "name": "Rampa E",
+      "gate": "E",
+      "monumental": false,
+      "levels": [
+        "1",
+        "2"
+      ],
+      "source": [
+        "manual2019",
+        "osm"
+      ],
+      "confidence": "confirmado"
+    },
+    {
+      "id": "rampa-f",
+      "name": "Rampa F",
+      "gate": "F",
+      "monumental": false,
+      "levels": [
+        "1",
+        "2"
+      ],
+      "source": [
+        "manual2019",
+        "osm"
+      ],
+      "confidence": "confirmado"
+    }
+  ],
+  "ringOffset": {
+    "1": 38.8,
+    "2": 33.3,
+    "3": 27,
+    "5": 24.7
+  }
+}

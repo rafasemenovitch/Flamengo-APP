@@ -1,0 +1,51 @@
+{
+  "id": "maracana",
+  "name": "Maracanã",
+  "officialName": "Estádio Jornalista Mário Filho",
+  "city": "Rio de Janeiro",
+  "center": [
+    -43.2301865,
+    -22.9121457
+  ],
+  "pitchBearing": 31.1,
+  "bounds": [
+    -43.2360381,
+    -22.9175736,
+    -43.224335,
+    -22.9067179
+  ],
+  "attribution": [
+    "© OpenStreetMap contributors",
+    "Manual da Instalação do Complexo do Maracanã (Gov. RJ, 2019)"
+  ],
+  "transit": [
+    {
+      "id": "maracana",
+      "name": "Estação Maracanã",
+      "lines": [
+        "Metrô Linha 2",
+        "Trem SuperVia"
+      ],
+      "lng": -43.2332875,
+      "lat": -22.9092963,
+      "source": [
+        "osm",
+        "lance2024"
+      ]
+    },
+    {
+      "id": "sao-cristovao",
+      "name": "Estação São Cristóvão",
+      "lines": [
+        "Metrô Linha 2"
+      ],
+      "lng": -43.2228219,
+      "lat": -22.9095328,
+      "source": [
+        "osm",
+        "lance2024"
+      ]
+    }
+  ],
+  "defaultLevel": "1"
+}

@@ -1,0 +1,53 @@
+[
+  {
+    "id": "manual2019",
+    "title": "Manual da Instalação do Complexo do Maracanã (Anexo X)",
+    "publisher": "Governo do Estado do Rio de Janeiro, Casa Civil",
+    "url": "https://www.rj.gov.br/casacivil/sites/default/files/arquivos_paginas/13.Anexo%20X%20-%20Manual%20de%20Instala%C3%A7%C3%A3o_0.pdf",
+    "date": "2019"
+  },
+  {
+    "id": "escopo2019",
+    "title": "Guia de Escopo Operacional (Anexo XI)",
+    "publisher": "Governo do Estado do Rio de Janeiro, Casa Civil",
+    "url": "https://www.rj.gov.br/casacivil/sites/default/files/arquivos_paginas/14.Anexo%20XI%20-%20Guia%20de%20Escopo%20Operacional_0.pdf",
+    "date": "2019"
+  },
+  {
+    "id": "nfl2026",
+    "title": "NFL Brazil Game 2026 — guia de acessibilidade",
+    "publisher": "NFL",
+    "url": "https://www.nfl.com/international/games/rio/event-info/accessibility-guide",
+    "date": "2026-09",
+    "note": "Evento de futebol americano; parte da estrutura (ex.: banheiros químicos) pode ser específica do evento."
+  },
+  {
+    "id": "lance2024",
+    "title": "Maracanã: como chegar e onde fica cada portão",
+    "publisher": "Lance!",
+    "url": "https://www.lance.com.br/lancepedia/maracana-como-chegar-portao.html",
+    "date": "2024-10-26"
+  },
+  {
+    "id": "ingressos2025",
+    "title": "Informações sobre ingressos para Flamengo x Vasco (Brasileirão 2025)",
+    "publisher": "Vasco da Gama (via NetVasco)",
+    "url": "https://www.netvasco.com.br/n/369272/informacoes-sobre-ingressos-para-Flamengo-x-vasco",
+    "date": "2025-09-15",
+    "note": "Lista setores, portões de cada setor e acesso por biometria facial. Portões podem mudar por jogo."
+  },
+  {
+    "id": "ingressos2023",
+    "title": "Flamengo x Vasco: informações sobre ingressos",
+    "publisher": "Lance!",
+    "url": "https://www.lance.com.br/flamengo/flamengo-x-vasco-veja-informacoes-sobre-ingressos-para-estreia-de-tite-no-maracana.html",
+    "date": "2023-10-11"
+  },
+  {
+    "id": "osm",
+    "title": "OpenStreetMap (Overpass API)",
+    "publisher": "© OpenStreetMap contributors, ODbL",
+    "url": "https://www.openstreetmap.org/relation/4587734",
+    "date": "2026-11-11"
+  }
+]

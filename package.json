@@ -12,8 +12,12 @@
     "lint": "expo lint",
     "format": "prettier --write \"src/**/*.{ts,tsx}\" App.tsx",
     "test": "jest",
-    "check": "tsc --noEmit && expo lint && jest",
-    "publicar": "npx eas-cli@latest update --branch demo --environment preview --message \"Versão de demonstração\" --non-interactive"
+    "check": "tsc --noEmit && tsc -p map && expo lint && jest",
+    "publicar": "npx eas-cli@latest update --branch demo --environment preview --message \"Versão de demonstração\" --non-interactive",
+    "map:data": "tsx map/tools/build-stadium.ts",
+    "map:build": "npm run map:data && esbuild map/dev/report.ts --bundle --minify --target=es2020 --outfile=map/dev/build/report.js --log-level=warning",
+    "map:dev": "npm run map:build && tsx map/tools/serve.ts",
+    "map:shots": "npm run map:build && tsx map/tools/shots.ts"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
@@ -37,19 +41,25 @@
     "react-native-maps": "1.29.11",
     "react-native-safe-area-context": "~5.11.1",
     "react-native-screens": "~4.30.1",
-    "react-native-svg": "15.16.0"
+    "react-native-svg": "15.16.0",
+    "react-native-webview": "14.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.0",
+    "@turf/turf": "^7.4.0",
     "@types/jest": "30.0.0",
     "@types/react": "~19.3.0",
     "babel-preset-expo": "~58.0.0",
+    "esbuild": "^0.28.2",
     "eslint": "^9.39.5",
     "eslint-config-expo": "~58.0.4",
     "eslint-config-prettier": "^10.1.8",
     "jest": "~30.5.2",
     "jest-expo": "~58.0.14",
+    "maplibre-gl": "^5.24.1",
+    "playwright-core": "^1.65.0",
     "prettier": "^3.9.10",
+    "tsx": "^4.23.15",
     "typescript": "~6.0.3"
   },
   "jest": {
