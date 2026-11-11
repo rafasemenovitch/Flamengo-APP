@@ -1,7 +1,7 @@
 import { Fragment, type ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
 
-import { Crest, LiveIndicator, Text, useTheme } from '@/design-system';
+import { Crest, fonts, LiveIndicator, Text, useTheme } from '@/design-system';
 import { COMPETITIONS } from '@/data/demo/seed';
 import type { KnockoutRound, Match, StandingRow, StandingsTable as Table, Team } from '@/types/match';
 import { formatTime } from '@/utils/format';
@@ -70,7 +70,7 @@ export function MatchRow({
   onPress?: () => void;
   trailing?: ReactNode;
 }) {
-  const { colors, fonts, layout } = useTheme();
+  const { colors, layout } = useTheme();
   const d = new Date(match.kickoff);
   const today = isToday(match.kickoff);
   const live = match.status === 'live' || match.status === 'halftime';
@@ -226,7 +226,6 @@ export function ScoreBoard({
   onMedia?: boolean;
   size?: 'hero' | 'xl';
 }) {
-  const { fonts } = useTheme();
   const started = match.status !== 'scheduled' && match.status !== 'postponed';
   const tone = onMedia ? 'onMedia' : 'primary';
   return (
@@ -267,7 +266,7 @@ export function StandingsTable({
   compact?: boolean;
   legend?: { zone: NonNullable<StandingRow['zone']>; label: string }[];
 }) {
-  const { colors, fonts, layout } = useTheme();
+  const { colors, layout } = useTheme();
   let rows = table.rows;
   if (compact) {
     const idx = rows.findIndex((r) => r.team.id === 'fla');
@@ -413,7 +412,7 @@ export function StandingsTable({
  * Flamengo com barra vermelha; vencedor em peso forte; jogos pendentes em cinza.
  */
 export function KnockoutBracket({ rounds }: { rounds: KnockoutRound[] }) {
-  const { colors, fonts, layout } = useTheme();
+  const { colors, layout } = useTheme();
   return (
     <View style={{ gap: 32 }}>
       {rounds.map((r) => (

@@ -72,7 +72,7 @@ export function ProfileScreen() {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
           <Avatar name={profile.name} size={80} />
           <View style={{ flex: 1, gap: 4 }}>
-            <Text variant="headline" accessibilityRole="header" numberOfLines={1}>
+            <Text variant="displayM" accessibilityRole="header" numberOfLines={1}>
               {profile.name}
             </Text>
             <Text variant="bodyM" tone="secondary">

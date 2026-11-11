@@ -82,7 +82,7 @@ export function VideoDetailScreen({ route }: RootScreenProps<'VideoDetail'>) {
             Exclusivo sócio
           </Text>
         )}
-        <Text variant="headline">{v.title}</Text>
+        <Text variant="displayM">{v.title}</Text>
         <Text variant="bodyS" tone="tertiary">
           {formatCompact(v.views)} visualizações · {formatRelative(v.publishedAt)}
         </Text>

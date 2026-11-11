@@ -78,7 +78,7 @@ export function ProductScreen({ route }: RootScreenProps<'Product'>) {
               {p.tag}
             </Text>
           )}
-          <Text variant="headline">{p.name}</Text>
+          <Text variant="displayM">{p.name}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 12 }}>
             <Text variant="displayS">{formatCurrency(p.price)}</Text>
             <Text variant="labelM" tone="brand">

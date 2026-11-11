@@ -3,7 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Modal, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Button, LiveIndicator, Monogram, Text, useTheme, useTypeSet, type TypeSet } from '@/design-system';
+import { Button, LiveIndicator, Monogram, Text, useTheme } from '@/design-system';
 import { useDemoMember } from '@/hooks/useMatch';
 import { DEMO_SCENARIOS, IS_DEMO, type DemoScenario } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
@@ -220,7 +220,6 @@ export function DemoControlsSheet({
               );
             })}
             <MemberToggle />
-            <TypeSetToggle />
           </SafeAreaView>
         </Pressable>
       </Pressable>
@@ -230,60 +229,25 @@ export function DemoControlsSheet({
 
 /** Na demonstração: ver o app como sócio ou como torcedor sem plano. */
 function MemberToggle() {
+  const { colors } = useTheme();
   const [isMember, setMember] = useDemoMember();
   return (
-    <DemoChoice
-      title="Torcedor"
-      value={isMember}
-      options={[
-        [true, 'Sócio'],
-        [false, 'Não sócio'],
-      ]}
-      onChange={setMember}
-    />
-  );
-}
-
-/** Teste tipográfico: comparar a tipografia nova com a original. */
-function TypeSetToggle() {
-  const { typeSet, setTypeSet } = useTypeSet();
-  return (
-    <DemoChoice<TypeSet>
-      title="Tipografia"
-      value={typeSet}
-      options={[
-        ['sport', 'Nova'],
-        ['classic', 'Original'],
-      ]}
-      onChange={setTypeSet}
-    />
-  );
-}
-
-function DemoChoice<T extends string | boolean>({
-  title,
-  value,
-  options,
-  onChange,
-}: {
-  title: string;
-  value: T;
-  options: readonly (readonly [T, string])[];
-  onChange: (v: T) => void;
-}) {
-  const { colors } = useTheme();
-  return (
     <View style={{ marginTop: 12, gap: 8 }}>
-      <Text variant="titleL">{title}</Text>
+      <Text variant="titleL">Torcedor</Text>
       <View style={{ flexDirection: 'row', gap: 8 }}>
-        {options.map(([v, label]) => {
-          const on = v === value;
+        {(
+          [
+            [true, 'Sócio'],
+            [false, 'Não sócio'],
+          ] as const
+        ).map(([v, label]) => {
+          const on = v === isMember;
           return (
             <Pressable
               key={label}
               onPress={() => {
                 haptic.select();
-                onChange(v);
+                setMember(v);
               }}
               accessibilityRole="radio"
               accessibilityState={{ selected: on }}
@@ -402,7 +366,7 @@ export function NationInvite() {
     >
       <Monogram width={160} opacity={0.08} style={{ position: 'absolute', right: -36, top: -28 }} />
       <View style={{ gap: 8 }}>
-        <Text variant="headline">Jogue com a Nação</Text>
+        <Text variant="displayM">Jogue com a Nação</Text>
         <Text variant="bodyM" tone="secondary" style={{ maxWidth: 280 }}>
           Monte seu bolão com os amigos, responda o quiz do dia e vote nas enquetes da torcida.
         </Text>

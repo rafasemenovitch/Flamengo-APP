@@ -25,7 +25,7 @@ export function IconButton({
   badgeCount,
   style,
 }: IconButtonProps) {
-  const { colors, fonts, layout } = useTheme();
+  const { colors, layout } = useTheme();
   const bg =
     variant === 'surface' ? colors.surfaceMuted : variant === 'onMedia' ? 'rgba(0,0,0,0.35)' : 'transparent';
   const fg = variant === 'onMedia' ? colors.textOnMedia : colors.textPrimary;
@@ -48,7 +48,7 @@ export function IconButton({
       <Ionicons name={icon} size={22} color={fg} />
       {!!badgeCount && badgeCount > 0 && (
         <View style={[styles.badge, { backgroundColor: colors.primary, borderColor: colors.background }]}>
-          <Text variant="footnote" tone="onPrimary" style={[styles.badgeText, { fontFamily: fonts.bold }]}>
+          <Text variant="footnote" tone="onPrimary" style={styles.badgeText}>
             {badgeCount > 9 ? '9+' : badgeCount}
           </Text>
         </View>
@@ -71,5 +71,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  badgeText: { fontSize: 10, lineHeight: 12 },
+  badgeText: { fontSize: 10, lineHeight: 12, fontFamily: 'Inter_700Bold' },
 });

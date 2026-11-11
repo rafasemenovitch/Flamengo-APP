@@ -3,7 +3,7 @@ import { StackActions, useNavigation } from '@react-navigation/native';
 import { useState, type ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, Switch, TextInput, View } from 'react-native';
 
-import { Button, Screen, SectionTitle, Text, useTheme } from '@/design-system';
+import { Button, fonts, Screen, SectionTitle, Text, useTheme } from '@/design-system';
 import type { RootScreenProps } from '@/navigation/types';
 import { IS_DEMO, services } from '@/services';
 import type { BolaoPreview, BolaoScope } from '@/types/bolao';
@@ -27,7 +27,7 @@ function Keyboard({ children }: { children: ReactNode }) {
 /** Criar bolão: nome, quais jogos valem e se a entrada precisa de aprovação. */
 export function BolaoCreateScreen() {
   const navigation = useNavigation();
-  const { colors, fonts, layout, radius } = useTheme();
+  const { colors, layout, radius } = useTheme();
   const [name, setName] = useState('');
   const [scope, setScope] = useState<BolaoScope>('todos');
   const [approval, setApproval] = useState(true);
@@ -153,7 +153,7 @@ export function BolaoCreateScreen() {
 /** Entrar com código: procura o bolão, mostra quem administra e pede para entrar. */
 export function BolaoJoinScreen({ route }: RootScreenProps<'BolaoJoin'>) {
   const navigation = useNavigation();
-  const { colors, fonts, layout, radius } = useTheme();
+  const { colors, layout, radius } = useTheme();
   const [code, setCode] = useState(route.params?.code ?? '');
   const [searching, setSearching] = useState(false);
   const [preview, setPreview] = useState<BolaoPreview | null>();
@@ -188,7 +188,7 @@ export function BolaoJoinScreen({ route }: RootScreenProps<'BolaoJoin'>) {
       <Screen title="Entrar no bolão">
         <View style={{ paddingHorizontal: layout.gutter, paddingTop: 48, alignItems: 'center', gap: 16 }}>
           <Ionicons name="hourglass-outline" size={48} color={colors.accentText} />
-          <Text variant="headline" align="center">
+          <Text variant="displayM" align="center">
             Pedido enviado
           </Text>
           <Text variant="bodyL" tone="secondary" align="center">
@@ -271,7 +271,7 @@ export function BolaoJoinScreen({ route }: RootScreenProps<'BolaoJoin'>) {
             }}
           >
             <View style={{ gap: 4 }}>
-              <Text variant="headline">{preview.name}</Text>
+              <Text variant="displayM">{preview.name}</Text>
               <Text variant="bodyM" tone="secondary">
                 De {preview.adminName} · {preview.memberCount} participantes
               </Text>
