@@ -22,7 +22,14 @@ const CHROME =
     '/usr/bin/chromium',
   ].find((p) => fs.existsSync(p));
 
-type Shot = { name: string; url: string; width?: number; height?: number };
+type Shot = {
+  name: string;
+  url: string;
+  width?: number;
+  height?: number;
+  /** Bloqueia o mapa de base (simula falta de internet). */
+  offline?: boolean;
+};
 
 const PHASES: Record<string, Shot[]> = {
   '1': [
@@ -35,7 +42,43 @@ const PHASES: Record<string, Shot[]> = {
     { name: '07-visao-geral-desktop', url: 'report.html?level=all&zoom=16.7', width: 1400, height: 1000 },
     { name: '08-grafo-desktop', url: 'report.html?level=all&graph=1&zoom=16.7', width: 1400, height: 1000 },
   ],
+  '2': [
+    { name: '01-inicial-claro', url: 'index.html?panel=0&theme=light' },
+    { name: '02-inicial-escuro', url: 'index.html?panel=0&theme=dark' },
+    { name: '03-gramado-claro', url: 'index.html?panel=0&theme=light&cam=close' },
+    { name: '04-gramado-escuro', url: 'index.html?panel=0&theme=dark&cam=close' },
+    { name: '05-girado-claro', url: 'index.html?panel=0&theme=light&cam=rotated' },
+    { name: '06-girado-escuro', url: 'index.html?panel=0&theme=dark&cam=rotated' },
+    { name: '07-zoom-minimo-claro', url: 'index.html?panel=0&theme=light&cam=min' },
+    { name: '08-limite-escuro', url: 'index.html?panel=0&theme=dark&cam=far' },
+    { name: '09-sem-tiles-claro', url: 'index.html?panel=0&theme=light', offline: true },
+    { name: '10-sem-tiles-escuro', url: 'index.html?panel=0&theme=dark', offline: true },
+    { name: '11-desktop-claro', url: 'index.html?panel=0&theme=light', width: 1400, height: 900 },
+    { name: '12-desktop-escuro', url: 'index.html?panel=0&theme=dark', width: 1400, height: 900 },
+  ],
 };
+
+/** Folha lado a lado: referências (docs/maracana/referencias/) × prints da fase. */
+const COMPARE: Record<string, string[]> = {
+  '2': ['01-inicial-claro', '02-inicial-escuro'],
+};
+
+async function compare(browser: import('playwright-core').Browser, out: string, ours: string[]) {
+  const base = `http://localhost:${PORT}/docs/maracana`;
+  const phaseDir = path.relative(path.join(ROOT, 'docs/maracana'), out);
+  const cols = [
+    ['SoFi Stadium (referência)', `${base}/referencias/sofi-stadium.jpg`],
+    ['Tottenham (referência)', `${base}/referencias/tottenham-hotspur-stadium.jpg`],
+    ...ours.map((n) => [n.replace(/^\d+-/, '').replace('-', ' '), `${base}/${phaseDir}/${n}.png`]),
+  ];
+  const page = await browser.newPage({ viewport: { width: 1640, height: 900 }, deviceScaleFactor: 1 });
+  await page.setContent(`<body style="margin:0;padding:20px;background:#1e1e22;font:600 15px system-ui;color:#f5f5f4;display:flex;gap:16px">
+    ${cols.map(([t, src]) => `<figure style="margin:0;width:390px"><figcaption style="margin-bottom:8px">${t}</figcaption><img src="${src}" style="width:390px;height:810px;object-fit:cover;object-position:top;border-radius:14px"></figure>`).join('')}</body>`);
+  await page.waitForLoadState('networkidle');
+  await page.screenshot({ path: path.join(out, 'comparacao-referencias.png'), fullPage: true });
+  console.log('  ok comparacao-referencias');
+  await page.close();
+}
 
 async function main() {
   const phase = process.argv[2] ?? '1';
@@ -56,6 +99,7 @@ async function main() {
         deviceScaleFactor: 2,
       });
       page.on('pageerror', (e) => console.log(`  [${s.name}] erro:`, e.message));
+      if (s.offline) await page.route(/openfreemap\.org/, (r) => r.abort('internetdisconnected'));
       await page.goto(`http://localhost:${PORT}/map/dev/${s.url}`);
       await page.waitForSelector('body[data-ready]', { timeout: 45_000 });
       await page.waitForTimeout(1500); // tiles do mapa de base
@@ -63,6 +107,7 @@ async function main() {
       console.log('  ok', s.name);
       await page.close();
     }
+    if (COMPARE[phase]) await compare(browser, out, COMPARE[phase]);
   } finally {
     await browser.close();
     server.close();

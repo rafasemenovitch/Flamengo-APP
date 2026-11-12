@@ -1,0 +1,62 @@
+/// <reference types="node" />
+/**
+ * Estilos MapLibre do Modo Maracanã (map/styles/), gerados por `npm run map:styles`.
+ * Confere a validade pela especificação oficial e as regras do pedido: sem POIs genéricos,
+ * só as ruas do entorno, fontes do app, dados fora do estilo e os dois temas iguais em
+ * estrutura (a troca de tema só muda cores).
+ */
+import fs from 'node:fs';
+import path from 'node:path';
+import { validateStyleMin } from '@maplibre/maplibre-gl-style-spec';
+
+import { MAP_FONTS } from '../../map/web/fonts';
+
+const DIR = path.join(__dirname, '../../map/styles');
+const load = (t: string) => JSON.parse(fs.readFileSync(path.join(DIR, `maracana-${t}.json`), 'utf8'));
+const styles = { light: load('light'), dark: load('dark') };
+const FAMILIES = new Set<string>(MAP_FONTS.map((f) => f.family));
+const IMAGES = new Set(['pill', 'station']);
+
+/** Todas as famílias citadas em text-font (inclusive dentro de "format"). */
+function fontsIn(value: unknown, out = new Set<string>()): Set<string> {
+  if (Array.isArray(value)) {
+    if (value.every((v) => typeof v === 'string') && value.some((v) => /Grotesk|Noto|Sans/.test(v)))
+      value.forEach((v) => out.add(v));
+    else value.forEach((v) => fontsIn(v, out));
+  } else if (value && typeof value === 'object') Object.values(value).forEach((v) => fontsIn(v, out));
+  return out;
+}
+
+describe.each(Object.entries(styles))('estilo %s', (theme, style) => {
+  it('é válido pela especificação do MapLibre', () => {
+    expect(validateStyleMin(style)).toEqual([]);
+  });
+
+  it('não traz POIs genéricos, nomes de bairro nem escudos de rodovia', () => {
+    const layers = style.layers.map((l: any) => l['source-layer']).filter(Boolean);
+    for (const banned of ['poi', 'place', 'aerodrome_label', 'housenumber', 'mountain_peak'])
+      expect(layers).not.toContain(banned);
+    const names = style.layers.filter((l: any) => l['source-layer'] === 'transportation_name');
+    expect(names.map((l: any) => l.id)).toEqual(['street_labels']);
+  });
+
+  it('usa só as fontes do app e as imagens desenhadas pelo mapa', () => {
+    for (const layer of style.layers) {
+      for (const f of fontsIn(layer.layout?.['text-font'])) expect(FAMILIES.has(f)).toBe(true);
+      for (const f of fontsIn(layer.layout?.['text-field'])) expect(FAMILIES.has(f)).toBe(true);
+      const icon = layer.layout?.['icon-image'];
+      if (icon) expect(IMAGES.has(icon)).toBe(true);
+    }
+    expect(style.glyphs).toBeUndefined();
+    expect(style.sprite).toBeUndefined();
+  });
+
+  it('dados do estádio ficam fora do estilo', () => {
+    for (const id of ['stadium', 'gates', 'transit']) expect(style.sources[id].data.features).toEqual([]);
+    expect(style.metadata['fla:theme']).toBe(theme);
+  });
+});
+
+it('claro e escuro têm as mesmas camadas, na mesma ordem', () => {
+  expect(styles.dark.layers.map((l: any) => l.id)).toEqual(styles.light.layers.map((l: any) => l.id));
+});

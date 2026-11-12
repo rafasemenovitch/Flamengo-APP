@@ -672,11 +672,18 @@ stadiumFeatures.push(
     geometry: { type: 'Polygon', coordinates: [rect(52.5, 34)] },
   }
 );
+// Faixas de corte da grama (só visual): 12 faixas de 8,75 m ao longo do comprimento.
+for (let i = 0; i < 12; i++)
+  stadiumFeatures.push({
+    type: 'Feature',
+    properties: { kind: 'pitch-stripe', stripe: i % 2 },
+    geometry: { type: 'Polygon', coordinates: [rect(4.375, 34, -52.5 + 4.375 + i * 8.75)] },
+  });
 const L = 52.5,
   W = 34;
 const circle = (cu: number, cv: number, r: number, f0 = 0, f1 = 360): LngLat[] =>
-  Array.from({ length: 49 }, (_, i) => {
-    const f = ((f0 + ((f1 - f0) * i) / 48) * Math.PI) / 180;
+  Array.from({ length: 129 }, (_, i) => {
+    const f = ((f0 + ((f1 - f0) * i) / 128) * Math.PI) / 180;
     return fromUV(cu + r * Math.cos(f), cv + r * Math.sin(f));
   });
 const lines: LngLat[][] = [rect(L, W), [fromUV(0, -W), fromUV(0, W)], circle(0, 0, 9.15)];

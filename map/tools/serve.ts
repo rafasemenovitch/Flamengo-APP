@@ -39,5 +39,7 @@ export function serve(port = 8787): Promise<http.Server> {
 
 if (require.main === module) {
   const port = Number(process.argv[2] ?? 8787);
-  serve(port).then(() => console.log(`map dev: http://localhost:${port}/map/dev/report.html`));
+  serve(port).then(() =>
+    console.log(`map dev: http://localhost:${port}/map/dev/index.html  ·  relatório: /map/dev/report.html`)
+  );
 }

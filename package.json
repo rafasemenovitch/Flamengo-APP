@@ -15,7 +15,8 @@
     "check": "tsc --noEmit && tsc -p map && expo lint && jest",
     "publicar": "npx eas-cli@latest update --branch demo --environment preview --message \"Versão de demonstração\" --non-interactive",
     "map:data": "tsx map/tools/build-stadium.ts",
-    "map:build": "npm run map:data && esbuild map/dev/report.ts --bundle --minify --target=es2020 --outfile=map/dev/build/report.js --log-level=warning",
+    "map:styles": "tsx map/tools/build-styles.ts",
+    "map:build": "npm run map:data && npm run map:styles && esbuild map/dev/report.ts map/dev/main.ts --bundle --minify --target=es2020 --outdir=map/dev/build --log-level=warning",
     "map:dev": "npm run map:build && tsx map/tools/serve.ts",
     "map:shots": "npm run map:build && tsx map/tools/shots.ts"
   },
@@ -48,6 +49,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.0",
+    "@maplibre/maplibre-gl-style-spec": "^24.10.0",
     "@turf/turf": "^7.4.0",
     "@types/jest": "30.0.0",
     "@types/react": "~19.3.0",

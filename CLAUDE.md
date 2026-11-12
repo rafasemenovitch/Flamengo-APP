@@ -23,7 +23,7 @@ Na Anybody, a maiúscula (1350 unidades) é mais baixa que as hastes das minúsc
 Plano completo e critérios de aceite: `docs/maracana/`. Trabalho em fases; cada fase termina com prints (`npm run map:shots -- <fase>`), commit e aprovação do usuário.
 
 - Motor: MapLibre GL JS dentro de `react-native-webview` (roda no Expo Go). Não usar `react-native-maps`, Mapbox nativo, Google ou Apple Maps para o estádio.
-- Dados em `assets/stadiums/<estádio>/`, **gerados** por `npm run map:data` a partir de `map/tools/sources/`. Não editar os `.geojson` à mão. Estilos em `map/styles/`. Nunca escrever dados ou estilo dentro do HTML da WebView.
+- Dados em `assets/stadiums/<estádio>/`, **gerados** por `npm run map:data` a partir de `map/tools/sources/`. Não editar os `.geojson` à mão. Estilos em `map/styles/`, **gerados** por `npm run map:styles` (`map/tools/build-styles.ts`): mudar cor ou camada no gerador, não no JSON. Nunca escrever dados ou estilo dentro do HTML da WebView.
 - Todo setor, portão, rampa e ponto tem `source` e `confidence` (`confirmado`, `fonte_unica`, `estimado`). Nunca inventar posição sem marcar `estimado`. Divergências vão para o `SOURCES.md` do estádio. `src/__tests__/stadiumData.test.ts` confere isso.
 - `src/services/stadium/` é genérico (serve ao Morumbis também): nada de "Maracanã" na lógica, só nos dados.
 - No Modo Maracanã: sem mascote, sem QR Code de ingresso (acesso é por biometria facial), sem exigir ingresso, sem ícone ou texto de bebida alcoólica.

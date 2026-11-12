@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>Mapa do estádio · desenvolvimento</title>
+    <link rel="stylesheet" href="/node_modules/maplibre-gl/dist/maplibre-gl.css" />
+    <style>
+      html, body, #map { margin: 0; height: 100%; overflow: hidden; }
+      body { font-family: 'Schibsted Grotesk Medium', -apple-system, system-ui, sans-serif; }
+      /* Atribuição discreta, no canto */
+      .maplibregl-ctrl-attrib { font-size: 9.5px; line-height: 1.5; background: transparent !important; }
+      .maplibregl-ctrl-attrib a { color: inherit !important; }
+      #map[data-theme='light'] .maplibregl-ctrl-attrib { color: #8b8a86; }
+      #map[data-theme='dark'] .maplibregl-ctrl-attrib { color: #76767e; }
+      #panel {
+        position: absolute; top: 10px; left: 10px; display: flex; flex-wrap: wrap; gap: 6px; max-width: 360px;
+        padding: 8px; border-radius: 12px; background: rgba(21, 21, 24, 0.86); color: #f5f5f4; font-size: 12px;
+      }
+      #panel[hidden] { display: none; }
+      #panel button {
+        font: inherit; color: inherit; background: #26262b; border: 1px solid #3a3a42; border-radius: 8px;
+        padding: 6px 9px; cursor: pointer;
+      }
+      #panel button[aria-pressed='true'] { background: #c8102e; border-color: #c8102e; }
+      #panel output { width: 100%; color: #a6a6ad; font-size: 11px; }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div id="panel" hidden>
+      <button data-theme="light">Claro</button>
+      <button data-theme="dark">Escuro</button>
+      <button id="tiles">Sem tiles</button>
+      <button id="recenter">Recentralizar</button>
+      <output id="cam"></output>
+    </div>
+    <script src="./build/main.js"></script>
+  </body>
+</html>
