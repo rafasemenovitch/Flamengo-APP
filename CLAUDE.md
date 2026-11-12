@@ -2,6 +2,24 @@
 
 Este arquivo vale para qualquer pessoa (e qualquer Claude) que trabalhe neste repositório.
 
+## Identidade própria, nunca "cara de IA" (regra principal)
+
+O app já tem identidade visual: fontes, cores, estilo de card e jeito de escrever. Toda tela nova precisa parecer parte dele, desenhada por alguém, e não um modelo genérico de app. Algumas abas atuais ainda têm esse problema e vão ser corrigidas; **nenhuma tela nova pode nascer com ele.** A referência de acabamento e personalidade são apps como os do SoFi Stadium e do Tottenham Hotspur Stadium (`docs/maracana/referencias/`), sem copiar nenhum.
+
+Isso vale desde o primeiro rascunho de cada mudança, não como polimento no fim.
+
+- **Antes de desenhar, estude as telas que já existem** (Home, ingresso, Nação) e reaproveite os componentes do design system (`src/design-system/`). Só crie componente novo quando nenhum servir.
+- **Cores e espaçamentos só pelos tokens.** Preto, branco e neutros; o vermelho é destaque (seleção, ação principal, "o seu"), nunca fundo de tudo.
+- **Textos de quem é do clube:** curtos, diretos e específicos ("Você está no Leste Inferior", "Banheiro a 2 min"). Nada de tom de marketing ("Descubra…", "Explore…"), emoji, exclamação gratuita, frases que explicam o óbvio ou subtítulo em todo item.
+- **Fuja do layout padrão de IA:**
+  - todos os itens em cards arredondados iguais, com ícone, título e subtítulo;
+  - fileiras genéricas de chips;
+  - telas vazias com ícone centralizado e frase motivacional;
+  - gradientes e sombras decorativas sem função;
+  - ícones de bibliotecas genéricas onde o app já tem desenho próprio.
+- **Hierarquia vem de tipografia e espaço, não de caixas.** Use a escala do `<Text>` (Anybody para impacto e números, Schibsted para leitura) e deixe o conteúdo respirar.
+- **Antes de dar uma tela por pronta,** veja os prints ao lado das telas atuais do app e das referências. Diga com honestidade o que ainda parece genérico e corrija.
+
 ## Tipografia (supervisionar sempre)
 
 As fontes atuais são definitivas e aprovadas. **Não troque as famílias** sem pedido explícito: um teste com Barlow Condensed + Manrope já foi feito e descartado.
