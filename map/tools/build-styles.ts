@@ -77,14 +77,21 @@ const T = {
       '3': ['#A2A6B0', '#9B9FA9'],
       '5': ['#898E9A', '#828793'],
     },
-    roof: '#FFFFFF',
-    roofOpacity: 0.22,
+    pillar: '#E4E3DF',
+    dim: '#C9CBD0',
+    dimOpacity: 0.35,
+    areaTint: '#E7B3BB',
+    sectionLine: 'rgba(255,255,255,0.55)',
+    sectionLabel: '#4E4E55',
+    poiLabel: '#26262B',
     pitch: '#79A66B',
     pitchStripe: '#719E63',
     surround: '#6F9A62',
     pitchLine: '#FFFFFF',
     pill: { fill: palette.ink900, stroke: palette.ink800, text: palette.white, sub: palette.ink300 },
     station: { fill: lightColors.inkSecondary, glyph: palette.white, text: lightColors.inkSecondary },
+    badge: { fill: palette.white, stroke: '#D6D5D0', text: palette.ink900 },
+    accent: lightColors.accent,
     light: { color: '#FFFFFF', intensity: 0.38 },
   },
   dark: {
@@ -114,8 +121,13 @@ const T = {
       '3': ['#46464F', '#42424A'],
       '5': ['#53535D', '#4E4E58'],
     },
-    roof: '#FFFFFF',
-    roofOpacity: 0.05,
+    pillar: '#2A2A2F',
+    dim: '#2A2A30',
+    dimOpacity: 0.45,
+    areaTint: '#6E2632',
+    sectionLine: 'rgba(0,0,0,0.35)',
+    sectionLabel: '#A6A6AD',
+    poiLabel: '#F5F5F4',
     pitch: '#3E6A3A',
     pitchStripe: '#396436',
     surround: '#355B32',
@@ -127,6 +139,8 @@ const T = {
       sub: darkColors.inkSecondary,
     },
     station: { fill: palette.ink800, glyph: darkColors.inkPrimary, text: darkColors.inkSecondary },
+    badge: { fill: palette.ink50, stroke: palette.ink950, text: palette.ink950 },
+    accent: darkColors.accent,
     light: { color: '#FFFFFF', intensity: 0.3 },
   },
 } as const;
@@ -136,6 +150,32 @@ const T = {
  * a bacia das arquibancadas aparece inteira, como nos apps de referência.
  */
 const FACADE_TOP = 9;
+
+/**
+ * Cor de cada categoria de ponto de interesse (iguais nos dois temas). Família de tons
+ * médios que não briga com o vermelho do app: o vermelho fica só para seleção e destaque.
+ * Ordem = ordem de desenho (o último fica por cima).
+ */
+export const POI_COLORS: Record<string, string> = {
+  escada: '#4B5160',
+  escada_rolante: '#4B5160',
+  elevador: '#4B5160',
+  estacionamento: '#3A5A8A',
+  saida_emergencia: '#3B8F5A',
+  bilheteria: '#8C6A3A',
+  loja: '#7655A6',
+  informacao: '#2F7C88',
+  sala_sensorial: '#5F72B0',
+  seguranca: '#34495E',
+  juizado: '#5B4E80',
+  acolhimento: '#94487F',
+  posto_medico: '#2F8A5B',
+  bebidas: '#B0702A',
+  alimentacao: '#C27A2C',
+  banheiro_acessivel: '#2D5C8F',
+  banheiro: '#3F6FA0',
+};
+export const POI_CATEGORIES = Object.keys(POI_COLORS);
 
 const EMPTY = { type: 'FeatureCollection', features: [] };
 const KEEP = new Set([
@@ -223,6 +263,40 @@ function baseLayers(t: (typeof T)[Theme]) {
   return layers;
 }
 
+// Estado do mapa, alterado pelo código (map.setGlobalStateProperty) sem tocar no estilo.
+const STATE = {
+  /** Nível ativo ('all' = visão geral do estádio, sem pontos). */
+  level: { default: 'all' },
+  /** Fator de altura das extrusões: 1 na visão geral; menor com um nível ativo. */
+  flatten: { default: 1 },
+  /** Setor tocado (vermelho). */
+  selectedSector: { default: '' },
+  /** Área do usuário ("Onde você está?"): tom e contorno vermelhos. */
+  area: { default: '' },
+  /** Categorias escondidas pelos filtros. */
+  hidden: { default: [] as string[] },
+};
+const LVL = ['global-state', 'level'];
+const KIND = ['get', 'kind'];
+const SOLIDS = ['match', KIND, ['stand', 'box', 'concourse', 'ramp', 'pillar', 'ring-beam'], true, false];
+/** Colunata e viga: só na visão geral (nem translúcidas com um nível ativo). */
+const FRAME = ['match', KIND, ['pillar', 'ring-beam'], true, false];
+/** Ativo no nível atual: sem nível (anel externo, rampas) vale sempre; pilares só na visão geral. */
+const ACTIVE = [
+  'case',
+  FRAME,
+  ['==', LVL, 'all'],
+  ['any', ['==', LVL, 'all'], ['!', ['has', 'level']], ['==', ['get', 'level'], LVL]],
+];
+const EXTRUDE_BASE = ['*', ['global-state', 'flatten'], ['match', KIND, 'ring-beam', ['get', 'base'], 0]];
+const HEIGHT = [
+  '*',
+  ['global-state', 'flatten'],
+  ['match', KIND, 'ramp', 1.5, 'concourse', FACADE_TOP, ['get', 'top']],
+];
+const ICON_SIZE = ['interpolate', ['linear'], ['zoom'], 15.5, 0.62, 17, 0.8, 19, 1];
+const visible = (cat: string) => ['!', ['in', cat, ['array', ['global-state', 'hidden']]]];
+
 function stadiumLayers(t: (typeof T)[Theme]) {
   const stand = (lvl: '1' | '2' | '3' | '5') => [
     'case',
@@ -230,47 +304,106 @@ function stadiumLayers(t: (typeof T)[Theme]) {
     t.stand[lvl][0],
     t.stand[lvl][1],
   ];
+  const poiLayers = POI_CATEGORIES.flatMap((cat) => [
+    {
+      id: `poi-${cat}-cluster`,
+      type: 'symbol',
+      source: `poi-${cat}`,
+      filter: ['all', ['has', 'point_count'], visible(cat)],
+      layout: {
+        'icon-image': `poi-${cat}`,
+        'icon-size': ICON_SIZE,
+        'icon-allow-overlap': true,
+      },
+    },
+    {
+      id: `poi-${cat}-count`,
+      type: 'symbol',
+      source: `poi-${cat}`,
+      filter: ['all', ['has', 'point_count'], visible(cat)],
+      layout: {
+        'icon-image': 'badge',
+        'icon-text-fit': 'both',
+        'icon-text-fit-padding': [0.5, 3, 0.5, 3],
+        'text-field': ['to-string', ['get', 'point_count']],
+        'text-font': FONT.bold,
+        'text-size': 9,
+        'text-offset': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          15.5,
+          ['literal', [0.95, -0.95]],
+          19,
+          ['literal', [1.45, -1.45]],
+        ],
+        'icon-allow-overlap': true,
+        'text-allow-overlap': true,
+      },
+      paint: { 'text-color': t.badge.text },
+    },
+    {
+      id: `poi-${cat}`,
+      type: 'symbol',
+      source: `poi-${cat}`,
+      filter: ['all', ['!', ['has', 'point_count']], visible(cat)],
+      layout: {
+        'icon-image': `poi-${cat}`,
+        'icon-size': ICON_SIZE,
+        'icon-allow-overlap': true,
+        // Nome ao lado do ícone só bem de perto; sem sobreposição de rótulos.
+        'text-field': ['step', ['zoom'], '', 18, ['get', 'name']],
+        'text-font': FONT.semibold,
+        'text-size': 11,
+        'text-optional': true,
+        'text-variable-anchor': ['left', 'right', 'top', 'bottom'],
+        'text-radial-offset': 1.25,
+        'text-max-width': 9,
+      },
+      paint: { 'text-color': t.poiLabel, 'text-halo-color': t.labelHalo, 'text-halo-width': 1.5 },
+    },
+  ]);
   return [
     {
       id: 'stadium-esplanade',
       type: 'fill',
       source: 'stadium',
-      filter: ['==', ['get', 'kind'], 'esplanade'],
+      filter: ['==', KIND, 'esplanade'],
       paint: { 'fill-color': t.esplanade },
     },
     {
       id: 'stadium-esplanade-edge',
       type: 'line',
       source: 'stadium',
-      filter: ['==', ['get', 'kind'], 'esplanade'],
+      filter: ['==', KIND, 'esplanade'],
       paint: { 'line-color': t.esplanadeEdge, 'line-width': 1 },
     },
     {
       id: 'stadium-surround',
       type: 'fill',
       source: 'stadium',
-      filter: ['==', ['get', 'kind'], 'field-surround'],
+      filter: ['==', KIND, 'field-surround'],
       paint: { 'fill-color': t.surround },
     },
     {
       id: 'stadium-pitch',
       type: 'fill',
       source: 'stadium',
-      filter: ['==', ['get', 'kind'], 'pitch'],
+      filter: ['==', KIND, 'pitch'],
       paint: { 'fill-color': t.pitch },
     },
     {
       id: 'stadium-pitch-stripes',
       type: 'fill',
       source: 'stadium',
-      filter: ['all', ['==', ['get', 'kind'], 'pitch-stripe'], ['==', ['get', 'stripe'], 1]],
+      filter: ['all', ['==', KIND, 'pitch-stripe'], ['==', ['get', 'stripe'], 1]],
       paint: { 'fill-color': t.pitchStripe },
     },
     {
       id: 'stadium-pitch-lines',
       type: 'line',
       source: 'stadium',
-      filter: ['==', ['get', 'kind'], 'pitch-lines'],
+      filter: ['==', KIND, 'pitch-lines'],
       layout: { 'line-cap': 'round', 'line-join': 'round' },
       paint: {
         'line-color': t.pitchLine,
@@ -282,44 +415,81 @@ function stadiumLayers(t: (typeof T)[Theme]) {
       id: 'stadium-structure',
       type: 'fill-extrusion',
       source: 'stadium',
-      filter: ['match', ['get', 'kind'], ['stand', 'box', 'concourse', 'ramp'], true, false],
+      filter: ['all', SOLIDS, ACTIVE],
       paint: {
         'fill-extrusion-color': [
-          'match',
-          ['get', 'kind'],
-          'ramp',
-          t.ramp,
-          'concourse',
-          t.facade,
-          'box',
-          t.box,
-          ['match', ['get', 'level'], '1', stand('1'), '2', stand('2'), '3', stand('3'), stand('5')],
+          'case',
+          ['==', ['get', 'sector'], ['global-state', 'selectedSector']],
+          t.accent,
+          ['==', ['get', 'area'], ['global-state', 'area']],
+          t.areaTint,
+          [
+            'match',
+            KIND,
+            'ramp',
+            t.ramp,
+            'concourse',
+            t.facade,
+            ['pillar', 'ring-beam'],
+            t.pillar,
+            'box',
+            t.box,
+            ['match', ['get', 'level'], '1', stand('1'), '2', stand('2'), '3', stand('3'), stand('5')],
+          ],
         ],
-        'fill-extrusion-base': 0,
-        'fill-extrusion-height': [
-          'match',
-          ['get', 'kind'],
-          'ramp',
-          1.5,
-          'concourse',
-          FACADE_TOP,
-          ['get', 'top'],
-        ],
+        'fill-extrusion-base': EXTRUDE_BASE,
+        'fill-extrusion-height': HEIGHT,
         'fill-extrusion-vertical-gradient': true,
       },
     },
     {
-      id: 'stadium-roof',
+      // Outros níveis: translúcidos e apagados enquanto um nível está ativo.
+      id: 'stadium-structure-dim',
       type: 'fill-extrusion',
       source: 'stadium',
-      filter: ['==', ['get', 'kind'], 'roof'],
+      filter: ['all', SOLIDS, ['!', FRAME], ['!', ACTIVE]],
       paint: {
-        'fill-extrusion-color': t.roof,
-        // Some ao aproximar: de perto ela só atrapalha a leitura das arquibancadas.
-        'fill-extrusion-opacity': ['interpolate', ['linear'], ['zoom'], 16.4, t.roofOpacity, 17.2, 0],
-        'fill-extrusion-base': ['get', 'base'],
-        'fill-extrusion-height': ['get', 'top'],
+        'fill-extrusion-color': t.dim,
+        'fill-extrusion-opacity': t.dimOpacity,
+        'fill-extrusion-base': 0,
+        'fill-extrusion-height': HEIGHT,
       },
+    },
+    {
+      id: 'stadium-sections',
+      type: 'line',
+      source: 'stadium',
+      minzoom: 16.5,
+      filter: ['all', ['==', KIND, 'section'], ['==', ['get', 'level'], LVL]],
+      paint: { 'line-color': t.sectionLine, 'line-width': 0.7 },
+    },
+    {
+      id: 'area-outline',
+      type: 'line',
+      source: 'stadium',
+      filter: [
+        'all',
+        ['==', KIND, 'sector'],
+        ['==', ['get', 'area'], ['global-state', 'area']],
+        ['==', ['get', 'level'], LVL],
+      ],
+      layout: { 'line-join': 'round' },
+      paint: { 'line-color': t.accent, 'line-width': 2.5 },
+    },
+    {
+      id: 'section-labels',
+      type: 'symbol',
+      source: 'stadium',
+      minzoom: 17.2,
+      filter: ['all', ['==', KIND, 'section-label'], ['==', ['get', 'level'], LVL]],
+      layout: {
+        'text-field': ['get', 'ref'],
+        'text-font': FONT.semibold,
+        'text-size': 10,
+        'text-pitch-alignment': 'map',
+        'text-rotation-alignment': 'viewport',
+      },
+      paint: { 'text-color': t.sectionLabel },
     },
     {
       id: 'transit-labels',
@@ -338,11 +508,12 @@ function stadiumLayers(t: (typeof T)[Theme]) {
       },
       paint: { 'text-color': t.station.text, 'text-halo-color': t.labelHalo, 'text-halo-width': 1.5 },
     },
+    ...poiLayers,
     {
       id: 'gate-labels',
       type: 'symbol',
       source: 'gates',
-      filter: ['==', ['get', 'kind'], 'gate'],
+      filter: ['==', KIND, 'gate'],
       layout: {
         'icon-image': 'pill',
         'icon-text-fit': 'both',
@@ -369,6 +540,29 @@ function stadiumLayers(t: (typeof T)[Theme]) {
       },
       paint: { 'text-color': t.pill.text },
     },
+    {
+      id: 'poi-selected-ring',
+      type: 'symbol',
+      source: 'selection',
+      layout: { 'icon-image': 'selected-ring', 'icon-size': ICON_SIZE, 'icon-allow-overlap': true },
+    },
+    {
+      id: 'poi-selected',
+      type: 'symbol',
+      source: 'selection',
+      layout: {
+        'icon-image': ['concat', 'poi-', ['get', 'category']],
+        'icon-size': ['interpolate', ['linear'], ['zoom'], 15.5, 0.72, 17, 0.92, 19, 1.15],
+        'icon-allow-overlap': true,
+        'text-field': ['get', 'name'],
+        'text-font': FONT.bold,
+        'text-size': 12,
+        'text-anchor': 'top',
+        'text-offset': [0, 1.5],
+        'text-allow-overlap': true,
+      },
+      paint: { 'text-color': t.poiLabel, 'text-halo-color': t.labelHalo, 'text-halo-width': 2 },
+    },
   ];
 }
 
@@ -381,8 +575,10 @@ function build(theme: Theme) {
       'fla:theme': theme,
       'fla:background': t.background,
       // Imagens desenhadas pelo código do mapa (map/web/images.ts) com estas cores.
-      'fla:images': { pill: t.pill, station: t.station },
+      'fla:images': { pill: t.pill, station: t.station, badge: t.badge, selected: t.accent },
+      'fla:poi': POI_COLORS,
     },
+    state: STATE,
     light: {
       anchor: 'viewport',
       color: t.light.color,
@@ -401,6 +597,14 @@ function build(theme: Theme) {
       },
       gates: { type: 'geojson', data: EMPTY },
       transit: { type: 'geojson', data: EMPTY },
+      selection: { type: 'geojson', data: EMPTY },
+      // Uma fonte por categoria: a aglomeração junta só pontos da mesma categoria.
+      ...Object.fromEntries(
+        POI_CATEGORIES.map((cat) => [
+          `poi-${cat}`,
+          { type: 'geojson', data: EMPTY, cluster: true, clusterRadius: 30, clusterMaxZoom: 17 },
+        ])
+      ),
     },
     layers: [...baseLayers(t), ...stadiumLayers(t)],
   };

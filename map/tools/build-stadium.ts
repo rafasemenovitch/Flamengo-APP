@@ -14,6 +14,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import type {
+  Area,
   Confidence,
   Gate,
   Level,
@@ -558,6 +559,95 @@ const PREMIUM: {
   { id: 'leste-mais', name: 'Leste Mais', side: 'leste', gates: ['D'], ramps: ['rampa-d'], span: [78, 102] },
 ];
 
+// Perfil da bacia (altura do topo de cada degrau pela profundidade t, 0 = beira do campo,
+// 1 = fundo da arquibancada). Anel inferior até t 0,43; faixa de camarotes; anel superior
+// até o topo (31 m). Aproximação a partir dos cortes do manual (Figs. 14 e 15).
+const BOWL = { box: 14.5 };
+const bowlHeight = (t: number) =>
+  t <= 0.43 ? 1.5 + (9.5 * t) / 0.43 : t <= 0.52 ? 13.5 : 17 + (14 * (t - 0.52)) / 0.48;
+
+// Áreas na linguagem do torcedor ("Onde você está?"): lado + inferior/superior.
+// O primeiro algarismo do bloco do assento diz o nível (512 → nível 5).
+const AREAS: (Omit<Area, 'levels' | 'defaultLevel' | 'blocks'> & { defaultLevel?: string })[] = [
+  {
+    id: 'norte-inferior',
+    name: 'Norte Inferior',
+    side: 'norte',
+    tier: 'inferior',
+    sectors: ['norte-inferior'],
+  },
+  {
+    id: 'norte-superior',
+    name: 'Norte Superior',
+    side: 'norte',
+    tier: 'superior',
+    sectors: ['norte-superior-2', 'norte-superior-5'],
+  },
+  {
+    id: 'sul-inferior',
+    name: 'Sul Inferior',
+    side: 'sul',
+    tier: 'inferior',
+    sectors: ['sul-inferior'],
+    visitor: true,
+  },
+  {
+    id: 'sul-superior',
+    name: 'Sul Superior',
+    side: 'sul',
+    tier: 'superior',
+    sectors: ['sul-superior-2', 'sul-superior-5'],
+    visitor: true,
+  },
+  {
+    id: 'leste-inferior',
+    name: 'Leste Inferior',
+    side: 'leste',
+    tier: 'inferior',
+    sectors: ['leste-inferior'],
+  },
+  {
+    id: 'leste-superior',
+    name: 'Leste Superior',
+    side: 'leste',
+    tier: 'superior',
+    sectors: ['leste-superior'],
+  },
+  { id: 'leste-mais', name: 'Leste Mais', side: 'leste', tier: 'premium', sectors: ['leste-mais'] },
+  {
+    id: 'camarotes-leste',
+    name: 'Camarotes Leste',
+    side: 'leste',
+    tier: 'camarote',
+    sectors: ['camarotes-leste-2'],
+  },
+  {
+    id: 'oeste-inferior',
+    name: 'Oeste Inferior',
+    side: 'oeste',
+    tier: 'inferior',
+    sectors: ['oeste-inferior'],
+  },
+  { id: 'maracana-mais', name: 'Maracanã Mais', side: 'oeste', tier: 'premium', sectors: ['maracana-mais'] },
+  {
+    id: 'camarotes-oeste',
+    name: 'Camarotes e Tribuna (Oeste)',
+    side: 'oeste',
+    tier: 'camarote',
+    sectors: ['camarotes-oeste-2', 'camarotes-oeste-3'],
+  },
+  {
+    id: 'oeste-superior',
+    name: 'Oeste Superior (Cativas)',
+    side: 'oeste',
+    tier: 'superior',
+    sectors: ['cativas-oeste'],
+  },
+];
+const AREA_OF: Record<string, string> = Object.fromEntries(
+  AREAS.flatMap((a) => a.sectors.map((sid) => [sid, a.id]))
+);
+
 const sectorSource = (s: SectorSpec): { source: string[]; confidence: Confidence; note?: string } => {
   if (s.source) return { source: s.source, confidence: s.confidence ?? 'fonte_unica', note: s.note };
   const src = ['manual2019'];
@@ -590,17 +680,21 @@ for (const s of SECTOR_SPECS) {
     visitor: s.visitor,
     ...meta,
   });
-  // Degraus: a faixa vira 4 anéis com altura crescente (leitura de arquibancada em 3D).
-  const STEPS = s.kind === 'camarote' || s.kind === 'tribuna' ? 1 : 4;
+  // Degraus: a faixa vira anéis de ~6% da profundidade, com a altura dada pelo perfil
+  // único da bacia (BOWL). Assim o anel inferior e o superior são contínuos em volta do
+  // campo, como no Maracanã, em vez de cada setor ter a sua própria altura.
+  const boxy = s.kind === 'camarote' || s.kind === 'tribuna';
+  const STEPS = boxy ? 1 : Math.max(2, Math.round((s.t[1] - s.t[0]) / 0.06));
   for (let k = 0; k < STEPS; k++) {
     const t0 = s.t[0] + ((s.t[1] - s.t[0]) * k) / STEPS;
     const t1 = s.t[0] + ((s.t[1] - s.t[0]) * (k + 1)) / STEPS;
-    const top = s.rake[0] + ((s.rake[1] - s.rake[0]) * (k + 1)) / STEPS;
+    const top = boxy ? BOWL.box : bowlHeight(t1);
     stadiumFeatures.push({
       type: 'Feature',
       properties: {
-        kind: s.kind === 'arquibancada' || s.kind === 'cativa' ? 'stand' : 'box',
+        kind: boxy ? 'box' : 'stand',
         sector: s.id,
+        area: AREA_OF[s.id],
         level: s.level,
         side: s.side,
         step: k,
@@ -610,19 +704,25 @@ for (const s of SECTOR_SPECS) {
       geometry: { type: 'Polygon', coordinates: [band(a1, a0, t0, t1)] },
     });
   }
+  // Contorno do setor inteiro (destaque da área do usuário e alvo de toque).
+  stadiumFeatures.push({
+    type: 'Feature',
+    properties: { kind: 'sector', sector: s.id, area: AREA_OF[s.id], level: s.level, side: s.side },
+    geometry: { type: 'Polygon', coordinates: [band(a1, a0, s.t[0], s.t[1])] },
+  });
   // Seções numeradas: divide o vão angular igualmente, em ordem anti-horária (φ decrescente).
   blocks.forEach((b, i) => {
     const p0 = a1 - ((a1 - a0) * i) / blocks.length;
     const p1 = a1 - ((a1 - a0) * (i + 1)) / blocks.length;
     stadiumFeatures.push({
       type: 'Feature',
-      properties: { kind: 'section', ref: b, sector: s.id, level: s.level },
+      properties: { kind: 'section', ref: b, sector: s.id, area: AREA_OF[s.id], level: s.level },
       geometry: { type: 'Polygon', coordinates: [band(p1, p0, s.t[0], s.t[1])] },
     });
     const pm = (p0 + p1) / 2;
     sectionLabels.push({
       type: 'Feature',
-      properties: { kind: 'section-label', ref: b, sector: s.id, level: s.level },
+      properties: { kind: 'section-label', ref: b, sector: s.id, area: AREA_OF[s.id], level: s.level },
       geometry: { type: 'Point', coordinates: polar(pm, atT(pm, (s.t[0] + s.t[1]) / 2)) },
     });
   });
@@ -644,7 +744,21 @@ for (const p of PREMIUM) {
   });
   stadiumFeatures.push({
     type: 'Feature',
-    properties: { kind: 'box', sector: p.id, level: '1', side: p.side, step: 0, base: 0, top: 12 },
+    properties: {
+      kind: 'box',
+      sector: p.id,
+      area: AREA_OF[p.id],
+      level: '1',
+      side: p.side,
+      step: 0,
+      base: 0,
+      top: 12,
+    },
+    geometry: { type: 'Polygon', coordinates: [band(p.span[1], p.span[0], 0.3, 0.45)] },
+  });
+  stadiumFeatures.push({
+    type: 'Feature',
+    properties: { kind: 'sector', sector: p.id, area: AREA_OF[p.id], level: '1', side: p.side },
     geometry: { type: 'Polygon', coordinates: [band(p.span[1], p.span[0], 0.3, 0.45)] },
   });
 }
@@ -994,6 +1108,34 @@ for (const [level, phis] of Object.entries({
 // Elevadores (Fig. 10): eixo do pilar → ângulo. Suposição: 60 eixos igualmente espaçados,
 // P00 no eixo Oeste e numeração anti-horária (como a sinalização, Fig. 8).
 const pillarPhi = (p: number) => (((270 - 6 * p) % 360) + 360) % 360;
+// Pilares da fachada (só visual): os 60 eixos estruturais P00–P59 da Fig. 10, que dão ao
+// Maracanã a sua colunata externa, e a viga de coroamento que os liga no alto (onde apoia
+// a cobertura, que o mapa não desenha para não esconder as arquibancadas). Seção ~2,4 × 3 m.
+for (let p = 0; p < 60; p++) {
+  const phi = pillarPhi(p);
+  const r = facade(phi) - 1.5;
+  const dphi = (1.2 / r) * (180 / Math.PI);
+  const ring: Ring = [
+    polar(phi - dphi, r - 1.5),
+    polar(phi + dphi, r - 1.5),
+    polar(phi + dphi, r + 1.5),
+    polar(phi - dphi, r + 1.5),
+  ];
+  ring.push(ring[0]);
+  stadiumFeatures.push({
+    type: 'Feature',
+    properties: { kind: 'pillar', ref: `P${String(p).padStart(2, '0')}`, base: 0, top: 31 },
+    geometry: { type: 'Polygon', coordinates: [ring] },
+  });
+}
+stadiumFeatures.push({
+  type: 'Feature',
+  properties: { kind: 'ring-beam', base: 28.5, top: 31 },
+  geometry: {
+    type: 'Polygon',
+    coordinates: [fullRing((p) => facade(p) + 0.2), fullRing((p) => facade(p) - 3.2).reverse()],
+  },
+});
 const ELEVATORS: { id: string; pillar: number; levels: string[] }[] = [
   { id: 'E1', pillar: 3, levels: ['0', '1', '2', '3', '4'] },
   { id: 'E2', pillar: 3, levels: ['0', '1', '2', '3', '4'] },
@@ -1540,8 +1682,21 @@ const write = (name: string, data: unknown) => {
 };
 fs.mkdirSync(OUT, { recursive: true });
 write('venue.json', venue);
+const areas: Area[] = AREAS.map((a) => {
+  const secs = a.sectors.map((id) => sectors.find((x) => x.id === id)!);
+  const levels = [...new Set(secs.map((x) => x.level))].sort();
+  return {
+    ...a,
+    levels,
+    defaultLevel: a.defaultLevel ?? levels[0],
+    blocks: Object.fromEntries(
+      levels.map((l) => [l, secs.filter((x) => x.level === l).flatMap((x) => x.blocks)])
+    ),
+  };
+});
 write('levels.json', {
   levels: LEVELS,
+  areas,
   sectors,
   ramps,
   ringOffset: Object.fromEntries(Object.entries(RING_OFF).map(([k, v]) => [k, round(v, 1)])),

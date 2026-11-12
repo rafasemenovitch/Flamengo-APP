@@ -63,6 +63,29 @@ export interface Sector extends Sourced {
   visitor?: boolean;
 }
 
+/** Faixa da arquibancada como o torcedor fala: inferior, superior, camarote ou premium. */
+export type Tier = 'inferior' | 'superior' | 'camarote' | 'premium';
+
+/**
+ * Área para o "Onde você está?": lado + faixa, na linguagem do torcedor ("Leste Inferior").
+ * Agrupa um ou mais setores; quando a área ocupa mais de um nível (Norte Superior: blocos
+ * 2xx e 5xx), o bloco do assento escolhe o nível.
+ */
+export interface Area {
+  id: string;
+  name: string;
+  side: Side;
+  tier: Tier;
+  sectors: string[];
+  /** Níveis públicos onde a área fica. */
+  levels: string[];
+  /** Nível mostrado quando a pessoa não informa o bloco. */
+  defaultLevel: string;
+  /** Blocos por nível (o primeiro algarismo do bloco é o nível). */
+  blocks: Record<string, string[]>;
+  visitor?: boolean;
+}
+
 export interface Gate extends Sourced {
   id: string;
   /** "Portão A" */

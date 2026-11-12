@@ -15,7 +15,49 @@
         "fill": "#26262B",
         "glyph": "#F5F5F4",
         "text": "#A6A6AD"
-      }
+      },
+      "badge": {
+        "fill": "#F5F5F4",
+        "stroke": "#0A0A0B",
+        "text": "#0A0A0B"
+      },
+      "selected": "#C8102E"
+    },
+    "fla:poi": {
+      "escada": "#4B5160",
+      "escada_rolante": "#4B5160",
+      "elevador": "#4B5160",
+      "estacionamento": "#3A5A8A",
+      "saida_emergencia": "#3B8F5A",
+      "bilheteria": "#8C6A3A",
+      "loja": "#7655A6",
+      "informacao": "#2F7C88",
+      "sala_sensorial": "#5F72B0",
+      "seguranca": "#34495E",
+      "juizado": "#5B4E80",
+      "acolhimento": "#94487F",
+      "posto_medico": "#2F8A5B",
+      "bebidas": "#B0702A",
+      "alimentacao": "#C27A2C",
+      "banheiro_acessivel": "#2D5C8F",
+      "banheiro": "#3F6FA0"
+    }
+  },
+  "state": {
+    "level": {
+      "default": "all"
+    },
+    "flatten": {
+      "default": 1
+    },
+    "selectedSector": {
+      "default": ""
+    },
+    "area": {
+      "default": ""
+    },
+    "hidden": {
+      "default": []
     }
   },
   "light": {
@@ -56,6 +98,183 @@
         "type": "FeatureCollection",
         "features": []
       }
+    },
+    "selection": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      }
+    },
+    "poi-escada": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      },
+      "cluster": true,
+      "clusterRadius": 30,
+      "clusterMaxZoom": 17
+    },
+    "poi-escada_rolante": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      },
+      "cluster": true,
+      "clusterRadius": 30,
+      "clusterMaxZoom": 17
+    },
+    "poi-elevador": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      },
+      "cluster": true,
+      "clusterRadius": 30,
+      "clusterMaxZoom": 17
+    },
+    "poi-estacionamento": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      },
+      "cluster": true,
+      "clusterRadius": 30,
+      "clusterMaxZoom": 17
+    },
+    "poi-saida_emergencia": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      },
+      "cluster": true,
+      "clusterRadius": 30,
+      "clusterMaxZoom": 17
+    },
+    "poi-bilheteria": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      },
+      "cluster": true,
+      "clusterRadius": 30,
+      "clusterMaxZoom": 17
+    },
+    "poi-loja": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      },
+      "cluster": true,
+      "clusterRadius": 30,
+      "clusterMaxZoom": 17
+    },
+    "poi-informacao": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      },
+      "cluster": true,
+      "clusterRadius": 30,
+      "clusterMaxZoom": 17
+    },
+    "poi-sala_sensorial": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      },
+      "cluster": true,
+      "clusterRadius": 30,
+      "clusterMaxZoom": 17
+    },
+    "poi-seguranca": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      },
+      "cluster": true,
+      "clusterRadius": 30,
+      "clusterMaxZoom": 17
+    },
+    "poi-juizado": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      },
+      "cluster": true,
+      "clusterRadius": 30,
+      "clusterMaxZoom": 17
+    },
+    "poi-acolhimento": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      },
+      "cluster": true,
+      "clusterRadius": 30,
+      "clusterMaxZoom": 17
+    },
+    "poi-posto_medico": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      },
+      "cluster": true,
+      "clusterRadius": 30,
+      "clusterMaxZoom": 17
+    },
+    "poi-bebidas": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      },
+      "cluster": true,
+      "clusterRadius": 30,
+      "clusterMaxZoom": 17
+    },
+    "poi-alimentacao": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      },
+      "cluster": true,
+      "clusterRadius": 30,
+      "clusterMaxZoom": 17
+    },
+    "poi-banheiro_acessivel": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      },
+      "cluster": true,
+      "clusterRadius": 30,
+      "clusterMaxZoom": 17
+    },
+    "poi-banheiro": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      },
+      "cluster": true,
+      "clusterRadius": 30,
+      "clusterMaxZoom": 17
     }
   },
   "layers": [
@@ -1178,166 +1397,489 @@
       "type": "fill-extrusion",
       "source": "stadium",
       "filter": [
-        "match",
+        "all",
         [
-          "get",
-          "kind"
-        ],
-        [
-          "stand",
-          "box",
-          "concourse",
-          "ramp"
-        ],
-        true,
-        false
-      ],
-      "paint": {
-        "fill-extrusion-color": [
           "match",
           [
             "get",
             "kind"
           ],
-          "ramp",
-          "#26262A",
-          "concourse",
-          "#222226",
-          "box",
-          "#2C2C31",
+          [
+            "stand",
+            "box",
+            "concourse",
+            "ramp",
+            "pillar",
+            "ring-beam"
+          ],
+          true,
+          false
+        ],
+        [
+          "case",
           [
             "match",
             [
               "get",
+              "kind"
+            ],
+            [
+              "pillar",
+              "ring-beam"
+            ],
+            true,
+            false
+          ],
+          [
+            "==",
+            [
+              "global-state",
               "level"
             ],
-            "1",
+            "all"
+          ],
+          [
+            "any",
             [
-              "case",
+              "==",
               [
-                "==",
-                [
-                  "%",
-                  [
-                    "get",
-                    "step"
-                  ],
-                  2
-                ],
-                0
+                "global-state",
+                "level"
               ],
-              "#2E2E34",
-              "#2A2A30"
-            ],
-            "2",
-            [
-              "case",
-              [
-                "==",
-                [
-                  "%",
-                  [
-                    "get",
-                    "step"
-                  ],
-                  2
-                ],
-                0
-              ],
-              "#3A3A42",
-              "#36363D"
-            ],
-            "3",
-            [
-              "case",
-              [
-                "==",
-                [
-                  "%",
-                  [
-                    "get",
-                    "step"
-                  ],
-                  2
-                ],
-                0
-              ],
-              "#46464F",
-              "#42424A"
+              "all"
             ],
             [
-              "case",
+              "!",
               [
-                "==",
-                [
-                  "%",
-                  [
-                    "get",
-                    "step"
-                  ],
-                  2
-                ],
-                0
+                "has",
+                "level"
+              ]
+            ],
+            [
+              "==",
+              [
+                "get",
+                "level"
               ],
-              "#53535D",
-              "#4E4E58"
+              [
+                "global-state",
+                "level"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "paint": {
+        "fill-extrusion-color": [
+          "case",
+          [
+            "==",
+            [
+              "get",
+              "sector"
+            ],
+            [
+              "global-state",
+              "selectedSector"
+            ]
+          ],
+          "#C8102E",
+          [
+            "==",
+            [
+              "get",
+              "area"
+            ],
+            [
+              "global-state",
+              "area"
+            ]
+          ],
+          "#6E2632",
+          [
+            "match",
+            [
+              "get",
+              "kind"
+            ],
+            "ramp",
+            "#26262A",
+            "concourse",
+            "#222226",
+            [
+              "pillar",
+              "ring-beam"
+            ],
+            "#2A2A2F",
+            "box",
+            "#2C2C31",
+            [
+              "match",
+              [
+                "get",
+                "level"
+              ],
+              "1",
+              [
+                "case",
+                [
+                  "==",
+                  [
+                    "%",
+                    [
+                      "get",
+                      "step"
+                    ],
+                    2
+                  ],
+                  0
+                ],
+                "#2E2E34",
+                "#2A2A30"
+              ],
+              "2",
+              [
+                "case",
+                [
+                  "==",
+                  [
+                    "%",
+                    [
+                      "get",
+                      "step"
+                    ],
+                    2
+                  ],
+                  0
+                ],
+                "#3A3A42",
+                "#36363D"
+              ],
+              "3",
+              [
+                "case",
+                [
+                  "==",
+                  [
+                    "%",
+                    [
+                      "get",
+                      "step"
+                    ],
+                    2
+                  ],
+                  0
+                ],
+                "#46464F",
+                "#42424A"
+              ],
+              [
+                "case",
+                [
+                  "==",
+                  [
+                    "%",
+                    [
+                      "get",
+                      "step"
+                    ],
+                    2
+                  ],
+                  0
+                ],
+                "#53535D",
+                "#4E4E58"
+              ]
             ]
           ]
         ],
-        "fill-extrusion-base": 0,
-        "fill-extrusion-height": [
-          "match",
+        "fill-extrusion-base": [
+          "*",
           [
-            "get",
-            "kind"
+            "global-state",
+            "flatten"
           ],
-          "ramp",
-          1.5,
-          "concourse",
-          9,
           [
-            "get",
-            "top"
+            "match",
+            [
+              "get",
+              "kind"
+            ],
+            "ring-beam",
+            [
+              "get",
+              "base"
+            ],
+            0
+          ]
+        ],
+        "fill-extrusion-height": [
+          "*",
+          [
+            "global-state",
+            "flatten"
+          ],
+          [
+            "match",
+            [
+              "get",
+              "kind"
+            ],
+            "ramp",
+            1.5,
+            "concourse",
+            9,
+            [
+              "get",
+              "top"
+            ]
           ]
         ],
         "fill-extrusion-vertical-gradient": true
       }
     },
     {
-      "id": "stadium-roof",
+      "id": "stadium-structure-dim",
       "type": "fill-extrusion",
       "source": "stadium",
       "filter": [
-        "==",
+        "all",
         [
-          "get",
-          "kind"
+          "match",
+          [
+            "get",
+            "kind"
+          ],
+          [
+            "stand",
+            "box",
+            "concourse",
+            "ramp",
+            "pillar",
+            "ring-beam"
+          ],
+          true,
+          false
         ],
-        "roof"
+        [
+          "!",
+          [
+            "match",
+            [
+              "get",
+              "kind"
+            ],
+            [
+              "pillar",
+              "ring-beam"
+            ],
+            true,
+            false
+          ]
+        ],
+        [
+          "!",
+          [
+            "case",
+            [
+              "match",
+              [
+                "get",
+                "kind"
+              ],
+              [
+                "pillar",
+                "ring-beam"
+              ],
+              true,
+              false
+            ],
+            [
+              "==",
+              [
+                "global-state",
+                "level"
+              ],
+              "all"
+            ],
+            [
+              "any",
+              [
+                "==",
+                [
+                  "global-state",
+                  "level"
+                ],
+                "all"
+              ],
+              [
+                "!",
+                [
+                  "has",
+                  "level"
+                ]
+              ],
+              [
+                "==",
+                [
+                  "get",
+                  "level"
+                ],
+                [
+                  "global-state",
+                  "level"
+                ]
+              ]
+            ]
+          ]
+        ]
       ],
       "paint": {
-        "fill-extrusion-color": "#FFFFFF",
-        "fill-extrusion-opacity": [
-          "interpolate",
-          [
-            "linear"
-          ],
-          [
-            "zoom"
-          ],
-          16.4,
-          0.05,
-          17.2,
-          0
-        ],
-        "fill-extrusion-base": [
-          "get",
-          "base"
-        ],
+        "fill-extrusion-color": "#2A2A30",
+        "fill-extrusion-opacity": 0.45,
+        "fill-extrusion-base": 0,
         "fill-extrusion-height": [
-          "get",
-          "top"
+          "*",
+          [
+            "global-state",
+            "flatten"
+          ],
+          [
+            "match",
+            [
+              "get",
+              "kind"
+            ],
+            "ramp",
+            1.5,
+            "concourse",
+            9,
+            [
+              "get",
+              "top"
+            ]
+          ]
         ]
+      }
+    },
+    {
+      "id": "stadium-sections",
+      "type": "line",
+      "source": "stadium",
+      "minzoom": 16.5,
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "kind"
+          ],
+          "section"
+        ],
+        [
+          "==",
+          [
+            "get",
+            "level"
+          ],
+          [
+            "global-state",
+            "level"
+          ]
+        ]
+      ],
+      "paint": {
+        "line-color": "rgba(0,0,0,0.35)",
+        "line-width": 0.7
+      }
+    },
+    {
+      "id": "area-outline",
+      "type": "line",
+      "source": "stadium",
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "kind"
+          ],
+          "sector"
+        ],
+        [
+          "==",
+          [
+            "get",
+            "area"
+          ],
+          [
+            "global-state",
+            "area"
+          ]
+        ],
+        [
+          "==",
+          [
+            "get",
+            "level"
+          ],
+          [
+            "global-state",
+            "level"
+          ]
+        ]
+      ],
+      "layout": {
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#C8102E",
+        "line-width": 2.5
+      }
+    },
+    {
+      "id": "section-labels",
+      "type": "symbol",
+      "source": "stadium",
+      "minzoom": 17.2,
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "kind"
+          ],
+          "section-label"
+        ],
+        [
+          "==",
+          [
+            "get",
+            "level"
+          ],
+          [
+            "global-state",
+            "level"
+          ]
+        ]
+      ],
+      "layout": {
+        "text-field": [
+          "get",
+          "ref"
+        ],
+        "text-font": [
+          "Schibsted Grotesk SemiBold"
+        ],
+        "text-size": 10,
+        "text-pitch-alignment": "map",
+        "text-rotation-alignment": "viewport"
+      },
+      "paint": {
+        "text-color": "#A6A6AD"
       }
     },
     {
@@ -1365,6 +1907,3406 @@
       },
       "paint": {
         "text-color": "#A6A6AD",
+        "text-halo-color": "#0E0E10",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "poi-escada-cluster",
+      "type": "symbol",
+      "source": "poi-escada",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "escada",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-escada",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true
+      }
+    },
+    {
+      "id": "poi-escada-count",
+      "type": "symbol",
+      "source": "poi-escada",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "escada",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "badge",
+        "icon-text-fit": "both",
+        "icon-text-fit-padding": [
+          0.5,
+          3,
+          0.5,
+          3
+        ],
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "point_count"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk Bold"
+        ],
+        "text-size": 9,
+        "text-offset": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          [
+            "literal",
+            [
+              0.95,
+              -0.95
+            ]
+          ],
+          19,
+          [
+            "literal",
+            [
+              1.45,
+              -1.45
+            ]
+          ]
+        ],
+        "icon-allow-overlap": true,
+        "text-allow-overlap": true
+      },
+      "paint": {
+        "text-color": "#0A0A0B"
+      }
+    },
+    {
+      "id": "poi-escada",
+      "type": "symbol",
+      "source": "poi-escada",
+      "filter": [
+        "all",
+        [
+          "!",
+          [
+            "has",
+            "point_count"
+          ]
+        ],
+        [
+          "!",
+          [
+            "in",
+            "escada",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-escada",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true,
+        "text-field": [
+          "step",
+          [
+            "zoom"
+          ],
+          "",
+          18,
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk SemiBold"
+        ],
+        "text-size": 11,
+        "text-optional": true,
+        "text-variable-anchor": [
+          "left",
+          "right",
+          "top",
+          "bottom"
+        ],
+        "text-radial-offset": 1.25,
+        "text-max-width": 9
+      },
+      "paint": {
+        "text-color": "#F5F5F4",
+        "text-halo-color": "#0E0E10",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "poi-escada_rolante-cluster",
+      "type": "symbol",
+      "source": "poi-escada_rolante",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "escada_rolante",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-escada_rolante",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true
+      }
+    },
+    {
+      "id": "poi-escada_rolante-count",
+      "type": "symbol",
+      "source": "poi-escada_rolante",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "escada_rolante",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "badge",
+        "icon-text-fit": "both",
+        "icon-text-fit-padding": [
+          0.5,
+          3,
+          0.5,
+          3
+        ],
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "point_count"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk Bold"
+        ],
+        "text-size": 9,
+        "text-offset": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          [
+            "literal",
+            [
+              0.95,
+              -0.95
+            ]
+          ],
+          19,
+          [
+            "literal",
+            [
+              1.45,
+              -1.45
+            ]
+          ]
+        ],
+        "icon-allow-overlap": true,
+        "text-allow-overlap": true
+      },
+      "paint": {
+        "text-color": "#0A0A0B"
+      }
+    },
+    {
+      "id": "poi-escada_rolante",
+      "type": "symbol",
+      "source": "poi-escada_rolante",
+      "filter": [
+        "all",
+        [
+          "!",
+          [
+            "has",
+            "point_count"
+          ]
+        ],
+        [
+          "!",
+          [
+            "in",
+            "escada_rolante",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-escada_rolante",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true,
+        "text-field": [
+          "step",
+          [
+            "zoom"
+          ],
+          "",
+          18,
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk SemiBold"
+        ],
+        "text-size": 11,
+        "text-optional": true,
+        "text-variable-anchor": [
+          "left",
+          "right",
+          "top",
+          "bottom"
+        ],
+        "text-radial-offset": 1.25,
+        "text-max-width": 9
+      },
+      "paint": {
+        "text-color": "#F5F5F4",
+        "text-halo-color": "#0E0E10",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "poi-elevador-cluster",
+      "type": "symbol",
+      "source": "poi-elevador",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "elevador",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-elevador",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true
+      }
+    },
+    {
+      "id": "poi-elevador-count",
+      "type": "symbol",
+      "source": "poi-elevador",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "elevador",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "badge",
+        "icon-text-fit": "both",
+        "icon-text-fit-padding": [
+          0.5,
+          3,
+          0.5,
+          3
+        ],
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "point_count"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk Bold"
+        ],
+        "text-size": 9,
+        "text-offset": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          [
+            "literal",
+            [
+              0.95,
+              -0.95
+            ]
+          ],
+          19,
+          [
+            "literal",
+            [
+              1.45,
+              -1.45
+            ]
+          ]
+        ],
+        "icon-allow-overlap": true,
+        "text-allow-overlap": true
+      },
+      "paint": {
+        "text-color": "#0A0A0B"
+      }
+    },
+    {
+      "id": "poi-elevador",
+      "type": "symbol",
+      "source": "poi-elevador",
+      "filter": [
+        "all",
+        [
+          "!",
+          [
+            "has",
+            "point_count"
+          ]
+        ],
+        [
+          "!",
+          [
+            "in",
+            "elevador",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-elevador",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true,
+        "text-field": [
+          "step",
+          [
+            "zoom"
+          ],
+          "",
+          18,
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk SemiBold"
+        ],
+        "text-size": 11,
+        "text-optional": true,
+        "text-variable-anchor": [
+          "left",
+          "right",
+          "top",
+          "bottom"
+        ],
+        "text-radial-offset": 1.25,
+        "text-max-width": 9
+      },
+      "paint": {
+        "text-color": "#F5F5F4",
+        "text-halo-color": "#0E0E10",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "poi-estacionamento-cluster",
+      "type": "symbol",
+      "source": "poi-estacionamento",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "estacionamento",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-estacionamento",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true
+      }
+    },
+    {
+      "id": "poi-estacionamento-count",
+      "type": "symbol",
+      "source": "poi-estacionamento",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "estacionamento",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "badge",
+        "icon-text-fit": "both",
+        "icon-text-fit-padding": [
+          0.5,
+          3,
+          0.5,
+          3
+        ],
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "point_count"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk Bold"
+        ],
+        "text-size": 9,
+        "text-offset": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          [
+            "literal",
+            [
+              0.95,
+              -0.95
+            ]
+          ],
+          19,
+          [
+            "literal",
+            [
+              1.45,
+              -1.45
+            ]
+          ]
+        ],
+        "icon-allow-overlap": true,
+        "text-allow-overlap": true
+      },
+      "paint": {
+        "text-color": "#0A0A0B"
+      }
+    },
+    {
+      "id": "poi-estacionamento",
+      "type": "symbol",
+      "source": "poi-estacionamento",
+      "filter": [
+        "all",
+        [
+          "!",
+          [
+            "has",
+            "point_count"
+          ]
+        ],
+        [
+          "!",
+          [
+            "in",
+            "estacionamento",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-estacionamento",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true,
+        "text-field": [
+          "step",
+          [
+            "zoom"
+          ],
+          "",
+          18,
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk SemiBold"
+        ],
+        "text-size": 11,
+        "text-optional": true,
+        "text-variable-anchor": [
+          "left",
+          "right",
+          "top",
+          "bottom"
+        ],
+        "text-radial-offset": 1.25,
+        "text-max-width": 9
+      },
+      "paint": {
+        "text-color": "#F5F5F4",
+        "text-halo-color": "#0E0E10",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "poi-saida_emergencia-cluster",
+      "type": "symbol",
+      "source": "poi-saida_emergencia",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "saida_emergencia",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-saida_emergencia",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true
+      }
+    },
+    {
+      "id": "poi-saida_emergencia-count",
+      "type": "symbol",
+      "source": "poi-saida_emergencia",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "saida_emergencia",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "badge",
+        "icon-text-fit": "both",
+        "icon-text-fit-padding": [
+          0.5,
+          3,
+          0.5,
+          3
+        ],
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "point_count"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk Bold"
+        ],
+        "text-size": 9,
+        "text-offset": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          [
+            "literal",
+            [
+              0.95,
+              -0.95
+            ]
+          ],
+          19,
+          [
+            "literal",
+            [
+              1.45,
+              -1.45
+            ]
+          ]
+        ],
+        "icon-allow-overlap": true,
+        "text-allow-overlap": true
+      },
+      "paint": {
+        "text-color": "#0A0A0B"
+      }
+    },
+    {
+      "id": "poi-saida_emergencia",
+      "type": "symbol",
+      "source": "poi-saida_emergencia",
+      "filter": [
+        "all",
+        [
+          "!",
+          [
+            "has",
+            "point_count"
+          ]
+        ],
+        [
+          "!",
+          [
+            "in",
+            "saida_emergencia",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-saida_emergencia",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true,
+        "text-field": [
+          "step",
+          [
+            "zoom"
+          ],
+          "",
+          18,
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk SemiBold"
+        ],
+        "text-size": 11,
+        "text-optional": true,
+        "text-variable-anchor": [
+          "left",
+          "right",
+          "top",
+          "bottom"
+        ],
+        "text-radial-offset": 1.25,
+        "text-max-width": 9
+      },
+      "paint": {
+        "text-color": "#F5F5F4",
+        "text-halo-color": "#0E0E10",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "poi-bilheteria-cluster",
+      "type": "symbol",
+      "source": "poi-bilheteria",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "bilheteria",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-bilheteria",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true
+      }
+    },
+    {
+      "id": "poi-bilheteria-count",
+      "type": "symbol",
+      "source": "poi-bilheteria",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "bilheteria",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "badge",
+        "icon-text-fit": "both",
+        "icon-text-fit-padding": [
+          0.5,
+          3,
+          0.5,
+          3
+        ],
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "point_count"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk Bold"
+        ],
+        "text-size": 9,
+        "text-offset": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          [
+            "literal",
+            [
+              0.95,
+              -0.95
+            ]
+          ],
+          19,
+          [
+            "literal",
+            [
+              1.45,
+              -1.45
+            ]
+          ]
+        ],
+        "icon-allow-overlap": true,
+        "text-allow-overlap": true
+      },
+      "paint": {
+        "text-color": "#0A0A0B"
+      }
+    },
+    {
+      "id": "poi-bilheteria",
+      "type": "symbol",
+      "source": "poi-bilheteria",
+      "filter": [
+        "all",
+        [
+          "!",
+          [
+            "has",
+            "point_count"
+          ]
+        ],
+        [
+          "!",
+          [
+            "in",
+            "bilheteria",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-bilheteria",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true,
+        "text-field": [
+          "step",
+          [
+            "zoom"
+          ],
+          "",
+          18,
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk SemiBold"
+        ],
+        "text-size": 11,
+        "text-optional": true,
+        "text-variable-anchor": [
+          "left",
+          "right",
+          "top",
+          "bottom"
+        ],
+        "text-radial-offset": 1.25,
+        "text-max-width": 9
+      },
+      "paint": {
+        "text-color": "#F5F5F4",
+        "text-halo-color": "#0E0E10",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "poi-loja-cluster",
+      "type": "symbol",
+      "source": "poi-loja",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "loja",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-loja",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true
+      }
+    },
+    {
+      "id": "poi-loja-count",
+      "type": "symbol",
+      "source": "poi-loja",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "loja",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "badge",
+        "icon-text-fit": "both",
+        "icon-text-fit-padding": [
+          0.5,
+          3,
+          0.5,
+          3
+        ],
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "point_count"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk Bold"
+        ],
+        "text-size": 9,
+        "text-offset": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          [
+            "literal",
+            [
+              0.95,
+              -0.95
+            ]
+          ],
+          19,
+          [
+            "literal",
+            [
+              1.45,
+              -1.45
+            ]
+          ]
+        ],
+        "icon-allow-overlap": true,
+        "text-allow-overlap": true
+      },
+      "paint": {
+        "text-color": "#0A0A0B"
+      }
+    },
+    {
+      "id": "poi-loja",
+      "type": "symbol",
+      "source": "poi-loja",
+      "filter": [
+        "all",
+        [
+          "!",
+          [
+            "has",
+            "point_count"
+          ]
+        ],
+        [
+          "!",
+          [
+            "in",
+            "loja",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-loja",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true,
+        "text-field": [
+          "step",
+          [
+            "zoom"
+          ],
+          "",
+          18,
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk SemiBold"
+        ],
+        "text-size": 11,
+        "text-optional": true,
+        "text-variable-anchor": [
+          "left",
+          "right",
+          "top",
+          "bottom"
+        ],
+        "text-radial-offset": 1.25,
+        "text-max-width": 9
+      },
+      "paint": {
+        "text-color": "#F5F5F4",
+        "text-halo-color": "#0E0E10",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "poi-informacao-cluster",
+      "type": "symbol",
+      "source": "poi-informacao",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "informacao",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-informacao",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true
+      }
+    },
+    {
+      "id": "poi-informacao-count",
+      "type": "symbol",
+      "source": "poi-informacao",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "informacao",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "badge",
+        "icon-text-fit": "both",
+        "icon-text-fit-padding": [
+          0.5,
+          3,
+          0.5,
+          3
+        ],
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "point_count"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk Bold"
+        ],
+        "text-size": 9,
+        "text-offset": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          [
+            "literal",
+            [
+              0.95,
+              -0.95
+            ]
+          ],
+          19,
+          [
+            "literal",
+            [
+              1.45,
+              -1.45
+            ]
+          ]
+        ],
+        "icon-allow-overlap": true,
+        "text-allow-overlap": true
+      },
+      "paint": {
+        "text-color": "#0A0A0B"
+      }
+    },
+    {
+      "id": "poi-informacao",
+      "type": "symbol",
+      "source": "poi-informacao",
+      "filter": [
+        "all",
+        [
+          "!",
+          [
+            "has",
+            "point_count"
+          ]
+        ],
+        [
+          "!",
+          [
+            "in",
+            "informacao",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-informacao",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true,
+        "text-field": [
+          "step",
+          [
+            "zoom"
+          ],
+          "",
+          18,
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk SemiBold"
+        ],
+        "text-size": 11,
+        "text-optional": true,
+        "text-variable-anchor": [
+          "left",
+          "right",
+          "top",
+          "bottom"
+        ],
+        "text-radial-offset": 1.25,
+        "text-max-width": 9
+      },
+      "paint": {
+        "text-color": "#F5F5F4",
+        "text-halo-color": "#0E0E10",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "poi-sala_sensorial-cluster",
+      "type": "symbol",
+      "source": "poi-sala_sensorial",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "sala_sensorial",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-sala_sensorial",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true
+      }
+    },
+    {
+      "id": "poi-sala_sensorial-count",
+      "type": "symbol",
+      "source": "poi-sala_sensorial",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "sala_sensorial",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "badge",
+        "icon-text-fit": "both",
+        "icon-text-fit-padding": [
+          0.5,
+          3,
+          0.5,
+          3
+        ],
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "point_count"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk Bold"
+        ],
+        "text-size": 9,
+        "text-offset": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          [
+            "literal",
+            [
+              0.95,
+              -0.95
+            ]
+          ],
+          19,
+          [
+            "literal",
+            [
+              1.45,
+              -1.45
+            ]
+          ]
+        ],
+        "icon-allow-overlap": true,
+        "text-allow-overlap": true
+      },
+      "paint": {
+        "text-color": "#0A0A0B"
+      }
+    },
+    {
+      "id": "poi-sala_sensorial",
+      "type": "symbol",
+      "source": "poi-sala_sensorial",
+      "filter": [
+        "all",
+        [
+          "!",
+          [
+            "has",
+            "point_count"
+          ]
+        ],
+        [
+          "!",
+          [
+            "in",
+            "sala_sensorial",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-sala_sensorial",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true,
+        "text-field": [
+          "step",
+          [
+            "zoom"
+          ],
+          "",
+          18,
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk SemiBold"
+        ],
+        "text-size": 11,
+        "text-optional": true,
+        "text-variable-anchor": [
+          "left",
+          "right",
+          "top",
+          "bottom"
+        ],
+        "text-radial-offset": 1.25,
+        "text-max-width": 9
+      },
+      "paint": {
+        "text-color": "#F5F5F4",
+        "text-halo-color": "#0E0E10",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "poi-seguranca-cluster",
+      "type": "symbol",
+      "source": "poi-seguranca",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "seguranca",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-seguranca",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true
+      }
+    },
+    {
+      "id": "poi-seguranca-count",
+      "type": "symbol",
+      "source": "poi-seguranca",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "seguranca",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "badge",
+        "icon-text-fit": "both",
+        "icon-text-fit-padding": [
+          0.5,
+          3,
+          0.5,
+          3
+        ],
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "point_count"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk Bold"
+        ],
+        "text-size": 9,
+        "text-offset": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          [
+            "literal",
+            [
+              0.95,
+              -0.95
+            ]
+          ],
+          19,
+          [
+            "literal",
+            [
+              1.45,
+              -1.45
+            ]
+          ]
+        ],
+        "icon-allow-overlap": true,
+        "text-allow-overlap": true
+      },
+      "paint": {
+        "text-color": "#0A0A0B"
+      }
+    },
+    {
+      "id": "poi-seguranca",
+      "type": "symbol",
+      "source": "poi-seguranca",
+      "filter": [
+        "all",
+        [
+          "!",
+          [
+            "has",
+            "point_count"
+          ]
+        ],
+        [
+          "!",
+          [
+            "in",
+            "seguranca",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-seguranca",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true,
+        "text-field": [
+          "step",
+          [
+            "zoom"
+          ],
+          "",
+          18,
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk SemiBold"
+        ],
+        "text-size": 11,
+        "text-optional": true,
+        "text-variable-anchor": [
+          "left",
+          "right",
+          "top",
+          "bottom"
+        ],
+        "text-radial-offset": 1.25,
+        "text-max-width": 9
+      },
+      "paint": {
+        "text-color": "#F5F5F4",
+        "text-halo-color": "#0E0E10",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "poi-juizado-cluster",
+      "type": "symbol",
+      "source": "poi-juizado",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "juizado",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-juizado",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true
+      }
+    },
+    {
+      "id": "poi-juizado-count",
+      "type": "symbol",
+      "source": "poi-juizado",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "juizado",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "badge",
+        "icon-text-fit": "both",
+        "icon-text-fit-padding": [
+          0.5,
+          3,
+          0.5,
+          3
+        ],
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "point_count"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk Bold"
+        ],
+        "text-size": 9,
+        "text-offset": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          [
+            "literal",
+            [
+              0.95,
+              -0.95
+            ]
+          ],
+          19,
+          [
+            "literal",
+            [
+              1.45,
+              -1.45
+            ]
+          ]
+        ],
+        "icon-allow-overlap": true,
+        "text-allow-overlap": true
+      },
+      "paint": {
+        "text-color": "#0A0A0B"
+      }
+    },
+    {
+      "id": "poi-juizado",
+      "type": "symbol",
+      "source": "poi-juizado",
+      "filter": [
+        "all",
+        [
+          "!",
+          [
+            "has",
+            "point_count"
+          ]
+        ],
+        [
+          "!",
+          [
+            "in",
+            "juizado",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-juizado",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true,
+        "text-field": [
+          "step",
+          [
+            "zoom"
+          ],
+          "",
+          18,
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk SemiBold"
+        ],
+        "text-size": 11,
+        "text-optional": true,
+        "text-variable-anchor": [
+          "left",
+          "right",
+          "top",
+          "bottom"
+        ],
+        "text-radial-offset": 1.25,
+        "text-max-width": 9
+      },
+      "paint": {
+        "text-color": "#F5F5F4",
+        "text-halo-color": "#0E0E10",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "poi-acolhimento-cluster",
+      "type": "symbol",
+      "source": "poi-acolhimento",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "acolhimento",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-acolhimento",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true
+      }
+    },
+    {
+      "id": "poi-acolhimento-count",
+      "type": "symbol",
+      "source": "poi-acolhimento",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "acolhimento",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "badge",
+        "icon-text-fit": "both",
+        "icon-text-fit-padding": [
+          0.5,
+          3,
+          0.5,
+          3
+        ],
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "point_count"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk Bold"
+        ],
+        "text-size": 9,
+        "text-offset": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          [
+            "literal",
+            [
+              0.95,
+              -0.95
+            ]
+          ],
+          19,
+          [
+            "literal",
+            [
+              1.45,
+              -1.45
+            ]
+          ]
+        ],
+        "icon-allow-overlap": true,
+        "text-allow-overlap": true
+      },
+      "paint": {
+        "text-color": "#0A0A0B"
+      }
+    },
+    {
+      "id": "poi-acolhimento",
+      "type": "symbol",
+      "source": "poi-acolhimento",
+      "filter": [
+        "all",
+        [
+          "!",
+          [
+            "has",
+            "point_count"
+          ]
+        ],
+        [
+          "!",
+          [
+            "in",
+            "acolhimento",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-acolhimento",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true,
+        "text-field": [
+          "step",
+          [
+            "zoom"
+          ],
+          "",
+          18,
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk SemiBold"
+        ],
+        "text-size": 11,
+        "text-optional": true,
+        "text-variable-anchor": [
+          "left",
+          "right",
+          "top",
+          "bottom"
+        ],
+        "text-radial-offset": 1.25,
+        "text-max-width": 9
+      },
+      "paint": {
+        "text-color": "#F5F5F4",
+        "text-halo-color": "#0E0E10",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "poi-posto_medico-cluster",
+      "type": "symbol",
+      "source": "poi-posto_medico",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "posto_medico",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-posto_medico",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true
+      }
+    },
+    {
+      "id": "poi-posto_medico-count",
+      "type": "symbol",
+      "source": "poi-posto_medico",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "posto_medico",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "badge",
+        "icon-text-fit": "both",
+        "icon-text-fit-padding": [
+          0.5,
+          3,
+          0.5,
+          3
+        ],
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "point_count"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk Bold"
+        ],
+        "text-size": 9,
+        "text-offset": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          [
+            "literal",
+            [
+              0.95,
+              -0.95
+            ]
+          ],
+          19,
+          [
+            "literal",
+            [
+              1.45,
+              -1.45
+            ]
+          ]
+        ],
+        "icon-allow-overlap": true,
+        "text-allow-overlap": true
+      },
+      "paint": {
+        "text-color": "#0A0A0B"
+      }
+    },
+    {
+      "id": "poi-posto_medico",
+      "type": "symbol",
+      "source": "poi-posto_medico",
+      "filter": [
+        "all",
+        [
+          "!",
+          [
+            "has",
+            "point_count"
+          ]
+        ],
+        [
+          "!",
+          [
+            "in",
+            "posto_medico",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-posto_medico",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true,
+        "text-field": [
+          "step",
+          [
+            "zoom"
+          ],
+          "",
+          18,
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk SemiBold"
+        ],
+        "text-size": 11,
+        "text-optional": true,
+        "text-variable-anchor": [
+          "left",
+          "right",
+          "top",
+          "bottom"
+        ],
+        "text-radial-offset": 1.25,
+        "text-max-width": 9
+      },
+      "paint": {
+        "text-color": "#F5F5F4",
+        "text-halo-color": "#0E0E10",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "poi-bebidas-cluster",
+      "type": "symbol",
+      "source": "poi-bebidas",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "bebidas",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-bebidas",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true
+      }
+    },
+    {
+      "id": "poi-bebidas-count",
+      "type": "symbol",
+      "source": "poi-bebidas",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "bebidas",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "badge",
+        "icon-text-fit": "both",
+        "icon-text-fit-padding": [
+          0.5,
+          3,
+          0.5,
+          3
+        ],
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "point_count"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk Bold"
+        ],
+        "text-size": 9,
+        "text-offset": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          [
+            "literal",
+            [
+              0.95,
+              -0.95
+            ]
+          ],
+          19,
+          [
+            "literal",
+            [
+              1.45,
+              -1.45
+            ]
+          ]
+        ],
+        "icon-allow-overlap": true,
+        "text-allow-overlap": true
+      },
+      "paint": {
+        "text-color": "#0A0A0B"
+      }
+    },
+    {
+      "id": "poi-bebidas",
+      "type": "symbol",
+      "source": "poi-bebidas",
+      "filter": [
+        "all",
+        [
+          "!",
+          [
+            "has",
+            "point_count"
+          ]
+        ],
+        [
+          "!",
+          [
+            "in",
+            "bebidas",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-bebidas",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true,
+        "text-field": [
+          "step",
+          [
+            "zoom"
+          ],
+          "",
+          18,
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk SemiBold"
+        ],
+        "text-size": 11,
+        "text-optional": true,
+        "text-variable-anchor": [
+          "left",
+          "right",
+          "top",
+          "bottom"
+        ],
+        "text-radial-offset": 1.25,
+        "text-max-width": 9
+      },
+      "paint": {
+        "text-color": "#F5F5F4",
+        "text-halo-color": "#0E0E10",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "poi-alimentacao-cluster",
+      "type": "symbol",
+      "source": "poi-alimentacao",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "alimentacao",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-alimentacao",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true
+      }
+    },
+    {
+      "id": "poi-alimentacao-count",
+      "type": "symbol",
+      "source": "poi-alimentacao",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "alimentacao",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "badge",
+        "icon-text-fit": "both",
+        "icon-text-fit-padding": [
+          0.5,
+          3,
+          0.5,
+          3
+        ],
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "point_count"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk Bold"
+        ],
+        "text-size": 9,
+        "text-offset": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          [
+            "literal",
+            [
+              0.95,
+              -0.95
+            ]
+          ],
+          19,
+          [
+            "literal",
+            [
+              1.45,
+              -1.45
+            ]
+          ]
+        ],
+        "icon-allow-overlap": true,
+        "text-allow-overlap": true
+      },
+      "paint": {
+        "text-color": "#0A0A0B"
+      }
+    },
+    {
+      "id": "poi-alimentacao",
+      "type": "symbol",
+      "source": "poi-alimentacao",
+      "filter": [
+        "all",
+        [
+          "!",
+          [
+            "has",
+            "point_count"
+          ]
+        ],
+        [
+          "!",
+          [
+            "in",
+            "alimentacao",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-alimentacao",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true,
+        "text-field": [
+          "step",
+          [
+            "zoom"
+          ],
+          "",
+          18,
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk SemiBold"
+        ],
+        "text-size": 11,
+        "text-optional": true,
+        "text-variable-anchor": [
+          "left",
+          "right",
+          "top",
+          "bottom"
+        ],
+        "text-radial-offset": 1.25,
+        "text-max-width": 9
+      },
+      "paint": {
+        "text-color": "#F5F5F4",
+        "text-halo-color": "#0E0E10",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "poi-banheiro_acessivel-cluster",
+      "type": "symbol",
+      "source": "poi-banheiro_acessivel",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "banheiro_acessivel",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-banheiro_acessivel",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true
+      }
+    },
+    {
+      "id": "poi-banheiro_acessivel-count",
+      "type": "symbol",
+      "source": "poi-banheiro_acessivel",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "banheiro_acessivel",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "badge",
+        "icon-text-fit": "both",
+        "icon-text-fit-padding": [
+          0.5,
+          3,
+          0.5,
+          3
+        ],
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "point_count"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk Bold"
+        ],
+        "text-size": 9,
+        "text-offset": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          [
+            "literal",
+            [
+              0.95,
+              -0.95
+            ]
+          ],
+          19,
+          [
+            "literal",
+            [
+              1.45,
+              -1.45
+            ]
+          ]
+        ],
+        "icon-allow-overlap": true,
+        "text-allow-overlap": true
+      },
+      "paint": {
+        "text-color": "#0A0A0B"
+      }
+    },
+    {
+      "id": "poi-banheiro_acessivel",
+      "type": "symbol",
+      "source": "poi-banheiro_acessivel",
+      "filter": [
+        "all",
+        [
+          "!",
+          [
+            "has",
+            "point_count"
+          ]
+        ],
+        [
+          "!",
+          [
+            "in",
+            "banheiro_acessivel",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-banheiro_acessivel",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true,
+        "text-field": [
+          "step",
+          [
+            "zoom"
+          ],
+          "",
+          18,
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk SemiBold"
+        ],
+        "text-size": 11,
+        "text-optional": true,
+        "text-variable-anchor": [
+          "left",
+          "right",
+          "top",
+          "bottom"
+        ],
+        "text-radial-offset": 1.25,
+        "text-max-width": 9
+      },
+      "paint": {
+        "text-color": "#F5F5F4",
+        "text-halo-color": "#0E0E10",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "poi-banheiro-cluster",
+      "type": "symbol",
+      "source": "poi-banheiro",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "banheiro",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-banheiro",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true
+      }
+    },
+    {
+      "id": "poi-banheiro-count",
+      "type": "symbol",
+      "source": "poi-banheiro",
+      "filter": [
+        "all",
+        [
+          "has",
+          "point_count"
+        ],
+        [
+          "!",
+          [
+            "in",
+            "banheiro",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "badge",
+        "icon-text-fit": "both",
+        "icon-text-fit-padding": [
+          0.5,
+          3,
+          0.5,
+          3
+        ],
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "point_count"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk Bold"
+        ],
+        "text-size": 9,
+        "text-offset": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          [
+            "literal",
+            [
+              0.95,
+              -0.95
+            ]
+          ],
+          19,
+          [
+            "literal",
+            [
+              1.45,
+              -1.45
+            ]
+          ]
+        ],
+        "icon-allow-overlap": true,
+        "text-allow-overlap": true
+      },
+      "paint": {
+        "text-color": "#0A0A0B"
+      }
+    },
+    {
+      "id": "poi-banheiro",
+      "type": "symbol",
+      "source": "poi-banheiro",
+      "filter": [
+        "all",
+        [
+          "!",
+          [
+            "has",
+            "point_count"
+          ]
+        ],
+        [
+          "!",
+          [
+            "in",
+            "banheiro",
+            [
+              "array",
+              [
+                "global-state",
+                "hidden"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "poi-banheiro",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true,
+        "text-field": [
+          "step",
+          [
+            "zoom"
+          ],
+          "",
+          18,
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Schibsted Grotesk SemiBold"
+        ],
+        "text-size": 11,
+        "text-optional": true,
+        "text-variable-anchor": [
+          "left",
+          "right",
+          "top",
+          "bottom"
+        ],
+        "text-radial-offset": 1.25,
+        "text-max-width": 9
+      },
+      "paint": {
+        "text-color": "#F5F5F4",
         "text-halo-color": "#0E0E10",
         "text-halo-width": 1.5
       }
@@ -1452,6 +5394,80 @@
       },
       "paint": {
         "text-color": "#F5F5F4"
+      }
+    },
+    {
+      "id": "poi-selected-ring",
+      "type": "symbol",
+      "source": "selection",
+      "layout": {
+        "icon-image": "selected-ring",
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.62,
+          17,
+          0.8,
+          19,
+          1
+        ],
+        "icon-allow-overlap": true
+      }
+    },
+    {
+      "id": "poi-selected",
+      "type": "symbol",
+      "source": "selection",
+      "layout": {
+        "icon-image": [
+          "concat",
+          "poi-",
+          [
+            "get",
+            "category"
+          ]
+        ],
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          0.72,
+          17,
+          0.92,
+          19,
+          1.15
+        ],
+        "icon-allow-overlap": true,
+        "text-field": [
+          "get",
+          "name"
+        ],
+        "text-font": [
+          "Schibsted Grotesk Bold"
+        ],
+        "text-size": 12,
+        "text-anchor": "top",
+        "text-offset": [
+          0,
+          1.5
+        ],
+        "text-allow-overlap": true
+      },
+      "paint": {
+        "text-color": "#F5F5F4",
+        "text-halo-color": "#0E0E10",
+        "text-halo-width": 2
       }
     }
   ]

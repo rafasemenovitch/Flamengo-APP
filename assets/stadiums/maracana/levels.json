@@ -55,6 +55,348 @@
       "description": "Arquibancadas superiores Norte e Sul, cadeiras cativas (Oeste) e imprensa."
     }
   ],
+  "areas": [
+    {
+      "id": "norte-inferior",
+      "name": "Norte Inferior",
+      "side": "norte",
+      "tier": "inferior",
+      "sectors": [
+        "norte-inferior"
+      ],
+      "levels": [
+        "1"
+      ],
+      "defaultLevel": "1",
+      "blocks": {
+        "1": [
+          "123",
+          "124",
+          "125",
+          "126",
+          "127",
+          "128",
+          "129",
+          "130"
+        ]
+      }
+    },
+    {
+      "id": "norte-superior",
+      "name": "Norte Superior",
+      "side": "norte",
+      "tier": "superior",
+      "sectors": [
+        "norte-superior-2",
+        "norte-superior-5"
+      ],
+      "levels": [
+        "2",
+        "5"
+      ],
+      "defaultLevel": "2",
+      "blocks": {
+        "2": [
+          "219",
+          "220",
+          "221",
+          "222",
+          "223",
+          "224",
+          "225",
+          "226",
+          "227",
+          "228",
+          "229",
+          "230",
+          "231",
+          "232",
+          "233",
+          "234",
+          "235",
+          "236",
+          "237",
+          "238"
+        ],
+        "5": [
+          "530",
+          "531",
+          "532",
+          "533",
+          "534",
+          "535",
+          "536",
+          "537",
+          "538",
+          "539",
+          "540",
+          "541",
+          "542",
+          "543",
+          "544",
+          "545",
+          "546",
+          "547"
+        ]
+      }
+    },
+    {
+      "id": "sul-inferior",
+      "name": "Sul Inferior",
+      "side": "sul",
+      "tier": "inferior",
+      "sectors": [
+        "sul-inferior"
+      ],
+      "visitor": true,
+      "levels": [
+        "1"
+      ],
+      "defaultLevel": "1",
+      "blocks": {
+        "1": [
+          "108",
+          "109",
+          "110",
+          "111",
+          "112",
+          "113",
+          "114",
+          "115"
+        ]
+      }
+    },
+    {
+      "id": "sul-superior",
+      "name": "Sul Superior",
+      "side": "sul",
+      "tier": "superior",
+      "sectors": [
+        "sul-superior-2",
+        "sul-superior-5"
+      ],
+      "visitor": true,
+      "levels": [
+        "2",
+        "5"
+      ],
+      "defaultLevel": "2",
+      "blocks": {
+        "2": [
+          "201",
+          "202",
+          "203",
+          "204",
+          "205",
+          "206",
+          "207",
+          "208",
+          "209",
+          "210",
+          "211",
+          "212",
+          "213",
+          "214",
+          "215",
+          "216",
+          "217",
+          "218"
+        ],
+        "5": [
+          "512",
+          "513",
+          "514",
+          "515",
+          "516",
+          "517",
+          "518",
+          "519",
+          "520",
+          "521",
+          "522",
+          "523",
+          "524",
+          "525",
+          "526",
+          "527",
+          "528",
+          "529"
+        ]
+      }
+    },
+    {
+      "id": "leste-inferior",
+      "name": "Leste Inferior",
+      "side": "leste",
+      "tier": "inferior",
+      "sectors": [
+        "leste-inferior"
+      ],
+      "levels": [
+        "1"
+      ],
+      "defaultLevel": "1",
+      "blocks": {
+        "1": [
+          "116",
+          "117",
+          "118",
+          "119",
+          "120",
+          "121",
+          "122"
+        ]
+      }
+    },
+    {
+      "id": "leste-superior",
+      "name": "Leste Superior",
+      "side": "leste",
+      "tier": "superior",
+      "sectors": [
+        "leste-superior"
+      ],
+      "levels": [
+        "3"
+      ],
+      "defaultLevel": "3",
+      "blocks": {
+        "3": [
+          "301",
+          "302",
+          "303",
+          "304",
+          "305",
+          "306",
+          "307",
+          "308",
+          "309",
+          "310",
+          "311",
+          "312",
+          "313"
+        ]
+      }
+    },
+    {
+      "id": "leste-mais",
+      "name": "Leste Mais",
+      "side": "leste",
+      "tier": "premium",
+      "sectors": [
+        "leste-mais"
+      ],
+      "levels": [
+        "1"
+      ],
+      "defaultLevel": "1",
+      "blocks": {
+        "1": []
+      }
+    },
+    {
+      "id": "camarotes-leste",
+      "name": "Camarotes Leste",
+      "side": "leste",
+      "tier": "camarote",
+      "sectors": [
+        "camarotes-leste-2"
+      ],
+      "levels": [
+        "2"
+      ],
+      "defaultLevel": "2",
+      "blocks": {
+        "2": []
+      }
+    },
+    {
+      "id": "oeste-inferior",
+      "name": "Oeste Inferior",
+      "side": "oeste",
+      "tier": "inferior",
+      "sectors": [
+        "oeste-inferior"
+      ],
+      "levels": [
+        "1"
+      ],
+      "defaultLevel": "1",
+      "blocks": {
+        "1": [
+          "101",
+          "102",
+          "103",
+          "104",
+          "105",
+          "106",
+          "107"
+        ]
+      }
+    },
+    {
+      "id": "maracana-mais",
+      "name": "Maracanã Mais",
+      "side": "oeste",
+      "tier": "premium",
+      "sectors": [
+        "maracana-mais"
+      ],
+      "levels": [
+        "1"
+      ],
+      "defaultLevel": "1",
+      "blocks": {
+        "1": []
+      }
+    },
+    {
+      "id": "camarotes-oeste",
+      "name": "Camarotes e Tribuna (Oeste)",
+      "side": "oeste",
+      "tier": "camarote",
+      "sectors": [
+        "camarotes-oeste-2",
+        "camarotes-oeste-3"
+      ],
+      "levels": [
+        "2",
+        "3"
+      ],
+      "defaultLevel": "2",
+      "blocks": {
+        "2": [],
+        "3": []
+      }
+    },
+    {
+      "id": "oeste-superior",
+      "name": "Oeste Superior (Cativas)",
+      "side": "oeste",
+      "tier": "superior",
+      "sectors": [
+        "cativas-oeste"
+      ],
+      "levels": [
+        "5"
+      ],
+      "defaultLevel": "5",
+      "blocks": {
+        "5": [
+          "501",
+          "502",
+          "503",
+          "504",
+          "505",
+          "507",
+          "508",
+          "509",
+          "510",
+          "511"
+        ]
+      }
+    }
+  ],
   "sectors": [
     {
       "id": "oeste-inferior",

@@ -70,6 +70,22 @@ describe('dados do estádio', () => {
       expect(pois.some((f) => f.properties.category === cat)).toBe(true);
   });
 
+  it('"Onde você está?": cada setor está em exatamente uma área, com níveis públicos', () => {
+    const pub = new Set(levels.levels.filter((l: any) => l.public).map((l: any) => l.id));
+    const seen = levels.areas.flatMap((a: any) => a.sectors).sort();
+    expect(seen).toEqual(levels.sectors.map((s: any) => s.id).sort());
+    for (const a of levels.areas) {
+      expect(a.levels.length).toBeGreaterThan(0);
+      for (const l of a.levels) expect(pub.has(l)).toBe(true);
+      expect(a.levels).toContain(a.defaultLevel);
+      // o primeiro algarismo do bloco é o nível
+      for (const [l, blocks] of Object.entries<string[]>(a.blocks))
+        for (const b of blocks) expect(b.startsWith(l)).toBe(true);
+    }
+    const ns = levels.areas.find((a: any) => a.id === 'norte-superior');
+    expect(ns.levels).toEqual(['2', '5']);
+  });
+
   it('o nome do estádio vem dos dados', () => {
     expect(venue.name).toBe('Maracanã');
     expect(venue.bounds).toHaveLength(4);

@@ -2,7 +2,7 @@
  * Prints das páginas de map/dev/ com Playwright (Chrome instalado na máquina,
  * sem baixar navegador). Viewport de celular 390 × 844 @2x.
  *
- * Uso: npx tsx map/tools/shots.ts <fase>      ex.: npx tsx map/tools/shots.ts 1
+ * Uso: npx tsx map/tools/shots.ts <fase> [filtro]   ex.: npx tsx map/tools/shots.ts 3 nivel-1
  * Saída: docs/maracana/screens/fase-<fase>/
  * Chrome: CHROME_PATH=/caminho/do/chrome se não estiver no lugar padrão.
  */
@@ -56,11 +56,42 @@ const PHASES: Record<string, Shot[]> = {
     { name: '11-desktop-claro', url: 'index.html?panel=0&theme=light', width: 1400, height: 900 },
     { name: '12-desktop-escuro', url: 'index.html?panel=0&theme=dark', width: 1400, height: 900 },
   ],
+  '3': [
+    { name: '01-estadio-claro', url: 'index.html?panel=0&theme=light' },
+    { name: '02-estadio-escuro', url: 'index.html?panel=0&theme=dark' },
+    { name: '03-nivel-1-claro', url: 'index.html?panel=0&theme=light&level=1' },
+    { name: '04-nivel-2-claro', url: 'index.html?panel=0&theme=light&level=2' },
+    { name: '05-nivel-3-claro', url: 'index.html?panel=0&theme=light&level=3' },
+    { name: '06-nivel-5-claro', url: 'index.html?panel=0&theme=light&level=5' },
+    { name: '07-nivel-1-escuro', url: 'index.html?panel=0&theme=dark&level=1' },
+    { name: '08-nivel-5-escuro', url: 'index.html?panel=0&theme=dark&level=5' },
+    {
+      name: '09-onde-voce-esta-leste-inferior-claro',
+      url: 'index.html?panel=0&theme=light&area=leste-inferior',
+    },
+    {
+      name: '10-onde-voce-esta-norte-superior-bloco-535-escuro',
+      url: 'index.html?panel=0&theme=dark&area=norte-superior&block=535',
+    },
+    { name: '11-filtro-banheiros-claro', url: 'index.html?panel=0&theme=light&level=1&filter=banheiros' },
+    {
+      name: '12-filtro-acessibilidade-escuro',
+      url: 'index.html?panel=0&theme=dark&level=2&filter=acessibilidade',
+    },
+    { name: '13-ponto-selecionado-claro', url: 'index.html?panel=0&theme=light&poi=banheiro-9' },
+    {
+      name: '14-setor-selecionado-escuro',
+      url: 'index.html?panel=0&theme=dark&level=1&sector=leste-inferior',
+    },
+    { name: '15-rotulos-de-perto-claro', url: 'index.html?panel=0&theme=light&level=1&zoom=18.3' },
+    { name: '16-painel-desktop-claro', url: 'index.html?theme=light&level=2', width: 1400, height: 900 },
+  ],
 };
 
 /** Folha lado a lado: referências (docs/maracana/referencias/) × prints da fase. */
 const COMPARE: Record<string, string[]> = {
   '2': ['01-inicial-claro', '02-inicial-escuro'],
+  '3': ['03-nivel-1-claro', '08-nivel-5-escuro'],
 };
 
 async function compare(browser: import('playwright-core').Browser, out: string, ours: string[]) {
@@ -82,7 +113,9 @@ async function compare(browser: import('playwright-core').Browser, out: string, 
 
 async function main() {
   const phase = process.argv[2] ?? '1';
-  const shots = PHASES[phase];
+  // Terceiro argumento opcional: só os prints cujo nome contém o texto (ex.: "nivel-1").
+  const only = process.argv[3];
+  const shots = PHASES[phase]?.filter((s) => !only || s.name.includes(only));
   if (!shots) throw new Error(`Fase sem prints definidos: ${phase}`);
   if (!CHROME) throw new Error('Chrome não encontrado. Defina CHROME_PATH.');
   const out = path.join(ROOT, 'docs/maracana/screens', `fase-${phase}`);
@@ -107,7 +140,7 @@ async function main() {
       console.log('  ok', s.name);
       await page.close();
     }
-    if (COMPARE[phase]) await compare(browser, out, COMPARE[phase]);
+    if (COMPARE[phase] && !only) await compare(browser, out, COMPARE[phase]);
   } finally {
     await browser.close();
     server.close();

@@ -157,3 +157,11 @@ Tabela com: dado | fonte 1 | fonte 2 | fonte 3 | decisão | motivo. Ela cobre, n
 - **Geometria interna:** não existe planta pública com as alturas reais. Os anéis serão uma aproximação fiel ao contorno e aos cortes do manual, marcada como demonstração.
 - **Fontes do mapa:** se a geração dos glyphs locais falhar, os rótulos usam os glyphs do provedor de tiles, que só funcionam com internet, e os ícones continuam funcionando offline.
 - **Folha inferior:** o app não tem `@gorhom/bottom-sheet` nem reanimated. Na fase 4 decido entre adicionar essas bibliotecas (estão no Expo Go) ou fazer a folha com `Animated` e `PanResponder`, testando a fluidez.
+
+## Pedido acrescentado na aprovação da fase 2: "Onde você está?"
+O torcedor pensa em "inferior" e "superior", não em níveis 1 a 5. O app passa a ter um seletor de área: o lado, inferior/superior/camarote/premium e, se a pessoa souber, o bloco do assento. A partir da área, o app mostra os banheiros, bares etc. mais perto dela.
+- **Fase 3:** dados das áreas (`levels.json` → `areas`), destaque no mapa e câmera virada para a área (mensagem `setArea`).
+- **Fase 4:** botão "Você está em: Leste Inferior" no topo da tela, preenchido pelo ingresso quando houver.
+- **Fase 6:** "Perto de você" a partir da área, pela distância no grafo.
+
+Também na aprovação da fase 2: sem cobertura sobre o estádio, e um modelo mais parecido com o Maracanã.

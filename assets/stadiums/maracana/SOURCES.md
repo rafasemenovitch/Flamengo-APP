@@ -45,6 +45,13 @@ Os PDFs e as páginas convertidas em imagem não ficam no repositório. Para con
   - Norte e Sul: N1 de 0 a 0,43; N2 de 0,45 a 0,76; N5 de 0,76 a 1.
   - Leste: N1 de 0 a 0,43; camarotes N2 de 0,45 a 0,52; N3 de 0,52 a 1.
   - Oeste: N1; camarotes N2; camarotes e tribuna N3; cativas N5 de 0,6 a 1.
+- **Altura da bacia (3D):** um perfil único pela profundidade da faixa, igual em toda a volta, como a bacia real do Maracanã:
+  - anel inferior até 11 m;
+  - faixa de camarotes a cerca de 14 m;
+  - anel superior de 17 m a 31 m.
+  É uma aproximação visual pelos cortes do manual (Figs. 14 e 15), não um levantamento.
+- **Colunata:** 60 pilares nos eixos estruturais P00–P59 (Fig. 10), a cada 6°, com uma viga de coroamento a 28,5–31 m. A seção dos pilares (~2,4 × 3 m) é estimada. A cobertura existe nos dados, mas não é desenhada no mapa, porque esconderia arquibancadas e pontos.
+- **Áreas do "Onde você está?":** lado + inferior/superior/camarote/premium, agrupando os setores acima. Norte Superior e Sul Superior ocupam os níveis 2 (blocos 2xx) e 5 (blocos 5xx); sem o bloco, o mapa mostra o nível 2.
 - **Lados por ângulo:** Norte de −50° a 50°, Leste de 50° a 130°, Sul de 130° a 230°, Oeste de 230° a 310°.
 - **Blocos:** numerados no sentido anti-horário, como na sinalização (Fig. 8). O primeiro algarismo é o nível (manual, p. 29).
   - 101–130 no nível 1;

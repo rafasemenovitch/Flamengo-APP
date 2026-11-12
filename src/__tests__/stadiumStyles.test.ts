@@ -10,12 +10,15 @@ import path from 'node:path';
 import { validateStyleMin } from '@maplibre/maplibre-gl-style-spec';
 
 import { MAP_FONTS } from '../../map/web/fonts';
+import { PICTOGRAMS } from '../../map/web/icons';
 
 const DIR = path.join(__dirname, '../../map/styles');
 const load = (t: string) => JSON.parse(fs.readFileSync(path.join(DIR, `maracana-${t}.json`), 'utf8'));
 const styles = { light: load('light'), dark: load('dark') };
 const FAMILIES = new Set<string>(MAP_FONTS.map((f) => f.family));
-const IMAGES = new Set(['pill', 'station']);
+const POIS = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '../../assets/stadiums/maracana/pois.geojson'), 'utf8')
+).features as { properties: { category: string } }[];
 
 /** Todas as famílias citadas em text-font (inclusive dentro de "format"). */
 function fontsIn(value: unknown, out = new Set<string>()): Set<string> {
@@ -41,18 +44,39 @@ describe.each(Object.entries(styles))('estilo %s', (theme, style) => {
   });
 
   it('usa só as fontes do app e as imagens desenhadas pelo mapa', () => {
+    const cats = Object.keys(style.metadata['fla:poi']);
+    const IMAGES = new Set(['pill', 'station', 'badge', 'selected-ring', ...cats.map((c) => `poi-${c}`)]);
     for (const layer of style.layers) {
       for (const f of fontsIn(layer.layout?.['text-font'])) expect(FAMILIES.has(f)).toBe(true);
       for (const f of fontsIn(layer.layout?.['text-field'])) expect(FAMILIES.has(f)).toBe(true);
       const icon = layer.layout?.['icon-image'];
-      if (icon) expect(IMAGES.has(icon)).toBe(true);
+      if (typeof icon === 'string') expect(IMAGES.has(icon)).toBe(true);
     }
     expect(style.glyphs).toBeUndefined();
     expect(style.sprite).toBeUndefined();
   });
 
+  it('toda categoria de ponto tem cor, pictograma próprio e camada', () => {
+    const cats = Object.keys(style.metadata['fla:poi']);
+    for (const { properties } of POIS) expect(cats).toContain(properties.category);
+    for (const c of cats) {
+      expect(typeof PICTOGRAMS[c]).toBe('function');
+      expect(style.layers.some((l: any) => l.id === `poi-${c}`)).toBe(true);
+    }
+  });
+
+  it('sem cobertura: nada tapa as arquibancadas', () => {
+    expect(JSON.stringify(style.layers)).not.toMatch(/roof/);
+  });
+
+  it('nível, área, seleção e filtros são estado do estilo', () => {
+    for (const k of ['level', 'flatten', 'selectedSector', 'area', 'hidden'])
+      expect(style.state[k]).toBeDefined();
+  });
+
   it('dados do estádio ficam fora do estilo', () => {
-    for (const id of ['stadium', 'gates', 'transit']) expect(style.sources[id].data.features).toEqual([]);
+    for (const src of Object.values<any>(style.sources))
+      if (src.type === 'geojson') expect(src.data.features).toEqual([]);
     expect(style.metadata['fla:theme']).toBe(theme);
   });
 });
