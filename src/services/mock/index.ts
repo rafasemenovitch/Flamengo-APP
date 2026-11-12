@@ -7,6 +7,7 @@ import { createMockGamificationService } from './gamification';
 import { createMockMatchesService } from './matches';
 import { createMockAuthService, createMockProfileService } from './profile';
 import { withAccountProfile } from '@/services/supabase/profiles';
+import { createDemoStadiumMapService } from '@/services/stadium/DemoStadiumAdapter';
 import { createMockStadiumService, createMockTicketsService } from './tickets';
 
 export { demoMember, demoScenario, DEMO_SCENARIOS, type DemoScenario } from './demoScenario';
@@ -41,5 +42,6 @@ export function createMockServices(): Services {
     auth: createMockAuthService(),
     profile,
     bolao: createMockBolaoService(),
+    venueMap: createDemoStadiumMapService(),
   };
 }

@@ -26,7 +26,14 @@ export function createBridge(opts: {
   emit?: (msg: FromMap) => void;
   preserveDrawingBuffer?: boolean;
 }): Bridge {
-  const emit = opts.emit ?? ((msg: FromMap) => window.ReactNativeWebView?.postMessage(JSON.stringify(msg)));
+  // No app: ReactNativeWebView. Na versão web do app o mapa roda num iframe: avisa a janela-mãe.
+  const emit =
+    opts.emit ??
+    ((msg: FromMap) => {
+      const raw = JSON.stringify(msg);
+      if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(raw);
+      else if (window.parent !== window) window.parent.postMessage(raw, '*');
+    });
   let sm: StadiumMap | null = null;
   const pending: ToMap[] = [];
 
@@ -35,6 +42,8 @@ export function createBridge(opts: {
     switch (msg.type) {
       case 'setTheme':
         return sm.setTheme(msg.theme);
+      case 'setInsets':
+        return sm.setInsets(msg.top, msg.bottom, msg.right ?? 0);
       case 'setLevel':
         return sm.setLevel(msg.level);
       case 'setFilters':
@@ -90,6 +99,7 @@ export function createBridge(opts: {
   };
   window.addEventListener('message', onMessage);
   document.addEventListener('message', onMessage);
+  emit({ type: 'loaded' });
 
   return { handle, map: () => sm };
 }

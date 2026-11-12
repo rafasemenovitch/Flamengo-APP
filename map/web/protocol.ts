@@ -7,25 +7,10 @@
  */
 import type { StyleSpecification } from 'maplibre-gl';
 
-import type { Area, Level, Sector, Venue } from '../../src/services/stadium/types';
+import type { LevelsFile, StadiumData } from '../../src/services/stadium/types';
 
-type FC = import('geojson').FeatureCollection;
+export type { LevelsFile, StadiumData };
 export type Theme = 'light' | 'dark';
-
-/** Conteúdo de levels.json. */
-export interface LevelsFile {
-  levels: Level[];
-  areas: Area[];
-  sectors: Sector[];
-}
-
-export interface StadiumData {
-  venue: Venue;
-  levels: LevelsFile;
-  stadium: FC;
-  gates: FC;
-  pois: FC;
-}
 
 /** Nível ativo, ou 'all' para a visão geral do estádio (sem pontos). */
 export type LevelId = string | 'all';
@@ -40,6 +25,8 @@ export type ToMap =
       level?: LevelId;
     }
   | { type: 'setTheme'; theme: Theme }
+  /** Espaço coberto pela interface do app (topo e folha inferior), em pixels lógicos. */
+  | { type: 'setInsets'; top: number; bottom: number; right?: number }
   | { type: 'setLevel'; level: LevelId }
   | { type: 'setFilters'; hidden: string[] }
   /** "Onde você está?": área do torcedor; `block` (ex.: "512") escolhe o nível quando a área tem mais de um. */
@@ -61,6 +48,8 @@ export interface CameraState {
 
 /** Mapa → app */
 export type FromMap =
+  /** A página carregou e espera o `init` (antes disso, mensagens se perderiam). */
+  | { type: 'loaded' }
   | { type: 'ready' }
   | { type: 'levelChanged'; level: LevelId }
   | { type: 'poiTapped'; id: string }

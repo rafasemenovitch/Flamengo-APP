@@ -256,7 +256,7 @@ export const SECTOR_OFFERS: SectorOffer[] = [
   {
     sectorId: 'norte',
     name: 'Norte',
-    gate: 'A',
+    gate: 'E',
     priceFull: 120,
     priceHalf: 60,
     priceMember: 42,
@@ -265,7 +265,7 @@ export const SECTOR_OFFERS: SectorOffer[] = [
   {
     sectorId: 'sul',
     name: 'Sul',
-    gate: 'E',
+    gate: 'C',
     priceFull: 120,
     priceHalf: 60,
     priceMember: 42,
@@ -274,7 +274,7 @@ export const SECTOR_OFFERS: SectorOffer[] = [
   {
     sectorId: 'leste-inf',
     name: 'Leste Inferior',
-    gate: 'C',
+    gate: 'D',
     priceFull: 160,
     priceHalf: 80,
     priceMember: 56,
@@ -283,7 +283,7 @@ export const SECTOR_OFFERS: SectorOffer[] = [
   {
     sectorId: 'leste-sup',
     name: 'Leste Superior',
-    gate: 'C',
+    gate: 'D',
     priceFull: 140,
     priceHalf: 70,
     priceMember: 49,
@@ -292,7 +292,7 @@ export const SECTOR_OFFERS: SectorOffer[] = [
   {
     sectorId: 'oeste-inf',
     name: 'Oeste Inferior',
-    gate: 'F',
+    gate: 'A',
     priceFull: 220,
     priceHalf: 110,
     priceMember: 77,
@@ -301,7 +301,7 @@ export const SECTOR_OFFERS: SectorOffer[] = [
   {
     sectorId: 'oeste-sup',
     name: 'Oeste Superior',
-    gate: 'F',
+    gate: 'A',
     priceFull: 190,
     priceHalf: 95,
     priceMember: 66,

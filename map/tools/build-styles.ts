@@ -586,12 +586,18 @@ function build(theme: Theme) {
       position: [1.15, 200, 35],
     },
     sources: {
-      openmaptiles: { type: 'vector', url: BASE.sources.openmaptiles.url },
+      // Atribuição curta, numa linha (substitui a do TileJSON; continua citando todos).
+      openmaptiles: {
+        type: 'vector',
+        url: BASE.sources.openmaptiles.url,
+        attribution:
+          '<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> <a href="https://www.openmaptiles.org/" target="_blank">© OpenMapTiles</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap</a>',
+      },
       // tolerance/maxzoom baixos: círculos e arcos do campo sem facetas de perto.
       stadium: {
         type: 'geojson',
         data: EMPTY,
-        attribution: '© OpenStreetMap contributors',
+        attribution: '<a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap</a>',
         maxzoom: 20,
         tolerance: 0.1,
       },

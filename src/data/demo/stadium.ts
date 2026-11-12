@@ -19,6 +19,7 @@ export const STADIUM: Stadium = {
   sectors: [
     {
       id: 'norte',
+      areaId: 'norte-inferior',
       name: 'Norte',
       arc: [315, 45],
       ring: 'full',
@@ -28,6 +29,7 @@ export const STADIUM: Stadium = {
     },
     {
       id: 'leste-inf',
+      areaId: 'leste-inferior',
       name: 'Leste Inferior',
       arc: [45, 135],
       ring: 'lower',
@@ -36,6 +38,7 @@ export const STADIUM: Stadium = {
     },
     {
       id: 'leste-sup',
+      areaId: 'leste-superior',
       name: 'Leste Superior',
       arc: [45, 135],
       ring: 'upper',
@@ -44,6 +47,7 @@ export const STADIUM: Stadium = {
     },
     {
       id: 'sul',
+      areaId: 'sul-inferior',
       name: 'Sul',
       arc: [135, 198],
       ring: 'full',
@@ -52,6 +56,7 @@ export const STADIUM: Stadium = {
     },
     {
       id: 'oeste-inf',
+      areaId: 'oeste-inferior',
       name: 'Oeste Inferior',
       arc: [225, 315],
       ring: 'lower',
@@ -61,6 +66,7 @@ export const STADIUM: Stadium = {
     },
     {
       id: 'oeste-sup',
+      areaId: 'oeste-superior',
       name: 'Oeste Superior',
       arc: [225, 315],
       ring: 'upper',
@@ -69,6 +75,7 @@ export const STADIUM: Stadium = {
     },
     {
       id: 'visitante',
+      areaId: 'sul-inferior',
       name: 'Visitante',
       arc: [198, 225],
       ring: 'full',
@@ -76,56 +83,68 @@ export const STADIUM: Stadium = {
       viewImageKey: 'view-visitante',
     },
   ],
+  // Portões e ruas conforme assets/stadiums/maracana (fase 1 do Modo Maracanã): A = Oeste
+  // (UERJ), B e C = Sul, D = Leste (Bellini), E e F = Norte. x/y: posição no esquema da compra.
   gates: [
     {
       id: 'A',
       label: 'Portão A',
-      sectorIds: ['norte'],
-      x: 50,
-      y: 3,
-      coords: at(0.0011, 0),
+      sectorIds: ['oeste-inf', 'oeste-sup'],
+      x: 8,
+      y: 50,
+      coords: { latitude: -22.9111717, longitude: -43.2325458 },
       accessible: true,
-      access: 'Pela passarela da estação Maracanã',
+      access: 'Rua Prof. Manoel de Abreu, lado da UERJ',
     },
     {
       id: 'B',
       label: 'Portão B',
-      sectorIds: ['visitante'],
-      x: 30,
-      y: 94,
-      coords: at(-0.0009, -0.0009),
-      accessible: false,
-      access: 'Acesso exclusivo da torcida visitante',
+      sectorIds: ['visitante', 'sul'],
+      x: 40,
+      y: 96,
+      coords: { latitude: -22.9133173, longitude: -43.2315264 },
+      accessible: true,
+      access: 'Rua Prof. Eurico Rabelo, ao lado da estação Maracanã',
     },
     {
       id: 'C',
       label: 'Portão C',
+      sectorIds: ['sul'],
+      x: 60,
+      y: 96,
+      coords: { latitude: -22.9137896, longitude: -43.230668 },
+      accessible: true,
+      access: 'Rua Prof. Eurico Rabelo',
+    },
+    {
+      id: 'D',
+      label: 'Portão D',
       sectorIds: ['leste-inf', 'leste-sup'],
       x: 92,
       y: 50,
-      coords: at(0, 0.0014),
+      coords: { latitude: -22.913625, longitude: -43.2281405 },
       accessible: true,
-      access: 'Pela Av. Radial Oeste',
+      access: 'Avenida Maracanã, junto à estátua do Bellini',
     },
     {
       id: 'E',
       label: 'Portão E',
-      sectorIds: ['sul'],
-      x: 50,
-      y: 97,
-      coords: at(-0.0012, 0),
+      sectorIds: ['norte'],
+      x: 60,
+      y: 4,
+      coords: { latitude: -22.9111112, longitude: -43.2287337 },
       accessible: true,
-      access: 'Pela Rua Prof. Eurico Rabelo',
+      access: 'Av. Rei Pelé (Radial Oeste) e Rua Mata Machado',
     },
     {
       id: 'F',
       label: 'Portão F',
-      sectorIds: ['oeste-inf', 'oeste-sup'],
-      x: 8,
-      y: 50,
-      coords: at(0, -0.0015),
+      sectorIds: ['norte'],
+      x: 40,
+      y: 4,
+      coords: { latitude: -22.9105566, longitude: -43.2307468 },
       accessible: true,
-      access: 'Pelo lado da UERJ',
+      access: 'Av. Rei Pelé (Radial Oeste)',
     },
   ],
   facilities: [
@@ -246,7 +265,7 @@ export const STADIUM: Stadium = {
       details: 'Linha 2. A passarela leva direto ao estádio.',
       coords: at(0.0029, -0.0031),
       mapsQuery: 'Estação Maracanã Metrô Rio, Rio de Janeiro',
-      bestGateIds: ['A', 'F'],
+      bestGateIds: ['A', 'B', 'C'],
       walkMinutes: 6,
     },
     {
@@ -256,18 +275,18 @@ export const STADIUM: Stadium = {
       details: 'Ramais Deodoro, Santa Cruz e Japeri.',
       coords: at(0.0033, -0.0026),
       mapsQuery: 'Estação Maracanã SuperVia, Rio de Janeiro',
-      bestGateIds: ['A', 'F'],
+      bestGateIds: ['B', 'C', 'A'],
       walkMinutes: 8,
     },
     {
       id: 't-metro-sao-cristovao',
       mode: 'metro',
       title: 'Metrô — Estação São Cristóvão',
-      details: 'Linhas 1 e 2. Costuma ter menos fila na saída.',
+      details: 'Linha 2. Costuma ter menos fila na saída.',
       coords: at(0.0014, 0.0083),
       mapsQuery: 'Estação São Cristóvão Metrô Rio, Rio de Janeiro',
-      bestGateIds: ['C', 'E'],
-      walkMinutes: 14,
+      bestGateIds: ['D', 'E', 'F'],
+      walkMinutes: 12,
     },
     {
       id: 't-onibus-radial',
@@ -276,7 +295,7 @@ export const STADIUM: Stadium = {
       details: 'Diversas linhas param em frente ao estádio.',
       coords: at(-0.0006, 0.0027),
       mapsQuery: 'Avenida Radial Oeste, Maracanã, Rio de Janeiro',
-      bestGateIds: ['C', 'E'],
+      bestGateIds: ['E', 'F'],
       walkMinutes: 5,
     },
     {
@@ -286,7 +305,7 @@ export const STADIUM: Stadium = {
       details: 'Embarque e desembarque pela Rua Prof. Eurico Rabelo.',
       coords: at(-0.0021, 0.0012),
       mapsQuery: 'Rua Professor Eurico Rabelo, Maracanã, Rio de Janeiro',
-      bestGateIds: ['E', 'C'],
+      bestGateIds: ['C', 'B'],
       walkMinutes: 4,
     },
   ],
@@ -299,6 +318,6 @@ export const STADIUM: Stadium = {
 };
 
 /** Esperas simuladas por portão (minutos). */
-export const GATE_QUEUES: Record<string, number> = { A: 18, B: 6, C: 9, E: 14, F: 7 };
+export const GATE_QUEUES: Record<string, number> = { A: 18, B: 6, C: 9, D: 12, E: 14, F: 7 };
 
 export const MATCH_DAY_NOTICES = STADIUM.tips;

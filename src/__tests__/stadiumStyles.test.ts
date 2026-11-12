@@ -60,7 +60,7 @@ describe.each(Object.entries(styles))('estilo %s', (theme, style) => {
     const cats = Object.keys(style.metadata['fla:poi']);
     for (const { properties } of POIS) expect(cats).toContain(properties.category);
     for (const c of cats) {
-      expect(typeof PICTOGRAMS[c]).toBe('function');
+      expect(PICTOGRAMS[c]?.length).toBeGreaterThan(0);
       expect(style.layers.some((l: any) => l.id === `poi-${c}`)).toBe(true);
     }
   });

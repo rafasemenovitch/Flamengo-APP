@@ -7,6 +7,6 @@ module.exports = defineConfig([
   expoConfig,
   prettier,
   {
-    ignores: ['dist/*', 'scripts/*', '.expo/*', 'map/dev/build/*', 'map/build/*'],
+    ignores: ['dist/*', 'scripts/*', '.expo/*', 'map/dev/build/*', 'map/build/*', 'src/services/stadium/generated/*'],
   },
 ]);

@@ -201,3 +201,22 @@ export interface Venue {
   help: HelpChannel[];
   defaultLevel: string;
 }
+
+/** Conteúdo de levels.json. */
+export interface LevelsFile {
+  levels: Level[];
+  areas: Area[];
+  sectors: Sector[];
+  ramps: Ramp[];
+}
+
+type FeatureCollection = import('geojson').FeatureCollection;
+
+/** Tudo o que o mapa precisa de um estádio (gerado de assets/stadiums/<id>/). */
+export interface StadiumData {
+  venue: Venue;
+  levels: LevelsFile;
+  stadium: FeatureCollection;
+  gates: FeatureCollection;
+  pois: FeatureCollection;
+}

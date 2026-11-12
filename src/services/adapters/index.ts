@@ -1,3 +1,4 @@
+import type { StadiumMapService } from '@/services/stadium/StadiumMapService';
 import type { AssistantService } from './AssistantService';
 import type { BolaoService } from './BolaoService';
 import type { FlaTVService, NewsService, RecommendationService } from './ContentService';
@@ -28,6 +29,8 @@ export interface Services {
   recommendations: RecommendationService;
   tickets: TicketsService;
   stadium: StadiumService;
+  /** Mapa 3D do estádio (Modo Maracanã). */
+  venueMap: StadiumMapService;
   store: StoreService;
   membership: MembershipService;
   gamification: GamificationService;

@@ -8,8 +8,8 @@ Reconstrução do Modo Maracanã como mapa geográfico real (MapLibre GL JS em W
 |---|---|---|
 | 1 | Pesquisa e dados | Aprovada |
 | 2 | Mapa isolado no navegador: estilos, 3D, gramado, portões, câmera | Aprovada |
-| 3 | Interação: níveis, "Onde você está?", ícones, rótulos, toques, ponte de mensagens | **Entregue, aguardando aprovação** |
-| 4 | Integração no app (WebView, folha inferior, busca, cards) | — |
+| 3 | Interação: níveis, "Onde você está?", ícones, rótulos, toques, ponte de mensagens | Aprovada |
+| 4 | Integração no app (WebView, folha inferior, busca, cards) | **Entregue, aguardando aprovação** |
 | 5 | Localização (GPS, fora do estádio, simulação para demo) | — |
 | 6 | Mais perto e rotas (grafo, modo acessível) | — |
 | 7 | Acabamento (vista do lugar, animações, estados, desempenho) | — |
@@ -22,6 +22,9 @@ Reconstrução do Modo Maracanã como mapa geográfico real (MapLibre GL JS em W
 - **Mapa no navegador:** `npm run map:dev` e depois http://localhost:8787/map/dev/index.html. Painel com tema, "Sem tiles" e recentralizar. Parâmetros: `?theme=light|dark`, `&tiles=0`, `&panel=0`, `&level=1|2|3|5`, `&area=<id>&block=512`, `&poi=<id>`, `&sector=<id>`, `&filter=banheiros|acessibilidade`, `&zoom=`, `&cam=close|rotated|min|far`.
 - **Código do mapa:** `map/web/`. `stadiumMap.ts` (núcleo), `bridge.ts` e `protocol.ts` (mensagens com o app), `icons.ts` (pictogramas próprios), `images.ts`, `fonts.ts`. É o mesmo código que vai para a WebView na fase 4.
 - **Estilos:** `map/styles/maracana-{light,dark}.json`, **gerados** por `npm run map:styles` (`map/tools/build-styles.ts`) a partir da cópia do Positron do OpenFreeMap em `map/tools/sources/`. Não editar os JSON à mão. `src/__tests__/stadiumStyles.test.ts` valida os dois.
+- **Tela do app:** `src/features/maracana/` (`MaracanaScreen.tsx`, `StadiumMapView.tsx` com a WebView, `.web.tsx` com iframe para os prints, e `components/`). Serviço genérico em `src/services/stadium/` (`StadiumMapService`, `DemoStadiumAdapter`, `query.ts` com busca, distâncias e referências).
+- **O que o app carrega, gerado por `npm run map:build`:** `map/build/mapHtml.js` (HTML único da WebView: MapLibre, `map/web` e as fontes do app embutidos) e `src/services/stadium/generated/<estádio>.js` (os dados, porque o Metro não lê `.geojson`). Depois de mudar dados, estilos ou `map/web`, rode `npm run map:build` e faça commit dos gerados.
+- **Prints do app (web):** `npx expo export --platform web --output-dir <pasta>` e `npx tsx map/tools/app-shots.ts <pasta> <saída> [tema] nome=query|passos` (ver o cabeçalho do arquivo). A versão web aceita `?rota=StadiumMode` para abrir a tela direto.
 - **Relatório visual:** `npm run map:dev` e depois http://localhost:8787/map/dev/report.html. Parâmetros: `?level=1|2|3|5|all`, `&graph=1`, `&zoom=`.
 - **Prints:** `npm run map:shots -- <fase>`, salvos em `screens/fase-<n>/`. Usa o Chrome instalado; se ele estiver em outro lugar, defina `CHROME_PATH`.
 - **Tipos genéricos de estádio:** `src/services/stadium/types.ts`.
@@ -72,3 +75,31 @@ Prints em [`screens/fase-3/`](screens/fase-3/), nos dois temas.
 - **Fase 4:** a interface no app. O seletor "Onde você está?" vira um botão no topo, e a folha inferior traz a busca, os chips, os cards e o selo "Posições aproximadas · demonstração". Os cartões da página de desenvolvimento são só para testar.
 - **Fase 6:** a resposta "banheiro e bar mais perto da sua área", calculada pelo grafo de corredores (não em linha reta), com o tempo a pé.
 - Os pontos continuam com posição aproximada (cinza no relatório da fase 1) até virem as plantas oficiais.
+
+## Fase 4: integração no app
+
+Prints do app em [`screens/fase-4/`](screens/fase-4/), nos dois temas. A `comparacao-referencias.png` põe lado a lado SoFi, Tottenham, a Home do app e o Modo Maracanã.
+
+**Identidade (regra principal do CLAUDE.md):** a tela foi desenhada a partir das telas que já existem, não de um modelo de app de mapa.
+- "Você está em" e os títulos do detalhe usam a Anybody grande, como "Rafael" e "Raça" na Home.
+- Os campos (NÍVEL, PORTÃO, FILA AGORA, DAQUI) seguem os campos do ingresso.
+- Os atalhos (Banheiros, Comer, Saúde…) têm o mesmo desenho dos atalhos da Home: ícone e rótulo com fio vertical, o ativo em vermelho.
+- As listas usam linhas com fio fino, sem cards.
+- Botões com raio 12. As etiquetas dos portões no mapa deixaram de ser pílulas e viraram retângulos de raio 8, como os selos.
+- Os pictogramas são próprios e os mesmos no mapa, na lista e nos atalhos (caminhos SVG em `map/web/icons.ts`), sem ícones genéricos.
+- O seletor de nível é uma coluna de números em Anybody, como o painel de um elevador, em vez da pílula "Level 6" do SoFi.
+
+**O que tem:**
+- O mapa 3D a tela inteira, numa WebView que roda no Expo Go, sem módulo nativo novo. O HTML vem embutido e funciona sem internet; só o mapa de base é online.
+- **"Você está em"**: vem do ingresso de hoje (setor, bloco 118 → nível 1) ou da escolha da pessoa no seletor, por lado e anel, com o bloco opcional. "Limpar" volta ao estádio inteiro.
+- **Folha inferior** com três alturas e arraste: busca com sinônimos ("wc", "lanche", "médico", "Bellini", "racismo"), atalhos que filtram o mapa, "Mais perto de você" (banheiro, comida, bebidas, posto médico e saída), portões com fila, como chegar e ajuda e denúncia com os telefones.
+- **Detalhes** de ponto, setor ("Estou aqui") e portão (fila, setores, rota a pé no app de mapas). Ponto estimado mostra "Posição aproximada"; o topo da tela mostra "Posições aproximadas" sempre.
+- **Tema** sincronizado com o app.
+- **Coerência dos dados:** os portões da demonstração foram corrigidos para os apurados na fase 1 (A Oeste/UERJ, B e C Sul, D Leste/Bellini, E e F Norte). O ingresso, as ofertas de setor, o assistente e o mapa agora dizem o mesmo; um teste garante.
+- A tela antiga (esquema SVG, abas "Como chegar" e "Filas") e o `react-native-maps` saíram. "Como chegar" e as filas estão na folha.
+
+**Ainda falta:**
+- **Fase 5:** a posição do usuário (GPS, "Você está fora do Maracanã") e a simulação para a demo.
+- **Fase 6:** distâncias e "mais perto" pelos corredores, com tempo a pé e rota desenhada. Hoje as distâncias são em linha reta, a partir do centro da sua área.
+- **Vista do seu lugar** e o estado "sem internet" com aviso: fase 7.
+- **Expo Go:** os prints são da versão web do app (o mesmo código, com iframe no lugar da WebView). Falta conferir no celular.

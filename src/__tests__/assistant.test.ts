@@ -19,7 +19,7 @@ describe('Assistente Fla (mock)', () => {
   it('responde o portão a partir do ingresso, com fonte', async () => {
     const r = await assistant.ask('Qual portão do meu setor?', []);
     expect(r.grounded).toBe(true);
-    expect(r.text).toContain('Portão C');
+    expect(r.text).toContain('Portão D');
     expect(r.sources.length).toBeGreaterThan(0);
   });
 

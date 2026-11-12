@@ -92,6 +92,8 @@ const PHASES: Record<string, Shot[]> = {
 const COMPARE: Record<string, string[]> = {
   '2': ['01-inicial-claro', '02-inicial-escuro'],
   '3': ['03-nivel-1-claro', '08-nivel-5-escuro'],
+  // Fase 4: prints do app (map/tools/app-shots.ts); a Home entra para comparar a identidade.
+  '4': ['00-home-do-app-escuro', '01-abertura-com-ingresso-escuro', '02-perto-de-voce-claro'],
 };
 
 async function compare(browser: import('playwright-core').Browser, out: string, ours: string[]) {
@@ -115,7 +117,9 @@ async function main() {
   const phase = process.argv[2] ?? '1';
   // Terceiro argumento opcional: só os prints cujo nome contém o texto (ex.: "nivel-1").
   const only = process.argv[3];
-  const shots = PHASES[phase]?.filter((s) => !only || s.name.includes(only));
+  const shots = (PHASES[phase] ?? (COMPARE[phase] ? [] : undefined))?.filter(
+    (s) => !only || s.name.includes(only)
+  );
   if (!shots) throw new Error(`Fase sem prints definidos: ${phase}`);
   if (!CHROME) throw new Error('Chrome não encontrado. Defina CHROME_PATH.');
   const out = path.join(ROOT, 'docs/maracana/screens', `fase-${phase}`);

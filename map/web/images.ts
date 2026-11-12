@@ -5,7 +5,7 @@
  */
 import type { Map as MlMap, StyleSpecification } from 'maplibre-gl';
 
-import { PICTOGRAMS } from './icons';
+import { PICTOGRAMS, type Stroke } from './icons';
 
 type ImageColors = {
   pill: { fill: string; stroke: string };
@@ -26,13 +26,17 @@ function canvas(w: number, h: number) {
   return { c, ctx };
 }
 
-/** Pílula esticável: só o miolo estica, as pontas arredondadas ficam fixas. */
-function pill({ fill, stroke }: ImageColors['pill'], H = 26) {
-  const W = H + 14,
-    R = H / 2;
+/**
+ * Etiqueta esticável: só o miolo estica, os cantos ficam fixos. `corner` = raio do canto;
+ * a etiqueta dos portões usa o raio 8 dos botões e selos do app (nada de pílula); o
+ * contador da aglomeração é redondo.
+ */
+function pill({ fill, stroke }: ImageColors['pill'], H = 26, corner = H / 2) {
+  const R = Math.max(corner, H / 2.6);
+  const W = H + 14;
   const { c, ctx } = canvas(W, H);
   ctx.beginPath();
-  ctx.roundRect(0.75, 0.75, W - 1.5, H - 1.5, R - 0.75);
+  ctx.roundRect(0.75, 0.75, W - 1.5, H - 1.5, corner - 0.75);
   ctx.fillStyle = fill;
   ctx.fill();
   ctx.lineWidth = 1;
@@ -44,7 +48,7 @@ function pill({ fill, stroke }: ImageColors['pill'], H = 26) {
     options: {
       pixelRatio: RATIO,
       stretchX: [[R * RATIO, (W - R) * RATIO]] as [number, number][],
-      stretchY: [[R * RATIO - 1, R * RATIO + 1]] as [number, number][],
+      stretchY: [[(H / 2) * RATIO - 1, (H / 2) * RATIO + 1]] as [number, number][],
       content: [R * RATIO * 0.6, (H / 8.7) * RATIO, (W - R * 0.6) * RATIO, (H - H / 8.7) * RATIO] as [
         number,
         number,
@@ -94,7 +98,7 @@ function station({ fill, glyph }: ImageColors['station']) {
 /** Ícone de ponto de interesse: círculo da categoria, borda clara, sombra suave e pictograma branco. */
 const POI = 34; // tamanho lógico com margem para a sombra
 const POI_R = 13;
-function poiIcon(color: string, draw: (ctx: CanvasRenderingContext2D) => void) {
+function poiIcon(color: string, strokes: Stroke[]) {
   const { c, ctx } = canvas(POI, POI);
   const m = POI / 2;
   ctx.save();
@@ -116,10 +120,16 @@ function poiIcon(color: string, draw: (ctx: CanvasRenderingContext2D) => void) {
   ctx.scale(k, k);
   ctx.fillStyle = '#FFFFFF';
   ctx.strokeStyle = '#FFFFFF';
-  ctx.lineWidth = 2.2;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  draw(ctx);
+  for (const st of strokes) {
+    const path = new Path2D(st.d);
+    if (st.fill) ctx.fill(path);
+    else {
+      ctx.lineWidth = (st.width ?? 2) * 1.1;
+      ctx.stroke(path);
+    }
+  }
   ctx.restore();
   return { data: ctx.getImageData(0, 0, c.width, c.height), options: { pixelRatio: RATIO } };
 }
@@ -144,7 +154,7 @@ export function applyStyleImages(map: MlMap, style: StyleSpecification) {
   const meta = style.metadata as Meta;
   const colors = meta['fla:images'];
   const images: Record<string, { data: ImageData; options: object }> = {
-    pill: pill(colors.pill),
+    pill: pill(colors.pill, 26, 8),
     badge: pill(colors.badge, 15),
     station: station(colors.station),
     'selected-ring': selectedRing(colors.selected),

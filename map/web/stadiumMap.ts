@@ -208,6 +208,18 @@ export class StadiumMap {
     this.applyPois();
   }
 
+  /**
+   * Área coberta pela interface do app: a câmera centraliza no que sobra e a atribuição
+   * do mapa sobe para ficar visível acima da folha inferior.
+   */
+  setInsets(top: number, bottom: number, right = 0) {
+    this.opts.container.style.setProperty('--attrib-bottom', `${bottom}px`);
+    const apply = () => this.map.setPadding({ top, bottom, left: 0, right });
+    // Mudar a margem durante um voo interromperia a animação: espera ela terminar.
+    if (this.map.isMoving()) this.map.once('moveend', apply);
+    else apply();
+  }
+
   // ───────────────────────────── níveis
   getLevel() {
     return this.level;

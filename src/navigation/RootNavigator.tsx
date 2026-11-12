@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import {
   DarkTheme,
   DefaultTheme,
@@ -35,12 +36,12 @@ import { BolaoScreen } from '@/features/bolao/BolaoScreen';
 import { TrailScreen } from '@/features/nation/gamification/TrailScreen';
 import { EditProfileScreen } from '@/features/profile/EditProfileScreen';
 import { SettingsScreen } from '@/features/profile/SettingsScreen';
-import { StadiumModeScreen } from '@/features/stadium/StadiumModeScreen';
+import { MaracanaScreen } from '@/features/maracana/MaracanaScreen';
 import { FaceEnrollmentScreen } from '@/features/tickets/FaceEnrollmentScreen';
 import { TicketDetailScreen } from '@/features/tickets/TicketDetailScreen';
 import { TicketPurchaseScreen } from '@/features/tickets/TicketPurchaseScreen';
 import { TicketWalletScreen } from '@/features/tickets/TicketWalletScreen';
-import { navigationRef } from './navigationRef';
+import { navigateByName, navigationRef } from './navigationRef';
 import { TabNavigator } from './TabNavigator';
 import type { RootStackParamList } from './types';
 
@@ -67,7 +68,7 @@ export function RootNavigator() {
   }, [theme]);
 
   return (
-    <NavigationContainer ref={navigationRef} theme={navTheme}>
+    <NavigationContainer ref={navigationRef} theme={navTheme} onReady={openRouteFromUrl}>
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
@@ -92,7 +93,7 @@ export function RootNavigator() {
           component={FaceEnrollmentScreen}
           options={{ gestureEnabled: false }}
         />
-        <Stack.Screen name="StadiumMode" component={StadiumModeScreen} />
+        <Stack.Screen name="StadiumMode" component={MaracanaScreen} />
         <Stack.Screen name="Store" component={StoreScreen} />
         <Stack.Screen name="Product" component={ProductScreen} />
         <Stack.Screen name="Cart" component={CartScreen} />
@@ -125,4 +126,17 @@ export function RootNavigator() {
       </Stack.Navigator>
     </NavigationContainer>
   );
+}
+
+/**
+ * Só na versão web (prints de verificação): `?rota=StadiumMode&sectorId=...` abre a tela
+ * direto. No celular não faz nada.
+ */
+function openRouteFromUrl() {
+  if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+  const q = new URLSearchParams(window.location.search);
+  const route = q.get('rota');
+  if (!route) return;
+  q.delete('rota');
+  navigateByName(route, Object.fromEntries(q));
 }

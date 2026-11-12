@@ -9,6 +9,8 @@ export interface LatLng {
 
 export interface StadiumSector {
   id: string;
+  /** Área correspondente no mapa do estádio (levels.json → areas), para o "Onde você está?". */
+  areaId: string;
   name: string;
   /** Ângulo inicial/final do arco do setor, em graus (0 = topo, sentido horário). */
   arc: [number, number];
