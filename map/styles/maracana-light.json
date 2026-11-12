@@ -107,6 +107,13 @@
         "features": []
       }
     },
+    "user": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      }
+    },
     "poi-escada": {
       "type": "geojson",
       "data": {
@@ -5389,12 +5396,237 @@
           19,
           13
         ],
+        "text-anchor": "bottom",
+        "text-offset": [
+          0,
+          -0.7
+        ],
         "text-allow-overlap": true,
         "icon-allow-overlap": true,
         "symbol-z-order": "source"
       },
       "paint": {
         "text-color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "user-accuracy",
+      "type": "fill",
+      "source": "user",
+      "filter": [
+        "==",
+        [
+          "get",
+          "kind"
+        ],
+        "accuracy"
+      ],
+      "paint": {
+        "fill-color": "#C8102E",
+        "fill-opacity": [
+          "*",
+          0.12,
+          [
+            "case",
+            [
+              "any",
+              [
+                "==",
+                [
+                  "global-state",
+                  "level"
+                ],
+                "all"
+              ],
+              [
+                "==",
+                [
+                  "get",
+                  "level"
+                ],
+                ""
+              ],
+              [
+                "==",
+                [
+                  "get",
+                  "level"
+                ],
+                [
+                  "global-state",
+                  "level"
+                ]
+              ]
+            ],
+            1,
+            0.4
+          ]
+        ]
+      }
+    },
+    {
+      "id": "user-accuracy-edge",
+      "type": "line",
+      "source": "user",
+      "filter": [
+        "==",
+        [
+          "get",
+          "kind"
+        ],
+        "accuracy"
+      ],
+      "paint": {
+        "line-color": "#C8102E",
+        "line-width": 1,
+        "line-opacity": [
+          "*",
+          0.45,
+          [
+            "case",
+            [
+              "any",
+              [
+                "==",
+                [
+                  "global-state",
+                  "level"
+                ],
+                "all"
+              ],
+              [
+                "==",
+                [
+                  "get",
+                  "level"
+                ],
+                ""
+              ],
+              [
+                "==",
+                [
+                  "get",
+                  "level"
+                ],
+                [
+                  "global-state",
+                  "level"
+                ]
+              ]
+            ],
+            1,
+            0.4
+          ]
+        ]
+      }
+    },
+    {
+      "id": "user-pulse",
+      "type": "circle",
+      "source": "user",
+      "filter": [
+        "==",
+        [
+          "get",
+          "kind"
+        ],
+        "position"
+      ],
+      "paint": {
+        "circle-color": "#C8102E",
+        "circle-radius": 9,
+        "circle-opacity": 0,
+        "circle-pitch-alignment": "viewport"
+      }
+    },
+    {
+      "id": "user-dot",
+      "type": "circle",
+      "source": "user",
+      "filter": [
+        "==",
+        [
+          "get",
+          "kind"
+        ],
+        "position"
+      ],
+      "paint": {
+        "circle-color": "#C8102E",
+        "circle-radius": 7,
+        "circle-stroke-color": "#FFFFFF",
+        "circle-stroke-width": 2.5,
+        "circle-opacity": [
+          "case",
+          [
+            "any",
+            [
+              "==",
+              [
+                "global-state",
+                "level"
+              ],
+              "all"
+            ],
+            [
+              "==",
+              [
+                "get",
+                "level"
+              ],
+              ""
+            ],
+            [
+              "==",
+              [
+                "get",
+                "level"
+              ],
+              [
+                "global-state",
+                "level"
+              ]
+            ]
+          ],
+          1,
+          0.4
+        ],
+        "circle-stroke-opacity": [
+          "case",
+          [
+            "any",
+            [
+              "==",
+              [
+                "global-state",
+                "level"
+              ],
+              "all"
+            ],
+            [
+              "==",
+              [
+                "get",
+                "level"
+              ],
+              ""
+            ],
+            [
+              "==",
+              [
+                "get",
+                "level"
+              ],
+              [
+                "global-state",
+                "level"
+              ]
+            ]
+          ],
+          1,
+          0.4
+        ],
+        "circle-pitch-alignment": "viewport"
       }
     },
     {

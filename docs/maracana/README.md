@@ -9,8 +9,8 @@ Reconstrução do Modo Maracanã como mapa geográfico real (MapLibre GL JS em W
 | 1 | Pesquisa e dados | Aprovada |
 | 2 | Mapa isolado no navegador: estilos, 3D, gramado, portões, câmera | Aprovada |
 | 3 | Interação: níveis, "Onde você está?", ícones, rótulos, toques, ponte de mensagens | Aprovada |
-| 4 | Integração no app (WebView, folha inferior, busca, cards) | **Entregue, aguardando aprovação** |
-| 5 | Localização (GPS, fora do estádio, simulação para demo) | — |
+| 4 | Integração no app (WebView, folha inferior, busca, cards) | Aprovada |
+| 5 | Localização (GPS, fora do estádio, simulação para demo) | **Entregue, aguardando aprovação** |
 | 6 | Mais perto e rotas (grafo, modo acessível) | — |
 | 7 | Acabamento (vista do lugar, animações, estados, desempenho) | — |
 
@@ -103,3 +103,25 @@ Prints do app em [`screens/fase-4/`](screens/fase-4/), nos dois temas. A `compar
 - **Fase 6:** distâncias e "mais perto" pelos corredores, com tempo a pé e rota desenhada. Hoje as distâncias são em linha reta, a partir do centro da sua área.
 - **Vista do seu lugar** e o estado "sem internet" com aviso: fase 7.
 - **Expo Go:** os prints são da versão web do app (o mesmo código, com iframe no lugar da WebView). Falta conferir no celular.
+
+## Fase 5: localização
+
+Prints em [`screens/fase-5/`](screens/fase-5/), nos dois temas. O GPS real foi testado de ponta a ponta na versão web com uma posição falsa do navegador (`GEO="lat,lng,precisão"` em `map/tools/app-shots.ts`).
+
+**O que tem:**
+- **Pedido no momento certo:** a permissão só é pedida quando a pessoa toca em "Minha localização" (o botão de seta, abaixo de recentralizar). Antes do pedido do sistema aparece a explicação "Mostrar onde você está?", com "Agora não" e "Usar localização". A posição só é acompanhada com a tela aberta.
+- **Você no mapa:** ponto vermelho com pulso suave (parado se o sistema pedir menos movimento) e o círculo de precisão real do GPS. Acima de 30 m de erro, a folha mostra "Localização aproximada · ±45 m". Em outro nível que não o ativo, o ponto fica apagado.
+- **Nível:** vem da área (ingresso ou "Onde você está?"). Sem área, vale o nível escolhido no seletor, que fica guardado durante a sessão.
+- **Mais perto de você:** dentro do estádio, passa a contar a partir da sua posição, e não do centro da área.
+- **Avisos no topo da folha** (aparecem mesmo com ela recolhida):
+  - "Você está fora do Maracanã", com a distância, o portão do ingresso (ou o mais perto) e "Como chegar ao Portão D", que abre o app de mapas de transporte, ou a pé quando falta menos de 1,5 km;
+  - localização negada (com "Escolher setor" e "Abrir ajustes");
+  - GPS desligado;
+  - erro ao achar a posição.
+- **Dentro ou fora:** conta a esplanada, as rampas (as monumentais saem dela) e a área junto aos portões (`isInside` em `src/services/stadium/query.ts`, com teste).
+- **Simular localização (demonstração):** no painel escondido da Home (toque longo no cabeçalho) e também com um toque longo no título "Modo Maracanã". As opções são GPS real, No meu setor, Fora, e os portões de A a F. O Modo Maracanã reage na hora.
+- As etiquetas dos portões agora ficam logo acima do ponto do portão, para o ponto (e você) ficar visível.
+
+**Falta:**
+- **Expo Go:** a explicação e o pedido de permissão do sistema precisam ser vistos no celular. Na web, o navegador faz o papel do sistema.
+- **Fase 6:** tempo a pé e rota pelos corredores, a partir de você.

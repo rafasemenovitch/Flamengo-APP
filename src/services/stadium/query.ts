@@ -197,3 +197,26 @@ export function search(data: StadiumData, query: string, level?: string): Search
   for (const p of pois) hits.push({ kind: 'poi', poi: p });
   return hits;
 }
+
+function inRing(ring: number[][], at: LngLat) {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i] as LngLat;
+    const [xj, yj] = ring[j] as LngLat;
+    if (yi > at[1] !== yj > at[1] && at[0] < ((xj - xi) * (at[1] - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+
+/**
+ * O ponto está no estádio? Conta a esplanada, as rampas (as monumentais se estendem
+ * para fora dela) e a área junto aos portões.
+ */
+export function isInside(data: StadiumData, at: LngLat): boolean {
+  for (const f of data.stadium.features) {
+    const kind = (f.properties as Record<string, unknown>)?.kind;
+    if ((kind === 'esplanade' || kind === 'ramp') && f.geometry.type === 'Polygon')
+      if (inRing(f.geometry.coordinates[0] ?? [], at)) return true;
+  }
+  return gatesOf(data).some((g) => distanceM(g.coords, at) < 40);
+}

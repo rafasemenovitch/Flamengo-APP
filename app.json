@@ -51,7 +51,7 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "O Flamengo App usa sua localização para mostrar o melhor caminho até o Maracanã."
+          "locationWhenInUsePermission": "O Flamengo App usa sua localização, só com o Modo Maracanã aberto, para mostrar onde você está no estádio e o caminho até o seu portão."
         }
       ]
     ],

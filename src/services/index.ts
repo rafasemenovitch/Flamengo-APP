@@ -19,4 +19,11 @@ export const IS_DEMO = DATA_SOURCE === 'demo';
 export const services: Services = IS_DEMO ? createMockServices() : createLiveServices();
 
 export type * from './adapters';
-export { demoMember, demoScenario, DEMO_SCENARIOS, type DemoScenario } from './mock';
+export {
+  demoLocation,
+  demoMember,
+  demoScenario,
+  DEMO_SCENARIOS,
+  type DemoLocation,
+  type DemoScenario,
+} from './mock';

@@ -117,6 +117,16 @@ function centroid(features: Feature[]): [number, number] {
   return [x / n, y / n];
 }
 
+/** Círculo de raio `r` metros em volta de `c`, como polígono (precisão do GPS). */
+function circlePolygon(c: [number, number], r: number): import('geojson').Polygon {
+  const k = Math.cos((c[1] * Math.PI) / 180);
+  const ring = Array.from({ length: 49 }, (_, i) => {
+    const a = (i / 48) * Math.PI * 2;
+    return [c[0] + (r * Math.cos(a)) / (M_PER_DEG * k), c[1] + (r * Math.sin(a)) / M_PER_DEG];
+  });
+  return { type: 'Polygon', coordinates: [ring] };
+}
+
 /** Rumo (graus) de a para b. */
 function bearingTo(a: [number, number], b: [number, number]) {
   const k = Math.cos((a[1] * Math.PI) / 180);
@@ -205,7 +215,10 @@ export class StadiumMap {
     this.paintContainer(style);
     this.map.setStyle(style, { diff: true });
     applyStyleImages(this.map, style);
+    // O estilo novo traz as fontes vazias: devolve pontos, seleção e a sua posição.
     this.applyPois();
+    if (this.selectedPoi) (this.map.getSource('selection') as GeoJSONSource).setData(fc([this.selectedPoi]));
+    if (this.user) this.setUserLocation(this.user.at, this.user.accuracy, this.user.level);
   }
 
   /**
@@ -377,6 +390,59 @@ export class StadiumMap {
       return;
     }
     this.clearSelection();
+  }
+
+  // ───────────────────────────── você no mapa
+  private user: { at: [number, number]; accuracy: number; level: string | null } | null = null;
+  private pulse = 0;
+
+  /** Ponto do torcedor com o círculo de precisão real (metros). `null` tira do mapa. */
+  setUserLocation(at: [number, number] | null, accuracy = 0, level: string | null = null) {
+    const src = this.map.getSource('user') as GeoJSONSource | undefined;
+    this.user = at ? { at, accuracy, level } : null;
+    if (!src) return;
+    if (!at) {
+      src.setData(fc([]));
+      cancelAnimationFrame(this.pulse);
+      return;
+    }
+    const props = { level: level ?? '' };
+    src.setData(
+      fc([
+        {
+          type: 'Feature',
+          properties: { ...props, kind: 'accuracy' },
+          geometry: circlePolygon(at, accuracy),
+        },
+        {
+          type: 'Feature',
+          properties: { ...props, kind: 'position' },
+          geometry: { type: 'Point', coordinates: at },
+        },
+      ])
+    );
+    if (!this.pulse && !reducedMotion()) this.startPulse();
+  }
+
+  /** Pulso suave em volta do ponto (1,8 s por ciclo). */
+  private startPulse() {
+    const t0 = performance.now();
+    const step = (now: number) => {
+      if (!this.user || !this.map.getLayer('user-pulse')) {
+        this.pulse = 0;
+        return;
+      }
+      const k = ((now - t0) % 1800) / 1800;
+      this.map.setPaintProperty('user-pulse', 'circle-radius', 9 + 16 * k);
+      this.map.setPaintProperty('user-pulse', 'circle-opacity', 0.35 * (1 - k));
+      this.pulse = requestAnimationFrame(step);
+    };
+    this.pulse = requestAnimationFrame(step);
+  }
+
+  focusUser() {
+    if (!this.user) return;
+    this.fly({ center: this.user.at, zoom: Math.max(this.map.getZoom(), 17.4) });
   }
 
   // ───────────────────────────── câmera

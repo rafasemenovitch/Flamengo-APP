@@ -11,6 +11,7 @@ import {
   areaCenter,
   distanceM,
   gatesOf,
+  isInside,
   nearest,
   nearestBlock,
   nearestGate,
@@ -85,6 +86,18 @@ describe('perto de você', () => {
   });
   it('distância plana coerente', () => {
     expect(Math.round(distanceM([-43.23, -22.912], [-43.23, -22.911]))).toBe(111);
+  });
+});
+
+describe('dentro ou fora do estádio', () => {
+  it('dentro: centro, uma área e os portões (inclusive na ponta das rampas monumentais)', () => {
+    expect(isInside(data, data.venue.center as [number, number])).toBe(true);
+    expect(isInside(data, areaCenter(data, 'leste-inferior', '1')!)).toBe(true);
+    for (const g of gatesOf(data)) expect(isInside(data, g.coords)).toBe(true);
+  });
+  it('fora: a 1,4 km (Saens Peña) e a 180 m na rua', () => {
+    expect(isInside(data, [-43.2329, -22.9244])).toBe(false);
+    expect(isInside(data, [-43.22905, -22.91335])).toBe(false);
   });
 });
 

@@ -294,6 +294,13 @@ const HEIGHT = [
   ['global-state', 'flatten'],
   ['match', KIND, 'ramp', 1.5, 'concourse', FACADE_TOP, ['get', 'top']],
 ];
+/** O usuário em outro nível que não o ativo aparece apagado. */
+const USER_OPACITY = [
+  'case',
+  ['any', ['==', LVL, 'all'], ['==', ['get', 'level'], ''], ['==', ['get', 'level'], LVL]],
+  1,
+  0.4,
+];
 const ICON_SIZE = ['interpolate', ['linear'], ['zoom'], 15.5, 0.62, 17, 0.8, 19, 1];
 const visible = (cat: string) => ['!', ['in', cat, ['array', ['global-state', 'hidden']]]];
 
@@ -534,11 +541,57 @@ function stadiumLayers(t: (typeof T)[Theme]) {
         ],
         'text-font': FONT.semibold,
         'text-size': ['interpolate', ['linear'], ['zoom'], 15.5, 10.5, 17, 12, 19, 13],
+        // Etiqueta logo acima do ponto do portão: o ponto exato (e você, se estiver lá) fica visível.
+        'text-anchor': 'bottom',
+        'text-offset': [0, -0.7],
         'text-allow-overlap': true,
         'icon-allow-overlap': true,
         'symbol-z-order': 'source',
       },
       paint: { 'text-color': t.pill.text },
+    },
+    // Você no mapa: círculo de precisão real do GPS, pulso suave e o ponto (vermelho = "o seu").
+    // Em outro nível que não o ativo, fica apagado.
+    {
+      id: 'user-accuracy',
+      type: 'fill',
+      source: 'user',
+      filter: ['==', ['get', 'kind'], 'accuracy'],
+      paint: { 'fill-color': t.accent, 'fill-opacity': ['*', 0.12, USER_OPACITY] },
+    },
+    {
+      id: 'user-accuracy-edge',
+      type: 'line',
+      source: 'user',
+      filter: ['==', ['get', 'kind'], 'accuracy'],
+      paint: { 'line-color': t.accent, 'line-width': 1, 'line-opacity': ['*', 0.45, USER_OPACITY] },
+    },
+    {
+      id: 'user-pulse',
+      type: 'circle',
+      source: 'user',
+      filter: ['==', ['get', 'kind'], 'position'],
+      paint: {
+        'circle-color': t.accent,
+        'circle-radius': 9,
+        'circle-opacity': 0,
+        'circle-pitch-alignment': 'viewport',
+      },
+    },
+    {
+      id: 'user-dot',
+      type: 'circle',
+      source: 'user',
+      filter: ['==', ['get', 'kind'], 'position'],
+      paint: {
+        'circle-color': t.accent,
+        'circle-radius': 7,
+        'circle-stroke-color': '#FFFFFF',
+        'circle-stroke-width': 2.5,
+        'circle-opacity': USER_OPACITY,
+        'circle-stroke-opacity': USER_OPACITY,
+        'circle-pitch-alignment': 'viewport',
+      },
     },
     {
       id: 'poi-selected-ring',
@@ -604,6 +657,7 @@ function build(theme: Theme) {
       gates: { type: 'geojson', data: EMPTY },
       transit: { type: 'geojson', data: EMPTY },
       selection: { type: 'geojson', data: EMPTY },
+      user: { type: 'geojson', data: EMPTY },
       // Uma fonte por categoria: a aglomeração junta só pontos da mesma categoria.
       ...Object.fromEntries(
         POI_CATEGORIES.map((cat) => [

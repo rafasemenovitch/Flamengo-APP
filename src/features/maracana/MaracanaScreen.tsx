@@ -1,17 +1,27 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ComponentRef } from 'react';
-import { ScrollView, View, useWindowDimensions, type TextInputInstance } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  Linking,
+  Modal,
+  Pressable,
+  ScrollView,
+  View,
+  useWindowDimensions,
+  type TextInputInstance,
+} from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Badge, Button, ErrorState, IconButton, Text, useTheme } from '@/design-system';
 import { useAsync } from '@/hooks/useAsync';
+import { useDemoLocation } from '@/hooks/useMatch';
 import type { RootScreenProps } from '@/navigation/types';
-import { services } from '@/services';
+import { IS_DEMO, services } from '@/services';
 import {
   areaCenter,
   distanceM,
   gatesOf,
+  isInside,
   nearest,
   nearestBlock,
   nearestGate,
@@ -29,15 +39,24 @@ import { ALL_CATEGORIES, CATEGORY, GROUPS } from './categories';
 import { AreaPicker } from './components/AreaPicker';
 import { GateDetail, HelpRows, PoiDetail, SectorDetail } from './components/Details';
 import { LevelPanel } from './components/LevelPanel';
+import { LocationNotice } from './components/LocationNotice';
 import { MapSheet, type Snap } from './components/MapSheet';
 import { PlaceRow, SearchField, SheetLabel, Shortcuts, WhereAmI, meters } from './components/SheetParts';
+import { DemoLocationPicker } from './DemoLocationPicker';
 import { StadiumMapView, type StadiumMapHandle } from './StadiumMapView';
+import { useDeviceLocation } from './useDeviceLocation';
 import { useTodayTicket } from './useTodayTicket';
 
 const VENUE = 'maracana';
 type Selection = { kind: 'poi' | 'sector' | 'gate'; id: string } | null;
 /** "Mais perto de você" sem filtro: um de cada coisa que o torcedor mais procura. */
 const ESSENTIALS: PoiCategory[] = ['banheiro', 'alimentacao', 'bebidas', 'posto_medico', 'saida_emergencia'];
+/** Ponto fora do estádio usado na simulação "Fora" (perto da Praça Saens Peña, ~1,4 km). */
+const OUTSIDE_DEMO: [number, number] = [-43.2329, -22.9244];
+/** Precisão a partir da qual a posição é "aproximada" (metros). */
+const ROUGH = 30;
+/** Nível escolhido sem área: vale para a sessão (volta ao reabrir a tela). */
+let sessionLevel: string | null = null;
 const HELP_FOR: Partial<Record<PoiCategory, string[]>> = {
   seguranca: ['seguranca', 'pm'],
   juizado: ['juizado', 'mprj'],
@@ -77,6 +96,9 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
   const [picker, setPicker] = useState(false);
   const [topH, setTopH] = useState(110);
   const [headerH, setHeaderH] = useState(150);
+  const [demoPanel, setDemoPanel] = useState(false);
+  const device = useDeviceLocation();
+  const [demoLoc] = useDemoLocation();
   const searchRef = useRef<TextInputInstance>(null);
   const scroll = useRef<ComponentRef<typeof ScrollView>>(null);
   const sections = useRef<Record<string, number>>({});
@@ -143,7 +165,7 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setArea({ id, block });
       send({ type: 'setArea', area: id, block });
-    }
+    } else if (sessionLevel) send({ type: 'setLevel', level: sessionLevel });
     const tab = route.params?.tab;
     if (tab === 'chegar' || tab === 'filas') {
       setSnap('full');
@@ -185,9 +207,66 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
 
   // ─── derivados
   const activeLevel = level === 'all' ? (areaInfo?.defaultLevel ?? null) : level;
-  const from = d && area && activeLevel ? areaCenter(d, area.id, activeLevel) : null;
+
+  // Você no mapa: GPS do aparelho ou a posição simulada do painel de demonstração.
+  const user = ((): { at: [number, number]; accuracy: number; level: string | null } | null => {
+    if (!d) return null;
+    if (demoLoc.kind === 'real')
+      return device.position
+        ? {
+            at: [device.position.lng, device.position.lat],
+            accuracy: device.position.accuracy,
+            level: activeLevel,
+          }
+        : null;
+    if (demoLoc.kind === 'outside') return { at: OUTSIDE_DEMO, accuracy: 15, level: null };
+    if (demoLoc.kind === 'gate') {
+      const g = gates.find((x) => x.id === demoLoc.id);
+      return g ? { at: g.coords, accuracy: 8, level: null } : null;
+    }
+    const seat = area?.id ?? ticket.data?.areaId ?? 'leste-inferior';
+    const lvl =
+      (seat === area?.id && activeLevel) || d.levels.areas.find((a) => a.id === seat)?.defaultLevel || '1';
+    const at = areaCenter(d, seat, lvl);
+    return at ? { at, accuracy: 12, level: lvl } : null;
+  })();
+  const inside = !!d && !!user && isInside(d, user.at);
+  const locating = demoLoc.kind === 'real' && device.status === 'locating';
+
+  const [uLng, uLat, uAcc, uLevel] = user ? [user.at[0], user.at[1], user.accuracy, user.level] : [];
+  useEffect(() => {
+    if (!ready) return;
+    if (uLng !== undefined && uLat !== undefined)
+      send({ type: 'setUserLocation', lng: uLng, lat: uLat, accuracy: uAcc ?? 0, level: uLevel ?? null });
+    else send({ type: 'clearUserLocation' });
+  }, [ready, uLng, uLat, uAcc, uLevel, send]);
+
+  // Primeira posição dentro do estádio (ou troca de simulação): a câmera vai até você.
+  const followed = useRef<string>('');
+  const hasUser = !!user;
+  useEffect(() => {
+    if (!ready || !hasUser || !inside) return;
+    const key = demoLoc.kind === 'real' ? 'gps' : JSON.stringify(demoLoc);
+    if (followed.current === key) return;
+    followed.current = key;
+    send({ type: 'focusUser' });
+  }, [ready, hasUser, inside, demoLoc, send]);
+
+  const locate = () => {
+    haptic.select();
+    if (user && inside) send({ type: 'focusUser' });
+    else if (demoLoc.kind === 'real') void device.request();
+  };
+
+  const from =
+    user && inside && user.level && activeLevel === user.level
+      ? user.at
+      : d && area && activeLevel
+        ? areaCenter(d, area.id, activeLevel)
+        : null;
   const groupCats = GROUPS.find((g) => g.key === group)?.categories;
-  const near = useMemo(() => {
+  // Calculados a cada render: o React Compiler cuida da memorização.
+  const near = (() => {
     if (!d || !activeLevel) return [];
     if (from) {
       const list = nearest(pois, from, { level: activeLevel, categories: groupCats });
@@ -200,22 +279,22 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
     return groupCats
       ? pois.filter((p) => p.level === activeLevel && groupCats.includes(p.category)).slice(0, 8)
       : [];
-  }, [d, activeLevel, from, pois, groupCats]);
+  })();
   // Busca: o que está no seu nível e mais perto de você vem primeiro.
-  const found = useMemo(() => {
+  const found = (() => {
     if (!d || !query) return [];
     const hits = search(d, query, activeLevel ?? undefined);
     if (!from || !activeLevel) return hits;
     const rank = (h: (typeof hits)[number]) =>
       h.kind !== 'poi' ? -1 : (h.poi.level === activeLevel ? 0 : 1e6) + distanceM(from, h.poi.coords);
     return [...hits].sort((a, b) => rank(a) - rank(b));
-  }, [d, query, activeLevel, from]);
+  })();
   const results = found.slice(0, 30);
   const blockOf = (p: PoiInfo) => (d ? nearestBlock(d, p.coords, p.level) : undefined);
   const poiMeta = (p: PoiInfo) =>
-    [p.level === null ? 'Área externa' : `Nível ${p.level}`, blockOf(p) && `bloco ${blockOf(p)}`]
-      .filter(Boolean)
-      .join(' · ');
+    p.level === null
+      ? `Área externa · perto do ${(d && nearestGate(d, p.coords)?.name) ?? 'portão'}`
+      : [`Nível ${p.level}`, blockOf(p) && `bloco ${blockOf(p)}`].filter(Boolean).join(' · ');
   const sectorName = (id?: string) => {
     const s = d?.levels.sectors.find((x) => x.id === id);
     return s?.ticketName ?? s?.name;
@@ -293,6 +372,100 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
       />
     );
   })();
+
+  // ─── avisos de localização
+  const myGate =
+    ticket.data?.gate ??
+    (areaInfo && d?.levels.sectors.find((s) => areaInfo.sectors.includes(s.id))?.gates[0]) ??
+    (user && d ? nearestGate(d, user.at)?.id : undefined);
+  const notice = (() => {
+    if (user && !inside && d) {
+      const dist = distanceM(user.at, d.venue.center as [number, number]);
+      const g = gates.find((x) => x.id === myGate);
+      return (
+        <LocationNotice
+          overline="Fora do estádio"
+          title="Você está fora do Maracanã"
+          body={`A ${dist < 1000 ? `${Math.round(dist / 10) * 10} m` : `${(dist / 1000).toFixed(1).replace('.', ',')} km`} daqui.${
+            g ? ` ${ticket.data ? 'Seu ingresso entra pelo' : 'O mais perto é o'} ${g.name}.` : ''
+          }`}
+          primary={
+            g
+              ? {
+                  label: `Como chegar ao ${g.name}`,
+                  icon: 'navigate-outline',
+                  onPress: () =>
+                    openDirections(
+                      { coords: { latitude: g.coords[1], longitude: g.coords[0] }, label: g.name },
+                      dist > 1500 ? 'transit' : 'walking'
+                    ),
+                }
+              : undefined
+          }
+        />
+      );
+    }
+    if (demoLoc.kind !== 'real') return null;
+    if (device.status === 'explain')
+      return (
+        <LocationNotice
+          overline="Sua localização"
+          title="Mostrar onde você está?"
+          body="Só enquanto o Modo Maracanã estiver aberto, para pôr você no mapa e achar o que fica mais perto."
+          secondary={{ label: 'Agora não', onPress: device.dismiss }}
+          primary={{
+            label: 'Usar localização',
+            icon: 'location-outline',
+            onPress: () => void device.accept(),
+          }}
+        />
+      );
+    if (device.status === 'denied')
+      return (
+        <LocationNotice
+          overline="Sua localização"
+          title="A localização está desligada para o app"
+          body="Dá para escolher seu setor e ver o que fica mais perto do mesmo jeito."
+          secondary={{ label: 'Escolher setor', onPress: () => setPicker(true) }}
+          primary={{
+            label: 'Abrir ajustes',
+            icon: 'settings-outline',
+            onPress: () => void Linking.openSettings(),
+          }}
+        />
+      );
+    if (device.status === 'off')
+      return (
+        <LocationNotice
+          overline="Sua localização"
+          title="O GPS do celular está desligado"
+          body="Ligue a localização nos ajustes do celular para aparecer no mapa."
+          primary={{
+            label: 'Tentar de novo',
+            icon: 'location-outline',
+            onPress: () => void device.request(),
+          }}
+        />
+      );
+    if (device.status === 'error')
+      return (
+        <LocationNotice
+          overline="Sua localização"
+          title="Não deu para achar você agora"
+          body="Tente de novo em alguns segundos, de preferência longe de paredes."
+          primary={{
+            label: 'Tentar de novo',
+            icon: 'location-outline',
+            onPress: () => void device.request(),
+          }}
+        />
+      );
+    return null;
+  })();
+  const statusLine =
+    user && inside && user.accuracy > ROUGH
+      ? `Localização aproximada · ±${Math.round(user.accuracy)} m`
+      : undefined;
 
   const home = (
     <>
@@ -459,12 +632,18 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
             accessibilityLabel="Voltar"
             onPress={() => navigation.goBack()}
           />
-          <View style={{ flex: 1, alignItems: 'center', gap: 4 }} pointerEvents="none">
+          <Pressable
+            style={{ flex: 1, alignItems: 'center', gap: 4 }}
+            // Painel de demonstração escondido (toque longo no título), como na Home.
+            onLongPress={IS_DEMO ? () => setDemoPanel(true) : undefined}
+            delayLongPress={600}
+            accessible={false}
+          >
             <Text variant="titleM" accessibilityRole="header">
               Modo Maracanã
             </Text>
             <Badge label="Posições aproximadas" icon="flask-outline" style={{ alignSelf: 'center' }} />
-          </View>
+          </Pressable>
           <View style={{ width: 44 }} />
         </View>
       </LinearGradient>
@@ -472,7 +651,14 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
       {/* Lateral: nível e recentralizar */}
       {d && showSide && (
         <View style={{ position: 'absolute', right: 12, top: topH + 4, gap: 10, alignItems: 'center' }}>
-          <LevelPanel levels={levels} active={level} onChange={(l) => send({ type: 'setLevel', level: l })} />
+          <LevelPanel
+            levels={levels}
+            active={level}
+            onChange={(l) => {
+              if (!area) sessionLevel = l === 'all' ? null : l;
+              send({ type: 'setLevel', level: l });
+            }}
+          />
           <IconButton
             icon="scan-outline"
             accessibilityLabel="Recentralizar o mapa"
@@ -482,6 +668,38 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
             }}
             style={{ backgroundColor: colors.bgRaised, borderWidth: 1, borderColor: colors.lineHairline }}
           />
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            {locating && (
+              <View
+                accessibilityLiveRegion="polite"
+                style={{
+                  position: 'absolute',
+                  right: 52,
+                  height: 32,
+                  paddingHorizontal: 12,
+                  borderRadius: 8,
+                  justifyContent: 'center',
+                  backgroundColor: colors.bgRaised,
+                  borderWidth: 1,
+                  borderColor: colors.lineHairline,
+                }}
+              >
+                <Text variant="labelM" numberOfLines={1}>
+                  Posicionando…
+                </Text>
+              </View>
+            )}
+            <IconButton
+              icon={user && inside ? 'navigate' : 'navigate-outline'}
+              accessibilityLabel={locating ? 'Minha localização, posicionando' : 'Minha localização'}
+              onPress={locate}
+              style={{
+                backgroundColor: user && inside ? colors.accent : colors.bgRaised,
+                borderWidth: 1,
+                borderColor: user && inside ? colors.accent : colors.lineHairline,
+              }}
+            />
+          </View>
         </View>
       )}
 
@@ -491,10 +709,12 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
         heights={heights}
         header={
           <View onLayout={(e) => setHeaderH(Math.round(e.nativeEvent.layout.height))}>
+            {/* Avisos de localização ficam no topo fixo: aparecem mesmo com a folha recolhida. */}
+            {notice && <View style={{ marginTop: -12, marginBottom: 8 }}>{notice}</View>}
             <WhereAmI
               area={areaInfo?.name}
               level={area ? (activeLevel ?? undefined) : undefined}
-              ticketLine={ticketLine}
+              ticketLine={[ticketLine, statusLine].filter(Boolean).join('\n') || undefined}
               onPress={() => setPicker(true)}
             />
             <SearchField
@@ -524,6 +744,42 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
           {detail ? <View style={{ paddingTop: 12 }}>{detail}</View> : home}
         </ScrollView>
       </MapSheet>
+
+      {IS_DEMO && (
+        <Modal
+          visible={demoPanel}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setDemoPanel(false)}
+        >
+          <Pressable
+            style={{ flex: 1, backgroundColor: colors.scrim, justifyContent: 'flex-end' }}
+            onPress={() => setDemoPanel(false)}
+            accessible={false}
+          >
+            <Pressable onPress={() => undefined} accessible={false}>
+              <SafeAreaView
+                edges={['bottom']}
+                style={{
+                  backgroundColor: colors.bgRaised,
+                  borderTopLeftRadius: 16,
+                  borderTopRightRadius: 16,
+                  padding: layout.gutter,
+                  gap: 12,
+                }}
+              >
+                <DemoLocationPicker />
+                <Button
+                  label="Pronto"
+                  fullWidth
+                  onPress={() => setDemoPanel(false)}
+                  style={{ marginTop: 8 }}
+                />
+              </SafeAreaView>
+            </Pressable>
+          </Pressable>
+        </Modal>
+      )}
 
       {d && (
         <AreaPicker

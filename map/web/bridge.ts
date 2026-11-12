@@ -58,8 +58,13 @@ export function createBridge(opts: {
         return sm.clearSelection();
       case 'recenter':
         return sm.recenter();
-      // Localização (fase 5) e rotas (fase 6) ainda não desenham nada.
       case 'setUserLocation':
+        return sm.setUserLocation([msg.lng, msg.lat], msg.accuracy, msg.level);
+      case 'clearUserLocation':
+        return sm.setUserLocation(null);
+      case 'focusUser':
+        return sm.focusUser();
+      // Rotas (fase 6) ainda não desenham nada.
       case 'showRoute':
       case 'clearRoute':
         return;

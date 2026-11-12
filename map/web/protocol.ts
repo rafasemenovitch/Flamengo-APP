@@ -34,7 +34,11 @@ export type ToMap =
   | { type: 'focusPoi'; id: string }
   | { type: 'focusSector'; id: string }
   | { type: 'clearSelection' }
+  /** Posição do torcedor: `accuracy` em metros (círculo de precisão); `level` null = sem nível. */
   | { type: 'setUserLocation'; lng: number; lat: number; accuracy: number; level: string | null }
+  | { type: 'clearUserLocation' }
+  /** Leva a câmera até o torcedor. */
+  | { type: 'focusUser' }
   | { type: 'showRoute'; path: [number, number][] }
   | { type: 'clearRoute' }
   | { type: 'recenter' };

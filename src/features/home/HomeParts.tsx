@@ -12,6 +12,7 @@ import type { MatchDetail } from '@/types/match';
 import type { MatchDayPlan } from '@/types/stadium';
 import { formatNumber, shiftTime } from '@/utils/format';
 import { haptic } from '@/utils/haptics';
+import { DemoLocationPicker } from '@/features/maracana/DemoLocationPicker';
 
 function levelProgress(p: FanProgress) {
   if (!p.nextLevel) return 1;
@@ -220,6 +221,9 @@ export function DemoControlsSheet({
               );
             })}
             <MemberToggle />
+            <View style={{ marginTop: 12 }}>
+              <DemoLocationPicker />
+            </View>
           </SafeAreaView>
         </Pressable>
       </Pressable>

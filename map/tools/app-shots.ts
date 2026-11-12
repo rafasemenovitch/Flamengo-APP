@@ -6,7 +6,8 @@
  * 2. npx tsx map/tools/app-shots.ts <pasta> <saída> [tema] nome=query[|passo|passo] ...
  *    ex.: npx tsx map/tools/app-shots.ts /tmp/web docs/x dark inicio= maracana=rota=StadiumMode
  *    Passos depois de abrir: `toque:Texto` (toca no texto visível), `rotulo:Rótulo` (toca pelo
- *    rótulo de acessibilidade), `digita:texto`, `espera:ms`, `arrasta:dy` (folha para cima < 0).
+ *    rótulo de acessibilidade), `segura:Texto` (toque longo), `digita:texto`, `espera:ms`.
+ *    GPS falso: GEO="lat,lng,precisão" (permissão concedida); GEO=negado (permissão negada).
  *
  * As boas-vindas são puladas (visitante). `rota=` abre a tela direto (só na web,
  * ver openRouteFromUrl em src/navigation/RootNavigator.tsx).
@@ -55,8 +56,17 @@ async function main() {
     for (const spec of pages) {
       const [name, rest = ''] = spec.split(/=(.*)/s);
       const [query, ...steps] = rest.split('|');
-      const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
+      const geo = process.env.GEO;
+      const [lat, lng, accuracy] = (geo && geo !== 'negado' ? geo : '').split(',').map(Number);
+      const page = await browser.newPage({
+        viewport: { width: 390, height: 844 },
+        deviceScaleFactor: 2,
+        ...(lat
+          ? { geolocation: { latitude: lat, longitude: lng!, accuracy }, permissions: ['geolocation'] }
+          : {}),
+      });
       page.on('pageerror', (e) => console.log(`  [${name}] erro:`, e.message));
+      page.setDefaultTimeout(8000);
       await page.addInitScript((t) => {
         localStorage.setItem('@flamengo/onboarding-done', '1');
         localStorage.setItem('@flamengo/auth-guest', '1');
@@ -73,10 +83,15 @@ async function main() {
       }
       for (const step of steps) {
         const [kind, arg = ''] = step.split(/:(.*)/s);
-        if (kind === 'toque') await page.getByText(arg, { exact: true }).first().click();
-        if (kind === 'rotulo') await page.getByLabel(arg, { exact: true }).first().click();
-        if (kind === 'digita') await page.keyboard.type(arg, { delay: 40 });
-        if (kind === 'espera') await page.waitForTimeout(Number(arg));
+        try {
+          if (kind === 'toque') await page.getByText(arg, { exact: true }).first().click();
+          if (kind === 'rotulo') await page.getByLabel(arg, { exact: true }).first().click();
+          if (kind === 'segura') await page.getByText(arg, { exact: true }).first().click({ delay: 900 });
+          if (kind === 'digita') await page.keyboard.type(arg, { delay: 40 });
+          if (kind === 'espera') await page.waitForTimeout(Number(arg));
+        } catch {
+          console.log(`  [${name}] passo falhou: ${step}`);
+        }
         await page.waitForTimeout(kind === 'espera' ? 0 : 1200);
       }
       await page.screenshot({ path: path.join(out, `${name}.png`) });

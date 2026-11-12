@@ -10,7 +10,14 @@ import { withAccountProfile } from '@/services/supabase/profiles';
 import { createDemoStadiumMapService } from '@/services/stadium/DemoStadiumAdapter';
 import { createMockStadiumService, createMockTicketsService } from './tickets';
 
-export { demoMember, demoScenario, DEMO_SCENARIOS, type DemoScenario } from './demoScenario';
+export {
+  demoLocation,
+  demoMember,
+  demoScenario,
+  DEMO_SCENARIOS,
+  type DemoLocation,
+  type DemoScenario,
+} from './demoScenario';
 
 export function createMockServices(): Services {
   const matches = createMockMatchesService();

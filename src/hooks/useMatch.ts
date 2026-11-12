@@ -1,7 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { useAlerts } from '@/design-system';
-import { demoMember, demoScenario, IS_DEMO, services, type DemoScenario } from '@/services';
+import {
+  demoLocation,
+  demoMember,
+  demoScenario,
+  IS_DEMO,
+  services,
+  type DemoLocation,
+  type DemoScenario,
+} from '@/services';
 import type { MatchDetail } from '@/types/match';
 import { navigationRef } from '@/navigation/navigationRef';
 import { useAsync } from './useAsync';
@@ -101,4 +109,11 @@ export function useLiveMatch(load: () => Promise<MatchDetail>, deps: unknown[], 
   }, [match, state.data, opts?.alerts, showAlert]);
 
   return { ...state, data: match, isDemo: IS_DEMO };
+}
+
+/** Posição simulada do painel de demonstração (Modo Maracanã). */
+export function useDemoLocation(): [DemoLocation, (v: DemoLocation) => void] {
+  const [loc, setLoc] = useState(demoLocation.get());
+  useEffect(() => demoLocation.subscribe(setLoc), []);
+  return [loc, demoLocation.set];
 }

@@ -61,3 +61,28 @@ export const demoMember = {
     };
   },
 };
+
+/**
+ * Posição simulada para apresentar o Modo Maracanã sem estar no estádio (painel de
+ * demonstração). `real` usa o GPS do aparelho.
+ */
+export type DemoLocation =
+  { kind: 'real' } | { kind: 'gate'; id: string } | { kind: 'seat' } | { kind: 'outside' };
+
+type LocationListener = (loc: DemoLocation) => void;
+let location: DemoLocation = { kind: 'real' };
+const locationListeners = new Set<LocationListener>();
+
+export const demoLocation = {
+  get: () => location,
+  set(next: DemoLocation) {
+    location = next;
+    locationListeners.forEach((l) => l(next));
+  },
+  subscribe(listener: LocationListener) {
+    locationListeners.add(listener);
+    return () => {
+      locationListeners.delete(listener);
+    };
+  },
+};
