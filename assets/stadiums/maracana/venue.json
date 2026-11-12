@@ -4,15 +4,15 @@
   "officialName": "Estádio Jornalista Mário Filho",
   "city": "Rio de Janeiro",
   "center": [
-    -43.2301865,
-    -22.9121457
+    -43.230187,
+    -22.912146
   ],
   "pitchBearing": 31.1,
   "bounds": [
-    -43.2360381,
-    -22.9175736,
+    -43.236038,
+    -22.917574,
     -43.224335,
-    -22.9067179
+    -22.906718
   ],
   "attribution": [
     "© OpenStreetMap contributors",

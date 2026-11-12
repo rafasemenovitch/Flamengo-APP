@@ -54,6 +54,10 @@ export function createBridge(opts: {
         return sm.focusPoi(msg.id);
       case 'focusSector':
         return sm.focusSector(msg.id);
+      case 'seatView':
+        return sm.seatView(msg.sector);
+      case 'exitSeatView':
+        return sm.exitSeatView();
       case 'clearSelection':
         return sm.clearSelection();
       case 'recenter':
@@ -81,6 +85,7 @@ export function createBridge(opts: {
           styles: msg.styles,
           theme: msg.theme,
           level: msg.level,
+          reducedMotion: msg.reducedMotion,
           emit: (m) => {
             emit(m);
             if (m.type === 'ready') pending.splice(0).forEach(run);

@@ -58,7 +58,10 @@ async function main() {
     card.innerHTML = html ?? '';
   };
   const onMap = (msg: FromMap) => {
-    if (msg.type === 'ready') afterReady();
+    if (msg.type === 'ready') {
+      console.info(`[mapa] pronto em ${msg.ms} ms`);
+      afterReady();
+    }
     if (msg.type === 'levelChanged') markLevel(msg.level);
     if (msg.type === 'cameraChanged') show();
     if (msg.type === 'poiTapped') {
@@ -144,6 +147,7 @@ async function main() {
   // ── estado inicial pela URL (prints)
   function afterReady() {
     const m = bridge.map()!.map;
+    (window as any).__map = m;
     m.on('move', show);
     const cam = q.get('cam');
     if (cam === 'close') m.jumpTo({ zoom: 17.75, pitch: 42 });

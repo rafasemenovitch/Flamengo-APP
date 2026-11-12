@@ -146,6 +146,7 @@ export const SearchField = forwardRef<
           placeholderTextColor={colors.inkTertiary}
           selectionColor={colors.accentText}
           returnKeyType="search"
+          maxFontSizeMultiplier={1.3}
           autoCorrect={false}
           accessibilityLabel="Buscar no estádio"
           style={[typography.bodyM, { flex: 1, height: 46, color: colors.inkPrimary }]}

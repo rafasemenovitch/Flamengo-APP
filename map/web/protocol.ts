@@ -23,6 +23,8 @@ export type ToMap =
       styles: Record<Theme, StyleSpecification>;
       theme: Theme;
       level?: LevelId;
+      /** Preferência "reduzir movimento" do sistema (nem toda WebView repassa ao CSS). */
+      reducedMotion?: boolean;
     }
   | { type: 'setTheme'; theme: Theme }
   /** Espaço coberto pela interface do app (topo e folha inferior), em pixels lógicos. */
@@ -33,6 +35,9 @@ export type ToMap =
   | { type: 'setArea'; area: string | null; block?: string }
   | { type: 'focusPoi'; id: string }
   | { type: 'focusSector'; id: string }
+  /** Vista aproximada do campo a partir de um setor (câmera na altura dos olhos). */
+  | { type: 'seatView'; sector: string }
+  | { type: 'exitSeatView' }
   | { type: 'clearSelection' }
   /** Posição do torcedor: `accuracy` em metros (círculo de precisão); `level` null = sem nível. */
   | { type: 'setUserLocation'; lng: number; lat: number; accuracy: number; level: string | null }
@@ -60,7 +65,10 @@ export interface CameraState {
 export type FromMap =
   /** A página carregou e espera o `init` (antes disso, mensagens se perderiam). */
   | { type: 'loaded' }
-  | { type: 'ready' }
+  /** `ms`: tempo do início do mapa até o primeiro desenho completo. */
+  | { type: 'ready'; ms?: number }
+  /** O mapa da cidade (tiles) não carregou: sem internet ou servidor fora. O estádio continua. */
+  | { type: 'tilesUnavailable' }
   | { type: 'levelChanged'; level: LevelId }
   | { type: 'poiTapped'; id: string }
   | { type: 'sectorTapped'; id: string }

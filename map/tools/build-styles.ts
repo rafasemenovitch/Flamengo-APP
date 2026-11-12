@@ -246,7 +246,7 @@ function baseLayers(t: (typeof T)[Theme]) {
     source: 'openmaptiles',
     'source-layer': 'transportation_name',
     minzoom: 15,
-    filter: ['in', ['get', 'name'], ['literal', STREETS]],
+    filter: ['all', ['in', ['get', 'name'], ['literal', STREETS]], NOT_SEAT],
     layout: {
       'symbol-placement': 'line',
       'symbol-spacing': 420,
@@ -275,6 +275,8 @@ const STATE = {
   area: { default: '' },
   /** Categorias escondidas pelos filtros. */
   hidden: { default: [] as string[] },
+  /** Vista do seu lugar: some com rótulos de portão, estação e rua (flutuariam no ar). */
+  seatView: { default: false },
 };
 const LVL = ['global-state', 'level'];
 const KIND = ['get', 'kind'];
@@ -308,6 +310,7 @@ const ROUTE_OPACITY = [
   0.3,
 ];
 const ICON_SIZE = ['interpolate', ['linear'], ['zoom'], 15.5, 0.62, 17, 0.8, 19, 1];
+const NOT_SEAT = ['!', ['boolean', ['global-state', 'seatView']]];
 const visible = (cat: string) => ['!', ['in', cat, ['array', ['global-state', 'hidden']]]];
 
 function stadiumLayers(t: (typeof T)[Theme]) {
@@ -533,6 +536,7 @@ function stadiumLayers(t: (typeof T)[Theme]) {
       id: 'transit-labels',
       type: 'symbol',
       source: 'transit',
+      filter: NOT_SEAT,
       layout: {
         'icon-image': 'station',
         'icon-size': 0.5,
@@ -551,7 +555,7 @@ function stadiumLayers(t: (typeof T)[Theme]) {
       id: 'gate-labels',
       type: 'symbol',
       source: 'gates',
-      filter: ['==', KIND, 'gate'],
+      filter: ['all', ['==', KIND, 'gate'], NOT_SEAT],
       layout: {
         'icon-image': 'pill',
         'icon-text-fit': 'both',

@@ -177,12 +177,15 @@ export function SectorDetail({
   area,
   isMine,
   onHere,
+  onSeatView,
   onClose,
 }: {
   sector: Sector;
   area?: Area;
   isMine: boolean;
   onHere: () => void;
+  /** "Ver deste setor": vista aproximada do campo. */
+  onSeatView: () => void;
   onClose: () => void;
 }) {
   const { layout } = useTheme();
@@ -201,9 +204,10 @@ export function SectorDetail({
         <Field label={sector.gates.length > 1 ? 'Portões' : 'Portão'} value={sector.gates.join(' · ')} />
         <Field label="Blocos" value={blocks} grow />
       </Fields>
-      <View style={{ paddingHorizontal: layout.gutter, marginTop: 20 }}>
+      <View style={{ paddingHorizontal: layout.gutter, marginTop: 20, gap: 12 }}>
+        <Button label="Ver deste setor" icon="eye-outline" onPress={onSeatView} fullWidth />
         {isMine ? (
-          <Text variant="labelM" tone="brand">
+          <Text variant="labelM" tone="brand" align="center">
             Você está aqui
           </Text>
         ) : (

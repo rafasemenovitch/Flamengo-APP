@@ -2,6 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ComponentRef } from 'react';
 import {
+  AccessibilityInfo,
   Linking,
   Modal,
   Pressable,
@@ -50,6 +51,7 @@ import { GateDetail, HelpRows, PoiDetail, SectorDetail } from './components/Deta
 import { LevelPanel } from './components/LevelPanel';
 import { LocationNotice } from './components/LocationNotice';
 import { MapSheet, type Snap } from './components/MapSheet';
+import { MapCurtain, SeatCard } from './components/MapStates';
 import { RouteView } from './components/RouteView';
 import { PlaceRow, SearchField, SheetLabel, Shortcuts, WhereAmI } from './components/SheetParts';
 import { DemoLocationPicker } from './DemoLocationPicker';
@@ -96,6 +98,27 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
   const map = useRef<StadiumMapHandle>(null);
   const send = useCallback((msg: ToMap) => map.current?.send(msg), []);
   const [ready, setReady] = useState(false);
+  /** Remonta a WebView em "Tentar de novo". */
+  const [mapKey, setMapKey] = useState(0);
+  const [mapError, setMapError] = useState(false);
+  const [tilesOff, setTilesOff] = useState(false);
+  /** Vista do seu lugar (setor) e tela cheia. */
+  const [seat, setSeat] = useState<string | null>(null);
+  const [full, setFull] = useState(false);
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then(setReduced)
+      .catch(() => undefined);
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduced);
+    return () => sub.remove();
+  }, []);
+  // Se o mapa não abrir em 12 s (WebView sem WebGL, por exemplo), mostra o erro com "Tentar de novo".
+  useEffect(() => {
+    if (ready) return;
+    const t = setTimeout(() => setMapError(true), 12_000);
+    return () => clearTimeout(t);
+  }, [ready, mapKey]);
   const [level, setLevel] = useState('all');
   const [area, setArea] = useState<{ id: string; block?: string } | null>(null);
   const [group, setGroup] = useState<string | null>(null);
@@ -136,11 +159,19 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
       if (msg.type === 'loaded' && d)
         send({
           type: 'init',
-          data: d,
+          // O grafo de corredores fica no app (rotas): não vai para a WebView.
+          data: { ...d, walkways: undefined },
           styles: { light: lightStyle as never, dark: darkStyle as never },
           theme: scheme,
+          reducedMotion: reduced,
         });
-      if (msg.type === 'ready') setReady(true);
+      if (msg.type === 'ready') {
+        setReady(true);
+        setMapError(false);
+        if (__DEV__) console.info(`[mapa] pronto em ${msg.ms} ms`);
+      }
+      if (msg.type === 'tilesUnavailable') setTilesOff(true);
+      if (msg.type === 'error' && !ready) setMapError(true);
       if (msg.type === 'levelChanged') setLevel(msg.level);
       if (msg.type === 'poiTapped' || msg.type === 'sectorTapped' || msg.type === 'gateTapped') {
         haptic.select();
@@ -152,8 +183,23 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
         setSnap('mid');
       }
     },
-    [d, scheme, send]
+    [d, scheme, send, reduced, ready]
   );
+  const retryMap = () => {
+    setReady(false);
+    setMapError(false);
+    setTilesOff(false);
+    setMapKey((k) => k + 1);
+  };
+  const openSeat = (sectorId: string) => {
+    haptic.select();
+    setSeat(sectorId);
+    send({ type: 'seatView', sector: sectorId });
+  };
+  const closeSeat = () => {
+    setSeat(null);
+    send({ type: 'exitSeatView' });
+  };
 
   useEffect(() => {
     if (ready) send({ type: 'setTheme', theme: scheme });
@@ -231,6 +277,11 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
       ? blockLevel
       : areaInfo.defaultLevel
     : activeLevel;
+  /** Setor do seu lugar (área + nível do bloco), para a vista do campo. */
+  const seatSector =
+    areaInfo && myLevel
+      ? d?.levels.sectors.find((x) => areaInfo.sectors.includes(x.id) && x.level === myLevel)?.id
+      : undefined;
 
   // Você no mapa: GPS do aparelho ou a posição simulada do painel de demonstração.
   const user = ((): { at: [number, number]; accuracy: number; level: string | null } | null => {
@@ -509,6 +560,7 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
           area={a}
           isMine={!!a && a.id === area?.id && activeLevel === s.level}
           onHere={() => a && applyArea(a.id, s.blocks[0])}
+          onSeatView={() => openSeat(s.id)}
           onClose={closeDetail}
         />
       );
@@ -704,6 +756,25 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
               onPress={() => openPoi(p)}
             />
           ))}
+          {seatSector && !group && (
+            <>
+              <SheetLabel>Seu lugar</SheetLabel>
+              <PlaceRow
+                title="Ver o campo do seu lugar"
+                meta={`Vista aproximada · ${areaInfo?.name ?? ''}`}
+                onPress={() => openSeat(seatSector)}
+              />
+            </>
+          )}
+          {group && near.length === 0 && activeLevel && (
+            <Text
+              variant="bodyM"
+              tone="secondary"
+              style={{ paddingHorizontal: layout.gutter, marginTop: 20 }}
+            >
+              {`Nada de ${GROUPS.find((g) => g.key === group)!.label.toLowerCase()} no nível ${activeLevel}. Troque o nível na coluna ao lado.`}
+            </Text>
+          )}
           {nearGate.length > 0 && (
             <>
               <SheetLabel>{`Perto do seu portão · ${ticket.data?.gate}`}</SheetLabel>
@@ -784,48 +855,60 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bgCanvas }}>
-      {d && <StadiumMapView ref={map} onMessage={onMap} background={colors.bgCanvas} />}
+      {d && <StadiumMapView key={mapKey} ref={map} onMessage={onMap} background={colors.bgCanvas} />}
+
+      {/* Abrindo / erro do mapa */}
+      <MapCurtain visible={!ready} error={mapError || !!data.error} onRetry={retryMap} reduced={reduced} />
 
       {/* Topo: voltar, título e o aviso de posições aproximadas */}
-      <LinearGradient
-        colors={[colors.bgCanvas, `${colors.bgCanvas}E6`, `${colors.bgCanvas}00`]}
-        locations={[0, 0.55, 1]}
-        pointerEvents="box-none"
-        onLayout={(e) => setTopH(Math.round(e.nativeEvent.layout.height) - 24)}
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          top: 0,
-          paddingTop: insets.top + 4,
-          paddingBottom: 36,
-        }}
-      >
-        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8 }}>
-          <IconButton
-            icon="chevron-back"
-            variant="plain"
-            accessibilityLabel="Voltar"
-            onPress={() => navigation.goBack()}
-          />
-          <Pressable
-            style={{ flex: 1, alignItems: 'center', gap: 4 }}
-            // Painel de demonstração escondido (toque longo no título), como na Home.
-            onLongPress={IS_DEMO ? () => setDemoPanel(true) : undefined}
-            delayLongPress={600}
-            accessible={false}
-          >
-            <Text variant="titleM" accessibilityRole="header">
-              Modo Maracanã
-            </Text>
-            <Badge label="Posições aproximadas" icon="flask-outline" style={{ alignSelf: 'center' }} />
-          </Pressable>
-          <View style={{ width: 44 }} />
-        </View>
-      </LinearGradient>
+      {!full && (
+        <LinearGradient
+          colors={[colors.bgCanvas, `${colors.bgCanvas}E6`, `${colors.bgCanvas}00`]}
+          locations={[0, 0.55, 1]}
+          pointerEvents="box-none"
+          onLayout={(e) => setTopH(Math.round(e.nativeEvent.layout.height) - 24)}
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: 0,
+            paddingTop: insets.top + 4,
+            paddingBottom: 36,
+          }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8 }}>
+            <IconButton
+              icon="chevron-back"
+              variant="plain"
+              accessibilityLabel="Voltar"
+              onPress={() => navigation.goBack()}
+            />
+            <Pressable
+              style={{ flex: 1, alignItems: 'center', gap: 4 }}
+              // Painel de demonstração escondido (toque longo no título), como na Home.
+              onLongPress={IS_DEMO ? () => setDemoPanel(true) : undefined}
+              delayLongPress={600}
+              accessible={false}
+            >
+              <Text variant="titleM" accessibilityRole="header">
+                Modo Maracanã
+              </Text>
+              <Badge label="Posições aproximadas" icon="flask-outline" style={{ alignSelf: 'center' }} />
+              {tilesOff && (
+                <Badge
+                  label="Sem internet · só o estádio"
+                  icon="cloud-offline-outline"
+                  style={{ alignSelf: 'center' }}
+                />
+              )}
+            </Pressable>
+            <View style={{ width: 44 }} />
+          </View>
+        </LinearGradient>
+      )}
 
       {/* Lateral: nível e recentralizar */}
-      {d && showSide && (
+      {d && showSide && !seat && (
         <View style={{ position: 'absolute', right: 12, top: topH + 4, gap: 10, alignItems: 'center' }}>
           <LevelPanel
             levels={levels}
@@ -834,6 +917,15 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
               if (!area) sessionLevel = l === 'all' ? null : l;
               send({ type: 'setLevel', level: l });
             }}
+          />
+          <IconButton
+            icon={full ? 'contract-outline' : 'expand-outline'}
+            accessibilityLabel={full ? 'Sair da tela cheia' : 'Tela cheia: só o mapa'}
+            onPress={() => {
+              haptic.select();
+              setFull((f) => !f);
+            }}
+            style={{ backgroundColor: colors.bgRaised, borderWidth: 1, borderColor: colors.lineHairline }}
           />
           <IconButton
             icon="scan-outline"
@@ -879,47 +971,58 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
         </View>
       )}
 
-      <MapSheet
-        snap={snap}
-        onSnap={setSnap}
-        heights={heights}
-        header={
-          <View onLayout={(e) => setHeaderH(Math.round(e.nativeEvent.layout.height))}>
-            {/* Avisos de localização ficam no topo fixo: aparecem mesmo com a folha recolhida. */}
-            {notice && <View style={{ marginTop: -12, marginBottom: 8 }}>{notice}</View>}
-            <WhereAmI
-              area={areaInfo?.name}
-              level={area ? (myLevel ?? undefined) : undefined}
-              ticketLine={[ticketLine, statusLine].filter(Boolean).join('\n') || undefined}
-              onPress={() => setPicker(true)}
-            />
-            <SearchField
-              ref={searchRef}
-              value={query}
-              onChange={setQuery}
-              onFocus={() => {
-                setSearching(true);
-                setSelection(null);
-                setSnap('full');
-              }}
-              onClear={() => {
-                setQuery('');
-                setSearching(false);
-                searchRef.current?.blur();
-              }}
-            />
-          </View>
-        }
-      >
-        <ScrollView
-          ref={scroll}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingTop: 8, paddingBottom: insets.bottom + 32 }}
+      {seat && d && (
+        <SeatCard
+          name={sectorName(seat) ?? ''}
+          level={d.levels.sectors.find((x) => x.id === seat)?.level}
+          bottom={insets.bottom}
+          onClose={closeSeat}
+        />
+      )}
+
+      {!full && !seat && (
+        <MapSheet
+          snap={snap}
+          onSnap={setSnap}
+          heights={heights}
+          header={
+            <View onLayout={(e) => setHeaderH(Math.round(e.nativeEvent.layout.height))}>
+              {/* Avisos de localização ficam no topo fixo: aparecem mesmo com a folha recolhida. */}
+              {notice && <View style={{ marginTop: -12, marginBottom: 8 }}>{notice}</View>}
+              <WhereAmI
+                area={areaInfo?.name}
+                level={area ? (myLevel ?? undefined) : undefined}
+                ticketLine={[ticketLine, statusLine].filter(Boolean).join('\n') || undefined}
+                onPress={() => setPicker(true)}
+              />
+              <SearchField
+                ref={searchRef}
+                value={query}
+                onChange={setQuery}
+                onFocus={() => {
+                  setSearching(true);
+                  setSelection(null);
+                  setSnap('full');
+                }}
+                onClear={() => {
+                  setQuery('');
+                  setSearching(false);
+                  searchRef.current?.blur();
+                }}
+              />
+            </View>
+          }
         >
-          {detail ? <View style={{ paddingTop: 12 }}>{detail}</View> : home}
-        </ScrollView>
-      </MapSheet>
+          <ScrollView
+            ref={scroll}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingTop: 8, paddingBottom: insets.bottom + 32 }}
+          >
+            {detail ? <View style={{ paddingTop: 12 }}>{detail}</View> : home}
+          </ScrollView>
+        </MapSheet>
+      )}
 
       {IS_DEMO && (
         <Modal

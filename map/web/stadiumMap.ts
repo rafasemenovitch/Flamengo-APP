@@ -31,6 +31,8 @@ export interface StadiumMapOptions {
   emit?: (msg: FromMap) => void;
   /** Necessário só para tirar prints do canvas. */
   preserveDrawingBuffer?: boolean;
+  /** "Reduzir movimento" vindo do app. */
+  reducedMotion?: boolean;
 }
 
 /** Limites da câmera: o usuário não sai do entorno nem vê a cidade inteira. */
@@ -99,7 +101,9 @@ function transitFc(venue: StadiumData['venue']): FC {
 }
 
 const fc = (features: Feature[]): FC => ({ type: 'FeatureCollection', features });
-const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+let appReducedMotion = false;
+const reducedMotion = () =>
+  appReducedMotion || (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false);
 const ease = (t: number) => 1 - (1 - t) ** 3;
 
 /** Média dos vértices (basta para mirar a câmera num setor). */
@@ -145,6 +149,8 @@ export class StadiumMap {
 
   constructor(private readonly opts: StadiumMapOptions) {
     const { container, data, theme } = opts;
+    const t0 = performance.now();
+    appReducedMotion = !!opts.reducedMotion;
     this.theme = theme;
     const style = this.withData(opts.styles[theme]);
     this.categories = Object.keys((style.metadata as Record<string, object>)['fla:poi']);
@@ -165,11 +171,23 @@ export class StadiumMap {
     this.map.on('style.load', () => applyStyleImages(this.map, this.opts.styles[this.theme]));
     this.map.once('load', () => {
       if (opts.level && opts.level !== 'all') this.setLevel(opts.level, false);
-      this.emit({ type: 'ready' });
+      this.emit({ type: 'ready', ms: Math.round(performance.now() - t0) });
     });
     this.map.on('click', (e) => void this.onClick(e.point));
     this.map.on('moveend', () => this.emit({ type: 'cameraChanged', camera: this.camera() }));
-    this.map.on('error', (e) => this.emit({ type: 'error', message: String(e.error?.message ?? e.error) }));
+    let tilesWarned = false;
+    this.map.on('error', (e) => {
+      // Sem internet, só o mapa da cidade falha: avisa uma vez; o estádio continua inteiro.
+      if (
+        (e as { sourceId?: string }).sourceId === 'openmaptiles' ||
+        /openfreemap|tiles/i.test(String(e.error?.message))
+      ) {
+        if (!tilesWarned) this.emit({ type: 'tilesUnavailable' });
+        tilesWarned = true;
+        return;
+      }
+      this.emit({ type: 'error', message: String(e.error?.message ?? e.error) });
+    });
     // Ponteiro de mão sobre o que é tocável (navegador).
     this.map.on('mousemove', (e) => {
       const hit = this.map.queryRenderedFeatures(e.point, { layers: this.tappableLayers() }).length > 0;
@@ -456,6 +474,55 @@ export class StadiumMap {
   focusUser() {
     if (!this.user) return;
     this.fly({ center: this.user.at, zoom: Math.max(this.map.getZoom(), 17.4) });
+  }
+
+  // ───────────────────────────── vista do seu lugar
+  private beforeSeat: { camera: CameraState; level: LevelId } | null = null;
+
+  /**
+   * Vista aproximada do campo a partir de um setor: câmera no degrau do meio do setor, 1,2 m
+   * acima (altura dos olhos sentado), olhando para o centro do gramado, com o estádio inteiro.
+   */
+  seatView(sectorId: string) {
+    const steps = this.opts.data.stadium.features.filter(
+      (f) =>
+        f.properties!.sector === sectorId && (f.properties!.kind === 'stand' || f.properties!.kind === 'box')
+    );
+    if (!steps.length) return;
+    const sorted = [...steps].sort((a, b) => (a.properties!.step ?? 0) - (b.properties!.step ?? 0));
+    const seat = sorted[Math.floor(sorted.length / 2)]!;
+    const at = centroid([seat]);
+    const eye = (seat.properties!.top ?? 6) + 1.2;
+    if (!this.beforeSeat) this.beforeSeat = { camera: this.camera(), level: this.level };
+    this.setLevel('all', false);
+    // Sem o vermelho de "selecionado": os degraus à sua frente ficam no tom da sua área.
+    this.map.setGlobalStateProperty('selectedSector', '');
+    this.map.setMaxPitch(85);
+    this.map.setMaxZoom(21);
+    // Ângulo de visão perto do olho humano (o padrão, ~37°, parece teleobjetiva).
+    this.map.setVerticalFieldOfView(62);
+    this.map.setGlobalStateProperty('seatView', true);
+    const cam = this.map.calculateCameraOptionsFromTo(
+      new maplibregl.LngLat(at[0], at[1]),
+      eye,
+      new maplibregl.LngLat(this.opts.data.venue.center[0], this.opts.data.venue.center[1]),
+      0
+    );
+    if (reducedMotion()) this.map.jumpTo(cam);
+    else this.map.flyTo({ ...cam, duration: 1400, essential: false });
+  }
+
+  exitSeatView() {
+    const back = this.beforeSeat;
+    this.beforeSeat = null;
+    this.map.setGlobalStateProperty('selectedSector', '');
+    this.map.setVerticalFieldOfView(36.87);
+    this.map.setGlobalStateProperty('seatView', false);
+    this.map.setMaxPitch(LIMITS.maxPitch);
+    this.map.setMaxZoom(LIMITS.maxZoom);
+    if (!back) return;
+    this.setLevel(back.level, false);
+    this.fly(back.camera);
   }
 
   // ───────────────────────────── rota

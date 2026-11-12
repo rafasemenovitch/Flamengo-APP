@@ -37,7 +37,7 @@ type LngLat = [number, number];
 type Ring = LngLat[];
 type Feature = { type: 'Feature'; id?: string; properties: Record<string, unknown>; geometry: any };
 const fc = (features: Feature[]) => ({ type: 'FeatureCollection', features });
-const round = (n: number, d = 7) => Math.round(n * 10 ** d) / 10 ** d;
+const round = (n: number, d = 6) => Math.round(n * 10 ** d) / 10 ** d;
 
 // ─────────────────────────────────────────────────────────────── fontes
 const SOURCES: Source[] = [

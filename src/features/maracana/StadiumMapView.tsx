@@ -57,7 +57,7 @@ export const StadiumMapView = forwardRef<
       javaScriptEnabled
       domStorageEnabled
       allowsInlineMediaPlayback
-      accessibilityLabel="Mapa do estádio"
+      accessibilityLabel="Mapa 3D do estádio. Os mesmos lugares, com rotas, estão no painel abaixo."
     />
   );
 });

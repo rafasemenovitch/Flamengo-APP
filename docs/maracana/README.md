@@ -11,8 +11,8 @@ Reconstrução do Modo Maracanã como mapa geográfico real (MapLibre GL JS em W
 | 3 | Interação: níveis, "Onde você está?", ícones, rótulos, toques, ponte de mensagens | Aprovada |
 | 4 | Integração no app (WebView, folha inferior, busca, cards) | Aprovada |
 | 5 | Localização (GPS, fora do estádio, simulação para demo) | Aprovada |
-| 6 | Mais perto e rotas (grafo, modo acessível) | **Entregue, aguardando aprovação** |
-| 7 | Acabamento (vista do lugar, animações, estados, desempenho) | — |
+| 6 | Mais perto e rotas (grafo, modo acessível) | Aprovada |
+| 7 | Acabamento (vista do lugar, animações, estados, desempenho) | **Entregue, aguardando aprovação** |
 
 ## Onde está cada coisa
 
@@ -149,3 +149,62 @@ Prints em [`screens/fase-6/`](screens/fase-6/), nos dois temas.
 **Limites:**
 - O grafo é aproximado, como as posições, até termos as plantas oficiais. Os tempos são estimativas.
 - A rota não segue você andando (recalcular pelo GPS em movimento): fica para quando houver posicionamento interno confiável.
+
+## Fase 7: acabamento
+
+Prints em [`screens/fase-7/`](screens/fase-7/), nos dois temas.
+
+**O que tem:**
+- **Vista do seu lugar:** a câmera do próprio mapa 3D vai para o meio do setor, 1,2 m acima do degrau (a altura dos olhos de quem está sentado), olhando para o centro do gramado. O ângulo de visão é de 62°, perto do olho humano, e os rótulos somem. O cartão diz "Vista aproximada · Ângulo calculado pelo modelo, não é foto". Abre por "Ver o campo do seu lugar", na folha, ou por "Ver deste setor", no detalhe de qualquer setor.
+- **Tela cheia:** esconde o topo e a folha, deixa só o mapa e os controles.
+- **Estados:**
+  - "Abrindo o Maracanã", que some com um esmaecer curto;
+  - erro com "Tentar de novo", se o mapa não abrir em 12 s ou der erro antes de abrir (a WebView é remontada);
+  - "Sem internet · só o estádio", quando o mapa da cidade não carrega;
+  - filtro sem resultado no nível;
+  - mais os da fase 5: permissão, GPS desligado e fora do estádio.
+- **Reduzir movimento:** vem do sistema pelo app e é repassado ao mapa (nem toda WebView repassa ao CSS). Sem animação de nível, voo de câmera, pulso, tracejado da rota, folha ou cortina.
+- **Desempenho:**
+  - a abertura manda ~450 KB para a WebView (o grafo de corredores fica no app; coordenadas com 6 casas, precisão de 11 cm);
+  - medido no computador: o mapa fica pronto em ~150 ms (a primeira abertura, a frio, em ~1,9 s) e o giro de câmera roda a 60 quadros/s;
+  - em modo de desenvolvimento, o app escreve `[mapa] pronto em N ms` no console;
+  - **falta medir num celular intermediário.**
+- **Acessibilidade:**
+  - todos os botões só com ícone têm rótulo para o leitor de tela;
+  - o mapa se descreve e aponta para o painel, que tem os mesmos lugares e rotas em texto;
+  - o texto segue o limite de fonte grande do app (130% no texto, 110% nos números);
+  - as áreas de toque têm no mínimo 44 pt;
+  - avisos de localização e "Posicionando…" são anunciados.
+
+## Critérios de aceite do pedido
+
+**Dados:** todos atendidos (fonte e confiança em tudo, SOURCES.md com a reconciliação, níveis públicos 1, 2, 3 e 5, contorno e gramado do OSM).
+
+**Visual:**
+- O estádio é 3D, com luz, níveis, colunata e gramado com linhas oficiais.
+- Os temas claro e escuro estão polidos.
+- O vermelho aparece só como destaque.
+- Os ícones são próprios e não têm bebida alcoólica.
+- O selo "Posições aproximadas" fica sempre visível.
+
+**Comportamento:**
+
+| Critério | Situação |
+|---|---|
+| Mapa travado no entorno | ok |
+| Troca de nível animada | ok |
+| Busca por sinônimos | ok |
+| "Perto de você" e "perto do portão" pelo grafo | ok |
+| Rota entre níveis e modo acessível sem escadas | ok, com teste |
+| Pin, precisão e "fora do estádio" | ok |
+| Simulação para a demo | ok |
+| Funciona sem internet, com só o mapa da cidade dependendo dela | ok |
+| Nenhum módulo nativo novo | ok, roda no Expo Go |
+| StadiumService genérico | ok |
+
+**Qualidade:**
+- Prints de todas as fases: ok.
+- 60 quadros/s e abertura abaixo de 2 s: ok no computador; **falta o celular**.
+- Leitor de tela e fonte grande: rótulos e limites aplicados; **falta testar com VoiceOver/TalkBack no aparelho**.
+
+**O que só dá para fechar no celular:** pedido de permissão do sistema, GPS andando, gestos da folha, desempenho e leitor de tela. Use `npx expo start --tunnel` ou `npm run publicar` e o QR fixo.

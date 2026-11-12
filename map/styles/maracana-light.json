@@ -58,6 +58,9 @@
     },
     "hidden": {
       "default": []
+    },
+    "seatView": {
+      "default": false
     }
   },
   "light": {
@@ -1228,20 +1231,33 @@
       "source-layer": "transportation_name",
       "minzoom": 15,
       "filter": [
-        "in",
+        "all",
         [
-          "get",
-          "name"
+          "in",
+          [
+            "get",
+            "name"
+          ],
+          [
+            "literal",
+            [
+              "Avenida Maracanã",
+              "Avenida Rei Pelé",
+              "Avenida Professor Manoel de Abreu",
+              "Rua Professor Eurico Rabelo",
+              "Rua Eurico Rabelo",
+              "Rua Mata Machado"
+            ]
+          ]
         ],
         [
-          "literal",
+          "!",
           [
-            "Avenida Maracanã",
-            "Avenida Rei Pelé",
-            "Avenida Professor Manoel de Abreu",
-            "Rua Professor Eurico Rabelo",
-            "Rua Eurico Rabelo",
-            "Rua Mata Machado"
+            "boolean",
+            [
+              "global-state",
+              "seatView"
+            ]
           ]
         ]
       ],
@@ -2030,6 +2046,16 @@
       "id": "transit-labels",
       "type": "symbol",
       "source": "transit",
+      "filter": [
+        "!",
+        [
+          "boolean",
+          [
+            "global-state",
+            "seatView"
+          ]
+        ]
+      ],
       "layout": {
         "icon-image": "station",
         "icon-size": 0.5,
@@ -5460,12 +5486,25 @@
       "type": "symbol",
       "source": "gates",
       "filter": [
-        "==",
+        "all",
         [
-          "get",
-          "kind"
+          "==",
+          [
+            "get",
+            "kind"
+          ],
+          "gate"
         ],
-        "gate"
+        [
+          "!",
+          [
+            "boolean",
+            [
+              "global-state",
+              "seatView"
+            ]
+          ]
+        ]
       ],
       "layout": {
         "icon-image": "pill",
