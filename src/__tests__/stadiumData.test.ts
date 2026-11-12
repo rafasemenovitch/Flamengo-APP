@@ -138,6 +138,16 @@ describe('grafo de corredores', () => {
     }
   });
 
+  it('escadas, escadas rolantes e elevadores só ligam níveis do mesmo núcleo', () => {
+    const stem = (id: string) => id.replace(/^p-/, '').replace(/-\d$/, '');
+    const level = new Map(nodes.map((n) => [n.id, n.level]));
+    for (const e of edges)
+      if (['escada', 'escada_rolante', 'elevador'].includes(e.type)) {
+        expect(stem(e.from)).toBe(stem(e.to));
+        expect(level.get(e.from)).not.toBe(level.get(e.to));
+      }
+  });
+
   it('todo ponto de interesse está no grafo', () => {
     const refs = new Set(nodes.map((n) => n.ref));
     for (const f of pois) expect(refs.has(f.properties.id)).toBe(true);

@@ -39,7 +39,13 @@ export type ToMap =
   | { type: 'clearUserLocation' }
   /** Leva a câmera até o torcedor. */
   | { type: 'focusUser' }
-  | { type: 'showRoute'; path: [number, number][] }
+  /** Rota a pé: trechos por nível (null = esplanada). A câmera enquadra o caminho inteiro. */
+  | {
+      type: 'showRoute';
+      segments: { level: string | null; coords: [number, number][] }[];
+      /** Altura extra coberta pela folha enquanto a rota está aberta (px). */
+      extraBottom?: number;
+    }
   | { type: 'clearRoute' }
   | { type: 'recenter' };
 

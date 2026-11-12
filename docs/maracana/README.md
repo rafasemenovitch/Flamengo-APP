@@ -10,8 +10,8 @@ Reconstrução do Modo Maracanã como mapa geográfico real (MapLibre GL JS em W
 | 2 | Mapa isolado no navegador: estilos, 3D, gramado, portões, câmera | Aprovada |
 | 3 | Interação: níveis, "Onde você está?", ícones, rótulos, toques, ponte de mensagens | Aprovada |
 | 4 | Integração no app (WebView, folha inferior, busca, cards) | Aprovada |
-| 5 | Localização (GPS, fora do estádio, simulação para demo) | **Entregue, aguardando aprovação** |
-| 6 | Mais perto e rotas (grafo, modo acessível) | — |
+| 5 | Localização (GPS, fora do estádio, simulação para demo) | Aprovada |
+| 6 | Mais perto e rotas (grafo, modo acessível) | **Entregue, aguardando aprovação** |
 | 7 | Acabamento (vista do lugar, animações, estados, desempenho) | — |
 
 ## Onde está cada coisa
@@ -125,3 +125,27 @@ Prints em [`screens/fase-5/`](screens/fase-5/), nos dois temas. O GPS real foi t
 **Falta:**
 - **Expo Go:** a explicação e o pedido de permissão do sistema precisam ser vistos no celular. Na web, o navegador faz o papel do sistema.
 - **Fase 6:** tempo a pé e rota pelos corredores, a partir de você.
+
+## Fase 6: mais perto e rotas
+
+Prints em [`screens/fase-6/`](screens/fase-6/), nos dois temas.
+
+**Correções no grafo da fase 1 (`map/tools/build-stadium.ts`):**
+- **Escadas:** estavam ligadas umas às outras ao longo do anel, porque o agrupamento era pelo nome ("Escadas"). Agora cada escada liga só os níveis do próprio núcleo, e um teste garante.
+- **Rampas:** cada nível ia direto ao pé da rampa, então ir do nível 1 ao 3 "descia até a esplanada e subia de novo". Agora a rampa é contínua (pé → 1 → 2 → 3 → 5) e cada trecho cobra só o que falta subir.
+
+**O que tem** (`src/services/stadium/routing.ts`, genérico):
+- **Tempo a pé:** 1,2 m/s no corredor. Rampa custa 25% a mais, escada 70% a mais e mais 8 s, e elevador soma 45 s de espera.
+- **Menor caminho** (Dijkstra) pelo grafo de corredores, entre níveis.
+- **Origem:** você (GPS ou simulação, dentro do estádio), senão o seu lugar (setor e nível do bloco do ingresso), senão o portão do ingresso.
+- **"Mais perto de você"** pelo caminho de verdade, com o tempo a pé. **"Perto do seu portão"** para quem ainda vai entrar. A busca também ordena pelo tempo a pé.
+- **"Como chegar"** no detalhe de cada ponto abre a rota:
+  - o tempo em destaque (número em Anybody) e a distância;
+  - a chave "Sem escadas", só com rampas e elevadores, que nunca usa escada (testado para todos os pontos);
+  - os passos numerados ("Siga pelo corredor do nível 1", "Suba a Rampa D até o nível 3", "Pegue o elevador E5 até o nível 5", "Banheiros à direita"). Tocar num passo mostra o nível dele.
+- **No mapa:** linha vermelha tracejada, andando na direção do destino, com contorno. O trecho de outro nível fica apagado, e a câmera enquadra o caminho inteiro acima da folha.
+- O "NÍVEL" do "Você está em" agora é o do seu lugar, não o nível que está na tela.
+
+**Limites:**
+- O grafo é aproximado, como as posições, até termos as plantas oficiais. Os tempos são estimativas.
+- A rota não segue você andando (recalcular pelo GPS em movimento): fica para quando houver posicionamento interno confiável.

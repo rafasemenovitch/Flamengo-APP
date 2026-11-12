@@ -219,6 +219,19 @@ export class StadiumMap {
     this.applyPois();
     if (this.selectedPoi) (this.map.getSource('selection') as GeoJSONSource).setData(fc([this.selectedPoi]));
     if (this.user) this.setUserLocation(this.user.at, this.user.accuracy, this.user.level);
+    if (this.route.length) {
+      const segs = this.route;
+      // Sem novo voo de câmera: só devolve os dados da rota ao estilo novo.
+      (this.map.getSource('route') as GeoJSONSource).setData(
+        fc(
+          segs.map((s) => ({
+            type: 'Feature',
+            properties: { level: s.level ?? '' },
+            geometry: { type: 'LineString', coordinates: s.coords },
+          }))
+        )
+      );
+    }
   }
 
   /**
@@ -443,6 +456,65 @@ export class StadiumMap {
   focusUser() {
     if (!this.user) return;
     this.fly({ center: this.user.at, zoom: Math.max(this.map.getZoom(), 17.4) });
+  }
+
+  // ───────────────────────────── rota
+  private route: { level: string | null; coords: [number, number][] }[] = [];
+  private dash = 0;
+
+  /** Desenha a rota e enquadra o caminho inteiro. Lista vazia apaga. */
+  showRoute(segments: { level: string | null; coords: [number, number][] }[], extraBottom = 0) {
+    this.route = segments;
+    const src = this.map.getSource('route') as GeoJSONSource | undefined;
+    src?.setData(
+      fc(
+        segments.map((s) => ({
+          type: 'Feature',
+          properties: { level: s.level ?? '' },
+          geometry: { type: 'LineString', coordinates: s.coords },
+        }))
+      )
+    );
+    cancelAnimationFrame(this.dash);
+    this.dash = 0;
+    if (!segments.length) return;
+    const all = segments.flatMap((s) => s.coords);
+    const b = new maplibregl.LngLatBounds(all[0], all[0]);
+    for (const c of all) b.extend(c);
+    this.map.fitBounds(b, {
+      padding: { top: 56, left: 40, right: 40, bottom: 40 + extraBottom },
+      maxZoom: 18.2,
+      pitch: this.map.getPitch(),
+      bearing: this.map.getBearing(),
+      duration: reducedMotion() ? 0 : 800,
+    });
+    if (!reducedMotion()) this.animateDash();
+  }
+
+  /** Tracejado andando no sentido do destino (sequência de padrões, como uma esteira). */
+  private animateDash() {
+    // Traço 2 + vão 1,5 (em larguras de linha), deslizando 0,5 por quadro.
+    const seq: number[][] = [
+      [0, 1.5, 2],
+      [0.5, 1.5, 1.5],
+      [1, 1.5, 1],
+      [1.5, 1.5, 0.5],
+      [2, 1.5, 0],
+      [0, 0.5, 2, 1],
+      [0, 1, 2, 0.5],
+    ];
+    let last = 0;
+    let k = 0;
+    const step = (now: number) => {
+      if (!this.route.length || !this.map.getLayer('route-line')) return;
+      if (now - last > 90) {
+        last = now;
+        k = (k + 1) % seq.length;
+        this.map.setPaintProperty('route-line', 'line-dasharray', seq[k]);
+      }
+      this.dash = requestAnimationFrame(step);
+    };
+    this.dash = requestAnimationFrame(step);
   }
 
   // ───────────────────────────── câmera

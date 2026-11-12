@@ -22,7 +22,6 @@ import {
   distanceM,
   gatesOf,
   isInside,
-  nearest,
   nearestBlock,
   nearestGate,
   poisOf,
@@ -30,6 +29,16 @@ import {
   type PoiInfo,
 } from '@/services/stadium/query';
 import type { PoiCategory } from '@/services/stadium/types';
+import {
+  buildGraph,
+  minutes,
+  nodeForPoi,
+  pathTo,
+  routeSteps,
+  startsNear,
+  walkTree,
+  type Tree,
+} from '@/services/stadium/routing';
 import { haptic } from '@/utils/haptics';
 import darkStyle from '../../../map/styles/maracana-dark.json';
 import lightStyle from '../../../map/styles/maracana-light.json';
@@ -41,7 +50,8 @@ import { GateDetail, HelpRows, PoiDetail, SectorDetail } from './components/Deta
 import { LevelPanel } from './components/LevelPanel';
 import { LocationNotice } from './components/LocationNotice';
 import { MapSheet, type Snap } from './components/MapSheet';
-import { PlaceRow, SearchField, SheetLabel, Shortcuts, WhereAmI, meters } from './components/SheetParts';
+import { RouteView } from './components/RouteView';
+import { PlaceRow, SearchField, SheetLabel, Shortcuts, WhereAmI } from './components/SheetParts';
 import { DemoLocationPicker } from './DemoLocationPicker';
 import { StadiumMapView, type StadiumMapHandle } from './StadiumMapView';
 import { useDeviceLocation } from './useDeviceLocation';
@@ -97,6 +107,8 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
   const [topH, setTopH] = useState(110);
   const [headerH, setHeaderH] = useState(150);
   const [demoPanel, setDemoPanel] = useState(false);
+  /** Rota ativa até um ponto; `accessible` = sem escadas. */
+  const [walk, setWalk] = useState<{ poi: string; accessible: boolean } | null>(null);
   const device = useDeviceLocation();
   const [demoLoc] = useDemoLocation();
   const searchRef = useRef<TextInputInstance>(null);
@@ -105,6 +117,7 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
 
   const d = data.data;
   const pois = useMemo(() => (d ? poisOf(d) : []), [d]);
+  const graph = useMemo(() => (d?.walkways ? buildGraph(d.walkways) : null), [d]);
   const gates = useMemo(() => (d ? gatesOf(d) : []), [d]);
   const areaInfo = d?.levels.areas.find((a) => a.id === area?.id);
 
@@ -201,12 +214,23 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
     setSnap('mid');
   };
   const closeDetail = () => {
+    setWalk(null);
     setSelection(null);
     send({ type: 'clearSelection' });
   };
 
   // ─── derivados
   const activeLevel = level === 'all' ? (areaInfo?.defaultLevel ?? null) : level;
+  /**
+   * Nível do SEU lugar (não o que está na tela): o bloco do ingresso decide; sem bloco, o
+   * nível padrão da área; sem área, o nível escolhido no seletor.
+   */
+  const blockLevel = area?.block?.[0];
+  const myLevel = areaInfo
+    ? blockLevel && areaInfo.levels.includes(blockLevel)
+      ? blockLevel
+      : areaInfo.defaultLevel
+    : activeLevel;
 
   // Você no mapa: GPS do aparelho ou a posição simulada do painel de demonstração.
   const user = ((): { at: [number, number]; accuracy: number; level: string | null } | null => {
@@ -216,7 +240,7 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
         ? {
             at: [device.position.lng, device.position.lat],
             accuracy: device.position.accuracy,
-            level: activeLevel,
+            level: myLevel,
           }
         : null;
     if (demoLoc.kind === 'outside') return { at: OUTSIDE_DEMO, accuracy: 15, level: null };
@@ -226,7 +250,7 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
     }
     const seat = area?.id ?? ticket.data?.areaId ?? 'leste-inferior';
     const lvl =
-      (seat === area?.id && activeLevel) || d.levels.areas.find((a) => a.id === seat)?.defaultLevel || '1';
+      (seat === area?.id && myLevel) || d.levels.areas.find((a) => a.id === seat)?.defaultLevel || '1';
     const at = areaCenter(d, seat, lvl);
     return at ? { at, accuracy: 12, level: lvl } : null;
   })();
@@ -265,30 +289,137 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
         ? areaCenter(d, area.id, activeLevel)
         : null;
   const groupCats = GROUPS.find((g) => g.key === group)?.categories;
-  // Calculados a cada render: o React Compiler cuida da memorização.
+
+  // De onde se anda: você (GPS ou simulação, dentro do estádio), sua área ou o portão do ingresso.
+  const origin = ((): { starts: { node: string; cost: number }[]; label: string; key: string } | null => {
+    if (!d || !graph) return null;
+    if (user && inside) {
+      const starts = startsNear(graph, user.at, user.level);
+      if (starts.length) return { starts, label: 'Saindo de onde você está', key: `u${starts[0]!.node}` };
+    }
+    if (areaInfo && myLevel) {
+      const starts = d.levels.sectors
+        .filter((x) => areaInfo.sectors.includes(x.id) && x.level === myLevel)
+        .map((x) => ({ node: `s-${x.id}`, cost: 0 }))
+        .filter((x) => graph.nodes.has(x.node));
+      if (starts.length)
+        return {
+          starts,
+          label: `Saindo do seu lugar no ${areaInfo.name}`,
+          key: `a${area?.id}${myLevel}`,
+        };
+    }
+    const gate = ticket.data?.gate;
+    if (gate && graph.nodes.has(`g-${gate}`))
+      return {
+        starts: [{ node: `g-${gate}`, cost: 0 }],
+        label: `Entrando pelo Portão ${gate}`,
+        key: `g${gate}`,
+      };
+    return null;
+  })();
+  const originKey = origin?.key ?? '';
+  // Árvore de caminhos a pé a partir da origem (centenas de nós: rápido).
+  const tree: Tree | null = origin && graph ? walkTree(graph, origin.starts) : null;
+  const secondsTo = (p: PoiInfo) => {
+    if (!tree || !graph) return undefined;
+    const node = nodeForPoi(graph, p.id, p.level);
+    return node ? tree.seconds.get(node) : undefined;
+  };
+
+  // "Mais perto de você": pelo caminho de verdade, com tempo a pé.
   const near = (() => {
     if (!d || !activeLevel) return [];
-    if (from) {
-      const list = nearest(pois, from, { level: activeLevel, categories: groupCats });
+    const onLevel = pois.filter(
+      (p) =>
+        (p.level === activeLevel || p.levels.includes(activeLevel)) &&
+        (!groupCats || groupCats.includes(p.category))
+    );
+    if (tree) {
+      const list = onLevel
+        .map((p) => ({ ...p, seconds: secondsTo(p) }))
+        .filter((p): p is PoiInfo & { seconds: number } => p.seconds !== undefined)
+        .sort((x, y) => x.seconds - y.seconds);
       if (groupCats) return list.slice(0, 8);
       // Sem filtro: o mais perto de cada essencial.
       return ESSENTIALS.map((c) => list.find((p) => p.category === c)).filter(
         (p): p is (typeof list)[number] => !!p
       );
     }
-    return groupCats
-      ? pois.filter((p) => p.level === activeLevel && groupCats.includes(p.category)).slice(0, 8)
-      : [];
+    return groupCats ? onLevel.slice(0, 8) : [];
   })();
-  // Busca: o que está no seu nível e mais perto de você vem primeiro.
+
+  // "Perto do seu portão": para quem ainda vai entrar (fora do estádio ou sem localização).
+  const gateTree =
+    ticket.data?.gate && graph && !(user && inside)
+      ? walkTree(graph, [{ node: `g-${ticket.data.gate}`, cost: 0 }])
+      : null;
+  const nearGate = (() => {
+    if (!gateTree || !graph) return [];
+    return (['banheiro', 'alimentacao', 'posto_medico'] as PoiCategory[])
+      .map(
+        (c) =>
+          pois
+            .filter((p) => p.category === c)
+            .map((p) => ({ ...p, seconds: gateTree.seconds.get(nodeForPoi(graph, p.id, p.level) ?? '') }))
+            .filter((p): p is PoiInfo & { seconds: number } => p.seconds !== undefined)
+            .sort((x, y) => x.seconds - y.seconds)[0]
+      )
+      .filter((p): p is PoiInfo & { seconds: number } => !!p);
+  })();
+
+  // Busca: o que está no seu nível e mais perto (a pé) vem primeiro.
   const found = (() => {
     if (!d || !query) return [];
     const hits = search(d, query, activeLevel ?? undefined);
-    if (!from || !activeLevel) return hits;
+    if (!activeLevel) return hits;
     const rank = (h: (typeof hits)[number]) =>
-      h.kind !== 'poi' ? -1 : (h.poi.level === activeLevel ? 0 : 1e6) + distanceM(from, h.poi.coords);
-    return [...hits].sort((a, b) => rank(a) - rank(b));
+      h.kind !== 'poi'
+        ? -1
+        : (h.poi.level === activeLevel ? 0 : 1e6) +
+          (secondsTo(h.poi) ?? (from ? distanceM(from, h.poi.coords) : 0));
+    return [...hits].sort((x, y) => rank(x) - rank(y));
   })();
+
+  // Rota ativa: caminho, passos e trechos para o mapa.
+  const active = (() => {
+    if (!walk || !graph || !origin) return null;
+    const p = pois.find((x) => x.id === walk.poi);
+    const node = p && nodeForPoi(graph, p.id, p.level ?? activeLevel);
+    if (!p || !node) return null;
+    const t = walk.accessible ? walkTree(graph, origin.starts, { accessible: true }) : tree!;
+    const path = pathTo(t, node);
+    if (!path) return null;
+    const name = (ref: string) =>
+      pois.find((x) => x.id === ref)?.name ?? d?.levels.ramps.find((r) => r.id === ref)?.name;
+    const steps = routeSteps(graph, path, {
+      target: { name: p.name, at: p.coords },
+      origin: origin.label,
+      name,
+    });
+    const segments: { level: string | null; coords: [number, number][] }[] = [];
+    for (const e of path.edges) {
+      const level =
+        e.type === 'externo'
+          ? null
+          : (graph.nodes.get(e.to)?.level ?? graph.nodes.get(e.from)?.level ?? null);
+      const lastSeg = segments[segments.length - 1];
+      if (lastSeg && lastSeg.level === level) lastSeg.coords.push(...e.coords.slice(1));
+      else segments.push({ level, coords: [...e.coords] });
+    }
+    return { poi: p, path, steps, segments };
+  })();
+  const routeKey = active ? `${active.poi.id}|${walk?.accessible}|${originKey}` : '';
+  const segments = active?.segments;
+  useEffect(() => {
+    if (!ready) return;
+    // A folha fica na meia altura durante a rota: o enquadramento desconta essa altura.
+    if (routeKey && segments)
+      send({ type: 'showRoute', segments, extraBottom: heights.mid - heights.collapsed });
+    else send({ type: 'clearRoute' });
+    // Só quando a rota muda de verdade (destino, modo ou origem).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, routeKey, send]);
   const results = found.slice(0, 30);
   const blockOf = (p: PoiInfo) => (d ? nearestBlock(d, p.coords, p.level) : undefined);
   const poiMeta = (p: PoiInfo) =>
@@ -322,6 +453,24 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
   // ─── conteúdo da folha
   const detail = (() => {
     if (!d || !selection) return null;
+    if (active)
+      return (
+        <RouteView
+          title={active.poi.name}
+          category={active.poi.category}
+          minutes={minutes(active.path.seconds)}
+          meters={active.path.meters}
+          origin={origin?.label ?? ''}
+          accessible={!!walk?.accessible}
+          onAccessible={(v) => {
+            haptic.select();
+            setWalk((r) => (r ? { ...r, accessible: v } : r));
+          }}
+          steps={active.steps}
+          onStep={(st) => st.level && send({ type: 'setLevel', level: st.level })}
+          onClose={() => setWalk(null)}
+        />
+      );
     if (selection.kind === 'poi') {
       const p = pois.find((x) => x.id === selection.id);
       if (!p) return null;
@@ -334,8 +483,16 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
           block={blockOf(p)}
           gate={p.level === null ? nearestGate(d, p.coords)?.name : undefined}
           sectorName={sectorName(p.sector)}
-          distance={
-            from ? nearest([p], from, { level: p.level ?? activeLevel ?? '1' })[0]?.distance : undefined
+          seconds={secondsTo(p)}
+          onRoute={
+            origin
+              ? () => {
+                  haptic.select();
+                  setWalk({ poi: p.id, accessible: group === 'acessivel' });
+                  // Meia altura: o caminho desenhado fica à vista acima dos passos.
+                  setSnap('mid');
+                }
+              : undefined
           }
           help={help}
           onClose={closeDetail}
@@ -529,7 +686,11 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
 
           {area && near.length > 0 && (
             <SheetLabel>
-              {groupCats ? GROUPS.find((g) => g.key === group)!.near : 'Mais perto de você'}
+              {groupCats
+                ? GROUPS.find((g) => g.key === group)!.near
+                : user && !inside
+                  ? 'Perto do seu lugar'
+                  : 'Mais perto de você'}
             </SheetLabel>
           )}
           {!area && group && near.length > 0 && <SheetLabel>{`No nível ${activeLevel}`}</SheetLabel>}
@@ -539,10 +700,25 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
               category={p.category}
               title={groupCats ? p.name : CATEGORY[p.category].label}
               meta={poiMeta(p)}
-              right={'distance' in p ? meters((p as { distance: number }).distance) : undefined}
+              right={'seconds' in p ? `${minutes((p as { seconds: number }).seconds)} min` : undefined}
               onPress={() => openPoi(p)}
             />
           ))}
+          {nearGate.length > 0 && (
+            <>
+              <SheetLabel>{`Perto do seu portão · ${ticket.data?.gate}`}</SheetLabel>
+              {nearGate.map((p) => (
+                <PlaceRow
+                  key={`g${p.id}`}
+                  category={p.category}
+                  title={CATEGORY[p.category].label}
+                  meta={poiMeta(p)}
+                  right={`${minutes(p.seconds)} min`}
+                  onPress={() => openPoi(p)}
+                />
+              ))}
+            </>
+          )}
           {!area && (
             <View style={{ paddingHorizontal: layout.gutter, marginTop: 24, gap: 14 }}>
               <Text variant="bodyM" tone="secondary">
@@ -713,7 +889,7 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
             {notice && <View style={{ marginTop: -12, marginBottom: 8 }}>{notice}</View>}
             <WhereAmI
               area={areaInfo?.name}
-              level={area ? (activeLevel ?? undefined) : undefined}
+              level={area ? (myLevel ?? undefined) : undefined}
               ticketLine={[ticketLine, statusLine].filter(Boolean).join('\n') || undefined}
               onPress={() => setPicker(true)}
             />

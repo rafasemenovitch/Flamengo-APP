@@ -114,6 +114,14 @@
         "features": []
       }
     },
+    "route": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      },
+      "lineMetrics": true
+    },
     "poi-escada": {
       "type": "geojson",
       "data": {
@@ -1845,6 +1853,134 @@
       "paint": {
         "line-color": "#C8102E",
         "line-width": 2.5
+      }
+    },
+    {
+      "id": "route-casing",
+      "type": "line",
+      "source": "route",
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#0E0E10",
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          5,
+          18,
+          9
+        ],
+        "line-opacity": [
+          "*",
+          0.9,
+          [
+            "case",
+            [
+              "any",
+              [
+                "==",
+                [
+                  "global-state",
+                  "level"
+                ],
+                "all"
+              ],
+              [
+                "==",
+                [
+                  "get",
+                  "level"
+                ],
+                ""
+              ],
+              [
+                "==",
+                [
+                  "get",
+                  "level"
+                ],
+                [
+                  "global-state",
+                  "level"
+                ]
+              ]
+            ],
+            1,
+            0.3
+          ]
+        ]
+      }
+    },
+    {
+      "id": "route-line",
+      "type": "line",
+      "source": "route",
+      "layout": {
+        "line-cap": "butt",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#C8102E",
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15.5,
+          3,
+          18,
+          5.5
+        ],
+        "line-dasharray": [
+          2,
+          1.5
+        ],
+        "line-opacity": [
+          "case",
+          [
+            "any",
+            [
+              "==",
+              [
+                "global-state",
+                "level"
+              ],
+              "all"
+            ],
+            [
+              "==",
+              [
+                "get",
+                "level"
+              ],
+              ""
+            ],
+            [
+              "==",
+              [
+                "get",
+                "level"
+              ],
+              [
+                "global-state",
+                "level"
+              ]
+            ]
+          ],
+          1,
+          0.3
+        ]
       }
     },
     {

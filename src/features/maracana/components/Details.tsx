@@ -6,7 +6,8 @@ import type { GateInfo, PoiInfo } from '@/services/stadium/query';
 import type { Area, HelpChannel, Sector, TransitStation } from '@/services/stadium/types';
 import { openDirections } from '../../stadium/directions';
 import { CATEGORY } from '../categories';
-import { CategoryMark, Field, meters } from './SheetParts';
+import { minutes } from '@/services/stadium/routing';
+import { CategoryMark, Field } from './SheetParts';
 
 function Header({ overline, title, onClose }: { overline: string; title: string; onClose: () => void }) {
   const { colors, layout } = useTheme();
@@ -99,7 +100,8 @@ export function PoiDetail({
   block,
   gate,
   sectorName,
-  distance,
+  seconds,
+  onRoute,
   help,
   onClose,
 }: {
@@ -108,7 +110,10 @@ export function PoiDetail({
   /** Para pontos na área externa: o portão mais perto. */
   gate?: string;
   sectorName?: string;
-  distance?: number;
+  /** Tempo a pé a partir de você/sua área (pelo caminho). */
+  seconds?: number;
+  /** "Como chegar" (sem origem conhecida, fica indisponível). */
+  onRoute?: () => void;
   /** Canais ligados a este ponto (segurança, Juizado, acolhimento). */
   help: HelpChannel[];
   onClose: () => void;
@@ -143,12 +148,21 @@ export function PoiDetail({
         </Text>
         {poi.confidence === 'estimado' && <DemoBadge label="Posição aproximada" />}
       </View>
-      {(sectorName || distance !== undefined) && (
+      {(sectorName || seconds !== undefined) && (
         <Fields>
           {sectorName && <Field label="Perto do setor" value={sectorName} grow />}
-          {distance !== undefined && <Field label="Daqui" value={meters(distance)} />}
+          {seconds !== undefined && <Field label="A pé" value={`${minutes(seconds)} min`} />}
         </Fields>
       )}
+      <View style={{ paddingHorizontal: layout.gutter, marginTop: 20 }}>
+        {onRoute ? (
+          <Button label="Como chegar" icon="walk-outline" onPress={onRoute} fullWidth />
+        ) : (
+          <Text variant="bodyS" tone="secondary">
+            Diga onde você está para ver o caminho até aqui.
+          </Text>
+        )}
+      </View>
       {help.length > 0 && (
         <View style={{ marginTop: 20 }}>
           <HelpRows channels={help} />

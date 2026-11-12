@@ -59,6 +59,7 @@ function dataModule(id: string) {
     stadium: read('stadium.geojson'),
     gates: read('gates.geojson'),
     pois: read('pois.geojson'),
+    walkways: read('walkways.geojson'),
   };
   // JSON.parse de uma string é mais rápido de carregar que um objeto literal grande.
   return `// Gerado por map/tools/build-webview.ts a partir de assets/stadiums/${id}/. Não editar.\nexport default JSON.parse(${JSON.stringify(JSON.stringify(data))});\n`;

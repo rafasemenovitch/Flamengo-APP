@@ -301,6 +301,12 @@ const USER_OPACITY = [
   1,
   0.4,
 ];
+const ROUTE_OPACITY = [
+  'case',
+  ['any', ['==', LVL, 'all'], ['==', ['get', 'level'], ''], ['==', ['get', 'level'], LVL]],
+  1,
+  0.3,
+];
 const ICON_SIZE = ['interpolate', ['linear'], ['zoom'], 15.5, 0.62, 17, 0.8, 19, 1];
 const visible = (cat: string) => ['!', ['in', cat, ['array', ['global-state', 'hidden']]]];
 
@@ -483,6 +489,31 @@ function stadiumLayers(t: (typeof T)[Theme]) {
       layout: { 'line-join': 'round' },
       paint: { 'line-color': t.accent, 'line-width': 2.5 },
     },
+    // Rota: vermelha (é "a sua"), tracejada e animada no sentido do destino, com contorno
+    // para destacar do mapa. Trechos em outro nível ficam apagados.
+    {
+      id: 'route-casing',
+      type: 'line',
+      source: 'route',
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: {
+        'line-color': t.labelHalo,
+        'line-width': ['interpolate', ['linear'], ['zoom'], 15.5, 5, 18, 9],
+        'line-opacity': ['*', 0.9, ROUTE_OPACITY],
+      },
+    },
+    {
+      id: 'route-line',
+      type: 'line',
+      source: 'route',
+      layout: { 'line-cap': 'butt', 'line-join': 'round' },
+      paint: {
+        'line-color': t.accent,
+        'line-width': ['interpolate', ['linear'], ['zoom'], 15.5, 3, 18, 5.5],
+        'line-dasharray': [2, 1.5],
+        'line-opacity': ROUTE_OPACITY,
+      },
+    },
     {
       id: 'section-labels',
       type: 'symbol',
@@ -658,6 +689,7 @@ function build(theme: Theme) {
       transit: { type: 'geojson', data: EMPTY },
       selection: { type: 'geojson', data: EMPTY },
       user: { type: 'geojson', data: EMPTY },
+      route: { type: 'geojson', data: EMPTY, lineMetrics: true },
       // Uma fonte por categoria: a aglomeração junta só pontos da mesma categoria.
       ...Object.fromEntries(
         POI_CATEGORIES.map((cat) => [

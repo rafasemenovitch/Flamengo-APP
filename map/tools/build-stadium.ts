@@ -1521,20 +1521,28 @@ for (const letter of Object.keys(RAMP_REL)) {
     z: 0,
   });
   link(g, foot, 'externo', true);
-  for (const level of RAMP_LEVELS[letter]) {
+  // A rampa é contínua: pé → nível 1 → nível 2 → … Cada trecho cobra só o que falta subir
+  // (sem isso, ir do nível 1 ao 3 "desceria até a esplanada e subiria de novo").
+  let prev = foot;
+  let prevFloor = 0;
+  for (const level of [...RAMP_LEVELS[letter]].sort((a, b) => FLOOR[a] - FLOOR[b])) {
     if (!ringNodes[level]) continue;
     // Rampa A: níveis 3 e 5 só por elevador/escada rolante (VIP, camarotes e cativas).
     // Rampa D: chega ao anel do nível 5, que dá a volta e atende Norte e Sul (manual, Fig. 21).
-    const targets = letter === 'A' && (level === '3' || level === '5') ? [] : [phi];
-    for (const t of targets)
-      link(foot, nearestRing(level, polar(t, ringR(level, t))), 'rampa', true, FLOOR[level] * 8);
+    if (letter === 'A' && (level === '3' || level === '5')) continue;
+    const at = nearestRing(level, polar(phi, ringR(level, phi)));
+    link(prev, at, 'rampa', true, (FLOOR[level] - prevFloor) * 8);
+    prev = at;
+    prevFloor = FLOOR[level];
   }
 }
 // Elevadores, escadas rolantes e escadas: ligam os nós do anel entre os níveis
 const verticals = pois.filter((p) => p.levels && p.levels.length > 1);
 const groups = new Map<string, typeof verticals>();
 for (const p of verticals) {
-  const key = p.name;
+  // Mesmo núcleo = mesmo id sem o nível ("escada-3-1" e "escada-3-2" → "escada-3"); pelo nome,
+  // todas as "Escadas" virariam um grupo só e ligariam escadas diferentes entre si.
+  const key = p.id.replace(/-\d$/, '');
   groups.set(key, [...(groups.get(key) ?? []), p]);
 }
 for (const [, group] of groups) {

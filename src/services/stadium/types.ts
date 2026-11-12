@@ -219,4 +219,6 @@ export interface StadiumData {
   stadium: FeatureCollection;
   gates: FeatureCollection;
   pois: FeatureCollection;
+  /** Grafo de corredores (rotas). O mapa não precisa dele; o app usa para tempo a pé. */
+  walkways?: FeatureCollection;
 }

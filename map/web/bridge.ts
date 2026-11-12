@@ -64,10 +64,10 @@ export function createBridge(opts: {
         return sm.setUserLocation(null);
       case 'focusUser':
         return sm.focusUser();
-      // Rotas (fase 6) ainda não desenham nada.
       case 'showRoute':
+        return sm.showRoute(msg.segments, msg.extraBottom ?? 0);
       case 'clearRoute':
-        return;
+        return sm.showRoute([]);
     }
   };
 
