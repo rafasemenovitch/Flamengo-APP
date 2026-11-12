@@ -30,7 +30,13 @@ npm run typecheck      # checagem de tipos
 
 Expo SDK 58 · React Native 0.88 · React 19.3 · react-native-maps · expo-location · expo-camera · TypeScript strict · React Navigation 7 ·
 `Animated` nativo (respeita "reduzir movimento") · react-native-svg · expo-linear-gradient.
-Fontes: Inter (texto) e Barlow Condensed (títulos e placares), licença OFL, em `assets/fonts`.
+Fontes: Schibsted Grotesk (texto) e Anybody (títulos e placares), licença OFL, em `assets/fonts`.
+
+## Login com Supabase
+
+O login por e-mail/senha e o cadastro ficam depois da primeira tela de boas-vindas.
+Também é possível entrar como visitante, com o mesmo acesso ao conteúdo demonstrativo.
+Configuração do projeto, chaves públicas e confirmação por código: [guia do Supabase](docs/SUPABASE.md).
 
 ## Estrutura
 
@@ -95,7 +101,7 @@ Tudo no modo `demo`. Na interface, os itens simulados levam o selo **DEMO**:
 - [x] Fase 3: Jogos, Ingressos + Modo Maracanã, Nação (loja, sócio, gamificação, rankings, Passaporte, comunidade), Perfil, Configurações e Assistente Fla
 
 ### Roteiro de demonstração
-0. Primeira abertura: boas-vindas em 3 passos (rever em Perfil → Configurações → Rever boas-vindas).
+0. Primeira abertura: boas-vindas → login/cadastro ou visitante → ídolos → alertas (rever em Perfil → Configurações → Rever boas-vindas).
 1. Home: **toque e segure a saudação** ("Boa tarde, Rafael") para abrir os controles escondidos da demonstração e alternar entre pré-jogo, dia de jogo, ao vivo e pós-jogo.
    No modo **Ao vivo**, o relógio avança (1 min de jogo a cada 4 s) e o 3º gol, aos 83', dispara o alerta de gol.
 2. Comprar ingresso: escolha o setor no mapa → "Compra simulada" → carteira com QR DEMONSTRATIVO → **cadastro facial** (câmera frontal; a foto não sai do aparelho).

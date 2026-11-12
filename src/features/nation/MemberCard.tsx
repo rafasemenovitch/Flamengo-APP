@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { DemoBadge, Monogram, Text, TreatedImage, useTheme } from '@/design-system';
 import type { Membership, MembershipPlan } from '@/types/commerce';
 import { formatFullDate } from '@/utils/format';
+import { useAppState } from '@/state/AppStateProvider';
 
 /** Mascara o número da carteirinha: só os 4 últimos dígitos visíveis. */
 function mask(n: string) {
@@ -16,10 +17,12 @@ function mask(n: string) {
  */
 export function MemberCard({ membership, plan }: { membership: Membership; plan: MembershipPlan }) {
   const { colors, radius } = useTheme();
+  const { profile } = useAppState();
+  const holderName = membership.isDemo ? (profile?.name ?? membership.holderName) : membership.holderName;
   return (
     <View
       accessible
-      accessibilityLabel={`Carteirinha demonstrativa, plano ${plan.name}, ${membership.holderName}`}
+      accessibilityLabel={`Carteirinha demonstrativa, plano ${plan.name}, ${holderName}`}
       style={{
         aspectRatio: 1.586,
         borderRadius: radius.l,
@@ -47,7 +50,7 @@ export function MemberCard({ membership, plan }: { membership: Membership; plan:
         </View>
         <View style={{ gap: 4 }}>
           <Text variant="titleM" tone="onPrimary">
-            {membership.holderName}
+            {holderName}
           </Text>
           <Text variant="numericTable" tone="onPrimary" style={{ letterSpacing: 2 }}>
             {mask(membership.memberNumber)}

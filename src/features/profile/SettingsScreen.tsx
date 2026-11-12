@@ -13,7 +13,8 @@ import {
   useThemePreference,
   type ThemePreference,
 } from '@/design-system';
-import { DATA_SOURCE, services } from '@/services';
+import { DATA_SOURCE } from '@/services';
+import { useAuth } from '@/features/auth/AuthProvider';
 import { useOnboarding } from '@/features/onboarding/Onboarding';
 import { useAppState } from '@/state/AppStateProvider';
 import type { NotificationPrefs, PrivacyPrefs } from '@/types/fan';
@@ -40,6 +41,7 @@ export function SettingsScreen() {
   const { preference, setPreference } = useThemePreference();
   const { profile, updateProfile, unreadNotifications } = useAppState();
   const { replay } = useOnboarding();
+  const { session, signOut: signOutAccount, requestLogin } = useAuth();
 
   const toggle = (value: boolean, onChange: (v: boolean) => void, label: string) => (
     <Switch
@@ -53,22 +55,15 @@ export function SettingsScreen() {
   );
 
   const signOut = () =>
-    Alert.alert(
-      'Conta demonstrativa',
-      'O login real chega numa próxima fase. Sair agora apenas restaura o torcedor demo.',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Restaurar demo',
-          style: 'destructive',
-          onPress: () =>
-            services.auth
-              .signOut()
-              .then(() => services.profile.getProfile())
-              .then((p) => updateProfile(p)),
-        },
-      ]
-    );
+    Alert.alert('Sair da conta?', 'Você poderá entrar novamente ou continuar como visitante.', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Sair',
+        style: 'destructive',
+        onPress: () =>
+          signOutAccount().catch(() => Alert.alert('Não foi possível sair', 'Tente novamente em instantes.')),
+      },
+    ]);
 
   return (
     <Screen title="Configurações">
@@ -171,7 +166,21 @@ export function SettingsScreen() {
       </View>
 
       <View style={{ marginTop: 48, paddingHorizontal: layout.gutter, gap: 16 }}>
-        <Button label="Sair da conta" variant="secondary" onPress={signOut} fullWidth />
+        <Text variant="bodyS" tone="secondary" align="center">
+          {session ? session.user.email : 'Você está como visitante'}
+        </Text>
+        <Button
+          label={session ? 'Sair da conta' : 'Entrar na minha conta'}
+          variant="secondary"
+          onPress={
+            session
+              ? signOut
+              : () => {
+                  requestLogin().catch(() => Alert.alert('Não foi possível entrar', 'Tente novamente.'));
+                }
+          }
+          fullWidth
+        />
         <Text variant="bodyS" tone="tertiary" align="center">
           Conceito independente, sem vínculo oficial.
         </Text>

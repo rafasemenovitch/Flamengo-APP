@@ -6,6 +6,7 @@ import { createMockFlaTVService, createMockNewsService, createMockRecommendation
 import { createMockGamificationService } from './gamification';
 import { createMockMatchesService } from './matches';
 import { createMockAuthService, createMockProfileService } from './profile';
+import { withAccountProfile } from '@/services/supabase/profiles';
 import { createMockStadiumService, createMockTicketsService } from './tickets';
 
 export { demoMember, demoScenario, DEMO_SCENARIOS, type DemoScenario } from './demoScenario';
@@ -17,7 +18,7 @@ export function createMockServices(): Services {
   const store = createMockStoreService();
   const membership = createMockMembershipService();
   const gamification = createMockGamificationService();
-  const profile = createMockProfileService();
+  const profile = withAccountProfile(createMockProfileService());
   return {
     matches,
     news: createMockNewsService(),

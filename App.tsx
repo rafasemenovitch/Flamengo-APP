@@ -8,6 +8,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AlertHost, ClubCrest, fontFiles, palette, ThemeProvider, useTheme } from '@/design-system';
 import { RootNavigator } from '@/navigation/RootNavigator';
 import { OnboardingGate } from '@/features/onboarding/Onboarding';
+import { AuthProvider } from '@/features/auth/AuthProvider';
 import { AppStateProvider } from '@/state/AppStateProvider';
 
 // Mantém a abertura nativa (escudo sobre fundo preto) até as fontes carregarem.
@@ -17,12 +18,14 @@ function ThemedApp() {
   const { scheme } = useTheme();
   return (
     <AlertHost>
-      <AppStateProvider>
-        <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-        <OnboardingGate>
-          <RootNavigator />
-        </OnboardingGate>
-      </AppStateProvider>
+      <AuthProvider>
+        <AppStateProvider>
+          <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+          <OnboardingGate>
+            <RootNavigator />
+          </OnboardingGate>
+        </AppStateProvider>
+      </AuthProvider>
     </AlertHost>
   );
 }

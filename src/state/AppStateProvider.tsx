@@ -12,6 +12,8 @@ import {
 import { useAlerts } from '@/design-system';
 import { navigateByName } from '@/navigation/navigationRef';
 import { services } from '@/services';
+import { createMockProfileService } from '@/services/mock/profile';
+import { useAuth } from '@/features/auth/AuthProvider';
 import type { Cart } from '@/types/commerce';
 import type { FanProfile } from '@/types/fan';
 import type { FanProgress } from '@/types/gamification';
@@ -35,9 +37,12 @@ interface AppState {
 }
 
 const Ctx = createContext<AppState | null>(null);
+const guestProfiles = createMockProfileService();
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
-  const [profile, setProfile] = useState<FanProfile | null>(null);
+  const [guestProfile, setGuestProfile] = useState<FanProfile | null>(null);
+  const { session, accountProfile, updateAccountProfile } = useAuth();
+  const profile = session ? accountProfile : guestProfile;
   const [progress, setProgress] = useState<FanProgress | null>(null);
   const [cart, setCart] = useState<Cart | null>(null);
   const [unreadNotifications, setUnread] = useState(0);
@@ -70,9 +75,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }, [showAlert]);
 
   useEffect(() => {
-    services.profile
+    guestProfiles
       .getProfile()
-      .then(setProfile)
+      .then(setGuestProfile)
       .catch(() => undefined);
     services.store
       .getCart()
@@ -84,11 +89,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     refreshNotifications().catch(() => undefined);
   }, [refreshProgress, refreshNotifications]);
 
-  const updateProfile = useCallback(async (patch: Partial<Omit<FanProfile, 'id'>>) => {
-    // Otimista: a UI responde na hora; o serviço confirma depois.
-    setProfile((p) => (p ? { ...p, ...patch } : p));
-    setProfile(await services.profile.updateProfile(patch));
-  }, []);
+  const updateProfile = useCallback(
+    async (patch: Partial<Omit<FanProfile, 'id'>>) => {
+      if (session) await updateAccountProfile(patch);
+      else setGuestProfile(await guestProfiles.updateProfile(patch));
+    },
+    [session, updateAccountProfile]
+  );
 
   const toggleFavoritePlayer = useCallback(
     async (playerId: string) => {

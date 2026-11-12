@@ -24,8 +24,9 @@ import {
 import { useAsync } from '@/hooks/useAsync';
 import { services } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
-import type { FanProfile, Gender } from '@/types/fan';
+import type { FanProfile } from '@/types/fan';
 import { formatFullDate } from '@/utils/format';
+import { birthDateToIso, validCpf, GENDERS } from '@/features/auth/profileForm';
 
 const digits = (v: string) => v.replace(/\D/g, '');
 const maskCpf = (v: string) =>
@@ -55,26 +56,6 @@ const brToIso = (br: string) => {
   return d && m && y && y.length === 4 ? `${y}-${m}-${d}` : '';
 };
 
-/** Dígitos verificadores do CPF. */
-function validCpf(v: string) {
-  const d = digits(v);
-  if (d.length !== 11 || /^(\d)\1+$/.test(d)) return false;
-  const check = (len: number) => {
-    let sum = 0;
-    for (let i = 0; i < len; i++) sum += Number(d[i]) * (len + 1 - i);
-    const r = (sum * 10) % 11;
-    return r === 10 ? 0 : r;
-  };
-  return check(9) === Number(d[9]) && check(10) === Number(d[10]);
-}
-
-const GENDERS: [Gender, string][] = [
-  ['masculino', 'Masculino'],
-  ['feminino', 'Feminino'],
-  ['outro', 'Outro'],
-  ['nao-informar', 'Prefiro não dizer'],
-];
-
 function Field({
   label,
   value,
@@ -84,6 +65,7 @@ function Field({
   placeholder,
   autoCapitalize = 'sentences',
   flex,
+  editable = true,
 }: {
   label: string;
   value: string;
@@ -93,6 +75,7 @@ function Field({
   placeholder?: string;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   flex?: number;
+  editable?: boolean;
 }) {
   const { colors, radius } = useTheme();
   const [focus, setFocus] = useState(false);
@@ -103,6 +86,7 @@ function Field({
       </Text>
       <TextInput
         value={value}
+        editable={editable}
         onChangeText={onChange}
         onFocus={() => setFocus(true)}
         onBlur={() => setFocus(false)}
@@ -159,7 +143,12 @@ export function EditProfileScreen() {
   const face = useAsync(() => services.profile.getFaceEnrollment(), [isFocused]);
   const [f, setF] = useState<Form | undefined>(() =>
     profile
-      ? { ...profile, birthDate: isoToBr(profile.birthDate), fanSince: String(profile.fanSince) }
+      ? {
+          ...profile,
+          cpf: maskCpf(profile.cpf),
+          birthDate: isoToBr(profile.birthDate),
+          fanSince: String(profile.fanSince),
+        }
       : undefined
   );
   const [tried, setTried] = useState(false);
@@ -173,10 +162,18 @@ export function EditProfileScreen() {
   const errors: Partial<Record<keyof Form, string>> = {};
   if (f.name.trim().split(' ').length < 2) errors.name = 'Informe nome e sobrenome.';
   if (!validCpf(f.cpf)) errors.cpf = 'CPF inválido.';
-  if (!brToIso(f.birthDate)) errors.birthDate = 'Use o formato DD/MM/AAAA.';
+  if (!birthDateToIso(f.birthDate)) errors.birthDate = 'Informe uma data válida (DD/MM/AAAA).';
   if (!/^\S+@\S+\.\S+$/.test(f.email)) errors.email = 'E-mail inválido.';
-  if (digits(f.phone).length < 10) errors.phone = 'Celular com DDD.';
-  if (digits(f.cep).length !== 8) errors.cep = 'CEP com 8 números.';
+  if (f.phone && digits(f.phone).length < 10) errors.phone = 'Celular com DDD.';
+  if (f.cep && digits(f.cep).length !== 8) errors.cep = 'CEP com 8 números.';
+  const since = Number(f.fanSince);
+  if (
+    !/^\d{4}$/.test(f.fanSince) ||
+    since > new Date().getFullYear() ||
+    since < Number(birthDateToIso(f.birthDate).slice(0, 4))
+  ) {
+    errors.fanSince = 'Informe um ano entre seu nascimento e o ano atual.';
+  }
   const err = (k: keyof Form) => (tried ? errors[k] : undefined);
   const enrolled = face.data?.status === 'enrolled';
 
@@ -263,7 +260,7 @@ export function EditProfileScreen() {
                     key={k}
                     onPress={() => set('gender')(k)}
                     accessibilityRole="radio"
-                    accessibilityState={{ selected: on }}
+                    accessibilityState={{ checked: on, selected: on }}
                     style={{
                       height: 40,
                       paddingHorizontal: 14,
@@ -298,6 +295,7 @@ export function EditProfileScreen() {
             keyboardType="email-address"
             autoCapitalize="none"
             error={err('email')}
+            editable={false}
           />
           <Field
             label="Celular"
