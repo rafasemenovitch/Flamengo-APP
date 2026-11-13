@@ -36,6 +36,7 @@ import { BolaoScreen } from '@/features/bolao/BolaoScreen';
 import { TrailScreen } from '@/features/nation/gamification/TrailScreen';
 import { EditProfileScreen } from '@/features/profile/EditProfileScreen';
 import { SettingsScreen } from '@/features/profile/SettingsScreen';
+import { FeaturePresentationScreen } from '@/features/guidance/FeaturePresentation';
 import { MaracanaScreen } from '@/features/maracana/MaracanaScreen';
 import { FaceEnrollmentScreen } from '@/features/tickets/FaceEnrollmentScreen';
 import { TicketDetailScreen } from '@/features/tickets/TicketDetailScreen';
@@ -114,6 +115,7 @@ export function RootNavigator() {
         <Stack.Screen name="BolaoCreate" component={BolaoCreateScreen} />
         <Stack.Screen name="BolaoJoin" component={BolaoJoinScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
+        <Stack.Screen name="FeaturePresentation" component={FeaturePresentationScreen} />
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
         <Stack.Screen name="Favorites" component={FavoritesScreen} />
         <Stack.Screen name="History" component={HistoryScreen} />

@@ -1,3 +1,4 @@
+import { FirstUseGuide } from '@/features/guidance/FirstUseGuide';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useRef, useState, type ComponentRef, type ReactNode } from 'react';
@@ -562,6 +563,7 @@ export function TrailScreen({ route }: RootScreenProps<'Trail'>) {
 
   return (
     <Screen title="Temporada" scroll={false}>
+      <FirstUseGuide resource="trail" constrained />
       <ScrollView ref={scroll} contentContainerStyle={{ paddingBottom: 64 }}>
         {q.data ? (
           <SeasonHeader progress={q.data.progress} />

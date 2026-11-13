@@ -1,3 +1,4 @@
+import { FirstUseGuide } from '@/features/guidance/FirstUseGuide';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
@@ -227,6 +228,7 @@ function GuessForm({
   return (
     <View style={{ flex: 1, backgroundColor: colors.bgCanvas }}>
       <Screen title="Seu palpite">
+        <FirstUseGuide resource="bolao" />
         <View style={{ alignItems: 'center', gap: 4, paddingHorizontal: layout.gutter }}>
           <Text variant="titleS">
             {competitionName(m.competitionId)} · {m.stage}

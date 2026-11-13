@@ -1,3 +1,4 @@
+import { FirstUseGuide } from '@/features/guidance/FirstUseGuide';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ComponentRef } from 'react';
@@ -678,6 +679,10 @@ export function MaracanaScreen({ navigation, route }: RootScreenProps<'StadiumMo
 
   const home = (
     <>
+      <FirstUseGuide
+        resource="maracana"
+        enabled={ready && !mapError && !data.error && snap !== 'collapsed' && !searching && !query}
+      />
       {searching || query ? (
         <View>
           <SheetLabel>

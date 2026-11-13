@@ -1,3 +1,4 @@
+import { FirstUseGuide } from '@/features/guidance/FirstUseGuide';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { Pressable, View } from 'react-native';
@@ -47,6 +48,7 @@ export function TicketsScreen() {
       }}
     >
       <TabHeader title="Ingressos" subtitle="Compra simulada" />
+      <FirstUseGuide resource="tickets" />
 
       <View style={{ marginTop: 48 }}>
         <SectionTitle

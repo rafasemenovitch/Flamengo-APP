@@ -12,8 +12,13 @@ import type { NotificationPrefs } from '@/types/fan';
 import { haptic } from '@/utils/haptics';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { AuthScreen } from '@/features/auth/AuthScreen';
+import { FeaturePresentation } from '@/features/guidance/FeaturePresentation';
+import { FEATURE_PRESENTATION } from '@/features/guidance/content';
 
 const KEY = '@flamengo/onboarding-done';
+const RESOURCE_START = 3;
+const ALERTS_PAGE = RESOURCE_START + FEATURE_PRESENTATION.length;
+const PAGES = ALERTS_PAGE + 1;
 
 interface OnboardingCtx {
   /** Mostra o onboarding de novo (útil para repetir a apresentação). */
@@ -77,7 +82,6 @@ function OnboardingFlow({ onDone }: { onDone: () => void }) {
   const { profile, updateProfile, toggleFavoritePlayer } = useAppState();
   const squad = useAsync(() => services.matches.getSquad());
   const [page, setPage] = useState(0);
-  const PAGES = 4;
 
   const go = (p: number) => {
     haptic.select();
@@ -85,6 +89,21 @@ function OnboardingFlow({ onDone }: { onDone: () => void }) {
   };
 
   const favs = profile?.favoritePlayerIds ?? [];
+
+  if (page >= RESOURCE_START && page < ALERTS_PAGE) {
+    return (
+      <FeaturePresentation
+        onClose={() => go(ALERTS_PAGE)}
+        onBack={() => go(RESOURCE_START - 1)}
+        flow={{
+          page: page - RESOURCE_START,
+          onPageChange: (index) => setPage(RESOURCE_START + index),
+          stepOffset: RESOURCE_START,
+          totalSteps: PAGES,
+        }}
+      />
+    );
+  }
 
   if (page === 1) {
     return (
@@ -255,8 +274,8 @@ function OnboardingFlow({ onDone }: { onDone: () => void }) {
             </View>
           )}
 
-          {/* 4 — Alertas */}
-          {page === 3 && (
+          {/* Alertas, depois da apresentação dos recursos. */}
+          {page === ALERTS_PAGE && (
             <View
               style={{ flex: 1, paddingHorizontal: layout.gutter, paddingTop: spacing.xl, gap: spacing.lg }}
             >

@@ -1,3 +1,4 @@
+import { FirstUseGuide } from '@/features/guidance/FirstUseGuide';
 import { useNavigation } from '@react-navigation/native';
 import { View } from 'react-native';
 
@@ -18,6 +19,7 @@ export function TicketWalletScreen() {
   });
   return (
     <Screen title="Carteira" refreshing={q.refreshing} onRefresh={q.refresh}>
+      <FirstUseGuide resource="tickets" />
       <View style={{ paddingHorizontal: layout.gutter, gap: spacing.md }}>
         {q.loading ? (
           [0, 1].map((i) => <Skeleton key={i} height={190} radius={20} />)

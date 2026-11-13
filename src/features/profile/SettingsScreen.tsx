@@ -144,6 +144,11 @@ export function SettingsScreen() {
             onPress={() => navigation.navigate('Assistant')}
           />
           <ListItem icon="play-circle-outline" title="Rever boas-vindas" onPress={replay} />
+          <ListItem
+            icon="map-outline"
+            title="Rever apresentação dos recursos"
+            onPress={() => navigation.navigate('FeaturePresentation')}
+          />
         </ListGroup>
       </View>
 

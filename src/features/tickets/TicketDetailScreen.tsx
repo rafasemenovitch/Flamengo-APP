@@ -1,3 +1,4 @@
+import { FirstUseGuide } from '@/features/guidance/FirstUseGuide';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback } from 'react';
@@ -42,6 +43,7 @@ export function TicketDetailScreen({ route }: RootScreenProps<'TicketDetail'>) {
 
   return (
     <Screen title="Ingresso" headerRight={<DemoBadge />}>
+      <FirstUseGuide resource="tickets" />
       <View style={{ paddingHorizontal: layout.gutter, gap: 4 }}>
         <Text variant="displayM">
           {m.homeTeam.shortName} × {m.awayTeam.shortName}

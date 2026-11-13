@@ -1,3 +1,4 @@
+import { FirstUseGuide } from '@/features/guidance/FirstUseGuide';
 import { Ionicons } from '@expo/vector-icons';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { useState, type ReactNode } from 'react';
@@ -348,6 +349,7 @@ export function BolaoScreen({ route }: RootScreenProps<'Bolao'>) {
 
   return (
     <Screen title="Bolão">
+      <FirstUseGuide resource="bolao" />
       <BolaoHero best={best} />
       <View style={{ marginTop: 8 }}>
         <Tabs<BolaoTab>

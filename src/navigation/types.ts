@@ -55,6 +55,7 @@ export type RootStackParamList = {
   BolaoJoin: { code?: string } | undefined;
   // Perfil
   Settings: undefined;
+  FeaturePresentation: undefined;
   EditProfile: undefined;
   Favorites: undefined;
   History: undefined;

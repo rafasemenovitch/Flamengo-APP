@@ -1,3 +1,4 @@
+import { FirstUseGuide } from '@/features/guidance/FirstUseGuide';
 import { useEffect, useRef, useState } from 'react';
 import { FlatList, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -269,6 +270,7 @@ export function AssistantScreen({ navigation, route }: RootScreenProps<'Assistan
         />
       </View>
 
+      <FirstUseGuide resource="assistant" constrained />
       <FlatList
         ref={list}
         data={messages}
