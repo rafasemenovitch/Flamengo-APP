@@ -163,7 +163,7 @@ describe('recursos nas boas-vindas e primeiro uso', () => {
       'Assistente Fla',
     ])
       expect(has(kicker)).toBe(true);
-    expect(has('O estádio em 3D, do portão ao seu lugar')).toBe(true);
+    expect(has('O Maracanã em 3D')).toBe(true);
     expect(screen.root.findAllByType(Mascot)).toHaveLength(0);
   });
 

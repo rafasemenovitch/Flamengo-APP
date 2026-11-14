@@ -59,7 +59,10 @@ async function main() {
       const geo = process.env.GEO;
       const [lat, lng, accuracy] = (geo && geo !== 'negado' ? geo : '').split(',').map(Number);
       const page = await browser.newPage({
-        viewport: { width: 390, height: 844 },
+        // VIEW="375x667" para conferir celular pequeno.
+        viewport: (([vw, vh]) => ({ width: vw || 390, height: vh || 844 }))(
+          (process.env.VIEW ?? '').split('x').map(Number)
+        ),
         deviceScaleFactor: 2,
         ...(lat
           ? { geolocation: { latitude: lat, longitude: lng!, accuracy }, permissions: ['geolocation'] }

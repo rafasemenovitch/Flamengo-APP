@@ -27,6 +27,8 @@ const ACCESSIBLE = ['banheiro_acessivel', 'elevador', 'sala_sensorial', 'informa
 const FILTERS: Record<string, (cats: string[]) => string[]> = {
   banheiros: (cats) => cats.filter((c) => !c.startsWith('banheiro')),
   acessibilidade: (cats) => cats.filter((c) => !ACCESSIBLE.includes(c)),
+  // Só o estádio, sem ícones (imagem de apresentação).
+  nenhum: (cats) => cats,
 };
 
 async function main() {
@@ -180,6 +182,9 @@ async function main() {
     const sector = q.get('sector');
     if (sector) (onMap({ type: 'sectorTapped', id: sector }), send({ type: 'focusSector', id: sector }));
     if (q.get('zoom')) m.jumpTo({ zoom: Number(q.get('zoom')) });
+    if (q.get('gates') === '0')
+      for (const l of m.getStyle().layers)
+        if (l.id.includes('gate')) m.setLayoutProperty(l.id, 'visibility', 'none');
     show();
     // Pronto para print: depois das animações (voo de 750 ms, nível de 520 ms) e dos tiles.
     setTimeout(() => {

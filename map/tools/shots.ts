@@ -88,7 +88,7 @@ const PHASES: Record<string, Shot[]> = {
   ],
   // Imagem do Modo Maracanã para o carrossel de boas-vindas (vai para assets/onboarding/).
   onboarding: [
-    { name: 'maracana', url: 'index.html?panel=0&card=0&theme=dark&area=leste-inferior&filter=banheiros&inset=250&zoom=17.05&me=-43.22984,-22.91234', width: 390, height: 844 },
+    { name: 'maracana', url: 'index.html?panel=0&card=0&theme=dark&filter=nenhum&cam=rotated&gates=0&zoom=16.45', width: 390, height: 520 },
   ],
 };
 
