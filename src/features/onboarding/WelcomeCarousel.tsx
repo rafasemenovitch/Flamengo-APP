@@ -1,19 +1,10 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useRef, useState, type ComponentRef, type ReactNode } from 'react';
 import { AccessibilityInfo, Image, ScrollView, View, useWindowDimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Svg, { Circle, Path } from 'react-native-svg';
 
-import {
-  Button,
-  ClubCrest,
-  Crest,
-  LiveIndicator,
-  Monogram,
-  palette,
-  ProgressBar,
-  Text,
-  useTheme,
-} from '@/design-system';
+import { Button, ClubCrest, Crest, Monogram, palette, Text, useTheme } from '@/design-system';
 import { useReduceMotion } from '@/hooks/useReduceMotion';
 import { haptic } from '@/utils/haptics';
 
@@ -22,32 +13,41 @@ const AUTO_MS = 7000;
 
 /**
  * Cor contínua ao longo do carrossel: a cor final de uma tela é a inicial da próxima, do
- * vermelho do clube ao preto (rubro-negro), em vez de um fundo solto por tela.
+ * vermelho do clube ao preto (rubro-negro).
  */
 const STOPS = [
   palette.red600,
   palette.red600,
   palette.red700,
-  '#5E0818',
-  '#2A070E',
+  '#560716',
+  '#22060C',
   palette.ink950,
   palette.ink950,
 ];
 
 const PAL = { id: 'pal', code: 'PAL', color: '#0B6B3A', shortName: 'Palmeiras' };
+const WHITE = palette.white;
+const SOFT = 'rgba(255,255,255,0.72)';
+const LINE = 'rgba(255,255,255,0.16)';
+/** Superfície escura das peças sobre o fundo colorido. */
+const PANEL = 'rgba(10,10,11,0.55)';
 
 interface Slide {
   kicker: string;
   title: string;
   caption: string;
-  preview: ReactNode;
+  /** O que a área tem, em etiquetas. */
+  tags?: string[];
+  /** Fundo de tela inteira, atrás da arte e do texto. */
+  backdrop?: (size: { w: number; h: number }) => ReactNode;
+  art: (size: { w: number; h: number }) => ReactNode;
 }
 
 /**
- * Boas-vindas: carrossel que desliza com o dedo e passa sozinho (como o do Zuno), com cada
- * área do app mostrada pelas próprias peças do app, sem mascote e sem ícone genérico.
- * Rodapé fixo com a marca e as ações. `mode="tour"` é a mesma apresentação, revista
- * pelas configurações (só com "Fechar").
+ * Boas-vindas: carrossel de cartazes de tela inteira, um por área do app. Desliza com o dedo
+ * e passa sozinho. Cada cartaz é montado para apresentar (não é print de tela), com a
+ * diagramação do app: Anybody grande, sobrelinhas, números protagonistas e fios finos.
+ * Os botões ficam sobre a própria cor da tela. `mode="tour"`: revisto pelas configurações.
  */
 export function WelcomeCarousel({
   mode = 'welcome',
@@ -60,411 +60,656 @@ export function WelcomeCarousel({
   onGuest?: () => void;
   onClose?: () => void;
 }) {
-  const { colors, layout } = useTheme();
-  const { width } = useWindowDimensions();
+  const { layout } = useTheme();
+  const { width: W, height: H } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const reduceMotion = useReduceMotion();
   const scroll = useRef<ComponentRef<typeof ScrollView>>(null);
   const [index, setIndex] = useState(0);
   const [held, setHeld] = useState(false);
   const [screenReader, setScreenReader] = useState(false);
+  // Altura da arte de cada tela (o texto embaixo muda de tamanho de uma para outra).
+  const [artH, setArtH] = useState<Record<number, number>>({});
   useEffect(() => {
     AccessibilityInfo.isScreenReaderEnabled()
       .then(setScreenReader)
       .catch(() => undefined);
   }, []);
 
-  const slides = useSlides();
+  const slides = SLIDES;
   const last = index === slides.length - 1;
+  const footerH = (mode === 'welcome' ? 156 : 96) + Math.max(insets.bottom, 16);
 
   const goTo = (i: number) => {
-    scroll.current?.scrollTo({ x: i * width, animated: !reduceMotion });
+    scroll.current?.scrollTo({ x: i * W, animated: !reduceMotion });
     setIndex(i);
   };
 
-  // Passa sozinho; para se a pessoa estiver arrastando, com "reduzir movimento" ou leitor de tela.
   useEffect(() => {
     if (held || reduceMotion || screenReader) return;
     const t = setTimeout(() => {
       const next = (index + 1) % slides.length;
-      scroll.current?.scrollTo({ x: next * width, animated: true });
+      scroll.current?.scrollTo({ x: next * W, animated: true });
       setIndex(next);
     }, AUTO_MS);
     return () => clearTimeout(t);
-  }, [index, held, reduceMotion, screenReader, slides.length, width]);
+  }, [index, held, reduceMotion, screenReader, slides.length, W]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bgCanvas }}>
-      <View style={{ flex: 1 }}>
-        <ScrollView
-          ref={scroll}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onScrollBeginDrag={() => setHeld(true)}
-          onMomentumScrollEnd={(e) => {
-            setIndex(Math.round(e.nativeEvent.contentOffset.x / width));
-            setHeld(false);
-          }}
-          accessibilityRole="adjustable"
-          accessibilityLabel={`Apresentação, tela ${index + 1} de ${slides.length}`}
-          accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
-          onAccessibilityAction={(e) => {
-            if (e.nativeEvent.actionName === 'increment' && !last) goTo(index + 1);
-            if (e.nativeEvent.actionName === 'decrement' && index > 0) goTo(index - 1);
-          }}
-        >
-          {slides.map((s, i) => (
-            <LinearGradient
-              key={s.kicker}
-              colors={[STOPS[i]!, STOPS[i + 1]!]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={{ width, height: '100%' }}
-            >
-              {/* Monograma CRF como marca-d'água: a assinatura do clube atrás de cada área. */}
-              {i > 0 && (
-                <Monogram
-                  color="white"
-                  width={width * 1.05}
-                  opacity={0.05}
-                  style={{ position: 'absolute', right: -width * 0.3, top: '8%' }}
-                />
-              )}
-              <SafeAreaView edges={['top']} style={{ flex: 1 }}>
-                <View
-                  style={{
-                    flex: 1,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    paddingHorizontal: layout.gutter,
-                  }}
-                  accessibilityElementsHidden
-                  importantForAccessibility="no-hide-descendants"
-                >
-                  {s.preview}
-                </View>
-                <View
-                  accessible
-                  accessibilityLabel={`${s.kicker}. ${s.title}. ${s.caption}`}
-                  style={{ paddingHorizontal: layout.gutter, paddingBottom: 28, gap: 8 }}
-                >
-                  <Text variant="overline" tone="onMedia" style={{ opacity: 0.72 }}>
-                    {s.kicker}
-                  </Text>
-                  <Text variant="displayL" tone="onMedia">
-                    {s.title}
-                  </Text>
-                  <Text variant="bodyL" tone="onMedia" style={{ opacity: 0.85 }}>
-                    {s.caption}
-                  </Text>
-                </View>
-              </SafeAreaView>
-            </LinearGradient>
-          ))}
-        </ScrollView>
-      </View>
-
-      <SafeAreaView edges={['bottom']} style={{ backgroundColor: colors.bgCanvas }}>
-        <View style={{ paddingHorizontal: layout.gutter, paddingTop: 18, paddingBottom: 12, gap: 18 }}>
-          <View
-            accessible
-            accessibilityRole="progressbar"
-            accessibilityLabel={`Tela ${index + 1} de ${slides.length}`}
-            style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}
+    <View style={{ flex: 1, backgroundColor: palette.ink950 }}>
+      <ScrollView
+        ref={scroll}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onScrollBeginDrag={() => setHeld(true)}
+        onMomentumScrollEnd={(e) => {
+          setIndex(Math.round(e.nativeEvent.contentOffset.x / W));
+          setHeld(false);
+        }}
+        accessibilityRole="adjustable"
+        accessibilityLabel={`Apresentação, tela ${index + 1} de ${slides.length}`}
+        accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
+        onAccessibilityAction={(e) => {
+          if (e.nativeEvent.actionName === 'increment' && !last) goTo(index + 1);
+          if (e.nativeEvent.actionName === 'decrement' && index > 0) goTo(index - 1);
+        }}
+      >
+        {slides.map((s, i) => (
+          <LinearGradient
+            key={s.kicker}
+            colors={[STOPS[i]!, STOPS[i + 1]!]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0.4 }}
+            style={{ width: W, height: H, overflow: 'hidden' }}
           >
-            {slides.map((_, i) => (
-              <View
-                key={i}
-                style={{
-                  height: 4,
-                  width: i === index ? 24 : 8,
-                  borderRadius: 2,
-                  backgroundColor: i === index ? colors.accent : colors.lineHairline,
-                }}
-              />
-            ))}
-            <View style={{ flex: 1 }} />
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Text variant="titleS">Flamengo App</Text>
-              <Monogram color="red" width={26} />
+            {s.backdrop?.({ w: W, h: H })}
+            {/* Arte: ocupa todo o espaço acima do texto, de ponta a ponta. */}
+            <View
+              style={{ flex: 1, marginTop: insets.top }}
+              onLayout={(e) => {
+                const v = Math.round(e.nativeEvent.layout.height);
+                setArtH((prev) => (prev[i] === v ? prev : { ...prev, [i]: v }));
+              }}
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+            >
+              {s.art({ w: W, h: artH[i] ?? Math.round(H * 0.4) })}
             </View>
-          </View>
-
-          {mode === 'welcome' ? (
-            <View style={{ gap: 10 }}>
-              <Button
-                label="Criar conta ou entrar"
-                onPress={() => {
-                  haptic.select();
-                  onStart?.();
-                }}
-                fullWidth
-              />
-              <Button
-                label="Entrar como visitante"
-                variant="secondary"
-                onPress={() => onGuest?.()}
-                fullWidth
-              />
+            <View
+              accessible
+              accessibilityLabel={`${s.kicker}. ${s.title}. ${s.caption}${s.tags ? `. ${s.tags.join(', ')}` : ''}`}
+              style={{ paddingHorizontal: layout.gutter, paddingTop: 8, gap: 10, marginBottom: footerH }}
+            >
+              <Text variant="overline" style={{ color: SOFT }}>
+                {s.kicker}
+              </Text>
+              <Text variant="displayL" style={{ color: WHITE, fontSize: 44, lineHeight: 44 }}>
+                {s.title}
+              </Text>
+              <Text variant="bodyL" style={{ color: SOFT }}>
+                {s.caption}
+              </Text>
+              {s.tags && (
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>
+                  {s.tags.map((t) => (
+                    <View
+                      key={t}
+                      style={{
+                        paddingHorizontal: 10,
+                        height: 28,
+                        justifyContent: 'center',
+                        borderRadius: 8,
+                        borderWidth: 1,
+                        borderColor: 'rgba(255,255,255,0.28)',
+                      }}
+                    >
+                      <Text variant="labelM" style={{ color: WHITE }}>
+                        {t}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              )}
             </View>
-          ) : (
-            <Button
-              label={last ? 'Pronto' : 'Próxima'}
-              icon={last ? 'checkmark' : 'arrow-forward'}
-              iconPosition="right"
-              onPress={() => (last ? onClose?.() : goTo(index + 1))}
-              fullWidth
-            />
-          )}
-        </View>
-      </SafeAreaView>
-    </View>
-  );
-}
+          </LinearGradient>
+        ))}
+      </ScrollView>
 
-/** As seis áreas, cada uma com uma prévia montada com as peças reais do app. */
-function useSlides(): Slide[] {
-  return [
-    {
-      kicker: 'Bem-vindo à Nação',
-      title: 'O Flamengo inteiro num app só',
-      caption: 'Jogo, ingresso, estádio e torcida. Do apito inicial ao fim do dia de Mengão.',
-      preview: <Monogram color="white" width={190} opacity={0.95} />,
-    },
-    {
-      kicker: 'Dia de jogo',
-      title: 'Cada lance, na hora',
-      caption: 'Placar ao vivo, escalação e o aviso do gol no bolso.',
-      preview: <LivePreview />,
-    },
-    {
-      kicker: 'Modo Maracanã',
-      title: 'O estádio em 3D, do portão ao seu lugar',
-      caption: 'O banheiro mais perto, o caminho sem escadas e a vista do seu setor.',
-      preview: <MaracanaPreview />,
-    },
-    {
-      kicker: 'Ingressos',
-      title: 'Compre e entre pelo rosto',
-      caption: 'O ingresso fica na carteira. No portão, a biometria facial libera a catraca.',
-      preview: <TicketPreview />,
-    },
-    {
-      kicker: 'Nação',
-      title: 'Torcer vale pontos',
-      caption: 'Palpite no bolão, presença no estádio e conquistas. Só pontos, nunca dinheiro.',
-      preview: <NationPreview />,
-    },
-    {
-      kicker: 'Assistente Fla',
-      title: 'Dúvida? Pergunta aqui',
-      caption: 'Portão, horário, fila, ingresso: ele responde com o que está no app.',
-      preview: <AssistantPreview />,
-    },
-  ];
-}
-
-/** Superfície das prévias: o card do app (raio 16, sem sombra). */
-function Surface({ children, width = 320 }: { children: ReactNode; width?: number }) {
-  const { colors, radius } = useTheme();
-  return (
-    <View
-      style={{
-        width: '100%',
-        maxWidth: width,
-        borderRadius: radius.l,
-        backgroundColor: colors.bgRaised,
-        padding: 18,
-        gap: 14,
-      }}
-    >
-      {children}
-    </View>
-  );
-}
-
-function LivePreview() {
-  const { colors } = useTheme();
-  return (
-    <Surface>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Text variant="labelM" tone="secondary">
-          Brasileirão · Maracanã
-        </Text>
-        <LiveIndicator minute="67'" />
-      </View>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-        <View style={{ alignItems: 'center', gap: 6, width: 64 }}>
-          <ClubCrest size={44} />
-          <Text variant="labelM">FLA</Text>
-        </View>
-        <Text variant="displayXl">2 × 1</Text>
-        <View style={{ alignItems: 'center', gap: 6, width: 64 }}>
-          <Crest team={PAL} size={44} />
-          <Text variant="labelM">PAL</Text>
-        </View>
-      </View>
-      <View style={{ borderTopWidth: 1, borderColor: colors.lineHairline, paddingTop: 12, gap: 6 }}>
-        <Text variant="bodyS">
-          <Text variant="bodyS" tone="brand">
-            {"64'"}
-          </Text>{' '}
-          Gol do Flamengo, de cabeça
-        </Text>
-        <Text variant="bodyS" tone="secondary">
-          {"58' Cartão amarelo para o Palmeiras"}
-        </Text>
-      </View>
-    </Surface>
-  );
-}
-
-function MaracanaPreview() {
-  const { colors, radius, layout } = useTheme();
-  const { width: screen } = useWindowDimensions();
-  // Tamanho explícito: a imagem é 360 × 250 (gerada por `npm run map:onboarding`).
-  const w = Math.min(340, screen - layout.gutter * 2);
-  return (
-    <View style={{ width: w, borderRadius: radius.l, overflow: 'hidden' }}>
-      <Image
-        source={require('../../../assets/onboarding/maracana.png')}
-        style={{ width: w, height: (w * 250) / 360 }}
-        resizeMode="cover"
-        accessible={false}
-      />
+      {/* Rodapé sobre a cor da tela: progresso e ações. */}
       <View
+        pointerEvents="box-none"
         style={{
           position: 'absolute',
-          left: 12,
-          right: 12,
-          bottom: 12,
-          flexDirection: 'row',
-          alignItems: 'flex-end',
-          justifyContent: 'space-between',
-          padding: 12,
-          borderRadius: radius.m,
-          backgroundColor: colors.bgRaised,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          paddingHorizontal: layout.gutter,
+          paddingBottom: Math.max(insets.bottom, 16),
+          gap: 16,
         }}
       >
-        <View>
-          <Text variant="overline" tone="tertiary">
-            Você está em
-          </Text>
-          <Text variant="titleM">Leste Inferior</Text>
+        <View
+          accessible
+          accessibilityRole="progressbar"
+          accessibilityLabel={`Tela ${index + 1} de ${slides.length}`}
+          style={{ flexDirection: 'row', gap: 6 }}
+        >
+          {slides.map((_, i) => (
+            <View
+              key={i}
+              style={{
+                height: 4,
+                flex: i === index ? 3 : 1,
+                borderRadius: 2,
+                backgroundColor: i === index ? WHITE : 'rgba(255,255,255,0.25)',
+              }}
+            />
+          ))}
         </View>
-        <View style={{ alignItems: 'flex-end' }}>
-          <Text variant="overline" tone="tertiary">
-            Banheiro
-          </Text>
-          <Text variant="titleM">1 min</Text>
-        </View>
+        {mode === 'welcome' ? (
+          <View style={{ gap: 10 }}>
+            <Button
+              label="Criar conta ou entrar"
+              variant="light"
+              onPress={() => {
+                haptic.select();
+                onStart?.();
+              }}
+              fullWidth
+            />
+            <Button label="Entrar como visitante" variant="onMedia" onPress={() => onGuest?.()} fullWidth />
+          </View>
+        ) : (
+          <Button
+            label={last ? 'Pronto' : 'Próxima'}
+            variant="light"
+            icon={last ? 'checkmark' : 'arrow-forward'}
+            iconPosition="right"
+            onPress={() => (last ? onClose?.() : goTo(index + 1))}
+            fullWidth
+          />
+        )}
       </View>
     </View>
   );
 }
 
-function TicketPreview() {
-  const { colors } = useTheme();
-  const field = (label: string, value: string) => (
-    <View style={{ gap: 2 }}>
-      <Text variant="overline" tone="tertiary">
-        {label}
-      </Text>
-      <Text variant="titleL">{value}</Text>
+// ─────────────────────────────────────────────── cartazes
+
+const SLIDES: Slide[] = [
+  {
+    kicker: 'Flamengo App',
+    title: 'Bem-vindo à Nação',
+    caption: 'Jogo, ingresso, estádio e torcida no mesmo lugar. Do apito inicial ao fim do dia de Mengão.',
+    backdrop: (s) => <Stripes {...s} opacity={0.12} />,
+    art: (s) => <WelcomeArt {...s} />,
+  },
+  {
+    kicker: 'Dia de jogo',
+    title: 'Cada lance, na hora',
+    caption: 'O placar mexe antes do replay. E o gol chega no seu bolso.',
+    tags: ['Ao vivo', 'Lance a lance', 'Escalação', 'Alerta de gol'],
+    art: (s) => <LiveArt {...s} />,
+  },
+  {
+    kicker: 'Modo Maracanã',
+    title: 'O estádio em 3D, do portão ao seu lugar',
+    caption: 'Ache o que precisa e chegue sem se perder.',
+    tags: ['Mais perto de você', 'Rotas', 'Sem escadas', 'Vista do lugar'],
+    backdrop: (s) => <MaracanaBackdrop {...s} />,
+    art: () => null,
+  },
+  {
+    kicker: 'Ingressos',
+    title: 'Compre e entre pelo rosto',
+    caption: 'O ingresso fica na carteira e a catraca reconhece você.',
+    tags: ['Compra', 'Carteira', 'Biometria facial', 'Prioridade de sócio'],
+    art: (s) => <TicketArt {...s} />,
+  },
+  {
+    kicker: 'Nação',
+    title: 'Torcer vale pontos',
+    caption: 'Cada palpite, voto e acerto sobe você na trilha. Só pontos, nunca dinheiro.',
+    tags: ['Bolões', 'Enquetes', 'Quizzes', 'Trilha de prêmios'],
+    art: (s) => <NationArt {...s} />,
+  },
+  {
+    kicker: 'Assistente Fla',
+    title: 'Dúvida? Pergunta aqui',
+    caption: 'Portão, horário, fila, ingresso. Ele responde com o que está no app.',
+    tags: ['Jogos', 'Ingressos', 'Estádio', 'Sócio'],
+    art: (s) => <AssistantArt {...s} />,
+  },
+];
+
+/** Listras rubro-negras em diagonal (o manto), discretas, como textura de fundo. */
+function Stripes({ w, h, opacity = 0.14 }: { w: number; h: number; opacity?: number }) {
+  const band = 34;
+  const n = Math.ceil((w + h) / (band * 2)) + 2;
+  return (
+    <Svg width={w} height={h} style={{ position: 'absolute', left: 0, top: 0 }}>
+      {Array.from({ length: n }, (_, i) => {
+        const x = i * band * 2 - h;
+        return (
+          <Path
+            key={i}
+            d={`M${x} ${h} L${x + band} ${h} L${x + band + h} 0 L${x + h} 0 Z`}
+            fill={palette.ink950}
+            opacity={opacity}
+          />
+        );
+      })}
+    </Svg>
+  );
+}
+
+function WelcomeArt({ w, h }: { w: number; h: number }) {
+  const mono = Math.min(w * 0.84, (h * 0.9) / (577 / 600));
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Monogram color="white" width={mono} />
     </View>
   );
+}
+
+/** Placar gigante, escudos e o lance a lance correndo embaixo. */
+function LiveArt({ w, h }: { w: number; h: number }) {
+  const big = Math.min(w * 0.42, h * 0.46);
   return (
-    <Surface>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-        <ClubCrest size={28} />
-        <Text variant="bodyS" tone="tertiary">
+    <View style={{ flex: 1, paddingHorizontal: 20, justifyContent: 'center' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: WHITE }} />
+        <Text variant="overline" style={{ color: WHITE }}>
+          {"Ao vivo · 67'"}
+        </Text>
+      </View>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <View style={{ alignItems: 'center', gap: 4 }}>
+          <ClubCrest size={52} />
+          <Text variant="displayHero" style={{ color: WHITE, fontSize: big, lineHeight: big * 1.02 }}>
+            2
+          </Text>
+        </View>
+        <Text variant="displayM" style={{ color: SOFT, fontSize: big * 0.3 }}>
           ×
         </Text>
-        <Crest team={PAL} size={28} />
-      </View>
-      <View style={{ gap: 2 }}>
-        <Text variant="titleL">Flamengo × Palmeiras</Text>
-        <Text variant="bodyS" tone="secondary">
-          hoje, 21h30 · Maracanã
-        </Text>
-      </View>
-      <View
-        style={{
-          flexDirection: 'row',
-          gap: 22,
-          borderTopWidth: 1,
-          borderStyle: 'dashed',
-          borderColor: colors.lineHairline,
-          paddingTop: 14,
-        }}
-      >
-        {field('Setor', 'Leste Inferior')}
-        {field('Portão', 'D')}
-      </View>
-      <Text variant="bodyS" tone="secondary">
-        Entrada pela biometria facial
-      </Text>
-    </Surface>
-  );
-}
-
-function NationPreview() {
-  const { colors } = useTheme();
-  return (
-    <Surface>
-      <Text variant="bodyS" tone="secondary">
-        Temporada 2026 · nível 4
-      </Text>
-      <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-        <Text variant="displayL" tone="brand">
-          Raça
-        </Text>
-        <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
-          <Text variant="displayM">1.482</Text>
-          <Text variant="bodyS" tone="secondary">
-            pts
+        <View style={{ alignItems: 'center', gap: 4 }}>
+          <Crest team={PAL} size={52} />
+          <Text variant="displayHero" style={{ color: SOFT, fontSize: big, lineHeight: big * 1.02 }}>
+            1
           </Text>
         </View>
       </View>
-      <ProgressBar value={0.78} />
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          borderTopWidth: 1,
-          borderColor: colors.lineHairline,
-          paddingTop: 12,
-        }}
-      >
-        <Text variant="bodyS">Bolão · seu palpite</Text>
-        <Text variant="numericTable">2 × 1</Text>
+      <View style={{ marginTop: 10, borderTopWidth: 1, borderColor: LINE }}>
+        {(
+          [
+            ["64'", 'Gol do Flamengo', 'De cabeça, no segundo pau', true],
+            ["58'", 'Cartão amarelo', 'Palmeiras', false],
+            ["45'", 'Intervalo', 'Flamengo 1 × 1 Palmeiras', false],
+          ] as const
+        ).map(([min, title, sub, hot]) => (
+          <View
+            key={min}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 14,
+              paddingVertical: 9,
+              borderBottomWidth: 1,
+              borderColor: LINE,
+            }}
+          >
+            <Text variant="displayS" style={{ color: hot ? WHITE : SOFT, width: 44 }}>
+              {min}
+            </Text>
+            <View style={{ flex: 1 }}>
+              <Text variant="titleS" style={{ color: WHITE }}>
+                {title}
+              </Text>
+              <Text variant="bodyS" style={{ color: SOFT }}>
+                {sub}
+              </Text>
+            </View>
+          </View>
+        ))}
       </View>
-    </Surface>
+    </View>
   );
 }
 
-function AssistantPreview() {
-  const { colors, radius } = useTheme();
-  const bubble = (text: string, mine: boolean) => (
+/** Imagem do mapa (assets/onboarding/maracana.png, 390 × 844, gerada por `npm run map:onboarding`). */
+const MAP_W = 390;
+const MAP_H = 844;
+
+/**
+ * O mapa 3D ocupa a tela inteira; o texto entra sobre um escurecido embaixo. As anotações
+ * ficam nas coordenadas da imagem (ponto "você" em 195 × 310), escaladas como a imagem.
+ */
+function MaracanaBackdrop({ w, h }: { w: number; h: number }) {
+  const k = Math.max(w / MAP_W, h / MAP_H);
+  const left = (w - MAP_W * k) / 2;
+  const at = (x: number, y: number) => ({ left: left + x * k, top: y * k });
+  const tag = (text: string, pos: { left: number; top: number }, strong?: boolean) => (
     <View
       style={{
-        alignSelf: mine ? 'flex-end' : 'flex-start',
-        maxWidth: '85%',
-        paddingHorizontal: 14,
-        paddingVertical: 10,
-        borderRadius: radius.l,
-        backgroundColor: mine ? colors.accent : colors.bgRaised2,
+        position: 'absolute',
+        ...pos,
+        paddingHorizontal: 12,
+        height: 34,
+        justifyContent: 'center',
+        borderRadius: 8,
+        backgroundColor: strong ? palette.red600 : 'rgba(10,10,11,0.86)',
+        borderWidth: 1,
+        borderColor: strong ? palette.red600 : LINE,
       }}
     >
-      <Text variant="bodyM" style={{ color: mine ? colors.inkOnRed : colors.inkPrimary }}>
+      <Text variant="labelM" style={{ color: WHITE }}>
         {text}
       </Text>
     </View>
   );
   return (
-    <Surface>
-      {bubble('Qual portão do meu setor?', true)}
-      {bubble('Leste Inferior entra pelo Portão D, na Av. Maracanã. A fila está em 9 min.', false)}
-    </Surface>
+    <View style={{ position: 'absolute', left: 0, top: 0, width: w, height: h }}>
+      <Image
+        source={require('../../../assets/onboarding/maracana.png')}
+        style={{ position: 'absolute', left, top: 0, width: MAP_W * k, height: MAP_H * k }}
+        accessible={false}
+      />
+      <LinearGradient
+        colors={['rgba(10,10,11,0)', 'rgba(10,10,11,0.92)', palette.ink950]}
+        locations={[0, 0.35, 1]}
+        style={{ position: 'absolute', left: 0, right: 0, top: h * 0.42, bottom: 0 }}
+      />
+      {tag('Você está aqui', at(212, 293), true)}
+      {tag('Banheiro · 1 min', at(16, 140))}
+    </View>
+  );
+}
+
+/** Rosto reconhecido: cantos de leitura e um rosto em traço, desenho próprio. */
+function FaceMark({ size }: { size: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 48 48">
+      <Path
+        d="M6 16V9a3 3 0 0 1 3-3h7M32 6h7a3 3 0 0 1 3 3v7M42 32v7a3 3 0 0 1-3 3h-7M16 42H9a3 3 0 0 1-3-3v-7"
+        stroke={WHITE}
+        strokeWidth={3}
+        strokeLinecap="round"
+        fill="none"
+      />
+      <Circle cx={18} cy={20} r={2.2} fill={WHITE} />
+      <Circle cx={30} cy={20} r={2.2} fill={WHITE} />
+      <Path
+        d="M24 21v6h-2M18 32c3.5 3 8.5 3 12 0"
+        stroke={WHITE}
+        strokeWidth={2.6}
+        strokeLinecap="round"
+        fill="none"
+      />
+    </Svg>
+  );
+}
+
+/** Ingresso grande e inclinado, outro atrás, e o selo de entrada pela face. */
+function TicketArt({ w, h }: { w: number; h: number }) {
+  const { colors } = useTheme();
+  const tw = Math.min(w * 0.84, 340);
+  const ticket = (behind?: boolean) => (
+    <View
+      style={{
+        width: tw,
+        borderRadius: 16,
+        backgroundColor: behind ? 'rgba(255,255,255,0.08)' : colors.bgRaised,
+        borderWidth: behind ? 1 : 0,
+        borderColor: LINE,
+        padding: 20,
+        gap: 14,
+      }}
+    >
+      {behind ? (
+        <View style={{ height: 150 }} />
+      ) : (
+        <>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <ClubCrest size={30} />
+            <Text variant="bodyS" tone="tertiary">
+              ×
+            </Text>
+            <Crest team={PAL} size={30} />
+            <View style={{ flex: 1 }} />
+            <Text variant="overline" tone="tertiary">
+              Brasileirão
+            </Text>
+          </View>
+          <View>
+            <Text variant="displayM">Flamengo × Palmeiras</Text>
+            <Text variant="bodyS" tone="secondary">
+              Domingo, 16h · Maracanã
+            </Text>
+          </View>
+          <View
+            style={{
+              flexDirection: 'row',
+              gap: 24,
+              borderTopWidth: 1,
+              borderStyle: 'dashed',
+              borderColor: colors.lineHairline,
+              paddingTop: 14,
+            }}
+          >
+            {[
+              ['Setor', 'Leste Inferior'],
+              ['Bloco', '118'],
+              ['Portão', 'D'],
+            ].map(([k, v]) => (
+              <View key={k}>
+                <Text variant="overline" tone="tertiary">
+                  {k}
+                </Text>
+                <Text variant="titleL">{v}</Text>
+              </View>
+            ))}
+          </View>
+        </>
+      )}
+    </View>
+  );
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <View
+        style={{
+          position: 'absolute',
+          transform: [{ rotate: '8deg' }, { translateX: 22 }, { translateY: -26 }],
+        }}
+      >
+        {ticket(true)}
+      </View>
+      <View style={{ transform: [{ rotate: '-5deg' }] }}>{ticket()}</View>
+      <View
+        style={{
+          position: 'absolute',
+          right: (w - tw) / 2 - 6,
+          bottom: Math.max(12, h * 0.08),
+          width: 92,
+          height: 92,
+          borderRadius: 46,
+          backgroundColor: palette.red600,
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderWidth: 3,
+          borderColor: WHITE,
+        }}
+      >
+        <FaceMark size={50} />
+      </View>
+    </View>
+  );
+}
+
+/** Mosaico da Nação: bolão, enquete, quiz e a trilha de prêmios. */
+function NationArt({ w, h }: { w: number; h: number }) {
+  const { colors } = useTheme();
+  const gap = 10;
+  const pad = 20;
+  const col = (w - pad * 2 - gap) / 2;
+  const tile = (bg: string, children: ReactNode, height: number, width = col) => (
+    <View
+      style={{
+        width,
+        height,
+        borderRadius: 16,
+        backgroundColor: bg,
+        padding: 14,
+        justifyContent: 'space-between',
+      }}
+    >
+      {children}
+    </View>
+  );
+  const tall = Math.max(170, h * 0.6);
+  const half = (tall - gap) / 2;
+  const bottom = Math.max(96, h - tall - gap - 24);
+  return (
+    <View style={{ flex: 1, paddingHorizontal: pad, justifyContent: 'center', gap }}>
+      <View style={{ flexDirection: 'row', gap }}>
+        {tile(
+          palette.red600,
+          <>
+            <Text variant="overline" style={{ color: SOFT }}>
+              Bolão
+            </Text>
+            <View>
+              <Text variant="displayHero" style={{ color: WHITE, fontSize: 46, lineHeight: 50 }} numberOfLines={1}>
+                2 × 1
+              </Text>
+              <Text variant="bodyS" style={{ color: SOFT }}>
+                seu palpite
+              </Text>
+            </View>
+            <Text variant="displayS" style={{ color: WHITE }}>
+              +10 pts
+            </Text>
+          </>,
+          tall
+        )}
+        <View style={{ gap }}>
+          {tile(
+            PANEL,
+            <>
+              <Text variant="overline" style={{ color: SOFT }}>
+                Enquete
+              </Text>
+              <Text variant="titleS" style={{ color: WHITE }}>
+                Craque do jogo?
+              </Text>
+              <View style={{ gap: 6 }}>
+                {[0.64, 0.36].map((v, i) => (
+                  <View key={i} style={{ height: 6, borderRadius: 3, backgroundColor: LINE }}>
+                    <View
+                      style={{
+                        width: `${v * 100}%`,
+                        height: 6,
+                        borderRadius: 3,
+                        backgroundColor: i ? SOFT : palette.red400,
+                      }}
+                    />
+                  </View>
+                ))}
+              </View>
+            </>,
+            half
+          )}
+          {tile(
+            PANEL,
+            <>
+              <Text variant="overline" style={{ color: SOFT }}>
+                Quiz
+              </Text>
+              <Text variant="titleS" style={{ color: WHITE }}>
+                Ano do primeiro Mundial?
+              </Text>
+              <Text variant="displayS" style={{ color: palette.red400 }}>
+                1981
+              </Text>
+            </>,
+            half
+          )}
+        </View>
+      </View>
+      {tile(
+        PANEL,
+        <View style={{ gap: 12 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+            <View>
+              <Text variant="overline" style={{ color: SOFT }}>
+                Trilha de prêmios
+              </Text>
+              <Text variant="displayM" style={{ color: WHITE }}>
+                Raça
+              </Text>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
+              <Text variant="displayM" style={{ color: WHITE }}>
+                1.482
+              </Text>
+              <Text variant="bodyS" style={{ color: SOFT }}>
+                pts
+              </Text>
+            </View>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            {[1, 1, 1, 0.78, 0].map((v, i) => (
+              <View key={i} style={{ flex: 1, height: 6, borderRadius: 3, backgroundColor: LINE }}>
+                <View
+                  style={{ width: `${v * 100}%`, height: 6, borderRadius: 3, backgroundColor: colors.accent }}
+                />
+              </View>
+            ))}
+          </View>
+        </View>,
+        Math.min(bottom, 120),
+        w - pad * 2
+      )}
+    </View>
+  );
+}
+
+/** Uma conversa que ocupa a tela. */
+function AssistantArt({ w }: { w: number; h: number }) {
+  const bubble = (text: string, mine: boolean, key: string) => (
+    <View
+      key={key}
+      style={{
+        alignSelf: mine ? 'flex-end' : 'flex-start',
+        maxWidth: w * 0.78,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderRadius: 18,
+        borderBottomRightRadius: mine ? 6 : 18,
+        borderBottomLeftRadius: mine ? 18 : 6,
+        backgroundColor: mine ? WHITE : 'rgba(255,255,255,0.1)',
+      }}
+    >
+      <Text variant="bodyL" style={{ color: mine ? palette.ink950 : WHITE }}>
+        {text}
+      </Text>
+    </View>
+  );
+  return (
+    <View style={{ flex: 1, paddingHorizontal: 20, justifyContent: 'center', gap: 10 }}>
+      {bubble('Qual portão do meu setor?', true, 'a')}
+      {bubble('Leste Inferior entra pelo Portão D, na Av. Maracanã.', false, 'b')}
+      {bubble('Tem fila agora?', true, 'c')}
+      {bubble('9 minutos. Pelo C, ao lado, está em 6.', false, 'd')}
+      <View style={{ flexDirection: 'row', gap: 6, paddingLeft: 16, paddingTop: 4 }}>
+        {[1, 0.6, 0.3].map((o, i) => (
+          <View
+            key={i}
+            style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: WHITE, opacity: o }}
+          />
+        ))}
+      </View>
+    </View>
   );
 }

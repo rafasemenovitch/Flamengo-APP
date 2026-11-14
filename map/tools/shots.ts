@@ -88,7 +88,7 @@ const PHASES: Record<string, Shot[]> = {
   ],
   // Imagem do Modo Maracanã para o carrossel de boas-vindas (vai para assets/onboarding/).
   onboarding: [
-    { name: 'maracana', url: 'index.html?panel=0&card=0&theme=dark&area=leste-inferior', width: 360, height: 250 },
+    { name: 'maracana', url: 'index.html?panel=0&card=0&theme=dark&area=leste-inferior&filter=banheiros&inset=250&zoom=17.05&me=-43.22984,-22.91234', width: 390, height: 844 },
   ],
 };
 
@@ -141,6 +141,8 @@ async function main() {
       const page = await browser.newPage({
         viewport: { width: s.width ?? 390, height: s.height ?? 844 },
         deviceScaleFactor: 2,
+        // Imagem parada para a apresentação: sem pulso no ponto "você", o mapa chega a ficar ocioso.
+        reducedMotion: phase === 'onboarding' ? 'reduce' : 'no-preference',
       });
       page.on('pageerror', (e) => console.log(`  [${s.name}] erro:`, e.message));
       if (s.offline) await page.route(/openfreemap\.org/, (r) => r.abort('internetdisconnected'));

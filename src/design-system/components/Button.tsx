@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
-import type { ThemeColors } from '../tokens/colors';
+import { palette, type ThemeColors } from '../tokens/colors';
 import { useTheme } from '../theme/ThemeProvider';
 import { PressableScale } from './PressableScale';
 import { Text } from './Text';
@@ -40,7 +40,8 @@ function variantColors(variant: ButtonVariant, c: ThemeColors, pressed: boolean)
     case 'onMedia':
       return { bg: 'transparent', fg: c.inkOnRed, border: c.inkOnRed };
     case 'light':
-      return { bg: c.inkOnRed, fg: c.bgCanvas, border: 'transparent' };
+      // Sempre sobre vermelho ou foto: texto escuro fixo, nos dois temas.
+      return { bg: c.inkOnRed, fg: palette.ink950, border: 'transparent' };
     case 'link':
       return { bg: 'transparent', fg: c.accentText, border: 'transparent' };
   }

@@ -108,7 +108,7 @@ describe('recursos nas boas-vindas e primeiro uso', () => {
         <Text>Aplicativo principal</Text>
       </OnboardingGate>
     );
-    expect(has('O Flamengo inteiro num app só')).toBe(true);
+    expect(has('Bem-vindo à Nação')).toBe(true);
     await press('Criar conta ou entrar');
     await press('Entrar como visitante');
     expect(has('Seus ídolos')).toBe(true);

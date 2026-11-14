@@ -157,6 +157,14 @@ async function main() {
     if (cam === 'far') m.jumpTo({ center: [venue.center[0] + 0.03, venue.center[1] + 0.02], zoom: 15.5 });
     const lvl = q.get('level');
     if (lvl) send({ type: 'setLevel', level: lvl });
+    // Enquadramento para imagens de apresentação: espaço livre embaixo e um ponto "você".
+    const inset = q.get('inset');
+    if (inset) send({ type: 'setInsets', top: 0, bottom: Number(inset) });
+    const me = q.get('me');
+    if (me) {
+      const [lng, lat] = me.split(',').map(Number);
+      send({ type: 'setUserLocation', lng: lng!, lat: lat!, accuracy: 6, level: '1' });
+    }
     const area = q.get('area');
     if (area) {
       areaSel.value = area;
