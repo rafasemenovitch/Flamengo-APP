@@ -12,7 +12,9 @@ import { haptic } from '@/utils/haptics';
 /** Tempo de cada tela antes de passar sozinha. Para na última (é onde estão os botões). */
 const AUTO_MS = 7000;
 
-const PAL = { id: 'pal', code: 'PAL', color: '#0B6B3A', shortName: 'Palmeiras' };
+const PAL = { id: 'pal', code: 'PAL', color: '#006437', shortName: 'Palmeiras' };
+const GRE = { id: 'gre', code: 'GRE', color: '#0D80BF', shortName: 'Grêmio' };
+const RAC = { id: 'rac', code: 'RAC', color: '#5BB3E6', shortName: 'Racing' };
 const WHITE = palette.white;
 const SOFT = 'rgba(255,255,255,0.68)';
 const FAINT = 'rgba(255,255,255,0.42)';
@@ -71,7 +73,10 @@ export function WelcomeCarousel({
   const slides = SLIDES;
   const last = index === slides.length - 1;
   const footerH = (mode === 'welcome' ? 156 : 96) + Math.max(insets.bottom, 16);
-  const top = insets.top + 16;
+  // Faixa livre no alto: nada da arte fica sob o relógio e a bateria.
+  // Celular baixo (SE, minis): espaçamentos um pouco menores para a arte não encolher demais.
+  const short = H < 740;
+  const top = insets.top + (short ? 16 : 28);
 
   const goTo = (i: number) => {
     scroll.current?.scrollTo({ x: i * W, animated: !reduceMotion });
@@ -130,18 +135,22 @@ export function WelcomeCarousel({
             <View
               accessible
               accessibilityLabel={`${s.kicker}. ${s.title}. ${s.caption}${s.features ? `. ${s.features.join(', ')}` : ''}`}
-              style={{ paddingHorizontal: layout.gutter, paddingTop: 20, marginBottom: footerH + 4 }}
+              style={{
+                paddingHorizontal: layout.gutter,
+                paddingTop: short ? 16 : 28,
+                marginBottom: footerH + (short ? 14 : 24),
+              }}
             >
               <Text variant="overline" style={{ color: s.red ? SOFT : palette.red400 }}>
                 {s.kicker}
               </Text>
-              <Text variant="displayL" style={{ color: WHITE, marginTop: 8 }}>
+              <Text variant="displayL" style={{ color: WHITE, marginTop: short ? 8 : 12 }}>
                 {s.title}
               </Text>
-              <Text variant="bodyL" style={{ color: SOFT, marginTop: 8 }}>
+              <Text variant="bodyL" style={{ color: SOFT, marginTop: short ? 8 : 14 }}>
                 {s.caption}
               </Text>
-              {s.features && <FeatureStrip items={s.features} />}
+              {s.features && <FeatureStrip items={s.features} gap={short ? 16 : 26} />}
             </View>
           </LinearGradient>
         ))}
@@ -206,22 +215,25 @@ export function WelcomeCarousel({
   );
 }
 
-/** Quatro colunas iguais separadas por fios: o que a área tem, sem chips soltos. */
-function FeatureStrip({ items }: { items: readonly string[] }) {
+/** Quatro caixas iguais, com contorno e texto centralizado: o que a área tem. */
+function FeatureStrip({ items, gap }: { items: readonly string[]; gap: number }) {
   return (
-    <View style={{ flexDirection: 'row', marginTop: 18, borderTopWidth: 1, borderColor: LINE }}>
-      {items.map((t, i) => (
+    <View style={{ flexDirection: 'row', gap: 8, marginTop: gap }}>
+      {items.map((t) => (
         <View
           key={t}
           style={{
             flex: 1,
-            paddingTop: 10,
-            paddingLeft: i ? 10 : 0,
-            borderLeftWidth: i ? 1 : 0,
-            borderColor: LINE,
+            height: 40,
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 10,
+            borderWidth: 1,
+            borderColor: 'rgba(255,255,255,0.32)',
+            backgroundColor: 'rgba(255,255,255,0.04)',
           }}
         >
-          <Text variant="labelM" style={{ color: WHITE }} numberOfLines={1}>
+          <Text variant="labelM" style={{ color: WHITE, textAlign: 'center' }} numberOfLines={1}>
             {t}
           </Text>
         </View>
@@ -326,56 +338,85 @@ function WelcomeArt({ w, h }: { w: number; h: number }) {
   );
 }
 
-/** Placar grande com os escudos e o último lance. Nada encosta nas bordas. */
+/** Placar grande com os escudos e, embaixo, o lance a lance em linhas com fios. */
 function LiveArt({ w, h }: { w: number; h: number }) {
   const inner = w - 40;
-  const big = Math.min(inner * 0.34, 132);
+  const big = Math.min(inner * 0.3, 112);
+  const plays: [string, string, string, boolean][] = [
+    ["64'", 'Gol do Flamengo', 'Vasconcelos, de cabeça', true],
+    ["58'", 'Cartão amarelo', 'Palmeiras', false],
+    ["52'", 'Substituição', 'Entra Olivera, sai Arantes', false],
+    ["45'", 'Fim do 1º tempo', 'Flamengo 1 × 1 Palmeiras', false],
+  ];
   return (
     <Fit h={h}>
-      <View style={{ width: inner, gap: 22 }}>
+      <View style={{ width: inner }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, alignSelf: 'center' }}>
           <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: palette.redLive }} />
           <Text variant="overline" style={{ color: WHITE }}>
-            {"Ao vivo · 67'"}
+            {"Ao vivo · 67' · Maracanã"}
           </Text>
-        </View>
-        <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-          <View style={{ alignItems: 'center', gap: 10, flex: 1 }}>
-            <ClubCrest size={48} />
-            <Text variant="displayHero" style={{ color: WHITE, fontSize: big, lineHeight: big * 1.04 }}>
-              2
-            </Text>
-          </View>
-          <Text variant="displayM" style={{ color: FAINT, marginBottom: big * 0.32 }}>
-            ×
-          </Text>
-          <View style={{ alignItems: 'center', gap: 10, flex: 1 }}>
-            <Crest team={PAL} size={48} />
-            <Text variant="displayHero" style={{ color: FAINT, fontSize: big, lineHeight: big * 1.04 }}>
-              1
-            </Text>
-          </View>
         </View>
         <View
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            gap: 14,
-            paddingVertical: 14,
-            paddingHorizontal: 16,
-            borderRadius: 12,
-            backgroundColor: RAISED,
-            borderLeftWidth: 3,
-            borderLeftColor: palette.red600,
+            justifyContent: 'space-between',
+            marginTop: 18,
           }}
         >
-          <Text variant="displayS" style={{ color: WHITE }}>
-            {"64'"}
-          </Text>
-          <Text variant="titleS" style={{ color: WHITE, flex: 1 }}>
-            Gol do Flamengo
-          </Text>
+          <View style={{ alignItems: 'center', gap: 6, width: 64 }}>
+            <ClubCrest size={48} />
+            <Text variant="labelM" style={{ color: SOFT }}>
+              Flamengo
+            </Text>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+            <Text variant="displayHero" style={{ color: WHITE, fontSize: big, lineHeight: big * 1.04 }}>
+              2
+            </Text>
+            <Text variant="displayM" style={{ color: FAINT }}>
+              ×
+            </Text>
+            <Text variant="displayHero" style={{ color: FAINT, fontSize: big, lineHeight: big * 1.04 }}>
+              1
+            </Text>
+          </View>
+          <View style={{ alignItems: 'center', gap: 6, width: 64 }}>
+            <Crest team={PAL} size={48} />
+            <Text variant="labelM" style={{ color: SOFT }}>
+              Palmeiras
+            </Text>
+          </View>
         </View>
+        <Text variant="overline" style={{ color: FAINT, marginTop: 22, marginBottom: 4 }}>
+          Lance a lance
+        </Text>
+        {plays.slice(0, h < 420 ? 2 : 4).map(([min, title, sub, hot]) => (
+          <View
+            key={min}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 14,
+              paddingVertical: 10,
+              borderTopWidth: 1,
+              borderColor: LINE,
+            }}
+          >
+            <Text variant="displayS" style={{ color: hot ? palette.red400 : SOFT, width: 40 }}>
+              {min}
+            </Text>
+            <View style={{ flex: 1 }}>
+              <Text variant="titleS" style={{ color: WHITE }} numberOfLines={1}>
+                {title}
+              </Text>
+              <Text variant="bodyS" style={{ color: SOFT }} numberOfLines={1}>
+                {sub}
+              </Text>
+            </View>
+          </View>
+        ))}
       </View>
     </Fit>
   );
@@ -444,93 +485,148 @@ function FaceMark({ size }: { size: number }) {
 }
 
 /** Ingresso de papel claro sobre o preto, inclinado, com o selo de entrada pelo rosto. */
-function TicketArt({ w, h }: { w: number; h: number }) {
+function TicketHero({ w }: { w: number }) {
   const tw = Math.min(w - 88, 300);
   const ink = palette.ink950;
   const muted = palette.ink500;
   return (
-    <Fit h={h}>
-      <View style={{ width: tw + 24, paddingVertical: 36, alignItems: 'center' }}>
+    <View style={{ width: tw + 24, paddingVertical: 26, alignItems: 'center', alignSelf: 'center' }}>
+      <View
+        style={{
+          position: 'absolute',
+          top: 18,
+          width: tw,
+          height: 168,
+          borderRadius: 16,
+          backgroundColor: RAISED,
+          transform: [{ rotate: '6deg' }, { translateX: 12 }],
+        }}
+      />
+      <View
+        style={{
+          width: tw,
+          borderRadius: 16,
+          backgroundColor: palette.ink50,
+          padding: 18,
+          gap: 14,
+          transform: [{ rotate: '-3deg' }],
+        }}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <ClubCrest size={28} />
+          <Crest team={PAL} size={28} />
+          <View style={{ flex: 1 }} />
+          <Text variant="overline" style={{ color: muted }}>
+            Brasileirão
+          </Text>
+        </View>
+        <View>
+          <Text variant="displayM" style={{ color: ink, fontSize: 22, lineHeight: 26 }} numberOfLines={1}>
+            Flamengo × Palmeiras
+          </Text>
+          <Text variant="bodyS" style={{ color: muted }}>
+            Domingo, 16h · Maracanã
+          </Text>
+        </View>
         <View
           style={{
-            position: 'absolute',
-            top: 26,
-            width: tw,
-            height: 176,
-            borderRadius: 16,
-            backgroundColor: RAISED,
-            transform: [{ rotate: '7deg' }, { translateX: 14 }],
-          }}
-        />
-        <View
-          style={{
-            width: tw,
-            borderRadius: 16,
-            backgroundColor: palette.ink50,
-            padding: 18,
-            gap: 14,
-            transform: [{ rotate: '-4deg' }],
+            flexDirection: 'row',
+            gap: 22,
+            borderTopWidth: 1,
+            borderStyle: 'dashed',
+            borderColor: 'rgba(10,10,11,0.2)',
+            paddingTop: 12,
           }}
         >
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <ClubCrest size={28} />
-            <Crest team={PAL} size={28} />
-            <View style={{ flex: 1 }} />
-            <Text variant="overline" style={{ color: muted }}>
-              Brasileirão
-            </Text>
-          </View>
-          <View>
-            <Text variant="displayM" style={{ color: ink, fontSize: 22, lineHeight: 26 }} numberOfLines={1}>
-              Flamengo × Palmeiras
-            </Text>
-            <Text variant="bodyS" style={{ color: muted }}>
-              Domingo, 16h · Maracanã
-            </Text>
-          </View>
+          {[
+            ['Setor', 'Leste Inferior'],
+            ['Bloco', '118'],
+            ['Portão', 'D'],
+          ].map(([k, v]) => (
+            <View key={k}>
+              <Text variant="overline" style={{ color: muted }}>
+                {k}
+              </Text>
+              <Text variant="titleM" style={{ color: ink }}>
+                {v}
+              </Text>
+            </View>
+          ))}
+        </View>
+      </View>
+      <View
+        style={{
+          position: 'absolute',
+          right: 0,
+          bottom: 0,
+          width: 72,
+          height: 72,
+          borderRadius: 36,
+          backgroundColor: palette.red600,
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderWidth: 3,
+          borderColor: palette.ink950,
+        }}
+      >
+        <FaceMark size={38} />
+      </View>
+    </View>
+  );
+}
+
+/** O ingresso em destaque e, embaixo, a carteira: os próximos jogos já comprados. */
+function TicketArt({ w, h }: { w: number; h: number }) {
+  const inner = w - 40;
+  const wallet: [
+    string,
+    string,
+    { id: string; code: string; color: string; shortName: string },
+    string,
+    string,
+  ][] = [
+    ['16', 'Nov', PAL, 'Flamengo × Palmeiras', 'Hoje · Portão D'],
+    ['23', 'Nov', GRE, 'Flamengo × Grêmio', 'Leste Inferior · Bloco 118'],
+    ['04', 'Dez', RAC, 'Flamengo × Racing', 'Libertadores · Norte'],
+  ];
+  return (
+    <Fit h={h}>
+      <View style={{ width: inner }}>
+        <TicketHero w={w} />
+        <Text variant="overline" style={{ color: FAINT, marginTop: 18, marginBottom: 4 }}>
+          Na sua carteira
+        </Text>
+        {wallet.slice(0, h < 420 ? 2 : 3).map(([day, month, team, title, sub], i) => (
           <View
+            key={day}
             style={{
               flexDirection: 'row',
-              gap: 22,
+              alignItems: 'center',
+              gap: 14,
+              paddingVertical: 10,
               borderTopWidth: 1,
-              borderStyle: 'dashed',
-              borderColor: 'rgba(10,10,11,0.2)',
-              paddingTop: 12,
+              borderColor: LINE,
             }}
           >
-            {[
-              ['Setor', 'Leste Inferior'],
-              ['Bloco', '118'],
-              ['Portão', 'D'],
-            ].map(([k, v]) => (
-              <View key={k}>
-                <Text variant="overline" style={{ color: muted }}>
-                  {k}
-                </Text>
-                <Text variant="titleM" style={{ color: ink }}>
-                  {v}
-                </Text>
-              </View>
-            ))}
+            <View style={{ width: 40, alignItems: 'center' }}>
+              <Text variant="displayS" style={{ color: i === 0 ? palette.red400 : WHITE }}>
+                {day}
+              </Text>
+              <Text variant="overline" style={{ color: FAINT }}>
+                {month}
+              </Text>
+            </View>
+            <Crest team={team} size={28} />
+            <View style={{ flex: 1 }}>
+              <Text variant="titleS" style={{ color: WHITE }} numberOfLines={1}>
+                {title}
+              </Text>
+              <Text variant="bodyS" style={{ color: SOFT }} numberOfLines={1}>
+                {sub}
+              </Text>
+            </View>
           </View>
-        </View>
-        <View
-          style={{
-            position: 'absolute',
-            right: 0,
-            bottom: 0,
-            width: 76,
-            height: 76,
-            borderRadius: 38,
-            backgroundColor: palette.red600,
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderWidth: 3,
-            borderColor: palette.ink950,
-          }}
-        >
-          <FaceMark size={40} />
-        </View>
+        ))}
       </View>
     </Fit>
   );
@@ -541,7 +637,7 @@ function NationArt({ w, h }: { w: number; h: number }) {
   const gap = 10;
   const inner = w - 40;
   const col = (inner - gap) / 2;
-  const tall = 232;
+  const tall = 276;
   const half = (tall - gap) / 2;
   const tile = (bg: string, children: ReactNode, height: number, width = col) => (
     <View
@@ -661,7 +757,7 @@ function NationArt({ w, h }: { w: number; h: number }) {
               ))}
             </View>
           </View>,
-          104,
+          120,
           inner
         )}
       </View>
@@ -711,10 +807,12 @@ function AssistantArt({ w, h }: { w: number; h: number }) {
   return (
     <Fit h={h}>
       <View style={{ width: inner, gap: 12 }}>
-        {mine('Qual o portão do meu setor?')}
-        {reply('Leste Inferior entra pelo Portão D, na Av. Maracanã.', 'talking')}
+        {h >= 420 && mine('Qual o portão do meu setor?')}
+        {h >= 420 && reply('Leste Inferior entra pelo Portão D, na Av. Maracanã.', 'talking')}
         {mine('E a fila agora?')}
-        {reply('9 minutos. No C, ao lado, 6.', 'happy')}
+        {reply('9 minutos. No C, ao lado, 6.', 'talking')}
+        {mine('E o banheiro mais perto?')}
+        {reply('Atrás do Bloco 118, a 1 minuto. Quer a rota?', 'happy')}
       </View>
     </Fit>
   );
