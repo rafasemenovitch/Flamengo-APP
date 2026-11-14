@@ -11,7 +11,9 @@ import { Text as RNText } from 'react-native';
  *
  * Correção: dentro de palavras que também têm minúsculas, cada maiúscula é
  * ampliada até a altura das hastes (1570 / 1350 ≈ 1,163). Palavras só em
- * maiúsculas ("GOL!", "FLA", códigos) e números ficam como estão.
+ * maiúsculas ("GOL!", "FLA", códigos) e números ficam como estão. Letra
+ * maiúscula sozinha abrindo frase ("O Flamengo", "A fila") é artigo e também é
+ * ampliada; no meio da frase ("Portão A") é código e fica como está.
  *
  * Aplicada automaticamente pelo <Text> do design system sempre que a fonte
  * final for uma Anybody, então vale para todas as telas, atuais e futuras.
@@ -32,15 +34,27 @@ export function splitCaps(text: string): CapSegment[] {
     else out.push({ text: t, cap });
   };
   // Palavra = sequência de letras; o resto (espaços, números, sinais) passa direto.
-  for (const part of text.split(/(\p{L}+)/u)) {
-    if (!part) continue;
+  const parts = text.split(/(\p{L}+)/u);
+  parts.forEach((part, i) => {
+    if (!part) return;
     const mixed = /\p{Ll}/u.test(part) && /\p{Lu}/u.test(part);
+    // Letra maiúscula sozinha abrindo frase ("O Flamengo", "A fila") é artigo: amplia.
+    // Fora disso é código ("Portão A", "Bloco C") e fica como está.
+    const before = parts.slice(0, i).join('').trimEnd();
+    const opensSentence = before === '' || /[.!?:]$/.test(before);
+    const nextWord = parts.slice(i + 1).find((p) => /\p{L}/u.test(p));
+    const article =
+      part.length === 1 && /\p{Lu}/u.test(part) && opensSentence && !!nextWord && /\p{Ll}/u.test(nextWord);
+    if (article) {
+      push(part, true);
+      return;
+    }
     if (!mixed) {
       push(part, false);
-      continue;
+      return;
     }
     for (const ch of part) push(ch, /\p{Lu}/u.test(ch));
-  }
+  });
   return out;
 }
 

@@ -86,6 +86,10 @@ const PHASES: Record<string, Shot[]> = {
     { name: '15-rotulos-de-perto-claro', url: 'index.html?panel=0&theme=light&level=1&zoom=18.3' },
     { name: '16-painel-desktop-claro', url: 'index.html?theme=light&level=2', width: 1400, height: 900 },
   ],
+  // Imagem do Modo Maracanã para o carrossel de boas-vindas (vai para assets/onboarding/).
+  onboarding: [
+    { name: 'maracana', url: 'index.html?panel=0&card=0&theme=dark&area=leste-inferior', width: 360, height: 250 },
+  ],
 };
 
 /** Folha lado a lado: referências (docs/maracana/referencias/) × prints da fase. */
@@ -122,7 +126,10 @@ async function main() {
   );
   if (!shots) throw new Error(`Fase sem prints definidos: ${phase}`);
   if (!CHROME) throw new Error('Chrome não encontrado. Defina CHROME_PATH.');
-  const out = path.join(ROOT, 'docs/maracana/screens', `fase-${phase}`);
+  const out =
+    phase === 'onboarding'
+      ? path.join(ROOT, 'assets/onboarding')
+      : path.join(ROOT, 'docs/maracana/screens', `fase-${phase}`);
   fs.mkdirSync(out, { recursive: true });
   const server = await serve(PORT);
   const browser = await chromium.launch({

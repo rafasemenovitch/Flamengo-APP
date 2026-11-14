@@ -69,11 +69,17 @@ async function main() {
       page.setDefaultTimeout(8000);
       // OFFLINE=1: o mapa da cidade não carrega (simula falta de internet); o resto do app sim.
       if (process.env.OFFLINE) await page.route(/openfreemap\.org/, (r) => r.abort('internetdisconnected'));
-      await page.addInitScript((t) => {
-        localStorage.setItem('@flamengo/onboarding-done', '1');
-        localStorage.setItem('@flamengo/auth-guest', '1');
-        localStorage.setItem('@flamengo/theme-preference', t);
-      }, theme);
+      // NOVO=1: abre como na primeira vez (boas-vindas e escolha de conta).
+      await page.addInitScript(
+        ([t, fresh]) => {
+          if (!fresh) {
+            localStorage.setItem('@flamengo/onboarding-done', '1');
+            localStorage.setItem('@flamengo/auth-guest', '1');
+          }
+          localStorage.setItem('@flamengo/theme-preference', t);
+        },
+        [theme, !!process.env.NOVO] as const
+      );
       await page.goto(`http://localhost:8790/${query ? '?' + query : ''}`);
       await page.waitForLoadState('networkidle');
       await page.waitForTimeout(Number(process.env.WAIT ?? 3500));

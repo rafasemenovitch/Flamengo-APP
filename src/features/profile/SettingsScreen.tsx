@@ -146,7 +146,7 @@ export function SettingsScreen() {
           <ListItem icon="play-circle-outline" title="Rever boas-vindas" onPress={replay} />
           <ListItem
             icon="map-outline"
-            title="Rever apresentação dos recursos"
+            title="Rever apresentação do app"
             onPress={() => navigation.navigate('FeaturePresentation')}
           />
         </ListGroup>

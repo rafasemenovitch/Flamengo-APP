@@ -3,13 +3,13 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import type { ReactNode } from 'react';
 
-import { Button, Text, ThemeProvider } from '@/design-system';
+import { Button, Mascot, Text, ThemeProvider } from '@/design-system';
 import { DEMO_FAN } from '@/data/demo/fan';
-import { FEATURE_PRESENTATION, RESOURCE_GUIDES } from '@/features/guidance/content';
-import { FeaturePresentation } from '@/features/guidance/FeaturePresentation';
+import { RESOURCE_GUIDES } from '@/features/guidance/content';
 import { FirstUseGuide } from '@/features/guidance/FirstUseGuide';
 import { guidanceKey } from '@/features/guidance/storage';
 import { OnboardingGate } from '@/features/onboarding/Onboarding';
+import { WelcomeCarousel } from '@/features/onboarding/WelcomeCarousel';
 
 jest.mock('@react-native-async-storage/async-storage', () =>
   jest.requireActual('@react-native-async-storage/async-storage/jest/async-storage-mock')
@@ -19,6 +19,7 @@ let mockOwner = 'visitor';
 let mockFocused = true;
 const mockUpdateProfile = jest.fn();
 const mockFavorite = jest.fn();
+const mockEnterAsGuest = jest.fn(async () => undefined);
 jest.mock('@react-navigation/native', () => ({
   ...jest.requireActual('@react-navigation/native'),
   useIsFocused: () => mockFocused,
@@ -30,11 +31,15 @@ jest.mock('@/features/auth/AuthProvider', () => ({
     isGuest: true,
     accountProfile: null,
     registering: false,
+    enterAsGuest: mockEnterAsGuest,
   }),
 }));
 jest.mock('@/state/AppStateProvider', () => ({
   useAppState: () => ({
-    profile: jest.requireActual('@/data/demo/fan').DEMO_FAN,
+    profile: {
+      ...jest.requireActual('@/data/demo/fan').DEMO_FAN,
+      favoritePlayerIds: ['p1', 'p2'],
+    },
     updateProfile: mockUpdateProfile,
     toggleFavoritePlayer: mockFavorite,
   }),
@@ -97,118 +102,80 @@ describe('recursos nas boas-vindas e primeiro uso', () => {
     });
   });
 
-  it('segue de ídolos para os quatro recursos e depois alertas, num progresso único', async () => {
+  it('boas-vindas: carrossel, conta, ídolos e alertas, sem mexer nas preferências', async () => {
     await mount(
       <OnboardingGate>
         <Text>Aplicativo principal</Text>
       </OnboardingGate>
     );
-    expect(has('Bem-vindo à Nação')).toBe(true);
-    await press('Começar');
+    expect(has('O Flamengo inteiro num app só')).toBe(true);
+    await press('Criar conta ou entrar');
     await press('Entrar como visitante');
-    expect(has('Quem são seus ídolos?')).toBe(true);
-    await press('Continuar (2)');
-    for (let page = 0; page < FEATURE_PRESENTATION.length; page++) {
-      expect(has(FEATURE_PRESENTATION[page]!.title)).toBe(true);
-      expect(has('Não perca nenhum gol')).toBe(false);
-      const progress = screen.root
-        .findAllByProps({ accessibilityRole: 'progressbar' })
-        .find((control) => control.props.accessibilityLabel === `Passo ${page + 4} de 8`);
-      expect(progress?.props.accessibilityValue).toEqual({ min: 1, max: 8, now: page + 4 });
-      await press(page === FEATURE_PRESENTATION.length - 1 ? 'Continuar' : 'Próximo');
-    }
+    expect(has('Seus ídolos')).toBe(true);
+    const progress = screen.root
+      .findAllByProps({ accessibilityRole: 'progressbar' })
+      .find((control) => control.props.accessibilityLabel === 'Passo 2 de 3');
+    expect(progress).toBeDefined();
+    await press('Continuar com 2');
     expect(has('Não perca nenhum gol')).toBe(true);
-    expect(screen.root.findAllByType(Button).some((b) => b.props.label === 'Conhecer os recursos')).toBe(
-      false
-    );
     await press('Entrar no app');
     expect(has('Aplicativo principal')).toBe(true);
     expect(await AsyncStorage.getItem('@flamengo/onboarding-done')).toBe('1');
-    expect(await AsyncStorage.getItem(guidanceKey(mockOwner, 'presentation'))).toBe('completed');
     expect(mockUpdateProfile).not.toHaveBeenCalled();
     expect(mockFavorite).not.toHaveBeenCalled();
   });
 
-  it('volta aos ídolos e dos alertas ao último recurso, sem alterar preferências', async () => {
+  it('entra como visitante direto do carrossel', async () => {
     await mount(
       <OnboardingGate>
         <Text>Aplicativo principal</Text>
       </OnboardingGate>
     );
-    await press('Começar');
     await press('Entrar como visitante');
-    await press('Continuar (2)');
-    expect(has('Explore o Maracanã')).toBe(true);
+    expect(mockEnterAsGuest).toHaveBeenCalledTimes(1);
+    expect(has('Seus ídolos')).toBe(true);
+  });
+
+  it('volta dos alertas aos ídolos e pula direto para o app', async () => {
+    await mount(
+      <OnboardingGate>
+        <Text>Aplicativo principal</Text>
+      </OnboardingGate>
+    );
+    await press('Criar conta ou entrar');
+    await press('Entrar como visitante');
+    await press('Continuar com 2');
     await pressControl('Voltar');
-    expect(has('Quem são seus ídolos?')).toBe(true);
-    await press('Continuar (2)');
-    await press('Próximo');
-    expect(has('Seu ingresso, fácil de encontrar')).toBe(true);
-    await pressControl('Pular recursos e ir para os alertas');
-    expect(has('Não perca nenhum gol')).toBe(true);
-    expect(has('Aplicativo principal')).toBe(false);
-    expect(await AsyncStorage.getItem(guidanceKey(mockOwner, 'presentation'))).toBe('dismissed');
-    await press('Voltar');
-    expect(has('Conte com o Assistente Fla')).toBe(true);
-    await pressControl('Voltar');
-    expect(has('Participe da Nação')).toBe(true);
-    await press('Próximo');
-    await press('Continuar');
-    expect(has('Não perca nenhum gol')).toBe(true);
-    await press('Entrar no app');
+    expect(has('Seus ídolos')).toBe(true);
+    await pressControl('Pular e entrar no app');
     expect(has('Aplicativo principal')).toBe(true);
-    expect(mockUpdateProfile).not.toHaveBeenCalled();
-    expect(mockFavorite).not.toHaveBeenCalled();
+    expect(await AsyncStorage.getItem('@flamengo/onboarding-done')).toBe('1');
   });
 
-  it('permite pular os recursos pelo rodapé e mantém a etapa de alertas', async () => {
-    await mount(
-      <OnboardingGate>
-        <Text>Aplicativo principal</Text>
-      </OnboardingGate>
-    );
-    await press('Começar');
-    await press('Entrar como visitante');
-    await press('Continuar (2)');
-    await press('Pular recursos');
-    expect(has('Não perca nenhum gol')).toBe(true);
-    expect(has('Aplicativo principal')).toBe(false);
-    expect(await AsyncStorage.getItem('@flamengo/onboarding-done')).toBeNull();
-    expect(await AsyncStorage.getItem(guidanceKey(mockOwner, 'presentation'))).toBe('dismissed');
-    expect(mockUpdateProfile).not.toHaveBeenCalled();
-    expect(mockFavorite).not.toHaveBeenCalled();
+  it('o carrossel mostra as seis áreas, com o Modo Maracanã em 3D e sem mascote', async () => {
+    await mount(<WelcomeCarousel onStart={jest.fn()} onGuest={jest.fn()} />);
+    for (const kicker of [
+      'Bem-vindo à Nação',
+      'Dia de jogo',
+      'Modo Maracanã',
+      'Ingressos',
+      'Nação',
+      'Assistente Fla',
+    ])
+      expect(has(kicker)).toBe(true);
+    expect(has('O estádio em 3D, do portão ao seu lugar')).toBe(true);
+    expect(screen.root.findAllByType(Mascot)).toHaveLength(0);
   });
 
-  it('percorre quatro exemplos, permite voltar e conclui sem mudar a conta', async () => {
+  it('"Rever apresentação" percorre as telas e fecha sem mudar a conta', async () => {
     const done = jest.fn();
     const before = JSON.stringify(DEMO_FAN);
-    await mount(<FeaturePresentation onClose={done} />);
-    for (let page = 0; page < FEATURE_PRESENTATION.length; page++) {
-      expect(has(FEATURE_PRESENTATION[page]!.title)).toBe(true);
-      if (page < 3) await press('Próximo');
-    }
-    await act(async () => {
-      screen.root
-        .findAllByProps({ accessibilityLabel: 'Voltar' })
-        .find((p) => p.props.onPress)!
-        .props.onPress();
-    });
-    expect(has('Participe da Nação')).toBe(true);
-    await press('Próximo');
-    await press('Concluir');
+    await mount(<WelcomeCarousel mode="tour" onClose={done} />);
+    for (let i = 0; i < 5; i++) await press('Próxima');
+    await press('Pronto');
     expect(done).toHaveBeenCalledTimes(1);
-    expect(await AsyncStorage.getItem(guidanceKey(mockOwner, 'presentation'))).toBe('completed');
     expect(JSON.stringify(DEMO_FAN)).toBe(before);
     expect(mockUpdateProfile).not.toHaveBeenCalled();
-    expect(mockFavorite).not.toHaveBeenCalled();
-  });
-
-  it('pode encerrar na primeira tela e registra a dispensa', async () => {
-    const done = jest.fn();
-    await mount(<FeaturePresentation onClose={done} />);
-    await press('Encerrar apresentação');
-    expect(done).toHaveBeenCalledTimes(1);
-    expect(await AsyncStorage.getItem(guidanceKey(mockOwner, 'presentation'))).toBe('dismissed');
   });
 
   it('guarda a dica vista e não a repete ao voltar ao recurso', async () => {
@@ -248,8 +215,7 @@ describe('recursos nas boas-vindas e primeiro uso', () => {
     expect(has('Seu caminho no estádio')).toBe(true);
   });
 
-  it('mantém textos curtos e no máximo três passos por recurso', () => {
-    for (const slide of FEATURE_PRESENTATION) expect(slide.body.split(/\s+/).length).toBeLessThanOrEqual(25);
+  it('mantém no máximo três passos por dica de recurso', () => {
     for (const guide of Object.values(RESOURCE_GUIDES)) expect(guide.steps.length).toBeLessThanOrEqual(3);
   });
 });

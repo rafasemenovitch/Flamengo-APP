@@ -42,30 +42,3 @@ export const RESOURCE_GUIDES = {
 } as const;
 
 export type GuidedResource = keyof typeof RESOURCE_GUIDES;
-
-export const FEATURE_PRESENTATION = [
-  {
-    id: 'maracana',
-    title: 'Explore o Maracanã',
-    body: 'Encontre setores, portões e serviços. Veja caminhos pelo estádio e opções sem escadas.',
-    note: 'Você pode explorar o Modo Maracanã mesmo sem ingresso.',
-  },
-  {
-    id: 'tickets',
-    title: 'Seu ingresso, fácil de encontrar',
-    body: 'Na carteira, consulte seu ingresso, setor e portão. Depois, veja seu setor no mapa.',
-    note: 'Exemplo demonstrativo. Sem validade para entrada.',
-  },
-  {
-    id: 'nation',
-    title: 'Participe da Nação',
-    body: 'Dê seus palpites no Bolão e acompanhe os pontos das atividades na trilha da temporada.',
-    note: 'Exemplos: nenhum palpite ou ponto é registrado.',
-  },
-  {
-    id: 'assistant',
-    title: 'Conte com o Assistente Fla',
-    body: 'Toque em Fazer pergunta, escolha um tema e consulte informações sobre o aplicativo.',
-    note: 'Escolha entre os temas e as perguntas disponíveis.',
-  },
-] as const;

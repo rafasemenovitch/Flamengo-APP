@@ -6,7 +6,7 @@
  * Parâmetros de URL:
  *   theme=light|dark        tema (padrão: o do sistema)
  *   tiles=0                 simula falta de internet para o mapa de base
- *   panel=0                 esconde o painel (prints)
+ *   panel=0                 esconde o painel (prints); card=0 esconde o cartão
  *   level=1|2|3|5           nível ativo (sem: visão geral)
  *   area=<id>&block=512     "Onde você está?"
  *   poi=<id> | sector=<id>  seleção
@@ -54,6 +54,7 @@ async function main() {
   const card = document.getElementById('card')!;
   const levelName = (l: string | null) => (l ? `Nível ${l}` : 'Área externa');
   const showCard = (html: string | null) => {
+    if (q.get('card') === '0') html = null;
     card.hidden = !html;
     card.innerHTML = html ?? '';
   };

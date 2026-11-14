@@ -26,6 +26,14 @@ describe('correção das maiúsculas da Anybody (regra fixa, ver CLAUDE.md)', ()
     expect(caps('Portão C')).toBe('P');
   });
 
+  it('amplia o artigo de uma letra que abre a frase, não a letra-código', () => {
+    expect(caps('O Flamengo inteiro num app só')).toBe('OF');
+    expect(caps('O estádio em 3D, do portão ao seu lugar')).toBe('O');
+    expect(caps('Vai cedo. A fila anda')).toBe('VA');
+    expect(caps('Portão A')).toBe('P');
+    expect(caps('Entre pelo Portão D. O resto é festa')).toBe('EPO');
+  });
+
   it('preserva o texto inteiro', () => {
     const t = 'Flamengo × Palmeiras, 16h00';
     expect(

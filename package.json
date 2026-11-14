@@ -19,7 +19,8 @@
     "map:app": "tsx map/tools/build-webview.ts",
     "map:build": "npm run map:data && npm run map:styles && npm run map:app && esbuild map/dev/report.ts map/dev/main.ts --bundle --minify --target=es2020 --outdir=map/dev/build --log-level=warning",
     "map:dev": "npm run map:build && tsx map/tools/serve.ts",
-    "map:shots": "npm run map:build && tsx map/tools/shots.ts"
+    "map:shots": "npm run map:build && tsx map/tools/shots.ts",
+    "map:onboarding": "npm run map:build && tsx map/tools/shots.ts onboarding"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",

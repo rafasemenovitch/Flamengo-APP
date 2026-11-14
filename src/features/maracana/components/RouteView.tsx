@@ -104,6 +104,8 @@ export function RouteView({
           accessibilityLabel="Sem escadas, só rampas e elevadores"
           trackColor={{ true: colors.accent, false: colors.bgRaised2 }}
           thumbColor="#FFFFFF"
+          // Na web (react-native-web) a cor do botão ligado é outra propriedade.
+          {...({ activeThumbColor: '#FFFFFF' } as object)}
           ios_backgroundColor={colors.bgRaised2}
         />
       </View>
