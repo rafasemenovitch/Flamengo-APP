@@ -47,6 +47,23 @@ Plano completo e critérios de aceite: `docs/maracana/`. Trabalho em fases; cada
 - `src/services/stadium/` é genérico (serve ao Morumbis também): nada de "Maracanã" na lógica, só nos dados.
 - No Modo Maracanã: sem mascote, sem QR Code de ingresso (acesso é por biometria facial), sem exigir ingresso, sem ícone ou texto de bebida alcoólica.
 
+## API de futebol (API-Football, plano gratuito)
+
+Limites: 100 chamadas/dia (zera 00:00 UTC) e 10 chamadas/minuto. Estourar pode bloquear a chave.
+
+1. O app NUNCA chama a API diretamente. Ele lê só do Supabase (tabelas + Realtime para ao vivo).
+2. Toda chamada à API passa por uma única Edge Function de sincronização, com a chave guardada como secret.
+3. Antes de qualquer chamada, verifique se o dado já está no Supabase e ainda está válido (campo `fetched_at`). Só chame a API se não houver dado ou se ele estiver vencido:
+   - elenco, perfis e fotos: 7 dias
+   - calendário e classificações: 1 dia
+   - escalação: a cada 15 min, de 75 min antes do jogo até sair
+   - jogo ao vivo: a cada 3 min, só durante a partida
+4. As buscas são agendadas (Supabase Cron) com base no calendário do Flamengo. Nunca dispare uma chamada porque um usuário abriu uma tela. Se o dado não existe ainda, o app mostra um estado vazio ("Escalação ainda não divulgada").
+5. Registre toda chamada na tabela `sync_log` (endpoint, horário, status, requisições restantes do header). Se faltar menos de 15 chamadas no dia, pare as buscas não essenciais.
+6. Fotos de jogadores e escudos: baixe uma vez para o Supabase Storage e sirva de lá. Nunca use o link da API no app.
+7. Dados já salvos (jogos passados, estatísticas finais) não são buscados de novo.
+8. Prefira endpoints que trazem tudo de uma vez (ex.: elenco inteiro numa chamada; jogo por ID com eventos, escalações e estatísticas).
+
 ## Outras regras
 
 - Dados 100% demonstrativos. Sem logos ou fotos oficiais baixados; escudos dos adversários são placeholders (virão da API de futebol).
