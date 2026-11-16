@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Switch, View } from 'react-native';
+import { ActivityIndicator, DevSettings, Platform, Pressable, ScrollView, Switch, View } from 'react-native';
+import * as Updates from 'expo-updates';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar, Button, IconButton, TabHeader, Text, useTheme } from '@/design-system';
@@ -21,6 +22,25 @@ interface OnboardingCtx {
 }
 const Ctx = createContext<OnboardingCtx>({ replay: () => undefined });
 export const useOnboarding = () => useContext(Ctx);
+
+/**
+ * Zera o app como se tivesse acabado de ser baixado: sai da conta (ou do modo visitante), apaga
+ * tudo o que o app guardou no aparelho (boas-vindas vistas, preferências, dicas, demo) e reabre.
+ */
+export async function resetApp(signOut: () => Promise<void>) {
+  await signOut().catch(() => undefined);
+  await AsyncStorage.clear().catch(() => undefined);
+  if (Platform.OS === 'web') {
+    window.location.reload();
+    return;
+  }
+  try {
+    await Updates.reloadAsync();
+  } catch {
+    // Em desenvolvimento (Metro), o recarregamento é pelo DevSettings.
+    DevSettings.reload();
+  }
+}
 
 /** Mostra o onboarding na primeira abertura; depois, o app normal. */
 export function OnboardingGate({ children }: { children: ReactNode }) {

@@ -15,7 +15,7 @@ import {
 } from '@/design-system';
 import { DATA_SOURCE } from '@/services';
 import { useAuth } from '@/features/auth/AuthProvider';
-import { useOnboarding } from '@/features/onboarding/Onboarding';
+import { resetApp, useOnboarding } from '@/features/onboarding/Onboarding';
 import { useAppState } from '@/state/AppStateProvider';
 import type { NotificationPrefs, PrivacyPrefs } from '@/types/fan';
 
@@ -148,6 +148,21 @@ export function SettingsScreen() {
             icon="map-outline"
             title="Rever apresentação do app"
             onPress={() => navigation.navigate('FeaturePresentation')}
+          />
+          <ListItem
+            icon="refresh-outline"
+            title="Zerar app"
+            subtitle="Volta ao primeiro acesso, como recém-baixado"
+            onPress={() =>
+              Alert.alert(
+                'Zerar o app?',
+                'Você sai da conta e o app esquece preferências, ídolos e boas-vindas vistas.',
+                [
+                  { text: 'Cancelar', style: 'cancel' },
+                  { text: 'Zerar', style: 'destructive', onPress: () => void resetApp(signOutAccount) },
+                ]
+              )
+            }
           />
         </ListGroup>
       </View>
