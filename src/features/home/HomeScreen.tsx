@@ -23,7 +23,7 @@ import { useAppState } from '@/state/AppStateProvider';
 import { formatDuration, formatRelative } from '@/utils/format';
 import { HeroMatchCard } from './HeroMatchCard';
 import { useWelcomePopup } from './useWelcomePopup';
-import { DemoControlsSheet, HomeHeader, MatchdayBanner, NationInvite, QuickActions } from './HomeParts';
+import { DemoControlsSheet, HomeHeader, NationInvite, QuickActions } from './HomeParts';
 
 function isToday(iso: string) {
   return new Date(iso).toDateString() === new Date().toDateString();
@@ -88,10 +88,6 @@ export function HomeScreen() {
   const match = featured.data;
   useWelcomePopup(match);
   const matchday = !!match && match.status === 'scheduled' && isToday(match.kickoff);
-  const plan = useAsync(
-    async () => (matchday && match ? services.stadium.getMatchDayPlan(match.id) : undefined),
-    [matchday, match?.id]
-  );
 
   const refreshNotifications = notifications.refresh;
   useFocusEffect(
@@ -134,11 +130,9 @@ export function HomeScreen() {
         <QuickActions matchday={matchday} />
       </Reveal>
 
-      {matchday && match && (
-        <Reveal index={1} style={{ marginTop: 32 }}>
-          <MatchdayBanner match={match} plan={plan.data} />
-        </Reveal>
-      )}
+      <Reveal index={1} style={{ marginTop: 32 }}>
+        <NationInvite />
+      </Reveal>
 
       {match?.status === 'finished' && match.manOfTheMatchPollId && (
         <Reveal index={1} style={{ marginTop: 48, paddingHorizontal: layout.gutter }}>
@@ -147,6 +141,21 @@ export function HomeScreen() {
       )}
 
       <Reveal index={2} style={{ marginTop: 48 }}>
+        <SectionTitle
+          title="Brasileirão"
+          action="Tabela"
+          onAction={() => navigation.navigate('Standings', { competitionId: 'brasileirao' })}
+        />
+        {standings.loading || !standings.data ? (
+          <View style={{ paddingHorizontal: layout.gutter }}>
+            <Skeleton height={260} radius={8} />
+          </View>
+        ) : (
+          <StandingsTable table={standings.data} compact />
+        )}
+      </Reveal>
+
+      <Reveal index={3} style={{ marginTop: 48 }}>
         <SectionTitle title="Notícias" action="Ver todas" onAction={() => navigation.navigate('News')} />
         {news.error ? (
           <ErrorState compact onRetry={news.reload} />
@@ -176,7 +185,7 @@ export function HomeScreen() {
         )}
       </Reveal>
 
-      <Reveal index={3} style={{ marginTop: 48 }}>
+      <Reveal index={4} style={{ marginTop: 48 }}>
         <SectionTitle title="FlaTV" action="Ver todos" onAction={() => navigation.navigate('FlaTV')} />
         {videos.error ? (
           <ErrorState compact onRetry={videos.reload} />
@@ -193,7 +202,7 @@ export function HomeScreen() {
         )}
       </Reveal>
 
-      <Reveal index={4} style={{ marginTop: 48 }}>
+      <Reveal index={5} style={{ marginTop: 48 }}>
         <SectionTitle title="Para você" />
         {forYou.loading ? (
           <View style={{ paddingHorizontal: layout.gutter }}>
@@ -233,25 +242,6 @@ export function HomeScreen() {
               )
             )
         )}
-      </Reveal>
-
-      <Reveal index={5} style={{ marginTop: 48 }}>
-        <SectionTitle
-          title="Brasileirão"
-          action="Tabela"
-          onAction={() => navigation.navigate('Standings', { competitionId: 'brasileirao' })}
-        />
-        {standings.loading || !standings.data ? (
-          <View style={{ paddingHorizontal: layout.gutter }}>
-            <Skeleton height={260} radius={8} />
-          </View>
-        ) : (
-          <StandingsTable table={standings.data} compact />
-        )}
-      </Reveal>
-
-      <Reveal index={6} style={{ marginTop: 48 }}>
-        <NationInvite />
       </Reveal>
 
       {/* Assinatura discreta no fim do feed. */}

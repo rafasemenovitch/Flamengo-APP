@@ -3,14 +3,12 @@ import { useNavigation } from '@react-navigation/native';
 import { Modal, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Button, LiveIndicator, Monogram, Text, useTheme } from '@/design-system';
+import { LiveIndicator, Monogram, Text, useTheme } from '@/design-system';
 import { useDemoMember } from '@/hooks/useMatch';
 import { DEMO_SCENARIOS, IS_DEMO, type DemoScenario } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
 import type { FanProgress } from '@/types/gamification';
-import type { MatchDetail } from '@/types/match';
-import type { MatchDayPlan } from '@/types/stadium';
-import { formatNumber, shiftTime } from '@/utils/format';
+import { formatNumber } from '@/utils/format';
 import { haptic } from '@/utils/haptics';
 import { DemoLocationPicker } from '@/features/maracana/DemoLocationPicker';
 
@@ -333,19 +331,14 @@ export function NationInvite() {
         marginHorizontal: layout.gutter,
         backgroundColor: colors.bgRaised,
         borderRadius: radius.l,
-        padding: 24,
-        gap: 20,
+        padding: 20,
+        gap: 16,
         overflow: 'hidden',
         opacity: pressed ? 0.85 : 1,
       })}
     >
       <Monogram width={160} opacity={0.08} style={{ position: 'absolute', right: -36, top: -28 }} />
-      <View style={{ gap: 8 }}>
-        <Text variant="displayM">Jogue com a Nação</Text>
-        <Text variant="bodyM" tone="secondary" style={{ maxWidth: 280 }}>
-          Monte seu bolão com os amigos, responda o quiz do dia e vote nas enquetes da torcida.
-        </Text>
-      </View>
+      <Text variant="displayM">Jogue com a Nação</Text>
       <View style={{ flexDirection: 'row', gap: 24 }}>
         {(
           [
@@ -367,42 +360,5 @@ export function NationInvite() {
         <Ionicons name="arrow-forward" size={18} color={colors.accentText} />
       </View>
     </Pressable>
-  );
-}
-
-/** Banner de dia de jogo (13.1.4): bloco vermelho em sangria, mascote cortado pela base. */
-export function MatchdayBanner({ match, plan }: { match: MatchDetail; plan?: MatchDayPlan }) {
-  const navigation = useNavigation();
-  const { colors, layout } = useTheme();
-  if (!plan) return null;
-  const arrival = shiftTime(match.kickoff, Number(plan.recommendedArrival));
-  const queue = plan.queues.find((q) => q.gateId === plan.recommendedGateId);
-  return (
-    <View
-      style={{ backgroundColor: colors.bgRed, padding: layout.gutter, overflow: 'hidden', minHeight: 140 }}
-    >
-      <Monogram
-        color="white"
-        width={150}
-        opacity={0.12}
-        style={{ position: 'absolute', right: -24, bottom: -30 }}
-      />
-      <View style={{ gap: 8, paddingRight: 64 }}>
-        <Text variant="titleL" tone="onPrimary">
-          Seu jogo é hoje
-        </Text>
-        <Text variant="bodyM" tone="onPrimary" style={{ opacity: 0.85 }}>
-          Portão {plan.recommendedGateId} · chegue às {arrival}
-          {queue ? ` · fila de ${queue.waitMinutes} min` : ''}
-        </Text>
-        <Button
-          label="Abrir Modo Maracanã"
-          variant="light"
-          size="sm"
-          onPress={() => navigation.navigate('StadiumMode')}
-          style={{ marginTop: 4 }}
-        />
-      </View>
-    </View>
   );
 }
