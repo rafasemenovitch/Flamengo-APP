@@ -32,7 +32,8 @@ Depois disso, quase nada: perfis a cada 7 dias e o elenco uma vez por semana.
 ## Passo a passo (uma vez só)
 
 1. **Chave da API.** Crie a conta em <https://dashboard.api-football.com/register> (plano Free,
-   sem cartão). A chave aparece no painel da conta. Não cole a chave em arquivo
+   sem cartão). A chave fica no ícone de pessoa da barra lateral, aba *My Access*
+   (<https://dashboard.api-football.com/profile?access>). Não cole a chave em arquivo
    do projeto.
 2. **Ligar o projeto ao Supabase** (no terminal, na pasta do app):
    ```sh
