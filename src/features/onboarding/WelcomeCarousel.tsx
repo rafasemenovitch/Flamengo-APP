@@ -287,8 +287,8 @@ const SLIDES: Slide[] = [
   {
     kicker: 'Modo Maracanã',
     title: 'O Maracanã em 3D',
-    caption: 'Do portão até a sua cadeira.\nCom rota sem escadas, se precisar.',
-    features: ['Rotas', 'Acessível', 'Banheiros', 'Comida'],
+    caption: 'Do portão até a sua cadeira.\nE o banheiro e o lanche mais perto.',
+    features: ['Seu lugar', 'Rotas', 'Banheiros', 'Comida'],
     art: (s) => <MaracanaArt {...s} />,
   },
   {

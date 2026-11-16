@@ -23,6 +23,7 @@ import { useAppState } from '@/state/AppStateProvider';
 import { formatDuration, formatRelative } from '@/utils/format';
 import { HeroMatchCard } from './HeroMatchCard';
 import { useWelcomePopup } from './useWelcomePopup';
+import { HOME_VARIANT, HomeTopVariant } from './lab/HomeVariants';
 import {
   DemoControlsSheet,
   HomeHeader,
@@ -121,7 +122,6 @@ export function HomeScreen() {
 
   return (
     <Screen reserveFab refreshing={featured.refreshing || news.refreshing} onRefresh={onRefresh}>
-      <HomeHeader unread={unread} matchday={matchday} onSecretLongPress={() => setDemoPanel(true)} />
       <DemoControlsSheet
         visible={demoPanel}
         value={scenario}
@@ -129,26 +129,44 @@ export function HomeScreen() {
         onClose={() => setDemoPanel(false)}
       />
 
-      <View style={{ marginTop: 24 }}>
-        {featured.error ? (
-          <ErrorState compact onRetry={featured.reload} />
-        ) : (
-          <HeroMatchCard match={match} loading={featured.loading} />
-        )}
-      </View>
+      {HOME_VARIANT ? (
+        // Laboratório (só na web com ?home=N): arranjos alternativos do topo para comparar.
+        <HomeTopVariant
+          variant={HOME_VARIANT}
+          match={match}
+          loading={featured.loading}
+          error={!!featured.error}
+          onRetry={featured.reload}
+          matchday={matchday}
+          plan={plan.data}
+          onSecretLongPress={() => setDemoPanel(true)}
+        />
+      ) : (
+        <>
+          <HomeHeader unread={unread} matchday={matchday} onSecretLongPress={() => setDemoPanel(true)} />
 
-      <Reveal index={0} style={{ marginTop: 24 }}>
-        <QuickActions matchday={matchday} />
-      </Reveal>
+          <View style={{ marginTop: 24 }}>
+            {featured.error ? (
+              <ErrorState compact onRetry={featured.reload} />
+            ) : (
+              <HeroMatchCard match={match} loading={featured.loading} />
+            )}
+          </View>
 
-      <Reveal index={1} style={{ marginTop: 32 }}>
-        <LevelStrip />
-      </Reveal>
+          <Reveal index={0} style={{ marginTop: 24 }}>
+            <QuickActions matchday={matchday} />
+          </Reveal>
 
-      {matchday && match && (
-        <Reveal index={1} style={{ marginTop: 32 }}>
-          <MatchdayBanner match={match} plan={plan.data} />
-        </Reveal>
+          <Reveal index={1} style={{ marginTop: 32 }}>
+            <LevelStrip />
+          </Reveal>
+
+          {matchday && match && (
+            <Reveal index={1} style={{ marginTop: 32 }}>
+              <MatchdayBanner match={match} plan={plan.data} />
+            </Reveal>
+          )}
+        </>
       )}
 
       {match?.status === 'finished' && match.manOfTheMatchPollId && (

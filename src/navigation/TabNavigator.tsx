@@ -16,6 +16,7 @@ import { ProfileScreen } from '@/features/profile/ProfileScreen';
 import { TicketsScreen } from '@/features/tickets/TicketsScreen';
 import { AppHeader } from './AppHeader';
 import { AssistantFab } from './AssistantFab';
+import { HOME_LAB_HIDES_FAB } from '@/features/home/lab/HomeVariants';
 import type { TabParamList } from './types';
 
 const Tab = createBottomTabNavigator<TabParamList>();
@@ -118,7 +119,7 @@ function TabNavigatorInner() {
       </Tab.Navigator>
       {/* Irmão do navigator (não filho da tab bar): no Android, filhos fora dos
           limites do pai não recebem toque. */}
-      {barHeight > 0 && (
+      {barHeight > 0 && !HOME_LAB_HIDES_FAB && (
         <AssistantFab
           bottom={barHeight + spacing.lg}
           visible={fab?.visible ?? true}
