@@ -13,3 +13,6 @@ web-build/
 
 # Modo Maracanã: bundles gerados
 map/dev/build/
+
+# Supabase CLI (vínculo local com o projeto)
+supabase/.temp/
