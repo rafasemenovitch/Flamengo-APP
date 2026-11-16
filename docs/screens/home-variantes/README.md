@@ -1,8 +1,9 @@
 # Home: cinco variantes do topo (estudo)
 
-A Home oficial não mudou. As variantes só aparecem na versão web com `?home=1` … `?home=5`
-no endereço (código em `src/features/home/lab/HomeVariants.tsx`). Abaixo do topo, o feed é o
-mesmo de hoje (notícias, FlaTV, Para você, tabela, Nação).
+**Escolhida: a 5**, com ajustes (só o nome do nível e os pontos à direita, nome e pontos menores).
+Já é a Home oficial: `oficial-escuro.png` e `oficial-claro.png`. O código das variantes saiu do app;
+os prints abaixo ficam como registro.
+
 
 | Print | O que muda |
 | --- | --- |

@@ -24,31 +24,29 @@ function greeting() {
   return h < 5 ? 'Boa noite' : h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
 }
 
-/** Saudação (especificação 13.1.1): sem pílula; sino de 24px com ponto vermelho. */
+/**
+ * Saudação com a trilha: nome à esquerda; à direita, só o nome do nível e os pontos (menores
+ * que o nome). Embaixo, a barra da trilha de ponta a ponta. Tudo do lado direito abre a trilha.
+ */
 export function HomeHeader({
-  unread,
   matchday,
   onSecretLongPress,
 }: {
-  unread: number;
+  unread?: number;
   matchday: boolean;
   onSecretLongPress?: () => void;
 }) {
-  const { profile } = useAppState();
-  const { layout } = useTheme();
+  const navigation = useNavigation();
+  const { profile, progress } = useAppState();
+  const { layout, colors } = useTheme();
   const name = profile?.firstName ?? 'torcedor';
+  const openTrail = () => navigation.navigate('Trail');
   return (
-    <View
-      style={{
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        paddingHorizontal: layout.gutter,
-        paddingTop: 16,
-      }}
-    >
-      <View style={{ flex: 1, gap: 4 }}>
+    <View style={{ paddingHorizontal: layout.gutter, paddingTop: 16, gap: 14 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 16 }}>
         {/* Toque longo no nome = controles da demonstração (sem pista visual). */}
         <Pressable
+          style={{ flex: 1 }}
           onLongPress={() => {
             haptic.medium();
             onSecretLongPress?.();
@@ -56,78 +54,47 @@ export function HomeHeader({
           delayLongPress={600}
           accessible={false}
         >
-          <Text variant="bodyL" tone="secondary">
+          <Text variant="bodyM" tone="secondary">
             {matchday ? 'Dia de Mengão,' : `${greeting()},`}
           </Text>
-          <Text variant="displayL" numberOfLines={1}>
+          <Text variant="displayM" numberOfLines={1}>
             {name}
           </Text>
         </Pressable>
-      </View>
-    </View>
-  );
-}
-
-/** Nível e pontos do torcedor (abre a Nação). Fica abaixo dos atalhos. */
-export function LevelStrip() {
-  const navigation = useNavigation();
-  const { progress } = useAppState();
-  const { colors, layout } = useTheme();
-  if (!progress) return null;
-  return (
-    <Pressable
-      onPress={() => navigation.navigate('Trail')}
-      accessibilityRole="button"
-      accessibilityLabel={`Nível ${progress.level.level}, ${progress.level.name}, ${formatNumber(progress.points)} pontos. Abrir a trilha da temporada`}
-      style={({ pressed }) => ({ paddingHorizontal: layout.gutter, gap: 10, opacity: pressed ? 0.7 : 1 })}
-    >
-      <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-        <View>
-          <Text variant="bodyS" tone="secondary">
-            Nível {progress.level.level}
-          </Text>
-          <Text variant="displayM" tone="brand">
-            {progress.level.name}
-          </Text>
-        </View>
-        <View style={{ alignItems: 'flex-end' }}>
-          <Text variant="bodyS" tone="secondary">
-            {progress.nextLevel
-              ? `${formatNumber(progress.nextLevel.minPoints - progress.points)} para ${progress.nextLevel.name}`
-              : 'Nível máximo'}
-          </Text>
-          <Text variant="displayM">
-            {formatNumber(progress.points)}
-            <Text variant="bodyM" tone="secondary">
-              {' '}
-              pts
+        {progress && (
+          <Pressable
+            onPress={openTrail}
+            accessibilityRole="button"
+            accessibilityLabel={`${progress.level.name}, ${formatNumber(progress.points)} pontos. Abrir a trilha da temporada`}
+            style={({ pressed }) => ({ alignItems: 'flex-end', opacity: pressed ? 0.7 : 1 })}
+          >
+            <Text variant="labelM" tone="brand">
+              {progress.level.name}
             </Text>
-          </Text>
-        </View>
+            <Text variant="displayS">
+              {formatNumber(progress.points)}
+              <Text variant="bodyS" tone="secondary">
+                {' '}
+                pts
+              </Text>
+            </Text>
+          </Pressable>
+        )}
       </View>
-      <View style={{ height: 3, backgroundColor: colors.bgRaised2, borderRadius: 2, overflow: 'hidden' }}>
-        <View
-          style={{
-            height: '100%',
-            width: `${Math.round(levelProgress(progress) * 100)}%`,
-            backgroundColor: colors.accent,
-          }}
-        />
-      </View>
-      {progress.nextReward && (
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <Ionicons
-            name={progress.nextReward.icon as keyof typeof Ionicons.glyphMap}
-            size={16}
-            color={colors.accentText}
-          />
-          <Text variant="bodyS" tone="secondary" numberOfLines={1} style={{ flex: 1 }}>
-            Próximo prêmio: {progress.nextReward.title}
-          </Text>
-          <Ionicons name="chevron-forward" size={16} color={colors.inkTertiary} />
-        </View>
+      {progress && (
+        <Pressable onPress={openTrail} accessible={false} hitSlop={8}>
+          <View style={{ height: 3, borderRadius: 2, backgroundColor: colors.bgRaised2, overflow: 'hidden' }}>
+            <View
+              style={{
+                height: '100%',
+                width: `${Math.round(levelProgress(progress) * 100)}%`,
+                backgroundColor: colors.accent,
+              }}
+            />
+          </View>
+        </Pressable>
       )}
-    </Pressable>
+    </View>
   );
 }
 

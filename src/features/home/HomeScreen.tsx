@@ -23,15 +23,8 @@ import { useAppState } from '@/state/AppStateProvider';
 import { formatDuration, formatRelative } from '@/utils/format';
 import { HeroMatchCard } from './HeroMatchCard';
 import { useWelcomePopup } from './useWelcomePopup';
-import { HOME_VARIANT, HomeTopVariant } from './lab/HomeVariants';
-import {
-  DemoControlsSheet,
-  HomeHeader,
-  LevelStrip,
-  MatchdayBanner,
-  NationInvite,
-  QuickActions,
-} from './HomeParts';
+import { HERO_VARIANT, HeroVariant } from './lab/HeroVariants';
+import { DemoControlsSheet, HomeHeader, MatchdayBanner, NationInvite, QuickActions } from './HomeParts';
 
 function isToday(iso: string) {
   return new Date(iso).toDateString() === new Date().toDateString();
@@ -117,7 +110,6 @@ export function HomeScreen() {
     notifications.refresh();
   }, [featured, news, videos, standings, forYou, notifications]);
 
-  const unread = notifications.data?.filter((n) => !n.read).length ?? 0;
   const [lead, ...rest] = news.data ?? [];
 
   return (
@@ -129,44 +121,27 @@ export function HomeScreen() {
         onClose={() => setDemoPanel(false)}
       />
 
-      {HOME_VARIANT ? (
-        // Laboratório (só na web com ?home=N): arranjos alternativos do topo para comparar.
-        <HomeTopVariant
-          variant={HOME_VARIANT}
-          match={match}
-          loading={featured.loading}
-          error={!!featured.error}
-          onRetry={featured.reload}
-          matchday={matchday}
-          plan={plan.data}
-          onSecretLongPress={() => setDemoPanel(true)}
-        />
-      ) : (
-        <>
-          <HomeHeader unread={unread} matchday={matchday} onSecretLongPress={() => setDemoPanel(true)} />
+      <HomeHeader matchday={matchday} onSecretLongPress={() => setDemoPanel(true)} />
 
-          <View style={{ marginTop: 24 }}>
-            {featured.error ? (
-              <ErrorState compact onRetry={featured.reload} />
-            ) : (
-              <HeroMatchCard match={match} loading={featured.loading} />
-            )}
-          </View>
+      <View style={{ marginTop: 24 }}>
+        {featured.error ? (
+          <ErrorState compact onRetry={featured.reload} />
+        ) : HERO_VARIANT ? (
+          // Laboratório (só na web com ?hero=N): layouts alternativos do card do jogo.
+          <HeroVariant variant={HERO_VARIANT} match={match} loading={featured.loading} />
+        ) : (
+          <HeroMatchCard match={match} loading={featured.loading} />
+        )}
+      </View>
 
-          <Reveal index={0} style={{ marginTop: 24 }}>
-            <QuickActions matchday={matchday} />
-          </Reveal>
+      <Reveal index={0} style={{ marginTop: 24 }}>
+        <QuickActions matchday={matchday} />
+      </Reveal>
 
-          <Reveal index={1} style={{ marginTop: 32 }}>
-            <LevelStrip />
-          </Reveal>
-
-          {matchday && match && (
-            <Reveal index={1} style={{ marginTop: 32 }}>
-              <MatchdayBanner match={match} plan={plan.data} />
-            </Reveal>
-          )}
-        </>
+      {matchday && match && (
+        <Reveal index={1} style={{ marginTop: 32 }}>
+          <MatchdayBanner match={match} plan={plan.data} />
+        </Reveal>
       )}
 
       {match?.status === 'finished' && match.manOfTheMatchPollId && (
