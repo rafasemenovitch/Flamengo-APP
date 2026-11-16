@@ -1,8 +1,10 @@
 # Card do próximo jogo: cinco layouts (estudo)
 
-A Home oficial continua com o card de hoje. As variantes só aparecem na versão web com
-`?hero=1` … `?hero=5` (código em `src/features/home/lab/HeroVariants.tsx`). Mesmas fontes, mesmos
-escudos, contagem e botões; só muda a disposição. Prints no cenário "dia de jogo", tema escuro.
+**Escolhido: o 5 (cartão com margem)**, mais enxuto: sem rodada e estádio, e no alto só "Hoje",
+"Amanhã" ou a data curta com a hora. Já é o card oficial: `oficial-*.png` (dia de jogo, pré-jogo,
+ao vivo, pós-jogo e tema claro). O código das variantes saiu do app; os prints ficam como registro.
+
+Mesmas fontes, escudos, contagem e botões; só muda a disposição. Prints no cenário "dia de jogo", tema escuro.
 
 | Print | Ideia |
 | --- | --- |

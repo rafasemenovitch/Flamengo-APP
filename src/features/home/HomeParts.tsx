@@ -68,22 +68,26 @@ export function HomeHeader({
             accessibilityLabel={`${progress.level.name}, ${formatNumber(progress.points)} pontos. Abrir a trilha da temporada`}
             style={({ pressed }) => ({ alignItems: 'flex-end', opacity: pressed ? 0.7 : 1 })}
           >
-            <Text variant="labelM" tone="brand">
-              {progress.level.name}
-            </Text>
-            <Text variant="displayS">
+            <Text variant="titleS">
               {formatNumber(progress.points)}
               <Text variant="bodyS" tone="secondary">
                 {' '}
                 pts
               </Text>
             </Text>
+            <Text variant="displayS" tone="brand">
+              {progress.level.name}
+            </Text>
           </Pressable>
         )}
       </View>
       {progress && (
         <Pressable onPress={openTrail} accessible={false} hitSlop={8}>
-          <View style={{ height: 3, borderRadius: 2, backgroundColor: colors.bgRaised2, overflow: 'hidden' }}>
+          <View style={{ height: 3, borderRadius: 2, overflow: 'hidden' }}>
+            {/* Trilho claro o bastante para aparecer sobre o preto (e sobre o claro). */}
+            <View
+              style={{ position: 'absolute', inset: 0, backgroundColor: colors.inkTertiary, opacity: 0.45 }}
+            />
             <View
               style={{
                 height: '100%',

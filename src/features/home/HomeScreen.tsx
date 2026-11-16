@@ -23,7 +23,6 @@ import { useAppState } from '@/state/AppStateProvider';
 import { formatDuration, formatRelative } from '@/utils/format';
 import { HeroMatchCard } from './HeroMatchCard';
 import { useWelcomePopup } from './useWelcomePopup';
-import { HERO_VARIANT, HeroVariant } from './lab/HeroVariants';
 import { DemoControlsSheet, HomeHeader, MatchdayBanner, NationInvite, QuickActions } from './HomeParts';
 
 function isToday(iso: string) {
@@ -126,9 +125,6 @@ export function HomeScreen() {
       <View style={{ marginTop: 24 }}>
         {featured.error ? (
           <ErrorState compact onRetry={featured.reload} />
-        ) : HERO_VARIANT ? (
-          // Laboratório (só na web com ?hero=N): layouts alternativos do card do jogo.
-          <HeroVariant variant={HERO_VARIANT} match={match} loading={featured.loading} />
         ) : (
           <HeroMatchCard match={match} loading={featured.loading} />
         )}
