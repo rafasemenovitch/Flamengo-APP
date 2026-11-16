@@ -1,5 +1,6 @@
 import {
   budgetAllows,
+  cutoutWhiteBackground,
   fixtureRow,
   freeSeasons,
   apiErrorText,
@@ -92,5 +93,29 @@ describe('sincronização da API de futebol', () => {
       'players/9.png'
     );
     expect(mediaPath('teams', 127, 'https://x/127.jpeg?v=2')).toBe('teams/127.jpg');
+  });
+
+  it('recorta fundo branco ou cinza-claro e mantém a camisa que toca a borda de baixo', () => {
+    for (const level of [255, 229]) {
+      const w = 10;
+      const h = 10;
+      const rgba = new Uint8Array(w * h * 4);
+      for (let i = 0; i < w * h; i++) {
+        const x = i % w;
+        const y = Math.floor(i / w);
+        const person = x >= 3 && x <= 6 && y >= 3; // "jogador" escuro até a borda de baixo
+        rgba.set(person ? [40, 30, 30, 255] : [level, level, level, 255], i * 4);
+      }
+      expect(cutoutWhiteBackground(rgba, w, h)).toBe(true);
+      expect(rgba[3]).toBe(0); // canto de cima: fundo
+      expect(rgba[(9 * w + 5) * 4 + 3]).toBe(255); // camisa embaixo: fica
+      expect(rgba[(9 * w + 0) * 4 + 3]).toBe(0); // fundo ao lado, ligado à lateral
+    }
+  });
+
+  it('não mexe em foto de fundo escuro', () => {
+    const rgba = new Uint8Array(4 * 4 * 4).fill(60);
+    expect(cutoutWhiteBackground(rgba, 4, 4)).toBe(false);
+    expect(rgba[3]).toBe(60);
   });
 });

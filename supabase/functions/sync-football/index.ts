@@ -11,6 +11,7 @@
  */
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { decode, encode } from 'npm:fast-png@6';
+import jpeg from 'npm:jpeg-js@0.4';
 
 import {
   BRASILEIRAO_ID,
@@ -310,13 +311,24 @@ async function media() {
   return `${saved} imagens, ${await cutouts()} recortes`;
 }
 
-/** PNG do jogador sem o fundo branco, em `players/<id>-recorte.png`. */
+/** PNG do jogador sem o fundo branco, em `players/<id>-recorte.png`. Algumas fotos da API são JPEG. */
 function makeCutout(bytes: ArrayBuffer) {
-  const png = decode(new Uint8Array(bytes));
-  if (png.depth !== 8 || png.palette) return null; // fotos da API: RGB 8 bits; outro formato fica sem recorte
-  const rgba = toRgba(png.data, png.channels, png.width * png.height);
-  cutoutWhiteBackground(rgba, png.width, png.height);
-  return encode({ width: png.width, height: png.height, data: rgba, channels: 4, depth: 8 });
+  const raw = new Uint8Array(bytes);
+  let width: number;
+  let height: number;
+  let rgba: Uint8Array;
+  if (raw[0] === 0xff && raw[1] === 0xd8) {
+    const img = jpeg.decode(raw, { useTArray: true, formatAsRGBA: true });
+    ({ width, height } = img);
+    rgba = new Uint8Array(img.data);
+  } else {
+    const png = decode(raw);
+    if (png.depth !== 8 || png.palette) return null; // outro formato fica sem recorte
+    ({ width, height } = png);
+    rgba = toRgba(png.data, png.channels, width * height);
+  }
+  if (!cutoutWhiteBackground(rgba, width, height)) return null;
+  return encode({ width, height, data: rgba, channels: 4, depth: 8 });
 }
 
 async function cutouts() {
@@ -354,9 +366,10 @@ async function teams() {
   for (const t of TEAM_SEARCHES) {
     const key = `team-search:${t.search}:${t.country}`;
     if ((await getState(key))?.complete) continue;
-    const res = await api<{ team: ApiTeam }>('teams', { search: t.search, country: t.country });
+    // A API não aceita `country` junto com `search`: filtra o país na resposta.
+    const res = await api<{ team: ApiTeam }>('teams', { search: t.search });
     const found = pickTeam(
-      res.map((r) => r.team),
+      res.map((r) => r.team).filter((team) => team.country === t.country),
       t.search,
       t.prefer
     );

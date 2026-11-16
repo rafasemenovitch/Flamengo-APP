@@ -227,21 +227,27 @@ export function mediaPath(kind: 'teams' | 'players', id: number, url: string) {
 }
 
 /**
- * Recorta o fundo branco liso das fotos de jogador (150×150, rosto e ombros), para o app
- * pôr o jogador no círculo com o fundo do tema em vez de um quadrado branco.
- * Só o branco ligado às bordas de cima e dos lados some (a camisa toca a borda de baixo);
- * na transição, o pixel ganha transparência parcial e perde o halo branco.
- * `rgba` é alterado no lugar e devolvido.
+ * Recorta o fundo claro e liso das fotos de jogador (150×150, rosto e ombros), para o app pôr
+ * o jogador no círculo com o fundo do tema em vez de um quadrado branco. A cor do fundo é
+ * medida na borda de cima (umas vêm brancas, outras cinza-claro). Só o fundo ligado às bordas
+ * de cima e dos lados some (a camisa toca a borda de baixo); na transição, o pixel ganha
+ * transparência parcial e perde o halo claro. `rgba` é alterado no lugar.
+ * Devolve false (sem mexer) quando o fundo não é claro e liso.
  */
 export function cutoutWhiteBackground(rgba: Uint8Array, width: number, height: number) {
-  const BG_MIN = 232; // canal mais escuro acima disso…
-  const BG_CHROMA = 20; // …e quase sem cor = fundo
-  const EDGE_MIN = 196; // vizinho do fundo mais claro que isso fica translúcido
   const n = width * height;
   const minC = (i: number) => Math.min(rgba[i * 4]!, rgba[i * 4 + 1]!, rgba[i * 4 + 2]!);
   const chroma = (i: number) => Math.max(rgba[i * 4]!, rgba[i * 4 + 1]!, rgba[i * 4 + 2]!) - minC(i);
-  const isBgColor = (i: number) => minC(i) >= BG_MIN && chroma(i) <= BG_CHROMA;
 
+  // Nível do fundo: mediana do canal mais escuro na linha de cima.
+  const top = Array.from({ length: width }, (_, x) => minC(x)).sort((a, b) => a - b);
+  const level = top[Math.floor(width / 2)]!;
+  if (level < 200) return false;
+  const BG_MIN = level - 23; // canal mais escuro acima disso…
+  const BG_CHROMA = 20; // …e quase sem cor = fundo
+  const EDGE_MIN = level - 59; // vizinho do fundo mais claro que isso fica translúcido
+
+  const isBgColor = (i: number) => minC(i) >= BG_MIN && chroma(i) <= BG_CHROMA;
   const bg = new Uint8Array(n);
   const stack: number[] = [];
   const seed = (i: number) => {
@@ -279,15 +285,15 @@ export function cutoutWhiteBackground(rgba: Uint8Array, width: number, height: n
       (y < height - 1 && bg[i + width]);
     const m = minC(i);
     if (!touchesBg || m < EDGE_MIN) continue;
-    // Quanto mais branco, mais transparente; e tira o branco que vazou na cor.
-    const a = Math.max(0.15, Math.min(1, (255 - m) / (255 - EDGE_MIN)));
+    // Quanto mais perto do fundo, mais transparente; e tira o fundo que vazou na cor.
+    const a = Math.max(0.15, Math.min(1, (level - m) / (level - EDGE_MIN)));
     for (let c = 0; c < 3; c++) {
       const v = rgba[i * 4 + c]!;
-      rgba[i * 4 + c] = Math.max(0, Math.min(255, Math.round((v - 255 * (1 - a)) / a)));
+      rgba[i * 4 + c] = Math.max(0, Math.min(255, Math.round((v - level * (1 - a)) / a)));
     }
     rgba[i * 4 + 3] = Math.round(a * (rgba[i * 4 + 3] ?? 255));
   }
-  return rgba;
+  return true;
 }
 
 /** Converte RGB ou RGBA de 8 bits (`channels` 3 ou 4) para RGBA. */
