@@ -30,8 +30,6 @@ const CRON_SLACK = 30_000;
 export const RESERVE = 15;
 /** O limite é 10 por minuto; paramos em 9 para não encostar. */
 export const PER_MINUTE = 9;
-/** `fixtures?ids=` aceita até 20 jogos por chamada. */
-export const IDS_PER_CALL = 20;
 
 /** Situações em que o jogo não muda mais (regra 7: não buscar de novo). */
 export const FINAL_STATUS = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'CANC', 'ABD'] as const;
@@ -51,12 +49,6 @@ export function budgetAllows(remaining: number | null, essential: boolean) {
 
 /** Início do dia da cota (00:00 UTC), quando os 100 pedidos voltam. */
 export const quotaDayStart = (now: number) => new Date(Math.floor(now / DAY) * DAY).toISOString();
-
-export function chunk<T>(items: T[], size: number): T[][] {
-  const out: T[][] = [];
-  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
-  return out;
-}
 
 export interface MatchdayFixture {
   kickoff: string;

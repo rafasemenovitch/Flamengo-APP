@@ -24,9 +24,9 @@ API-Football é a Edge Function `sync-football`, agendada pelo Supabase Cron.
 | `sync_log` | toda chamada, com a cota restante | — |
 | `sync_state` | quando cada conjunto foi buscado | — |
 
-Primeira carga: cerca de 55 chamadas, distribuídas pelo Cron ao longo do primeiro dia
-(1 elenco, 3 temporadas de jogos, 3 tabelas e ~11 lotes de detalhes nas primeiras horas;
-~35 perfis, 3 por hora).
+Primeira carga: cerca de 270 chamadas, distribuídas pelo Cron
+(1 elenco, 3 temporadas de jogos e 3 tabelas na primeira hora; depois ~228 jogos com detalhes,
+um por chamada, e ~35 perfis: cerca de 3 dias dentro da cota).
 Depois disso, quase nada: perfis a cada 7 dias e o elenco uma vez por semana.
 
 ## Passo a passo (uma vez só)

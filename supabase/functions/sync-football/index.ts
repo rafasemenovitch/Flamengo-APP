@@ -3,7 +3,7 @@
  * Supabase Cron, nunca o app. Cada tarefa confere antes no banco se o dado ainda vale e só
  * então gasta uma chamada; toda chamada vai para `sync_log`.
  *
- *   POST /functions/v1/sync-football?job=daily     elenco, perfis, jogos, tabela, detalhes, imagens
+ *   POST /functions/v1/sync-football?job=daily     elenco, jogos, tabela, imagens, detalhes, perfis
  *   POST /functions/v1/sync-football?job=matchday  escalação e ao vivo (sem custo fora de dia de jogo)
  *   (também aceita job=squad|profiles|fixtures|standings|details|media)
  *
@@ -14,7 +14,6 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 import {
   BRASILEIRAO_ID,
   FLAMENGO_ID,
-  IDS_PER_CALL,
   PER_MINUTE,
   TTL,
   type ApiFixture,
@@ -23,7 +22,6 @@ import {
   type ApiTeam,
   apiErrorText,
   budgetAllows,
-  chunk,
   fixtureRow,
   freeSeasons,
   headerInt,
@@ -41,7 +39,7 @@ const API = 'https://v3.football.api-sports.io';
 const BUCKET = 'football';
 /** Por execução: o resto fica para a próxima hora (e respeita os 10 por minuto). */
 const PROFILES_PER_RUN = 3;
-const DETAIL_CALLS_PER_RUN = 3;
+const DETAIL_CALLS_PER_RUN = 5;
 const MEDIA_PER_RUN = 25;
 
 const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {
@@ -240,7 +238,10 @@ async function standings() {
   return out.join(', ') || 'em dia';
 }
 
-/** Eventos, escalações e estatísticas dos jogos encerrados, 20 por chamada, uma vez só. */
+/**
+ * Eventos, escalações e estatísticas dos jogos encerrados, uma vez só, do mais recente para trás.
+ * O plano gratuito não aceita `ids=` (vários jogos por chamada): é um jogo por chamada.
+ */
 async function details() {
   const { data } = await db
     .from('football_fixtures')
@@ -248,16 +249,16 @@ async function details() {
     .eq('is_final', true)
     .is('details_fetched_at', null)
     .order('kickoff', { ascending: false })
-    .limit(IDS_PER_CALL * DETAIL_CALLS_PER_RUN);
+    .limit(DETAIL_CALLS_PER_RUN);
   let saved = 0;
-  for (const ids of chunk(
-    (data ?? []).map((r) => r.id as number),
-    IDS_PER_CALL
-  )) {
-    const res = await api<ApiFixture>('fixtures', { ids: ids.join('-') });
+  for (const { id } of data ?? []) {
+    const res = await api<ApiFixture>('fixtures', { id });
     const now = new Date().toISOString();
-    if (res.length) await check(db.from('football_fixtures').upsert(res.map((f) => fixtureRow(f, now))));
-    saved += res.length;
+    // Marca como buscado mesmo se a API não trouxer detalhes (ex.: jogo cancelado), para não repetir.
+    const row = res[0] ? { ...fixtureRow(res[0], now), details_fetched_at: now } : null;
+    if (row) await check(db.from('football_fixtures').upsert(row));
+    else await check(db.from('football_fixtures').update({ details_fetched_at: now }).eq('id', id));
+    saved++;
   }
   return `${saved} jogos detalhados`;
 }
@@ -336,7 +337,8 @@ async function matchday() {
 }
 
 const JOBS = { squad, profiles, fixtures, standings, details, media, matchday } as const;
-const DAILY = ['squad', 'fixtures', 'standings', 'details', 'profiles', 'media'] as const;
+// Imagens antes das tarefas que gastam cota: não usam chamada da API e não podem ficar presas na trava.
+const DAILY = ['squad', 'fixtures', 'standings', 'media', 'details', 'profiles'] as const;
 
 Deno.serve(async (req) => {
   const secret = Deno.env.get('SYNC_SECRET');

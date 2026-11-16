@@ -1,6 +1,5 @@
 import {
   budgetAllows,
-  chunk,
   fixtureRow,
   freeSeasons,
   apiErrorText,
@@ -70,15 +69,6 @@ describe('sincronização da API de futebol', () => {
     expect(apiErrorText([])).toBeNull();
     expect(apiErrorText({})).toBeNull();
     expect(apiErrorText({ plan: 'Free plans do not have access to this season' })).toContain('plan');
-  });
-
-  it('agrupa até 20 jogos por chamada', () => {
-    expect(
-      chunk(
-        Array.from({ length: 45 }, (_, i) => i),
-        20
-      ).map((c) => c.length)
-    ).toEqual([20, 20, 5]);
   });
 
   it('jogo da temporada não apaga detalhes já salvos', () => {

@@ -14,7 +14,7 @@
     "test": "jest",
     "check": "tsc --noEmit && tsc -p map && tsc -p supabase/functions && expo lint && jest",
     "publicar": "npx eas-cli@latest update --branch demo --environment preview --message \"Versão de demonstração\" --non-interactive",
-    "api:db": "npx supabase@latest db push",
+    "api:db": "npx supabase@latest db push --remote",
     "api:deploy": "npx supabase@latest functions deploy sync-football --no-verify-jwt",
     "map:data": "tsx map/tools/build-stadium.ts",
     "map:styles": "tsx map/tools/build-styles.ts",
