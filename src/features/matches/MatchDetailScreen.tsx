@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import {
+  Avatar,
   Button,
   DemoBadge,
   EmptyState,
@@ -23,9 +24,10 @@ import { useAsync } from '@/hooks/useAsync';
 import { useLiveMatch } from '@/hooks/useMatch';
 import type { RootScreenProps } from '@/navigation/types';
 import { services } from '@/services';
-import type { Lineup, MatchDetail, MatchEvent, MatchStat } from '@/types/match';
+import type { Lineup, LineupPlayer, MatchDetail, MatchEvent, MatchStat } from '@/types/match';
 import { formatMatchDate, formatNumber, formatShortDate } from '@/utils/format';
 import { PlayerAvatar } from '@/features/shared/PlayerAvatar';
+import { findSquadPlayer, playerPhoto, useFootballVersion } from '@/state/football';
 
 type Tab = 'resumo' | 'escalacoes' | 'lances' | 'estatisticas' | 'confrontos';
 
@@ -420,28 +422,65 @@ function Pitch({ lineup }: { lineup: Lineup }) {
       {[...rows].reverse().map((row, i) => (
         <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
           {row.map((p) => (
-            <View key={p.number} style={{ alignItems: 'center', width: 68, gap: 4 }}>
-              <View
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 16,
-                  backgroundColor: colors.inkPrimary,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Text variant="labelM" style={{ color: colors.bgCanvas }}>
-                  {p.number}
-                </Text>
-              </View>
-              <Text variant="bodyS" numberOfLines={1} align="center">
-                {p.name.split(' ').slice(-1)[0]}
-              </Text>
-            </View>
+            <PitchPlayer key={p.number} player={p} />
           ))}
         </View>
       ))}
+    </View>
+  );
+}
+
+/** Nome no campo: o da camisa se couber; senão, o sobrenome. */
+const pitchName = (name: string) => (name.length <= 11 ? name : (name.split(' ').slice(-1)[0] ?? name));
+
+/** Jogador no campinho: foto recortada com o número no canto; sem foto, a bolinha com número. */
+function PitchPlayer({ player: p }: { player: LineupPlayer }) {
+  const { colors } = useTheme();
+  useFootballVersion();
+  const photo = p.playerId ? playerPhoto(findSquadPlayer(p.playerId)) : undefined;
+  return (
+    <View style={{ alignItems: 'center', width: 76, gap: 4 }}>
+      {photo ? (
+        <View>
+          <Avatar name={p.name} size={44} photo={photo} />
+          <View
+            style={{
+              position: 'absolute',
+              right: -6,
+              bottom: -2,
+              minWidth: 20,
+              height: 20,
+              paddingHorizontal: 4,
+              borderRadius: 10,
+              backgroundColor: colors.inkPrimary,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Text variant="labelTab" style={{ color: colors.bgCanvas }}>
+              {p.number}
+            </Text>
+          </View>
+        </View>
+      ) : (
+        <View
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: 16,
+            backgroundColor: colors.inkPrimary,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Text variant="labelM" style={{ color: colors.bgCanvas }}>
+            {p.number}
+          </Text>
+        </View>
+      )}
+      <Text variant="bodyS" numberOfLines={1} align="center">
+        {pitchName(p.name)}
+      </Text>
     </View>
   );
 }

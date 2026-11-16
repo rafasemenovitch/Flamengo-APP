@@ -269,8 +269,8 @@ export function Avatar({
   );
 }
 
-const PHOTO_SCALE = 1.06;
-const PHOTO_DROP = 0.04;
+const PHOTO_SCALE = 1.22;
+const PHOTO_DROP = 0.13;
 
 const styles = StyleSheet.create({
   media: { overflow: 'hidden' },
