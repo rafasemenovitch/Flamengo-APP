@@ -12,7 +12,7 @@ export const NEWS: NewsArticle[] = [
       'Separados por um ponto, os dois times fazem o confronto mais esperado da reta final do Brasileirão.',
     body: [
       'O Flamengo recebe o Palmeiras no Maracanã num jogo que pode mudar a liderança do Brasileirão. Com 67 pontos, o time de Ricardo Lemos está a um ponto do rival.',
-      'O técnico deve repetir a formação que venceu o Grêmio fora de casa, com Arantes na armação e Vasconcelos, artilheiro da temporada, no comando do ataque.',
+      'O técnico deve repetir a formação que venceu o Grêmio fora de casa, com Arrascaeta na armação e Pedro, artilheiro da temporada, no comando do ataque.',
       LOREM_TAIL,
     ],
     category: 'jogos',
@@ -25,9 +25,9 @@ export const NEWS: NewsArticle[] = [
   },
   {
     id: 'n2',
-    title: 'Vasconcelos chega a 23 gols e iguala melhor marca da carreira',
+    title: 'Pedro chega a 23 gols e iguala melhor marca da carreira',
     summary: 'Centroavante vive a temporada mais artilheira desde que chegou ao clube.',
-    body: ['Com o gol na vitória sobre o Grêmio, Vasconcelos chegou a 23 gols na temporada.', LOREM_TAIL],
+    body: ['Com o gol na vitória sobre o Grêmio, Pedro chegou a 23 gols na temporada.', LOREM_TAIL],
     category: 'elenco',
     publishedAt: demoDate(-1, '19:40'),
     readMinutes: 3,
@@ -70,7 +70,7 @@ export const NEWS: NewsArticle[] = [
   },
   {
     id: 'n5',
-    title: 'Joia do Ninho, JP Lins renova até 2030',
+    title: 'Joia do Ninho, Evertton Araújo renova até 2030',
     summary: 'Meia de 21 anos é uma das principais apostas do clube para o futuro.',
     body: ['João Pedro Lins assinou a renovação de contrato em cerimônia no CT.', LOREM_TAIL],
     category: 'base',
@@ -96,7 +96,7 @@ export const NEWS: NewsArticle[] = [
   },
   {
     id: 'n7',
-    title: 'Arantes: “O Maracanã cheio faz diferença em jogo grande”',
+    title: 'Arrascaeta: “O Maracanã cheio faz diferença em jogo grande”',
     summary: 'Capitão fala sobre o momento do time e a reta final da temporada.',
     body: ['Em entrevista coletiva, o camisa 10 pediu apoio da torcida para o confronto direto.', LOREM_TAIL],
     category: 'elenco',
@@ -150,7 +150,7 @@ export const VIDEOS: Video[] = [
   },
   {
     id: 'v3',
-    title: 'Todos os 23 gols de Vasconcelos na temporada',
+    title: 'Todos os 23 gols de Pedro na temporada',
     description: 'Compilado do artilheiro.',
     category: 'elenco',
     durationSec: 498,
@@ -162,7 +162,7 @@ export const VIDEOS: Video[] = [
   },
   {
     id: 'v4',
-    title: 'Arantes responde perguntas da torcida',
+    title: 'Arrascaeta responde perguntas da torcida',
     description: 'O capitão em um bate-papo descontraído.',
     category: 'elenco',
     durationSec: 421,

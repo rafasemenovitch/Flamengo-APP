@@ -4,7 +4,7 @@ import { ActivityIndicator, Platform, Pressable, ScrollView, Switch, View } from
 import * as Updates from 'expo-updates';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Avatar, Button, IconButton, TabHeader, Text, useTheme } from '@/design-system';
+import { Button, IconButton, TabHeader, Text, useTheme } from '@/design-system';
 import { useAsync } from '@/hooks/useAsync';
 import { services } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
@@ -13,6 +13,7 @@ import { haptic } from '@/utils/haptics';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { AuthScreen } from '@/features/auth/AuthScreen';
 import { WelcomeCarousel } from './WelcomeCarousel';
+import { PlayerAvatar } from '@/features/shared/PlayerAvatar';
 
 const KEY = '@flamengo/onboarding-done';
 
@@ -220,7 +221,7 @@ function OnboardingFlow({ onDone }: { onDone: () => void }) {
                       borderColor: on ? colors.accent : 'transparent',
                     }}
                   >
-                    <Avatar name={p.shortName} number={p.number} size={56} />
+                    <PlayerAvatar player={p} size={56} />
                   </View>
                   <Text
                     variant="labelM"

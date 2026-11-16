@@ -66,7 +66,7 @@ Limites: 100 chamadas/dia (zera 00:00 UTC) e 10 chamadas/minuto. Estourar pode b
 
 ## Outras regras
 
-- Dados 100% demonstrativos. Sem logos ou fotos oficiais baixados; escudos dos adversários são placeholders (virão da API de futebol).
+- Escudos, elenco atual, fotos dos jogadores e perfis são reais: vêm da API de futebol pelo Supabase (`src/state/football.ts`), nunca de arquivo no repositório. Foto de jogador só a recortada (sem fundo branco), dentro do `Avatar`. O resto (calendário de 2026, estatísticas, notícias) é demonstrativo.
 - Bolão e pontos: só pontos, sem dinheiro.
 - Mascote urubu só em momentos interativos (pop-ups e área Nação), nunca em estados vazios ou telas utilitárias.
 - Antes de fechar uma mudança: `npm run check` (tsc, lint e testes).

@@ -1,12 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Image, StyleSheet, View, type ImageStyle, type StyleProp, type ViewStyle } from 'react-native';
 import Svg, { Path, Text as SvgText } from 'react-native-svg';
 
 import { brandAssets } from '@assets/brand';
 import { photos, placeholders, type PhotoAspect } from '@assets/photos';
 import { CLUB } from '@/data/demo/seed';
+import { teamLogo, useFootballVersion } from '@/state/football';
 import { fonts } from '../tokens/typography';
 import { useTheme } from '../theme/ThemeProvider';
 import { Text } from './Text';
@@ -28,9 +29,10 @@ export interface CrestTeam {
  */
 export function Crest({ team, size = 40, onMedia }: { team: CrestTeam; size?: number; onMedia?: boolean }) {
   const { colors } = useTheme();
+  useFootballVersion();
+  const [failed, setFailed] = useState<string | null>(null);
   const label = `Escudo ${team.shortName ?? team.code}`;
-  // Escudos de times virão da API de dados esportivos; até lá, placeholder.
-  // `onMedia` fica reservado para a versão clara do escudo oficial, se a API oferecer.
+  // `onMedia` fica reservado para uma versão clara do escudo, se a API oferecer.
   void onMedia;
   if (team.id === CLUB.id && brandAssets.crest) {
     return (
@@ -39,6 +41,19 @@ export function Crest({ team, size = 40, onMedia }: { team: CrestTeam; size?: nu
         style={{ width: size, height: size }}
         resizeMode="contain"
         accessibilityLabel={label}
+      />
+    );
+  }
+  // Escudo real salvo no Supabase pela sincronização; sem ele (ou se falhar), o placeholder.
+  const logo = teamLogo(team.id);
+  if (logo && failed !== logo) {
+    return (
+      <Image
+        source={{ uri: logo }}
+        style={{ width: size, height: size }}
+        resizeMode="contain"
+        accessibilityLabel={label}
+        onError={() => setFailed(logo)}
       />
     );
   }
@@ -188,15 +203,33 @@ export function MediaImage({
   );
 }
 
-/** Avatar circular com iniciais ou número (placeholder de foto). */
-export function Avatar({ name, size = 40, number }: { name: string; size?: number; number?: number }) {
+/**
+ * Avatar circular. Com `photo` (foto recortada do jogador, fundo transparente), o jogador
+ * aparece de ombros para cima no círculo, com o fundo do tema; sem foto, iniciais ou número.
+ */
+export function Avatar({
+  name,
+  size = 40,
+  number,
+  photo,
+}: {
+  name: string;
+  size?: number;
+  number?: number;
+  photo?: string;
+}) {
   const { colors } = useTheme();
+  const [failed, setFailed] = useState<string | null>(null);
   const initials = name
     .split(' ')
     .filter(Boolean)
     .slice(0, 2)
     .map((p) => p[0]?.toUpperCase())
     .join('');
+  const showPhoto = !!photo && failed !== photo;
+  // A foto da API é 1:1 com o rosto no terço de cima: um pouco maior que o círculo e
+  // apoiada embaixo, para os ombros preencherem a base sem cortar o alto da cabeça.
+  const photoSize = size * PHOTO_SCALE;
   return (
     <View
       accessible
@@ -208,17 +241,36 @@ export function Avatar({ name, size = 40, number }: { name: string; size?: numbe
         backgroundColor: colors.bgRaised2,
         alignItems: 'center',
         justifyContent: 'center',
+        overflow: 'hidden',
       }}
     >
-      <Text
-        variant="labelM"
-        style={{ fontSize: size * 0.36, lineHeight: size * 0.44, color: colors.inkPrimary }}
-      >
-        {number !== undefined ? number : initials}
-      </Text>
+      {showPhoto ? (
+        <Image
+          source={{ uri: photo }}
+          onError={() => setFailed(photo)}
+          resizeMode="cover"
+          style={{
+            position: 'absolute',
+            width: photoSize,
+            height: photoSize,
+            bottom: -size * PHOTO_DROP,
+            left: (size - photoSize) / 2,
+          }}
+        />
+      ) : (
+        <Text
+          variant="labelM"
+          style={{ fontSize: size * 0.36, lineHeight: size * 0.44, color: colors.inkPrimary }}
+        >
+          {number !== undefined ? number : initials}
+        </Text>
+      )}
     </View>
   );
 }
+
+const PHOTO_SCALE = 1.06;
+const PHOTO_DROP = 0.04;
 
 const styles = StyleSheet.create({
   media: { overflow: 'hidden' },

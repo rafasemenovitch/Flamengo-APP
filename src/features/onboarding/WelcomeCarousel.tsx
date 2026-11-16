@@ -349,9 +349,9 @@ function LiveArt({ w, h }: { w: number; h: number }) {
   const inner = w - 40;
   const big = Math.min(inner * 0.3, 112);
   const plays: [string, string, string, boolean][] = [
-    ["64'", 'Gol do Flamengo', 'Vasconcelos, de cabeça', true],
+    ["64'", 'Gol do Flamengo', 'Pedro, de cabeça', true],
     ["58'", 'Cartão amarelo', 'Palmeiras', false],
-    ["52'", 'Substituição', 'Entra Olivera, sai Arantes', false],
+    ["52'", 'Substituição', 'Entra Bruno Henrique, sai Arrascaeta', false],
     ["45'", 'Fim do 1º tempo', 'Flamengo 1 × 1 Palmeiras', false],
   ];
   return (

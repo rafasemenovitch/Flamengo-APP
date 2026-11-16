@@ -10,6 +10,10 @@ import { RootNavigator } from '@/navigation/RootNavigator';
 import { OnboardingGate } from '@/features/onboarding/Onboarding';
 import { AuthProvider } from '@/features/auth/AuthProvider';
 import { AppStateProvider } from '@/state/AppStateProvider';
+import { loadFootball } from '@/state/football';
+
+// Escudos, elenco e fotos reais salvos no Supabase (sem bloquear a abertura).
+loadFootball();
 
 // Mantém a abertura nativa (escudo sobre fundo preto) até as fontes carregarem.
 SplashScreen.preventAutoHideAsync().catch(() => undefined);

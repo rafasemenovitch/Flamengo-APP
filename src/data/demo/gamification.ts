@@ -273,8 +273,8 @@ export const DAILY_POLL: Poll = {
   question: 'Quem deve começar no ataque contra o Palmeiras?',
   closesAt: demoDate(2, '20:00'),
   options: [
-    { id: 'o1', label: 'Vasconcelos', votes: 18_420 },
-    { id: 'o2', label: 'Olivera', votes: 6_310 },
+    { id: 'o1', label: 'Pedro', votes: 18_420 },
+    { id: 'o2', label: 'Bruno Henrique', votes: 6_310 },
     { id: 'o3', label: 'Os dois juntos', votes: 9_870 },
   ],
 };
@@ -285,10 +285,10 @@ export const MOTM_POLL: Poll = {
   question: 'Quem foi o craque do jogo?',
   closesAt: demoDate(1, '12:00'),
   options: [
-    { id: 'p09', label: 'Vasconcelos', votes: 12_400 },
-    { id: 'p07', label: 'Bruno Siqueira', votes: 9_800 },
-    { id: 'p10', label: 'Arantes', votes: 7_150 },
-    { id: 'p19', label: 'Olivera', votes: 5_320 },
+    { id: 'p09', label: 'Pedro', votes: 12_400 },
+    { id: 'p07', label: 'Samuel Lino', votes: 9_800 },
+    { id: 'p10', label: 'Arrascaeta', votes: 7_150 },
+    { id: 'p19', label: 'Bruno Henrique', votes: 5_320 },
   ],
 };
 

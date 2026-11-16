@@ -119,12 +119,14 @@ export function PlayerProfileScreen({ route }: RootScreenProps<'PlayerProfile'>)
 
         <View style={{ paddingVertical: 8 }}>
           <View style={{ gap: spacing.sm }}>
-            {[
-              ['Idade', `${age(p.birthDate)} anos (${formatFullDate(p.birthDate)})`],
-              ['Altura', `${(p.heightCm / 100).toFixed(2).replace('.', ',')} m`],
-              ['Pé preferido', p.preferredFoot],
-              ['No clube desde', String(p.joinedYear)],
-            ].map(([k, v]) => (
+            {(
+              [
+                ['Idade', p.birthDate ? `${age(p.birthDate)} anos (${formatFullDate(p.birthDate)})` : null],
+                ['Altura', p.heightCm ? `${(p.heightCm / 100).toFixed(2).replace('.', ',')} m` : null],
+                ['Pé preferido', p.preferredFoot ?? null],
+                ['No clube desde', p.joinedYear ? String(p.joinedYear) : null],
+              ].filter(([, v]) => v) as [string, string][]
+            ).map(([k, v]) => (
               <View key={k} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 <Text variant="caption" tone="secondary">
                   {k}
@@ -132,9 +134,11 @@ export function PlayerProfileScreen({ route }: RootScreenProps<'PlayerProfile'>)
                 <Text variant="callout">{v}</Text>
               </View>
             ))}
-            <Text variant="body" tone="secondary" style={{ marginTop: spacing.sm }}>
-              {p.bio}
-            </Text>
+            {!!p.bio && (
+              <Text variant="body" tone="secondary" style={{ marginTop: spacing.sm }}>
+                {p.bio}
+              </Text>
+            )}
           </View>
         </View>
       </View>

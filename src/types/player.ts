@@ -13,6 +13,8 @@ export interface PlayerSeasonStats {
 
 export interface Player {
   id: string;
+  /** Id na API-Football (foto e perfil vêm do Supabase por ele). */
+  apiId?: number;
   name: string;
   /** Nome de camisa. */
   shortName: string;
@@ -23,8 +25,9 @@ export interface Player {
   birthDate: string;
   nationality: string;
   heightCm: number;
-  preferredFoot: 'Direito' | 'Esquerdo' | 'Ambos';
-  joinedYear: number;
+  /** Sem dado (jogador vindo só da API): a linha some do perfil. */
+  preferredFoot?: 'Direito' | 'Esquerdo' | 'Ambos';
+  joinedYear?: number;
   imageKey: string;
   season: PlayerSeasonStats;
   bio: string;

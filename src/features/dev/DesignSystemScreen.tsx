@@ -221,7 +221,7 @@ export function DesignSystemScreen() {
               id: `goal-demo-${Date.now()}`,
               variant: 'goal',
               title: 'GOL DO MENGÃO!',
-              message: "Vasconcelos (54')",
+              message: "Pedro (54')",
               primary: { label: 'Ver lance' },
             })
           }

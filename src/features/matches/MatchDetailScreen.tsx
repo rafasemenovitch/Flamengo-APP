@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import {
-  Avatar,
   Button,
   DemoBadge,
   EmptyState,
@@ -26,6 +25,7 @@ import type { RootScreenProps } from '@/navigation/types';
 import { services } from '@/services';
 import type { Lineup, MatchDetail, MatchEvent, MatchStat } from '@/types/match';
 import { formatMatchDate, formatNumber, formatShortDate } from '@/utils/format';
+import { PlayerAvatar } from '@/features/shared/PlayerAvatar';
 
 type Tab = 'resumo' | 'escalacoes' | 'lances' | 'estatisticas' | 'confrontos';
 
@@ -339,13 +339,13 @@ function PlayerList({ title, players }: { title: string; players: Lineup['starte
             opacity: pressed ? 0.6 : 1,
           })}
         >
-          <Avatar name={p.name} number={p.number} size={32} />
+          <PlayerAvatar playerId={p.playerId} name={p.name} size={36} />
           <Text variant="titleS" style={{ flex: 1 }}>
             {p.name}
             {p.isCaptain ? ' (C)' : ''}
           </Text>
           <Text variant="bodyS" tone="tertiary">
-            {p.position}
+            {p.number} · {p.position}
           </Text>
         </Pressable>
       ))}

@@ -28,6 +28,7 @@ import { useDemoMember } from '@/hooks/useMatch';
 import type { ContentCategory } from '@/types/content';
 import type { HistoryEntry } from '@/types/fan';
 import { formatFullDate } from '@/utils/format';
+import { PlayerAvatar } from '@/features/shared/PlayerAvatar';
 
 /**
  * Perfil: quem é o torcedor (dados, acesso ao estádio, sócio, passaporte,
@@ -279,7 +280,7 @@ export function ProfileScreen() {
                 accessibilityLabel={p.shortName}
                 style={{ width: 72, alignItems: 'center', gap: 8 }}
               >
-                <Avatar name={p.shortName} number={p.number} size={56} />
+                <PlayerAvatar player={p} size={56} />
                 <Text variant="labelM" numberOfLines={1} align="center">
                   {p.shortName}
                 </Text>
@@ -339,7 +340,7 @@ export function FavoritesScreen() {
                     padding: 2,
                   }}
                 >
-                  <Avatar name={p.shortName} number={p.number} size={56} />
+                  <PlayerAvatar player={p} size={56} />
                 </View>
                 <Text variant="labelM" numberOfLines={1} align="center" tone={fav ? 'brand' : 'secondary'}>
                   {p.shortName}

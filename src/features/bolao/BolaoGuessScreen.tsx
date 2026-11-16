@@ -6,7 +6,6 @@ import { Pressable, ScrollView, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
-  Avatar,
   Button,
   Crest,
   ErrorState,
@@ -19,6 +18,7 @@ import {
   useTheme,
 } from '@/design-system';
 import { competitionName } from '@/features/shared/MatchUI';
+import { PlayerAvatar } from '@/features/shared/PlayerAvatar';
 import { useAsync } from '@/hooks/useAsync';
 import type { RootScreenProps } from '@/navigation/types';
 import { services } from '@/services';
@@ -137,7 +137,7 @@ function PlayerPicker({
                 padding: 2,
               }}
             >
-              <Avatar name={p.shortName} number={p.number} size={56} />
+              <PlayerAvatar player={p} size={56} />
               {on && (
                 <View
                   style={{

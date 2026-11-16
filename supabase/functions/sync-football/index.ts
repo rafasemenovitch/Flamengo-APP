@@ -5,16 +5,18 @@
  *
  *   POST /functions/v1/sync-football?job=daily     elenco, jogos, tabela, imagens, detalhes, perfis
  *   POST /functions/v1/sync-football?job=matchday  escalação e ao vivo (sem custo fora de dia de jogo)
- *   (também aceita job=squad|profiles|fixtures|standings|details|media)
+ *   (também aceita job=squad|profiles|fixtures|standings|teams|details|media)
  *
  * Cabeçalho obrigatório: `x-sync-secret: <SYNC_SECRET>`.
  */
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { decode, encode } from 'npm:fast-png@6';
 
 import {
   BRASILEIRAO_ID,
   FLAMENGO_ID,
   PER_MINUTE,
+  TEAM_SEARCHES,
   TTL,
   type ApiFixture,
   type ApiProfile,
@@ -22,6 +24,7 @@ import {
   type ApiTeam,
   apiErrorText,
   budgetAllows,
+  cutoutWhiteBackground,
   fixtureRow,
   freeSeasons,
   headerInt,
@@ -29,10 +32,12 @@ import {
   isStale,
   matchdayAction,
   mediaPath,
+  pickTeam,
   profileRow,
   quotaDayStart,
   squadPlayerRow,
   teamRow,
+  toRgba,
 } from './logic.ts';
 
 const API = 'https://v3.football.api-sports.io';
@@ -302,7 +307,64 @@ async function media() {
       saved++;
     }
   }
-  return `${saved} imagens`;
+  return `${saved} imagens, ${await cutouts()} recortes`;
+}
+
+/** PNG do jogador sem o fundo branco, em `players/<id>-recorte.png`. */
+function makeCutout(bytes: ArrayBuffer) {
+  const png = decode(new Uint8Array(bytes));
+  if (png.depth !== 8 || png.palette) return null; // fotos da API: RGB 8 bits; outro formato fica sem recorte
+  const rgba = toRgba(png.data, png.channels, png.width * png.height);
+  cutoutWhiteBackground(rgba, png.width, png.height);
+  return encode({ width: png.width, height: png.height, data: rgba, channels: 4, depth: 8 });
+}
+
+async function cutouts() {
+  const { data } = await db
+    .from('football_players')
+    .select('id, photo_path')
+    .not('photo_path', 'is', null)
+    .is('photo_cutout_path', null)
+    .limit(MEDIA_PER_RUN);
+  let done = 0;
+  for (const row of data ?? []) {
+    const original = await db.storage.from(BUCKET).download(row.photo_path as string);
+    if (original.error || !original.data) continue;
+    let cut: Uint8Array | null = null;
+    try {
+      cut = makeCutout(await original.data.arrayBuffer());
+    } catch {
+      cut = null;
+    }
+    if (!cut) continue;
+    const path = `players/${row.id}-recorte.png`;
+    const { error } = await db.storage
+      .from(BUCKET)
+      .upload(path, cut, { contentType: 'image/png', upsert: true });
+    if (error) continue;
+    await check(db.from('football_players').update({ photo_cutout_path: path }).eq('id', row.id));
+    done++;
+  }
+  return done;
+}
+
+/** Cadastro e escudo dos times do calendário que não apareceram nos jogos salvos (uma vez só). */
+async function teams() {
+  const out: string[] = [];
+  for (const t of TEAM_SEARCHES) {
+    const key = `team-search:${t.search}:${t.country}`;
+    if ((await getState(key))?.complete) continue;
+    const res = await api<{ team: ApiTeam }>('teams', { search: t.search, country: t.country });
+    const found = pickTeam(
+      res.map((r) => r.team),
+      t.search,
+      t.prefer
+    );
+    if (found) await upsertTeams([found]);
+    await setState(key, true, found ? `${found.id} ${found.name}` : 'não encontrado');
+    out.push(found ? found.name : `${t.search}: não encontrado`);
+  }
+  return out.join(', ') || 'em dia';
 }
 
 /** Dia de jogo: escalação (a cada 15 min, de 75 min antes até sair) e ao vivo (a cada 3 min). */
@@ -336,9 +398,10 @@ async function matchday() {
   return out.join(', ') || 'sem jogo agora';
 }
 
-const JOBS = { squad, profiles, fixtures, standings, details, media, matchday } as const;
-// Imagens antes das tarefas que gastam cota: não usam chamada da API e não podem ficar presas na trava.
-const DAILY = ['squad', 'fixtures', 'standings', 'media', 'details', 'profiles'] as const;
+const JOBS = { squad, profiles, fixtures, standings, teams, details, media, matchday } as const;
+const DAILY = ['squad', 'fixtures', 'standings', 'teams', 'media', 'details', 'profiles'] as const;
+/** Não gastam cota: rodam mesmo depois que a trava parou as outras. */
+const FREE_JOBS: readonly string[] = ['media'];
 
 Deno.serve(async (req) => {
   const secret = Deno.env.get('SYNC_SECRET');
@@ -351,12 +414,17 @@ Deno.serve(async (req) => {
   if (!names.length) return Response.json({ error: `Tarefa desconhecida: ${job}` }, { status: 400 });
 
   const result: Record<string, string> = {};
+  let stopped = false;
   for (const name of names) {
+    if (stopped && !FREE_JOBS.includes(name)) {
+      result[name] = 'fica para a próxima';
+      continue;
+    }
     try {
       result[name] = await JOBS[name]();
     } catch (e) {
       result[name] = `erro: ${(e as Error).message}`;
-      if (e instanceof StopSync) break;
+      if (e instanceof StopSync) stopped = true;
     }
   }
   return Response.json(result);

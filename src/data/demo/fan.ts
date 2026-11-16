@@ -80,7 +80,7 @@ export const DEMO_HISTORY: HistoryEntry[] = [
     kind: 'points',
     title: '+18 pontos no bolão',
     date: demoDate(-3, '18:00'),
-    detail: 'Resultado e saldo, gol de Arantes e assistência de JP Lins',
+    detail: 'Resultado e saldo, gol de Arrascaeta e assistência de Evertton Araújo',
   },
   {
     id: 'h3',

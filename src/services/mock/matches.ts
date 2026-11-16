@@ -16,7 +16,6 @@ import {
   OPPONENT_COACHES,
   OPPONENT_NAMES,
   REFEREES,
-  SQUAD,
   TEAMS,
   playerById,
 } from '@/data/demo/seed';
@@ -47,6 +46,7 @@ import type {
   StandingRow,
   StandingsTable,
 } from '@/types/match';
+import { findSquadPlayer, fullSquad } from '@/state/football';
 import { demoScenario, LIVE_SECONDS_PER_MINUTE } from './demoScenario';
 import { delay, hash, NotFoundError, structuredCloneSafe } from './utils';
 
@@ -608,10 +608,10 @@ export function createMockMatchesService(): MatchesService {
       return delay(result);
     },
     async getSquad() {
-      return delay(SQUAD);
+      return delay(fullSquad());
     },
     async getPlayer(id) {
-      const pl = playerById(id);
+      const pl = findSquadPlayer(id);
       if (!pl) throw new NotFoundError('Jogador', id);
       return delay(pl);
     },

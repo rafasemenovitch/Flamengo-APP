@@ -12,7 +12,8 @@
     "skipLibCheck": true,
     "types": [],
     "paths": {
-      "npm:@supabase/supabase-js@2": ["../../node_modules/@supabase/supabase-js"]
+      "npm:@supabase/supabase-js@2": ["../../node_modules/@supabase/supabase-js"],
+      "npm:fast-png@6": ["../../node_modules/fast-png"]
     }
   },
   "include": ["deno-shim.d.ts", "*/**/*.ts"]
