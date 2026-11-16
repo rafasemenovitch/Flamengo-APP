@@ -92,45 +92,62 @@ const ALERTS: { key: keyof NotificationPrefs; label: string; hint: string }[] = 
   { key: 'tickets', label: 'Venda de ingressos', hint: 'Quando abrir a venda' },
 ];
 
-/** Passos depois do carrossel: conta, ídolos e alertas. */
-const STEPS = 3;
+/** Passos depois do carrossel, só para quem entrou com conta: ídolos e alertas. */
+const STEPS = 2;
+
+type Page = 'welcome' | 'auth' | 'tour' | 'idols' | 'alerts';
 
 /**
- * Boas-vindas: carrossel das áreas do app (desliza e passa sozinho) → conta ou visitante →
- * ídolos → alertas. Ídolos e alertas usam o cabeçalho das abas e listas com fio fino.
+ * Primeiro acesso: abertura vermelha fixa (criar conta ou visitante) → conta → carrossel com as
+ * áreas do app → ídolos e alertas, só com conta (visitante não tem onde guardar essas escolhas).
+ * Ídolos e alertas usam o cabeçalho das abas e listas com fio fino.
  */
 function OnboardingFlow({ onDone }: { onDone: () => void }) {
   const { colors, layout } = useTheme();
-  const { enterAsGuest } = useAuth();
+  const { enterAsGuest, isGuest } = useAuth();
   const { profile, updateProfile, toggleFavoritePlayer } = useAppState();
   const squad = useAsync(() => services.matches.getSquad());
-  const [page, setPage] = useState(0);
-  const go = (p: number) => {
+  const [page, setPage] = useState<Page>('welcome');
+  const go = (p: Page) => {
     haptic.select();
     setPage(p);
   };
   const favs = profile?.favoritePlayerIds ?? [];
 
-  if (page === 0)
+  if (page === 'welcome')
     return (
       <WelcomeCarousel
-        onStart={() => go(1)}
+        onStart={() => go('auth')}
         onGuest={async () => {
           haptic.select();
           await enterAsGuest();
-          setPage(2);
+          setPage('tour');
         }}
       />
     );
 
-  if (page === 1)
+  if (page === 'auth')
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.bgCanvas }}>
-        <AuthScreen onContinue={() => go(2)} onBack={() => go(0)} />
+        <AuthScreen onContinue={() => go('tour')} onBack={() => go('welcome')} />
       </SafeAreaView>
     );
 
-  const step = page - 1; // 1 = ídolos, 2 = alertas
+  if (page === 'tour')
+    return (
+      <WelcomeCarousel
+        mode="tour"
+        doneLabel={isGuest ? 'Entrar no app' : 'Continuar'}
+        onClose={() => {
+          if (isGuest) {
+            haptic.success();
+            onDone();
+          } else go('idols');
+        }}
+      />
+    );
+
+  const step = page === 'idols' ? 0 : 1;
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bgCanvas }}>
       <View
@@ -145,7 +162,7 @@ function OnboardingFlow({ onDone }: { onDone: () => void }) {
           icon="chevron-back"
           variant="plain"
           accessibilityLabel="Voltar"
-          onPress={() => go(page === 2 ? 0 : page - 1)}
+          onPress={() => go(page === 'idols' ? 'tour' : 'idols')}
         />
         <Pressable
           onPress={onDone}
@@ -159,7 +176,7 @@ function OnboardingFlow({ onDone }: { onDone: () => void }) {
         </Pressable>
       </View>
 
-      {page === 2 && (
+      {page === 'idols' && (
         <View style={{ flex: 1 }}>
           <TabHeader
             title="Seus ídolos"
@@ -222,7 +239,7 @@ function OnboardingFlow({ onDone }: { onDone: () => void }) {
         </View>
       )}
 
-      {page === 3 && (
+      {page === 'alerts' && (
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }}>
           <TabHeader
             title="Não perca nenhum gol"
@@ -287,12 +304,14 @@ function OnboardingFlow({ onDone }: { onDone: () => void }) {
           ))}
         </View>
         <Button
-          label={page === 2 ? (favs.length ? `Continuar com ${favs.length}` : 'Continuar') : 'Entrar no app'}
-          icon={page === 3 ? 'checkmark' : 'arrow-forward'}
+          label={
+            page === 'idols' ? (favs.length ? `Continuar com ${favs.length}` : 'Continuar') : 'Entrar no app'
+          }
+          icon={page === 'alerts' ? 'checkmark' : 'arrow-forward'}
           iconPosition="right"
           fullWidth
           onPress={() => {
-            if (page === 2) go(3);
+            if (page === 'idols') go('alerts');
             else {
               haptic.success();
               onDone();

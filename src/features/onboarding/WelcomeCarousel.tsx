@@ -41,18 +41,22 @@ interface Slide {
  * até a última tela. Estrutura fixa em todas: arte no alto (sempre abaixo da barra de status e
  * cortada no próprio espaço, nunca invade o texto), depois sobrelinha, título, uma linha de
  * texto e a faixa com o que a área tem. Só a abertura é vermelha; o resto é preto.
- * `mode="tour"`: revisto pelas configurações.
+ * `mode="welcome"`: só a abertura vermelha, fixa, com "Criar conta ou entrar" e "Entrar como
+ * visitante" (a primeira tela do app). `mode="tour"`: as áreas do app, depois de entrar e
+ * também pelas configurações; o último botão diz `doneLabel`.
  */
 export function WelcomeCarousel({
   mode = 'welcome',
   onStart,
   onGuest,
   onClose,
+  doneLabel = 'Pronto',
 }: {
   mode?: 'welcome' | 'tour';
   onStart?: () => void;
   onGuest?: () => void;
   onClose?: () => void;
+  doneLabel?: string;
 }) {
   const { layout } = useTheme();
   const { width: W, height: H } = useWindowDimensions();
@@ -70,7 +74,7 @@ export function WelcomeCarousel({
       .catch(() => undefined);
   }, []);
 
-  const slides = SLIDES;
+  const slides = mode === 'welcome' ? SLIDES.slice(0, 1) : SLIDES.slice(1);
   const last = index === slides.length - 1;
   const footerH = (mode === 'welcome' ? 156 : 96) + Math.max(insets.bottom, 16);
   // Faixa livre no alto: nada da arte fica sob o relógio e a bateria.
@@ -169,24 +173,26 @@ export function WelcomeCarousel({
           gap: 16,
         }}
       >
-        <View
-          accessible
-          accessibilityRole="progressbar"
-          accessibilityLabel={`Tela ${index + 1} de ${slides.length}`}
-          style={{ flexDirection: 'row', gap: 6 }}
-        >
-          {slides.map((_, i) => (
-            <View
-              key={i}
-              style={{
-                height: 3,
-                flex: i === index ? 3 : 1,
-                borderRadius: 2,
-                backgroundColor: i === index ? WHITE : 'rgba(255,255,255,0.22)',
-              }}
-            />
-          ))}
-        </View>
+        {slides.length > 1 && (
+          <View
+            accessible
+            accessibilityRole="progressbar"
+            accessibilityLabel={`Tela ${index + 1} de ${slides.length}`}
+            style={{ flexDirection: 'row', gap: 6 }}
+          >
+            {slides.map((_, i) => (
+              <View
+                key={i}
+                style={{
+                  height: 3,
+                  flex: i === index ? 3 : 1,
+                  borderRadius: 2,
+                  backgroundColor: i === index ? WHITE : 'rgba(255,255,255,0.22)',
+                }}
+              />
+            ))}
+          </View>
+        )}
         {mode === 'welcome' ? (
           <View style={{ gap: 10 }}>
             <Button
@@ -202,7 +208,7 @@ export function WelcomeCarousel({
           </View>
         ) : (
           <Button
-            label={last ? 'Pronto' : 'Próxima'}
+            label={last ? doneLabel : 'Próxima'}
             variant="light"
             icon={last ? 'checkmark' : 'arrow-forward'}
             iconPosition="right"

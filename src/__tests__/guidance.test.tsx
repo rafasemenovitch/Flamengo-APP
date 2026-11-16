@@ -16,6 +16,7 @@ jest.mock('@react-native-async-storage/async-storage', () =>
 );
 jest.mock('@expo/vector-icons', () => ({ Ionicons: () => null }));
 let mockOwner = 'visitor';
+let mockGuest = false;
 let mockFocused = true;
 const mockUpdateProfile = jest.fn();
 const mockFavorite = jest.fn();
@@ -28,8 +29,8 @@ jest.mock('@/features/auth/AuthProvider', () => ({
   useAuth: () => ({
     ready: true,
     session: mockOwner === 'visitor' ? null : { user: { id: mockOwner } },
-    isGuest: true,
-    accountProfile: null,
+    isGuest: mockGuest,
+    accountProfile: mockGuest ? null : { id: mockOwner },
     registering: false,
     enterAsGuest: mockEnterAsGuest,
   }),
@@ -95,6 +96,7 @@ describe('recursos nas boas-vindas e primeiro uso', () => {
     jest.clearAllMocks();
     mockFocused = true;
     mockOwner = `test-${++run}`;
+    mockGuest = false;
   });
   afterEach(async () => {
     await act(async () => {
@@ -102,19 +104,28 @@ describe('recursos nas boas-vindas e primeiro uso', () => {
     });
   });
 
-  it('boas-vindas: carrossel, conta, ídolos e alertas, sem mexer nas preferências', async () => {
+  const throughTour = async (done: string) => {
+    expect(has('O jogo no seu bolso')).toBe(true);
+    for (let i = 0; i < 4; i++) await press('Próxima');
+    await press(done);
+  };
+
+  it('com conta: abertura fixa, conta, carrossel, ídolos e alertas', async () => {
     await mount(
       <OnboardingGate>
         <Text>Aplicativo principal</Text>
       </OnboardingGate>
     );
     expect(has('Bem-vindo à Nação')).toBe(true);
+    // A abertura é uma tela só: o carrossel vem depois de entrar.
+    expect(has('O jogo no seu bolso')).toBe(false);
     await press('Criar conta ou entrar');
-    await press('Entrar como visitante');
+    await press('Entrar como visitante'); // AuthScreen simulado: continua
+    await throughTour('Continuar');
     expect(has('Seus ídolos')).toBe(true);
     const progress = screen.root
       .findAllByProps({ accessibilityRole: 'progressbar' })
-      .find((control) => control.props.accessibilityLabel === 'Passo 2 de 3');
+      .find((control) => control.props.accessibilityLabel === 'Passo 1 de 2');
     expect(progress).toBeDefined();
     await press('Continuar com 2');
     expect(has('Não perca nenhum gol')).toBe(true);
@@ -125,15 +136,18 @@ describe('recursos nas boas-vindas e primeiro uso', () => {
     expect(mockFavorite).not.toHaveBeenCalled();
   });
 
-  it('entra como visitante direto do carrossel', async () => {
+  it('visitante: carrossel e direto para o app, sem ídolos nem alertas', async () => {
     await mount(
       <OnboardingGate>
         <Text>Aplicativo principal</Text>
       </OnboardingGate>
     );
+    mockGuest = true;
     await press('Entrar como visitante');
     expect(mockEnterAsGuest).toHaveBeenCalledTimes(1);
-    expect(has('Seus ídolos')).toBe(true);
+    await throughTour('Entrar no app');
+    expect(has('Seus ídolos')).toBe(false);
+    expect(has('Aplicativo principal')).toBe(true);
   });
 
   it('volta dos alertas aos ídolos e pula direto para o app', async () => {
@@ -144,6 +158,7 @@ describe('recursos nas boas-vindas e primeiro uso', () => {
     );
     await press('Criar conta ou entrar');
     await press('Entrar como visitante');
+    await throughTour('Continuar');
     await press('Continuar com 2');
     await pressControl('Voltar');
     expect(has('Seus ídolos')).toBe(true);
@@ -152,17 +167,11 @@ describe('recursos nas boas-vindas e primeiro uso', () => {
     expect(await AsyncStorage.getItem('@flamengo/onboarding-done')).toBe('1');
   });
 
-  it('o carrossel mostra as seis áreas, com o Modo Maracanã em 3D e sem mascote', async () => {
-    await mount(<WelcomeCarousel onStart={jest.fn()} onGuest={jest.fn()} />);
-    for (const kicker of [
-      'Bem-vindo à Nação',
-      'Dia de jogo',
-      'Modo Maracanã',
-      'Ingressos',
-      'Nação',
-      'Assistente Fla',
-    ])
+  it('o carrossel mostra as cinco áreas, com o Modo Maracanã em 3D e sem mascote', async () => {
+    await mount(<WelcomeCarousel mode="tour" onClose={jest.fn()} />);
+    for (const kicker of ['Dia de jogo', 'Modo Maracanã', 'Ingressos', 'Nação', 'Assistente Fla'])
       expect(has(kicker)).toBe(true);
+    expect(has('Bem-vindo à Nação')).toBe(false);
     expect(has('O Maracanã em 3D')).toBe(true);
     expect(screen.root.findAllByType(Mascot)).toHaveLength(0);
   });
@@ -171,7 +180,7 @@ describe('recursos nas boas-vindas e primeiro uso', () => {
     const done = jest.fn();
     const before = JSON.stringify(DEMO_FAN);
     await mount(<WelcomeCarousel mode="tour" onClose={done} />);
-    for (let i = 0; i < 5; i++) await press('Próxima');
+    for (let i = 0; i < 4; i++) await press('Próxima');
     await press('Pronto');
     expect(done).toHaveBeenCalledTimes(1);
     expect(JSON.stringify(DEMO_FAN)).toBe(before);
