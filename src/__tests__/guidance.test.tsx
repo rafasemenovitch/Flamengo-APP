@@ -8,7 +8,7 @@ import { DEMO_FAN } from '@/data/demo/fan';
 import { RESOURCE_GUIDES } from '@/features/guidance/content';
 import { FirstUseGuide } from '@/features/guidance/FirstUseGuide';
 import { guidanceKey } from '@/features/guidance/storage';
-import { OnboardingGate } from '@/features/onboarding/Onboarding';
+import { OnboardingGate, useOnboarding } from '@/features/onboarding/Onboarding';
 import { WelcomeCarousel } from '@/features/onboarding/WelcomeCarousel';
 
 jest.mock('@react-native-async-storage/async-storage', () =>
@@ -21,6 +21,7 @@ let mockFocused = true;
 const mockUpdateProfile = jest.fn();
 const mockFavorite = jest.fn();
 const mockEnterAsGuest = jest.fn(async () => undefined);
+const mockSignOut = jest.fn(async () => undefined);
 jest.mock('@react-navigation/native', () => ({
   ...jest.requireActual('@react-navigation/native'),
   useIsFocused: () => mockFocused,
@@ -33,6 +34,7 @@ jest.mock('@/features/auth/AuthProvider', () => ({
     accountProfile: mockGuest ? null : { id: mockOwner },
     registering: false,
     enterAsGuest: mockEnterAsGuest,
+    signOut: mockSignOut,
   }),
 }));
 jest.mock('@/state/AppStateProvider', () => ({
@@ -185,6 +187,25 @@ describe('recursos nas boas-vindas e primeiro uso', () => {
     expect(done).toHaveBeenCalledTimes(1);
     expect(JSON.stringify(DEMO_FAN)).toBe(before);
     expect(mockUpdateProfile).not.toHaveBeenCalled();
+  });
+
+  it('zerar o app sai da conta, apaga o aparelho e volta à abertura vermelha', async () => {
+    await AsyncStorage.setItem('@flamengo/onboarding-done', '1');
+    const ResetButton = () => {
+      const { reset } = useOnboarding();
+      return <Button label="Zerar" onPress={reset} />;
+    };
+    await mount(
+      <OnboardingGate>
+        <ResetButton />
+      </OnboardingGate>
+    );
+    expect(has('Bem-vindo à Nação')).toBe(false);
+    await press('Zerar');
+    expect(mockSignOut).toHaveBeenCalledTimes(1);
+    expect(await AsyncStorage.getItem('@flamengo/onboarding-done')).toBeNull();
+    expect(has('Bem-vindo à Nação')).toBe(true);
+    expect(has('O jogo no seu bolso')).toBe(false);
   });
 
   it('guarda a dica vista e não a repete ao voltar ao recurso', async () => {

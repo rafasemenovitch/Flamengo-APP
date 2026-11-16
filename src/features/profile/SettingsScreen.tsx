@@ -15,7 +15,7 @@ import {
 } from '@/design-system';
 import { DATA_SOURCE } from '@/services';
 import { useAuth } from '@/features/auth/AuthProvider';
-import { resetApp, useOnboarding } from '@/features/onboarding/Onboarding';
+import { useOnboarding } from '@/features/onboarding/Onboarding';
 import { useAppState } from '@/state/AppStateProvider';
 import type { NotificationPrefs, PrivacyPrefs } from '@/types/fan';
 
@@ -40,7 +40,7 @@ export function SettingsScreen() {
   const { colors, layout } = useTheme();
   const { preference, setPreference } = useThemePreference();
   const { profile, updateProfile, unreadNotifications } = useAppState();
-  const { replay } = useOnboarding();
+  const { replay, reset } = useOnboarding();
   const { session, signOut: signOutAccount, requestLogin } = useAuth();
 
   const toggle = (value: boolean, onChange: (v: boolean) => void, label: string) => (
@@ -159,7 +159,7 @@ export function SettingsScreen() {
                 'Você sai da conta e o app esquece preferências, ídolos e boas-vindas vistas.',
                 [
                   { text: 'Cancelar', style: 'cancel' },
-                  { text: 'Zerar', style: 'destructive', onPress: () => void resetApp(signOutAccount) },
+                  { text: 'Zerar', style: 'destructive', onPress: () => void reset() },
                 ]
               )
             }

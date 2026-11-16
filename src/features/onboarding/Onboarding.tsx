@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { ActivityIndicator, DevSettings, Platform, Pressable, ScrollView, Switch, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollView, Switch, View } from 'react-native';
 import * as Updates from 'expo-updates';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -19,33 +19,19 @@ const KEY = '@flamengo/onboarding-done';
 interface OnboardingCtx {
   /** Mostra o onboarding de novo (útil para repetir a apresentação). */
   replay: () => void;
+  /**
+   * Zera o app como recém-baixado: sai da conta (ou do modo visitante), apaga o que o app
+   * guardou no aparelho e volta à abertura vermelha. Os dados da conta ficam no servidor.
+   */
+  reset: () => Promise<void>;
 }
-const Ctx = createContext<OnboardingCtx>({ replay: () => undefined });
+const Ctx = createContext<OnboardingCtx>({ replay: () => undefined, reset: async () => undefined });
 export const useOnboarding = () => useContext(Ctx);
-
-/**
- * Zera o app como se tivesse acabado de ser baixado: sai da conta (ou do modo visitante), apaga
- * tudo o que o app guardou no aparelho (boas-vindas vistas, preferências, dicas, demo) e reabre.
- */
-export async function resetApp(signOut: () => Promise<void>) {
-  await signOut().catch(() => undefined);
-  await AsyncStorage.clear().catch(() => undefined);
-  if (Platform.OS === 'web') {
-    window.location.reload();
-    return;
-  }
-  try {
-    await Updates.reloadAsync();
-  } catch {
-    // Em desenvolvimento (Metro), o recarregamento é pelo DevSettings.
-    DevSettings.reload();
-  }
-}
 
 /** Mostra o onboarding na primeira abertura; depois, o app normal. */
 export function OnboardingGate({ children }: { children: ReactNode }) {
   const [state, setState] = useState<'loading' | 'show' | 'done'>('loading');
-  const { ready, session, isGuest, accountProfile, registering } = useAuth();
+  const { ready, session, isGuest, accountProfile, registering, signOut } = useAuth();
   const { colors } = useTheme();
 
   useEffect(() => {
@@ -58,7 +44,21 @@ export function OnboardingGate({ children }: { children: ReactNode }) {
     AsyncStorage.setItem(KEY, '1').catch(() => undefined);
     setState('done');
   }, []);
-  const value = useMemo(() => ({ replay: () => setState('show') }), []);
+  const value = useMemo(
+    () => ({
+      replay: () => setState('show'),
+      reset: async () => {
+        await signOut().catch(() => undefined);
+        await AsyncStorage.clear().catch(() => undefined);
+        // Volta já para a abertura; depois tenta reabrir o app do zero (limpa também o que
+        // está na memória). Se o Expo Go não deixar recarregar, a tela já está certa.
+        setState('show');
+        if (Platform.OS === 'web') window.location.reload();
+        else await Updates.reloadAsync().catch(() => undefined);
+      },
+    }),
+    [signOut]
+  );
 
   if (state === 'loading' || !ready) {
     return (
