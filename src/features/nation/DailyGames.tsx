@@ -148,10 +148,16 @@ export function DailyGames() {
     cria.state === 'novo'
       ? 'Jogar'
       : cria.state === 'andamento'
-        ? `Em andamento · ${cria.guesses}/${MAX_GUESSES}`
+        ? 'Em andamento'
         : cria.won
           ? `Acertou em ${cria.guesses}`
           : 'Não foi hoje';
+  const criaDetail =
+    cria.state === 'andamento'
+      ? `${cria.guesses} de ${MAX_GUESSES} palpites`
+      : cria.state === 'fim'
+        ? `Próximo em ${next}`
+        : undefined;
   const answered = quiz.data?.answered;
   const quizStatus = !quiz.data ? ' ' : !answered ? 'Responder' : answered.correct ? 'Acertou' : 'Errou';
 
@@ -169,9 +175,9 @@ export function DailyGames() {
           glyph={<CriaGlyph color={colors.inkPrimary} />}
           name="Quem é o Cria?"
           status={criaStatus}
-          detail={cria.state === 'fim' ? `Próximo em ${next}` : undefined}
+          detail={criaDetail}
           highlight={cria.state !== 'fim'}
-          label={`Quem é o Cria?, ${criaStatus}${cria.state === 'fim' ? `, próximo em ${next}` : ''}`}
+          label={`Quem é o Cria?, ${criaStatus}${criaDetail ? `, ${criaDetail}` : ''}`}
           onPress={() => navigation.navigate('Cria')}
         />
         <GameCard

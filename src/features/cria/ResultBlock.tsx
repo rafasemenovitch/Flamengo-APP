@@ -1,11 +1,14 @@
-import { View } from 'react-native';
+import { Share, View } from 'react-native';
 
-import { Mascot, Text, useTheme } from '@/design-system';
+import { Button, Mascot, Text, useTheme } from '@/design-system';
 import { useCountdown } from '@/hooks/useCountdown';
+import type { CriaGame } from '@/services/adapters/DailyGameService';
 import { pad2 } from '@/utils/format';
+import { haptic } from '@/utils/haptics';
 
-import { GuessRow, type GuessView } from './Clues';
-import { nextResetAt } from './dates';
+import { GuessRow } from './Clues';
+import { challengeNumber, nextResetAt } from './dates';
+import { shareText } from './share';
 
 /** Frase da vitória pelo número de palpites: curta, de arquibancada. */
 function winLine(n: number) {
@@ -32,18 +35,26 @@ export function NextCountdown() {
   );
 }
 
-/** Fim da partida: vitória ou derrota, o Cria revelado e a contagem para o próximo. */
+/** Fim da partida: vitória ou derrota, o Cria revelado, compartilhar e o próximo desafio. */
 export function ResultBlock({
-  won,
-  guesses,
-  secret,
+  game,
+  newDay,
+  onPlayNewDay,
 }: {
-  won: boolean;
-  guesses: number;
-  /** O Cria do dia como bloco todo verde (mostrado na derrota). */
-  secret: GuessView;
+  game: CriaGame;
+  /** Já existe um desafio novo (o dia virou com a tela aberta). */
+  newDay: string | null;
+  onPlayNewDay: () => void;
 }) {
   const { colors, radius } = useTheme();
+  const won = game.status === 'venceu';
+  const n = game.rows.length;
+
+  const share = async () => {
+    haptic.select();
+    await Share.share({ message: shareText(game) }).catch(() => undefined);
+  };
+
   return (
     <View
       accessibilityLiveRegion="polite"
@@ -51,21 +62,35 @@ export function ResultBlock({
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
         <View style={{ flex: 1, gap: 6 }}>
-          <Text variant="displayM">{won ? winLine(guesses) : 'Não foi hoje.'}</Text>
+          <Text variant="displayM">{won ? winLine(n) : 'Não foi hoje.'}</Text>
           <Text variant="bodyM" tone="secondary">
-            {won ? `O Cria era ${secret.name}.` : 'Amanhã tem outro. Seguimos juntos.'}
+            {won ? `O Cria era ${game.secret?.name}.` : 'Amanhã tem outro. Seguimos juntos.'}
           </Text>
         </View>
-        <Mascot pose={won ? (guesses === 1 ? 'fan-high-five' : 'fan-victory') : 'fan-defeat'} size={96} />
+        <Mascot pose={won ? (n === 1 ? 'fan-high-five' : 'fan-victory') : 'fan-defeat'} size={96} />
       </View>
 
-      {!won && (
+      {!won && game.secret && (
         <View style={{ padding: 16, borderRadius: radius.l, backgroundColor: colors.bgRaised }}>
-          <GuessRow guess={secret} title="O Cria" />
+          <GuessRow guess={game.secret} title="O Cria" />
         </View>
       )}
 
-      <NextCountdown />
+      <Button label="Compartilhar" onPress={share} fullWidth />
+
+      {newDay ? (
+        <View style={{ gap: 12 }}>
+          <Text variant="titleM">Já tem Cria novo.</Text>
+          <Button
+            label={`Jogar o #${challengeNumber(newDay)}`}
+            variant="secondary"
+            onPress={onPlayNewDay}
+            fullWidth
+          />
+        </View>
+      ) : (
+        <NextCountdown />
+      )}
     </View>
   );
 }

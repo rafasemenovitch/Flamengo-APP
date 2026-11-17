@@ -3,6 +3,7 @@ import { createMockAssistantService } from './assistant';
 import { createMockBolaoService } from './bolao';
 import { createMockMembershipService, createMockStoreService } from './commerce';
 import { createMockFlaTVService, createMockNewsService, createMockRecommendationService } from './content';
+import { createLocalDailyGameService } from './dailyGame';
 import { createMockGamificationService } from './gamification';
 import { createMockMatchesService } from './matches';
 import { createMockAuthService, createMockProfileService } from './profile';
@@ -37,6 +38,7 @@ export function createMockServices(): Services {
     store,
     membership,
     gamification,
+    dailyGame: createLocalDailyGameService(),
     assistant: createMockAssistantService({
       matches,
       tickets,

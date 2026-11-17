@@ -12,50 +12,31 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { IconButton, Text, useTheme } from '@/design-system';
-import { CRIA_PLAYERS } from '@/data/cria/players';
-import { CRIA_SCHEDULE } from '@/data/cria/schedule.generated';
 import type { CriaPlayer } from '@/data/cria/types';
 import type { RootStackParamList } from '@/navigation/types';
 import { haptic } from '@/utils/haptics';
 
-import { GuessGrid, MAX_GUESSES, REVEAL_TOTAL_MS, type GuessView } from './Clues';
-import { compare, isWin, toAttributes } from './compare';
-import { challengeNumber, dayKey, shortDate } from './dates';
+import { GuessGrid, MAX_GUESSES, REVEAL_TOTAL_MS } from './Clues';
+import { shortDate } from './dates';
 import { PlayerSearch } from './PlayerSearch';
 import { ResultBlock } from './ResultBlock';
 import { RulesSheet } from './RulesSheet';
-import { secretIdFor } from './schedule';
-import { periodLabel } from './search';
+import { useCriaGame } from './useCriaGame';
 
 const RULES_SEEN_KEY = '@flamengo/cria-regras-vistas';
-const byId = new Map(CRIA_PLAYERS.map((p) => [p.id, p]));
-
-function toView(guess: CriaPlayer, secret: CriaPlayer): GuessView {
-  return {
-    playerId: guess.id,
-    name: guess.name,
-    period: periodLabel(guess),
-    clues: compare(toAttributes(guess), toAttributes(secret)),
-  };
-}
 
 /** Quem é o Cria?: descubra o jogador rubro-negro do dia em até 5 tentativas. */
 export function CriaScreen() {
   const navigation = useNavigation();
   const { params } = useRoute<RouteProp<RootStackParamList, 'Cria'>>();
   const { colors, layout, radius } = useTheme();
-  const [today] = useState(() => dayKey());
+  const { game, guess, newDay, openNewDay } = useCriaGame(params);
+  const guesses = useMemo(() => game?.rows ?? [], [game]);
+  const won = game?.status === 'venceu';
+  const over = !!game && game.status !== 'jogando';
 
-  // Prévia (prints): secreto e palpites pela rota; senão, o desafio do dia.
-  const secret = byId.get(params?.secreto ?? secretIdFor(CRIA_SCHEDULE, today) ?? '') ?? CRIA_PLAYERS[0]!;
-  const [guessIds, setGuessIds] = useState<string[]>(() =>
-    (params?.palpites ?? '').split(',').filter((id) => byId.has(id))
-  );
+  // Linha recém-chutada: vira com animação, e o fim só aparece depois dela.
   const [justGuessed, setJustGuessed] = useState(false);
-  const guesses = useMemo(() => guessIds.map((id) => toView(byId.get(id)!, secret)), [guessIds, secret]);
-  const won = guesses.some((g) => isWin(g.clues));
-  const over = won || guesses.length >= MAX_GUESSES;
-  // O fim só aparece depois que a última linha terminou de virar.
   const [revealed, setRevealed] = useState(false);
   useEffect(() => {
     if (!over || !justGuessed) return;
@@ -71,44 +52,44 @@ export function CriaScreen() {
   const input = useRef<TextInputInstance>(null);
   const scroll = useRef<ScrollViewInstance>(null);
   // Partida já terminada ao abrir: vai direto ao resultado.
+  const landed = useRef(false);
   useEffect(() => {
-    if (!over || justGuessed) return;
+    if (!game || landed.current) return;
+    landed.current = true;
+    if (game.status === 'jogando') return;
     const t = setTimeout(() => scroll.current?.scrollToEnd({ animated: false }), 250);
     return () => clearTimeout(t);
-    // só na abertura
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  const used = useMemo(() => new Set(guessIds), [guessIds]);
+  }, [game]);
+  const used = useMemo(() => new Set(guesses.map((g) => g.playerId)), [guesses]);
 
   // Regras abrem sozinhas uma única vez.
   const [rules, setRules] = useState(false);
   useEffect(() => {
-    if (params?.palpites) return;
+    if (params?.secreto) return;
     AsyncStorage.getItem(RULES_SEEN_KEY)
       .then((v) => {
         if (!v) setRules(true);
       })
       .catch(() => undefined);
-  }, [params?.palpites]);
+  }, [params?.secreto]);
   const closeRules = () => {
     setRules(false);
     AsyncStorage.setItem(RULES_SEEN_KEY, '1').catch(() => undefined);
   };
 
   const pick = (p: CriaPlayer) => {
-    if (used.has(p.id) || over) return;
+    if (!game || used.has(p.id) || over) return;
     haptic.select();
     setJustGuessed(true);
-    setGuessIds((g) => [...g, p.id]);
+    setRevealed(false);
     setQuery('');
-    setTimeout(() => scroll.current?.scrollToEnd({ animated: true }), 50);
+    void guess(p.id).then(() => setTimeout(() => scroll.current?.scrollToEnd({ animated: true }), 50));
   };
 
-  const secretView: GuessView = {
-    playerId: secret.id,
-    name: secret.name,
-    period: periodLabel(secret),
-    clues: compare(toAttributes(secret), toAttributes(secret)),
+  const playNewDay = () => {
+    setJustGuessed(false);
+    landed.current = false;
+    void openNewDay();
   };
 
   return (
@@ -138,7 +119,7 @@ export function CriaScreen() {
         >
           <View style={{ gap: 6 }}>
             <Text variant="bodyS" tone="secondary">
-              #{challengeNumber(today)} · {shortDate(today)}
+              {game ? `#${game.number} · ${shortDate(game.date)}` : ' '}
             </Text>
             <Text variant="displayL" accessibilityRole="header">
               Quem é o Cria?
@@ -179,10 +160,10 @@ export function CriaScreen() {
 
           <GuessGrid guesses={guesses} animateLast={justGuessed} showEmpty={!over} />
 
-          {showResult && <ResultBlock won={won} guesses={guesses.length} secret={secretView} />}
+          {showResult && game && <ResultBlock game={game} newDay={newDay} onPlayNewDay={playNewDay} />}
         </ScrollView>
 
-        {!over && (
+        {game && !over && (
           <View style={{ paddingHorizontal: layout.gutter, paddingTop: 8, paddingBottom: 12 }}>
             <PlayerSearch
               ref={input}

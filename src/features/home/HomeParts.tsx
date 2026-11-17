@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { Modal, Pressable, View } from 'react-native';
+import { Modal, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LiveIndicator, Monogram, Text, useTheme } from '@/design-system';
@@ -10,6 +10,7 @@ import { useAppState } from '@/state/AppStateProvider';
 import type { FanProgress } from '@/types/gamification';
 import { formatNumber } from '@/utils/format';
 import { haptic } from '@/utils/haptics';
+import { CriaDemoControls } from '@/features/cria/DemoControls';
 import { DemoLocationPicker } from '@/features/maracana/DemoLocationPicker';
 
 function levelProgress(p: FanProgress) {
@@ -128,71 +129,72 @@ export function DemoControlsSheet({
         onPress={onClose}
         accessible={false}
       >
-        <Pressable onPress={() => undefined} accessible={false}>
+        <Pressable onPress={() => undefined} accessible={false} style={{ maxHeight: '90%' }}>
           <SafeAreaView
             edges={['bottom']}
             style={{
               backgroundColor: colors.bgRaised,
               borderTopLeftRadius: radius.l,
               borderTopRightRadius: radius.l,
-              padding: layout.gutter,
-              gap: 12,
             }}
           >
-            <View
-              style={{
-                alignSelf: 'center',
-                width: 36,
-                height: 4,
-                borderRadius: 2,
-                backgroundColor: colors.lineHairline,
-              }}
-            />
-            <Text variant="titleL">Momento do jogo</Text>
-            <Text variant="bodyS" tone="secondary">
-              Controle da demonstração. Visível só para quem apresenta.
-            </Text>
-            {DEMO_SCENARIOS.map((s) => {
-              const active = s.key === value;
-              return (
-                <Pressable
-                  key={s.key}
-                  onPress={() => {
-                    haptic.select();
-                    onChange(s.key);
-                    onClose();
-                  }}
-                  accessibilityRole="radio"
-                  accessibilityState={{ selected: active }}
-                  style={({ pressed }) => ({
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 16,
-                    minHeight: 56,
-                    paddingVertical: 8,
-                    borderBottomWidth: 1,
-                    borderColor: colors.lineHairline,
-                    opacity: pressed ? 0.7 : 1,
-                  })}
-                >
-                  <Ionicons
-                    name={active ? 'radio-button-on' : 'radio-button-off'}
-                    size={20}
-                    color={active ? colors.accentText : colors.inkTertiary}
-                  />
-                  <View style={{ flex: 1 }}>
-                    <Text variant="titleS">{s.label}</Text>
-                    <Text variant="bodyS" tone="secondary">
-                      {SCENARIO_HINT[s.key]}
-                    </Text>
-                  </View>
-                </Pressable>
-              );
-            })}
-            <MemberToggle />
-            <View style={{ marginTop: 12 }}>
-              <DemoLocationPicker />
-            </View>
+            <ScrollView contentContainerStyle={{ padding: layout.gutter, gap: 12 }}>
+              <View
+                style={{
+                  alignSelf: 'center',
+                  width: 36,
+                  height: 4,
+                  borderRadius: 2,
+                  backgroundColor: colors.lineHairline,
+                }}
+              />
+              <Text variant="titleL">Momento do jogo</Text>
+              <Text variant="bodyS" tone="secondary">
+                Controle da demonstração. Visível só para quem apresenta.
+              </Text>
+              {DEMO_SCENARIOS.map((s) => {
+                const active = s.key === value;
+                return (
+                  <Pressable
+                    key={s.key}
+                    onPress={() => {
+                      haptic.select();
+                      onChange(s.key);
+                      onClose();
+                    }}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: active }}
+                    style={({ pressed }) => ({
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 16,
+                      minHeight: 56,
+                      paddingVertical: 8,
+                      borderBottomWidth: 1,
+                      borderColor: colors.lineHairline,
+                      opacity: pressed ? 0.7 : 1,
+                    })}
+                  >
+                    <Ionicons
+                      name={active ? 'radio-button-on' : 'radio-button-off'}
+                      size={20}
+                      color={active ? colors.accentText : colors.inkTertiary}
+                    />
+                    <View style={{ flex: 1 }}>
+                      <Text variant="titleS">{s.label}</Text>
+                      <Text variant="bodyS" tone="secondary">
+                        {SCENARIO_HINT[s.key]}
+                      </Text>
+                    </View>
+                  </Pressable>
+                );
+              })}
+              <MemberToggle />
+              <View style={{ marginTop: 12 }}>
+                <DemoLocationPicker />
+              </View>
+              <CriaDemoControls />
+            </ScrollView>
           </SafeAreaView>
         </Pressable>
       </Pressable>

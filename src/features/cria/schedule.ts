@@ -60,6 +60,19 @@ export function decodeId(hex: string, date: string) {
   return String.fromCharCode(...bytes.map((b, i) => b ^ ks[i]!)).replace(/\0+$/, '');
 }
 
+/** Texto qualquer (JSON do secreto congelado) disfarçado pela data, em hex. */
+export function obfuscate(text: string, date: string) {
+  const bytes = [...new TextEncoder().encode(text)];
+  const ks = keystream(`texto:${date}`, bytes.length);
+  return bytes.map((b, i) => (b ^ ks[i]!).toString(16).padStart(2, '0')).join('');
+}
+
+export function reveal(hex: string, date: string) {
+  const bytes = hex.match(/../g)?.map((h) => parseInt(h, 16)) ?? [];
+  const ks = keystream(`texto:${date}`, bytes.length);
+  return new TextDecoder().decode(new Uint8Array(bytes.map((b, i) => b ^ ks[i]!)));
+}
+
 /** Id do secreto de uma data, ou null fora da agenda. */
 export function secretIdFor(schedule: { start: string; days: string[] }, date: string) {
   const i = Math.round(

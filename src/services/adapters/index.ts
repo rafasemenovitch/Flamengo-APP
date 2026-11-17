@@ -2,6 +2,7 @@ import type { StadiumMapService } from '@/services/stadium/StadiumMapService';
 import type { AssistantService } from './AssistantService';
 import type { BolaoService } from './BolaoService';
 import type { FlaTVService, NewsService, RecommendationService } from './ContentService';
+import type { DailyGameService } from './DailyGameService';
 import type { GamificationService } from './GamificationService';
 import type { MatchesService } from './MatchesService';
 import type { MembershipService } from './MembershipService';
@@ -13,6 +14,7 @@ import type { TicketsService } from './TicketsService';
 export type * from './AssistantService';
 export type * from './BolaoService';
 export type * from './ContentService';
+export type * from './DailyGameService';
 export type * from './GamificationService';
 export type * from './MatchesService';
 export type * from './MembershipService';
@@ -34,6 +36,8 @@ export interface Services {
   store: StoreService;
   membership: MembershipService;
   gamification: GamificationService;
+  /** Jogos do dia: Quem é o Cria?. */
+  dailyGame: DailyGameService;
   assistant: AssistantService;
   auth: AuthService;
   profile: ProfileService;

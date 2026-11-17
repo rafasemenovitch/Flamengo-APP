@@ -1,3 +1,4 @@
+import { createLocalDailyGameService } from '@/services/mock/dailyGame';
 import { createDemoStadiumMapService } from '@/services/stadium/DemoStadiumAdapter';
 import type { Services } from '@/services/adapters';
 
@@ -38,5 +39,7 @@ export function createLiveServices(): Services {
     bolao: notImplemented('bolao'),
     // Dados do mapa são locais (plantas e OSM); servem também à versão integrada.
     venueMap: createDemoStadiumMapService(),
+    // Até existir o SupabaseDailyGameAdapter, o jogo diário roda no aparelho.
+    dailyGame: createLocalDailyGameService(),
   };
 }

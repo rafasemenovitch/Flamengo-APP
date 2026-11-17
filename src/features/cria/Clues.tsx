@@ -7,6 +7,7 @@ import type { CriaPosition } from '@/data/cria/types';
 import { useReduceMotion } from '@/hooks/useReduceMotion';
 
 import { ATTRIBUTE_ORDER, clueSpeech, type Clue, type ClueStatus } from './compare';
+import { MAX_GUESSES } from './constants';
 import { COUNTRY_NAME, Flag } from './Flag';
 
 /**
@@ -22,7 +23,7 @@ export interface GuessView {
   clues: Clue[];
 }
 
-export const MAX_GUESSES = 5;
+export { MAX_GUESSES } from './constants';
 
 const POS_SHORT: Record<CriaPosition, string> = {
   Goleiro: 'GOL',
