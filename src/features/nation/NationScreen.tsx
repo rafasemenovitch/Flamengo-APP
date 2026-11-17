@@ -4,9 +4,10 @@ import { Pressable, View } from 'react-native';
 
 import { Button, Monogram, Screen, SectionTitle, Skeleton, TabHeader, Text, useTheme } from '@/design-system';
 import { closesIn } from '@/features/bolao/BolaoParts';
-import { PollCard, QuizCard } from '@/features/shared/Engagement';
+import { PollCard } from '@/features/shared/Engagement';
 import { StreakCount } from '@/features/shared/Flame';
 import { CaravanRow, GroupRow } from './CommunityScreen';
+import { DailyGames } from './DailyGames';
 import { useAsync } from '@/hooks/useAsync';
 import { services } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
@@ -153,7 +154,7 @@ function BolaoEntry() {
   );
 }
 
-/** Nação: a comunidade (pontos, pé quente, bolões, grupos e caravanas, quiz, enquetes). */
+/** Nação: a comunidade (pontos, pé quente, jogos do dia, bolões, grupos e caravanas, enquetes). */
 export function NationScreen() {
   const navigation = useNavigation();
   const { colors, layout, radius } = useTheme();
@@ -265,6 +266,11 @@ export function NationScreen() {
         )}
       </View>
 
+      {/* Jogos do dia: entre a trilha e o bolão. */}
+      <View style={{ marginTop: 48 }}>
+        <DailyGames />
+      </View>
+
       <View style={{ marginTop: 48 }}>
         <SectionTitle title="Bolão" action="Abrir" onAction={() => navigation.navigate('Bolao')} />
         <BolaoEntry />
@@ -289,10 +295,6 @@ export function NationScreen() {
             {caravan && <CaravanRow group={caravan} />}
           </View>
         )}
-      </View>
-
-      <View style={{ marginTop: 48, paddingHorizontal: layout.gutter }}>
-        <QuizCard />
       </View>
 
       <View style={{ marginTop: 48 }}>

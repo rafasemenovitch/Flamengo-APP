@@ -13,6 +13,7 @@ import { useTheme } from '@/design-system';
 import { AssistantScreen } from '@/features/assistant/AssistantScreen';
 import { FlaTVScreen, NewsListScreen } from '@/features/content/ContentListScreens';
 import { CriaScreen } from '@/features/cria/CriaScreen';
+import { DailyQuizScreen } from '@/features/nation/DailyQuizScreen';
 import { DesignSystemScreen } from '@/features/dev/DesignSystemScreen';
 import { NewsDetailScreen } from '@/features/content/NewsDetailScreen';
 import { NotificationsScreen } from '@/features/content/NotificationsScreen';
@@ -97,6 +98,7 @@ export function RootNavigator() {
         />
         <Stack.Screen name="StadiumMode" component={MaracanaScreen} />
         <Stack.Screen name="Cria" component={CriaScreen} />
+        <Stack.Screen name="DailyQuiz" component={DailyQuizScreen} />
         <Stack.Screen name="Store" component={StoreScreen} />
         <Stack.Screen name="Product" component={ProductScreen} />
         <Stack.Screen name="Cart" component={CartScreen} />

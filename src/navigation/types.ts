@@ -47,6 +47,7 @@ export type RootStackParamList = {
   Rankings: undefined;
   Passport: undefined;
   Community: undefined;
+  DailyQuiz: undefined;
   /** Quem é o Cria?. Os parâmetros servem só para prévias (prints de layout). */
   Cria: { secreto?: string; palpites?: string } | undefined;
   // Bolão
