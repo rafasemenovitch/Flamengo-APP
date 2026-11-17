@@ -18,14 +18,14 @@ describe('evolução da Sala de Troféus', () => {
     [9, 'medal', 'bronze', 10],
     [10, 'medal', 'silver', 25],
     [24, 'medal', 'silver', 25],
-    [25, 'medal', 'gold', 50],
-    [49, 'medal', 'gold', 50],
-    [50, 'trophy', 'bronze', 100],
-    [99, 'trophy', 'bronze', 100],
-    [100, 'trophy', 'silver', 250],
-    [249, 'trophy', 'silver', 250],
-    [250, 'trophy', 'gold', undefined],
-    [999, 'trophy', 'gold', undefined],
+    [25, 'medal', 'gold', undefined],
+    [49, 'medal', 'gold', undefined],
+    [50, 'medal', 'gold', undefined],
+    [99, 'medal', 'gold', undefined],
+    [100, 'medal', 'gold', undefined],
+    [249, 'medal', 'gold', undefined],
+    [250, 'medal', 'gold', undefined],
+    [999, 'medal', 'gold', undefined],
   ])('%i jogos mantém só o prêmio atual e aponta o próximo marco', (count, kind, tier, next) => {
     const goal = presence(count as number);
     expect(goal.current?.kind).toBe(kind);
@@ -36,21 +36,22 @@ describe('evolução da Sala de Troféus', () => {
     expect(goal.id).toBe('sempre-presente');
   });
 
-  it('não expõe peças bloqueadas na vitrine do perfil nem duplica estágios antigos', () => {
+  it('a lista de conquistados não inclui bloqueados nem duplica estágios antigos', () => {
     const room = resolveTrophyRoom(TROPHY_GOALS, {
       counters: { matches: 100, exactScores: 5 },
       completed: {},
     });
     const shelf = earnedTrophies(room);
     expect(shelf.map((goal) => goal.id)).toEqual(['sempre-presente', 'vidente']);
-    expect(shelf[0]!.current).toEqual({ kind: 'trophy', tier: 'silver', target: 100 });
+    expect(shelf[0]!.current).toEqual({ kind: 'medal', tier: 'gold', target: 25 });
     expect(earnedTrophies(resolveTrophyRoom(TROPHY_GOALS, empty))).toEqual([]);
   });
 
-  it('Manto Sagrado e Até o fim têm um único troféu de ouro, liberado só por evento registrado', () => {
+  it('eventos únicos só liberam o prêmio registrado, com taças apenas em Momentos especiais', () => {
     for (const id of ['manto-sagrado', 'ate-o-fim']) {
       const definition = TROPHY_GOALS.find((goal) => goal.id === id)!;
-      expect(goalAwards(definition)).toEqual([{ kind: 'trophy', tier: 'gold', target: 1 }]);
+      const kind = definition.group === 'especiais' ? 'trophy' : 'medal';
+      expect(goalAwards(definition)).toEqual([{ kind, tier: 'gold', target: 1 }]);
       const locked = resolveTrophyRoom([definition], { ...empty, partial: { [id]: 1 } })[0]!;
       expect(locked.earned).toBe(false);
       const unlocked = resolveTrophyRoom([definition], {
@@ -60,7 +61,7 @@ describe('evolução da Sala de Troféus', () => {
       expect(unlocked.earned).toBe(true);
       expect(unlocked.next).toBeUndefined();
       expect(unlocked.earnedAt).toBe('2026-11-16');
-      expect(awardLabel(unlocked.current!)).toBe('Troféu de ouro');
+      expect(awardLabel(unlocked.current!)).toBe(kind === 'trophy' ? 'Troféu de ouro' : 'Medalha de ouro');
     }
   });
 
@@ -71,13 +72,23 @@ describe('evolução da Sala de Troféus', () => {
     expect(presence(999).progress).toBe(1);
   });
 
-  it('mantém um só objetivo por contador, nomes únicos e seis marcos crescentes', () => {
+  it('reserva todos os troféus à categoria Momentos especiais', () => {
+    for (const goal of TROPHY_GOALS) {
+      const awards = goalAwards(goal);
+      expect(awards.every((award) => award.kind === (goal.group === 'especiais' ? 'trophy' : 'medal'))).toBe(
+        true
+      );
+      if (goal.group === 'especiais') expect(awards).toEqual([{ kind: 'trophy', tier: 'gold', target: 1 }]);
+    }
+  });
+
+  it('mantém um só objetivo por contador, nomes únicos e três marcos crescentes', () => {
     expect(new Set(TROPHY_GOALS.map((goal) => goal.id)).size).toBe(TROPHY_GOALS.length);
     expect(new Set(TROPHY_GOALS.map((goal) => goal.name)).size).toBe(TROPHY_GOALS.length);
     const evolving = TROPHY_GOALS.filter((goal) => goal.kind === 'evolving');
     expect(new Set(evolving.map((goal) => goal.counter)).size).toBe(evolving.length);
     for (const goal of evolving) {
-      expect(goal.thresholds).toHaveLength(6);
+      expect(goal.thresholds).toHaveLength(3);
       goal.thresholds.forEach((target, i) => {
         expect(Number.isInteger(target)).toBe(true);
         expect(target).toBeGreaterThan(goal.thresholds[i - 1] ?? 0);

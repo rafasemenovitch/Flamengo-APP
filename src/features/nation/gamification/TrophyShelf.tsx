@@ -2,7 +2,7 @@ import { View, useWindowDimensions } from 'react-native';
 
 import { PressableScale, Text, useTheme } from '@/design-system';
 import type { TrophyAchievement } from '@/types/trophies';
-import { awardLabel, earnedTrophies, goalAwards, goalRequirement } from '@/utils/trophies';
+import { awardLabel, goalAwards, goalRequirement } from '@/utils/trophies';
 import { ShelfRail, TrophyArt } from './TrophyArt';
 import { TrophyCabinet } from './TrophyCabinet';
 
@@ -49,26 +49,24 @@ function ShelfPiece({
 
 export function TrophyShelf({
   achievements,
-  earnedOnly = false,
+  profilePreview = false,
   onSelect,
 }: {
   achievements: readonly TrophyAchievement[];
-  /** A vitrine do perfil nunca desenha vagas, cadeados ou prêmios ainda não obtidos. */
-  earnedOnly?: boolean;
+  /** Taças de Momentos especiais e dez medalhas, na estante fixa do perfil. */
+  profilePreview?: boolean;
   onSelect: (id: string) => void;
 }) {
   const { layout, spacing } = useTheme();
   const { width, fontScale } = useWindowDimensions();
-  const list = earnedOnly ? earnedTrophies(achievements) : achievements;
+  if (profilePreview) return <TrophyCabinet achievements={achievements} onSelect={onSelect} />;
+  const list = achievements;
   if (!list.length)
     return (
       <Text variant="bodyM" tone="secondary" style={{ paddingHorizontal: layout.gutter }}>
-        {earnedOnly
-          ? 'Seus prêmios aparecem aqui quando você conquistar o primeiro objetivo.'
-          : 'Nenhum objetivo nesta seleção.'}
+        Nenhum objetivo nesta seleção.
       </Text>
     );
-  if (earnedOnly) return <TrophyCabinet achievements={list} onSelect={onSelect} />;
   const columns = width < 360 || fontScale > 1.15 ? 2 : 3;
   const rows = Array.from({ length: Math.ceil(list.length / columns) }, (_, i) =>
     list.slice(i * columns, (i + 1) * columns)

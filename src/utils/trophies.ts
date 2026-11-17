@@ -4,9 +4,6 @@ export const AWARD_EVOLUTION = [
   { kind: 'medal', tier: 'bronze' },
   { kind: 'medal', tier: 'silver' },
   { kind: 'medal', tier: 'gold' },
-  { kind: 'trophy', tier: 'bronze' },
-  { kind: 'trophy', tier: 'silver' },
-  { kind: 'trophy', tier: 'gold' },
 ] as const;
 export const TIER_LABEL = { bronze: 'bronze', silver: 'prata', gold: 'ouro' } as const;
 
@@ -15,8 +12,9 @@ export function awardLabel(award: Pick<TrophyAward, 'kind' | 'tier'>) {
 }
 
 export function goalAwards(goal: TrophyGoal): TrophyAward[] {
+  if (goal.group === 'especiais') return [{ kind: 'trophy', tier: 'gold', target: 1 }];
   return goal.kind === 'special'
-    ? [{ kind: 'trophy', tier: 'gold', target: 1 }]
+    ? [{ kind: 'medal', tier: 'gold', target: 1 }]
     : AWARD_EVOLUTION.map((award, i) => ({ ...award, target: goal.thresholds[i]! }));
 }
 

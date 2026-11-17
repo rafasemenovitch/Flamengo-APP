@@ -26,6 +26,7 @@ import { MemberCard } from '@/features/nation/MemberCard';
 import { Stamp } from '@/features/nation/gamification/Stamp';
 import { TrophyShelf } from '@/features/nation/gamification/TrophyShelf';
 import { earnedTrophies } from '@/utils/trophies';
+import { CABINET_MEDAL_LIMIT } from '@/utils/trophyCabinet';
 import { StreakCount } from '@/features/shared/Flame';
 import { useDemoMember } from '@/hooks/useMatch';
 import type { ContentCategory } from '@/types/content';
@@ -62,6 +63,9 @@ export function ProfileScreen() {
     );
 
   const trophies = earnedTrophies(trophyRoom.data ?? []);
+  const cups = trophies.filter((goal) => goal.current!.kind === 'trophy').length;
+  const medals = trophies.filter((goal) => goal.current!.kind === 'medal').length;
+  const cupTotal = trophyRoom.data?.filter((goal) => goal.group === 'especiais').length ?? 0;
   const stamps = [...(passport.data ?? [])].sort((a, b) => b.date.localeCompare(a.date));
   const wins = stamps.filter((p) => p.result === 'Vitória').length;
   const favorites = squad.data?.filter((p) => profile.favoritePlayerIds.includes(p.id)) ?? [];
@@ -207,7 +211,7 @@ export function ProfileScreen() {
         </Pressable>
       </View>
 
-      {/* Na vitrine do perfil só entram peças já conquistadas. */}
+      {/* Taças de Momentos especiais e dez medalhas de maior valor, incluindo vagas bloqueadas. */}
       <View style={{ marginTop: 48 }}>
         <SectionTitle
           title="Sala de Troféus"
@@ -222,18 +226,19 @@ export function ProfileScreen() {
           <ErrorState compact onRetry={trophyRoom.reload} />
         ) : (
           <>
-            {!!trophies.length && (
+            {!!trophyRoom.data && (
               <Text
                 variant="bodyS"
                 tone="secondary"
                 style={{ paddingHorizontal: layout.gutter, marginBottom: 12 }}
               >
-                {trophies.length} {trophies.length === 1 ? 'prêmio conquistado' : 'prêmios conquistados'}
+                {cups} de {cupTotal} troféus · {medals} {medals === 1 ? 'medalha' : 'medalhas'}
+                {medals > CABINET_MEDAL_LIMIT ? ` · ${CABINET_MEDAL_LIMIT} na estante` : ''}
               </Text>
             )}
             <TrophyShelf
               achievements={trophyRoom.data ?? []}
-              earnedOnly
+              profilePreview
               onSelect={(goalId) => navigation.navigate('Gamification', { goalId })}
             />
           </>

@@ -174,7 +174,7 @@ export function TrophyArt({
           )}
         </G>
         {locked && (
-          <G transform="translate(76 88)">
+          <G transform={`translate(76 ${isHanging ? cy + 12 : 88})`}>
             <Rect
               x={0}
               y={7}

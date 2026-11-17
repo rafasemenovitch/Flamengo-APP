@@ -30,7 +30,7 @@ export type TrophyGoal = GoalBase &
     | {
         kind: 'evolving';
         counter: TrophyCounter;
-        thresholds: readonly [number, number, number, number, number, number];
+        thresholds: readonly [number, number, number];
         verb: string;
         unit: string;
         unitOne?: string;
@@ -42,7 +42,7 @@ export type TrophyAward = { kind: TrophyKind; tier: TrophyTier; target: number }
 export type TrophyProgress = {
   /** Contagens acumuladas; sequências usam o maior recorde, para preservar o prêmio. */
   counters: Partial<Record<TrophyCounter, number>>;
-  /** Só eventos efetivamente registrados liberam os troféus únicos. */
+  /** Só eventos efetivamente registrados liberam as conquistas únicas. */
   completed: Record<string, { at?: string } | undefined>;
   partial?: Record<string, number | undefined>;
 };

@@ -1,7 +1,19 @@
-import type { TrophyAchievement } from '@/types/trophies';
-import { earnedTrophies } from './trophies';
+import type { TrophyAchievement, TrophyAward } from '@/types/trophies';
+import { earnedTrophies, goalAwards } from './trophies';
 
 export const TROPHY_CANVAS = { width: 112, height: 128, foot: 117 } as const;
+export const CABINET_MEDAL_LIMIT = 10;
+
+/** Empates mantêm a ordem da Sala; vagas restantes continuam ligadas a objetivos reais. */
+export function selectCabinetMedals(achievements: readonly TrophyAchievement[]) {
+  const medals = achievements.filter((goal) => goal.group !== 'especiais');
+  const value = { bronze: 1, silver: 2, gold: 3 };
+  const earned = earnedTrophies(medals)
+    .filter((goal) => goal.current!.kind === 'medal')
+    .sort((a, b) => value[b.current!.tier] - value[a.current!.tier]);
+  const locked = medals.filter((goal) => !goal.earned || !goal.current);
+  return [...earned, ...locked].slice(0, CABINET_MEDAL_LIMIT);
+}
 
 export function hangingMedalHeight(size: number, ribbonLength: number) {
   return (size * (ribbonLength + 82)) / TROPHY_CANVAS.width;
@@ -9,6 +21,7 @@ export function hangingMedalHeight(size: number, ribbonLength: number) {
 
 export type CabinetPiece = {
   achievement: TrophyAchievement;
+  award: TrophyAward;
   x: number;
   touchX: number;
   touchWidth: number;
@@ -19,12 +32,11 @@ export type CabinetPiece = {
   ribbonLength: number;
 };
 
-/** Todos os prêmios cabem na mesma estante: taças em cima e medalhas penduradas. */
+/** Uma taça por momento especial e dez medalhas, incluindo as ainda bloqueadas. */
 export function arrangeTrophyCabinet(achievements: readonly TrophyAchievement[], availableWidth: number) {
   const width = Math.max(1, Number.isFinite(availableWidth) ? availableWidth : 320);
-  const earned = earnedTrophies(achievements);
-  const cups = earned.filter((goal) => goal.current!.kind === 'trophy');
-  const medals = earned.filter((goal) => goal.current!.kind === 'medal');
+  const cups = achievements.filter((goal) => goal.group === 'especiais');
+  const medals = selectCabinetMedals(achievements);
   const cupSlot = width / Math.max(1, cups.length);
   const cupSizes = cups.map((_, index) => {
     const prominent = cups.length % 2 === 1 && index === Math.floor(cups.length / 2);
@@ -37,6 +49,7 @@ export function arrangeTrophyCabinet(achievements: readonly TrophyAchievement[],
     const size = cupSizes[index]!;
     return {
       achievement,
+      award: achievement.current ?? goalAwards(achievement)[0]!,
       size,
       x: clampX((index + 0.5) * cupSlot, size),
       touchX: index * cupSlot,
@@ -49,13 +62,21 @@ export function arrangeTrophyCabinet(achievements: readonly TrophyAchievement[],
   });
   const medalSlot = width / Math.max(1, medals.length);
   const medalSize = Math.min(width, 90, medalSlot * 1.55);
+  // O desenho inteiro fica dentro da estante. Seus centros mantêm a mesma distância,
+  // inclusive nas pontas: limitar cada x separadamente apertava os pares das extremidades.
+  const medalStep = medals.length > 1 ? (width - medalSize) / (medals.length - 1) : 0;
   medals.forEach((achievement, index) => {
-    const ribbonLength = index % 2 ? 92 : 52;
+    const ribbonLength = Math.max(index % 2 ? 92 : 52, Math.ceil((16 * 112) / medalSize) - 11);
+    const x = medals.length > 1 ? index * medalStep : (width - medalSize) / 2;
+    const center = x + medalSize / 2;
+    const touchX = index === 0 ? 0 : center - medalStep / 2;
+    const touchRight = index === medals.length - 1 ? width : center + medalStep / 2;
     pieces.push({
       achievement,
-      x: clampX((index + 0.5) * medalSlot, medalSize),
-      touchX: index * medalSlot,
-      touchWidth: medalSlot,
+      award: achievement.current ?? goalAwards(achievement)[0]!,
+      x,
+      touchX,
+      touchWidth: touchRight - touchX,
       y: shelfTop - 2,
       size: medalSize,
       height: hangingMedalHeight(medalSize, ribbonLength),

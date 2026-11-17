@@ -7,6 +7,7 @@ Instruções do usuário para este projeto:
 3. Mostrar ao usuário o resultado pronto para revisão, com uma prévia quando aplicável, e resumir as mudanças e verificações.
 4. Executar `git push` somente após aprovação explícita do usuário para o resultado apresentado. O pedido de uma alteração não autoriza o envio por si só.
 5. Se o resultado mudar depois da aprovação, apresentar as novas mudanças para aprovação antes do envio.
+6. Antes de cada `git push` ou publicação no Expo, executar `git fetch origin` e verificar se surgiram novos commits remotos. Integrar essas mudanças preservando o trabalho local e remoto e repetir as verificações afetadas. Se a integração alterar o resultado aprovado, apresentar as diferenças e aguardar nova aprovação antes do envio. Não usar push forçado.
 
 # API de futebol
 

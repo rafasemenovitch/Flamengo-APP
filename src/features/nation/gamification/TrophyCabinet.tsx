@@ -6,7 +6,7 @@ import { arrangeTrophyCabinet } from '@/utils/trophyCabinet';
 import { awardLabel } from '@/utils/trophies';
 import { ShelfRail, TrophyArt } from './TrophyArt';
 
-/** Vitrine fixa do perfil: o desenho é composto com as peças conquistadas, sem bitmap de fundo. */
+/** Perfil e sala usam as mesmas conquistas, incluindo as taças ainda bloqueadas. */
 export function TrophyCabinet({
   achievements,
   onSelect,
@@ -32,7 +32,7 @@ export function TrophyCabinet({
         <PressableScale
           key={piece.achievement.id}
           onPress={() => onSelect(piece.achievement.id)}
-          accessibilityLabel={`${piece.achievement.name}. ${awardLabel(piece.achievement.current!)}.`}
+          accessibilityLabel={`${piece.achievement.name}. ${awardLabel(piece.award)}.${piece.achievement.earned ? '' : ' A conquistar.'}`}
           accessibilityHint="Ver objetivo e evolução do prêmio"
           style={{
             position: 'absolute',
@@ -44,7 +44,8 @@ export function TrophyCabinet({
         >
           <View pointerEvents="none" style={{ left: piece.x - piece.touchX, width: piece.size }}>
             <TrophyArt
-              award={piece.achievement.current!}
+              award={piece.award}
+              locked={!piece.achievement.earned}
               size={piece.size}
               hanging={piece.hanging}
               ribbonLength={piece.ribbonLength}

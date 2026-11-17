@@ -105,7 +105,7 @@ export function TrophyDetail({
               {achievement.kind === 'evolving' && (
                 <View>
                   <Text variant="titleM" style={{ marginBottom: spacing.md }}>
-                    Um objetivo, seis evoluções
+                    Um objetivo, três medalhas
                   </Text>
                   {awards.map((award) => {
                     const reached = achievement.value >= award.target;
@@ -144,7 +144,7 @@ export function TrophyDetail({
                     );
                   })}
                   <Text variant="bodyS" tone="secondary" style={{ paddingTop: spacing.lg }}>
-                    O prêmio evolui no mesmo lugar da sala. Sua contagem continua depois do troféu de ouro.
+                    A medalha evolui no mesmo lugar da sala. Sua contagem continua depois da medalha de ouro.
                   </Text>
                 </View>
               )}
