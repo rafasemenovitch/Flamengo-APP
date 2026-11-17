@@ -42,7 +42,7 @@ export type RootStackParamList = {
   Cart: undefined;
   CheckoutResult: { orderId: string; total: number; kind: 'store' | 'tickets' };
   Membership: undefined;
-  Gamification: undefined;
+  Gamification: { goalId?: string } | undefined;
   Trail: { tab?: 'trilha' | 'ganhar' | 'extrato' } | undefined;
   Rankings: undefined;
   Passport: undefined;

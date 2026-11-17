@@ -104,7 +104,11 @@ export function RootNavigator() {
           options={{ gestureEnabled: false }}
         />
         <Stack.Screen name="Membership" component={MembershipScreen} />
-        <Stack.Screen name="Gamification" component={GamificationScreen} />
+        <Stack.Screen
+          name="Gamification"
+          component={GamificationScreen}
+          options={{ title: 'Sala de Troféus' }}
+        />
         <Stack.Screen name="Trail" component={TrailScreen} />
         <Stack.Screen name="Rankings" component={RankingsScreen} />
         <Stack.Screen name="Passport" component={PassportScreen} />

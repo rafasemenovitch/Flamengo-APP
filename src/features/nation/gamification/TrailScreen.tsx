@@ -574,22 +574,30 @@ export function TrailScreen({ route }: RootScreenProps<'Trail'>) {
             <Skeleton height={220} radius={8} />
           </View>
         )}
-        <View style={{ flexDirection: 'row', gap: 12, paddingHorizontal: layout.gutter, marginTop: 20 }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: 12,
+            paddingHorizontal: layout.gutter,
+            marginTop: 20,
+          }}
+        >
           <Button
             label="Ranking"
             variant="secondary"
             size="sm"
             icon="podium-outline"
             onPress={() => navigation.navigate('Rankings')}
-            style={{ flex: 1 }}
+            style={{ flex: 1, minWidth: 160 }}
           />
           <Button
-            label="Conquistas"
+            label="Sala de Troféus"
             variant="secondary"
             size="sm"
             icon="trophy-outline"
             onPress={() => navigation.navigate('Gamification')}
-            style={{ flex: 1 }}
+            style={{ flex: 1, minWidth: 160 }}
           />
         </View>
         <View style={{ marginTop: 24 }}>

@@ -22,7 +22,9 @@ import {
 } from '@/data/demo/season';
 import type { GamificationService } from '@/services/adapters';
 import type { CommunityGroup, PointsEntry, Poll, Prediction, Quiz, TrailReward } from '@/types/gamification';
-import { bolaoSeasonPoints } from './bolao';
+import { bolaoExactScores, bolaoSeasonPoints } from './bolao';
+import { TROPHY_GOALS } from '@/data/trophies';
+import { resolveTrophyRoom } from '@/utils/trophies';
 import { delay, NotFoundError, structuredCloneSafe } from './utils';
 
 /** Lançamentos feitos durante o uso do demo (quiz, enquete...). */
@@ -152,6 +154,47 @@ export function createMockGamificationService(): GamificationService {
     getPointsHistory: async () => delay(ledger(), 200),
     getPointsRules: async () => delay(POINTS_RULES, 100),
     getMedals: async () => delay(MEDALS),
+    async getTrophyRoom() {
+      // Histórico do mesmo torcedor demonstrativo usado no restante da Nação.
+      // Eventos únicos mantêm as datas já registradas; visitar a sala não libera nada.
+      const legacy = {
+        classico: 'md12',
+        'rota-certa': 'md13',
+        america: 'md16',
+        'dono-do-bolao': 'md17',
+        historiador: 'md7',
+        embaixador: 'md9',
+        'manto-sagrado': 'md21',
+        'noite-de-final': 'md10',
+        'parabens-mengao': 'md26',
+        'ate-o-fim': 'md27',
+      };
+      const completed = Object.fromEntries(
+        Object.entries(legacy).flatMap(([id, oldId]) => {
+          const medal = MEDALS.find((m) => m.id === oldId);
+          return medal?.unlockedAt ? [[id, { at: medal.unlockedAt }]] : [];
+        })
+      );
+      return delay(
+        resolveTrophyRoom(TROPHY_GOALS, {
+          counters: {
+            matches: new Set(PASSPORT.map((stamp) => stamp.matchId)).size,
+            matchStreak: 4,
+            winStreak: luckyStreaks().bestLuckyStreak,
+            awayMatches: 0,
+            stadiums: new Set(PASSPORT.map((stamp) => stamp.venue)).size,
+            exactScores: bolaoExactScores(),
+            quizzes: 28 + quizAnswers.size,
+            quizDays: 9,
+            polls: 20 + [...polls.values()].filter((poll) => !!poll.userVoteId).length,
+            shirts: 1,
+            memberYears: 7,
+          },
+          completed,
+          partial: { historiador: 0.6 },
+        })
+      );
+    },
     async getRanking(scope) {
       const points = seasonPoints();
       return delay(

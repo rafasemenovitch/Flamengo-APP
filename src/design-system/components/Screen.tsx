@@ -19,6 +19,8 @@ export interface ScreenProps {
   /** Mostra botão voltar no cabeçalho (padrão: true quando há `title`). */
   showBack?: boolean;
   headerRight?: ReactNode;
+  /** Cabeçalho com áreas laterais menores, para títulos longos sem ações à direita. */
+  compactHeader?: boolean;
   refreshing?: boolean;
   onRefresh?: () => void;
   /** Reserva espaço no fim para o botão flutuante do Assistente (abas principais). */
@@ -33,6 +35,7 @@ export function Screen({
   title,
   showBack,
   headerRight,
+  compactHeader = false,
   refreshing,
   onRefresh,
   reserveFab,
@@ -50,10 +53,11 @@ export function Screen({
   // Abaixo de um cabeçalho de navegação (abas), a área segura do topo já foi tratada.
   const parentHeaderShown = useContext(HeaderShownContext);
   const safeEdges = parentHeaderShown ? edges.filter((e) => e !== 'top') : edges;
+  const headerSide = [styles.headerSide, compactHeader && { width: spacing.xxxl }];
 
   const header = hasHeader && (
     <View style={[styles.header, { paddingHorizontal: spacing.sm, minHeight: 52 }]}>
-      <View style={styles.headerSide}>
+      <View style={headerSide}>
         {canGoBack && (
           <IconButton
             icon="chevron-back"
@@ -66,7 +70,7 @@ export function Screen({
       <Text variant="titleM" numberOfLines={1} style={styles.headerTitle} accessibilityRole="header">
         {title}
       </Text>
-      <View style={[styles.headerSide, { alignItems: 'flex-end' }]}>{headerRight}</View>
+      <View style={[headerSide, { alignItems: 'flex-end' }]}>{headerRight}</View>
     </View>
   );
 

@@ -14,6 +14,7 @@ import type {
   RankingScope,
   TrailReward,
 } from '@/types/gamification';
+import type { TrophyAchievement } from '@/types/trophies';
 
 /** Pontos virtuais, níveis, medalhas, rankings, palpites, bolões, quizzes e enquetes. Sem apostas financeiras. */
 export interface GamificationService {
@@ -28,6 +29,8 @@ export interface GamificationService {
   getPointsHistory(): Promise<PointsEntry[]>;
   getPointsRules(): Promise<PointsRule[]>;
   getMedals(): Promise<Medal[]>;
+  /** Sala com um prêmio evolutivo por objetivo; inclui os ainda bloqueados. */
+  getTrophyRoom(): Promise<TrophyAchievement[]>;
   getRanking(scope: RankingScope): Promise<RankingEntry[]>;
   getPrediction(matchId: string): Promise<Prediction | null>;
   submitPrediction(matchId: string, home: number, away: number): Promise<Prediction>;

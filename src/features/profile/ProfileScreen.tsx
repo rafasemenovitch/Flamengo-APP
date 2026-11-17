@@ -7,6 +7,7 @@ import {
   Avatar,
   Button,
   EmptyState,
+  ErrorState,
   FilterBar,
   ListGroup,
   ListItem,
@@ -23,6 +24,8 @@ import { services } from '@/services';
 import { useAppState } from '@/state/AppStateProvider';
 import { MemberCard } from '@/features/nation/MemberCard';
 import { Stamp } from '@/features/nation/gamification/Stamp';
+import { TrophyShelf } from '@/features/nation/gamification/TrophyShelf';
+import { earnedTrophies } from '@/utils/trophies';
 import { StreakCount } from '@/features/shared/Flame';
 import { useDemoMember } from '@/hooks/useMatch';
 import type { ContentCategory } from '@/types/content';
@@ -44,7 +47,7 @@ export function ProfileScreen() {
   const membership = useAsync(() => services.membership.getMembership(), [isMember]);
   const plans = useAsync(() => services.membership.getPlans());
   const passport = useAsync(() => services.gamification.getPassport());
-  const medals = useAsync(() => services.gamification.getMedals());
+  const trophyRoom = useAsync(() => services.gamification.getTrophyRoom(), [isFocused]);
   const squad = useAsync(() => services.matches.getSquad());
   const face = useAsync(() => services.profile.getFaceEnrollment(), [isFocused]);
   const plan = plans.data?.find((p) => p.id === membership.data?.planId);
@@ -58,7 +61,7 @@ export function ProfileScreen() {
       </Screen>
     );
 
-  const unlocked = medals.data?.filter((m) => m.unlockedAt) ?? [];
+  const trophies = earnedTrophies(trophyRoom.data ?? []);
   const stamps = [...(passport.data ?? [])].sort((a, b) => b.date.localeCompare(a.date));
   const wins = stamps.filter((p) => p.result === 'Vitória').length;
   const favorites = squad.data?.filter((p) => profile.favoritePlayerIds.includes(p.id)) ?? [];
@@ -204,54 +207,37 @@ export function ProfileScreen() {
         </Pressable>
       </View>
 
-      {/* Conquistas */}
+      {/* Na vitrine do perfil só entram peças já conquistadas. */}
       <View style={{ marginTop: 48 }}>
         <SectionTitle
-          title="Conquistas"
-          action={`${unlocked.length} de ${medals.data?.length ?? 0}`}
+          title="Sala de Troféus"
+          action="Ver sala"
           onAction={() => navigation.navigate('Gamification')}
         />
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: layout.gutter, gap: 16 }}
-        >
-          {[...(medals.data ?? [])]
-            .sort((a, b) => Number(!!b.unlockedAt) - Number(!!a.unlockedAt))
-            .map((m) => {
-              const on = !!m.unlockedAt;
-              return (
-                <Pressable
-                  key={m.id}
-                  onPress={() => navigation.navigate('Gamification')}
-                  accessibilityRole="button"
-                  accessibilityLabel={m.name}
-                  style={{ width: 76, alignItems: 'center', gap: 8 }}
-                >
-                  <View
-                    style={{
-                      width: 64,
-                      height: 64,
-                      borderRadius: 32,
-                      borderWidth: 2,
-                      borderColor: on ? colors[m.tier] : colors.lineHairline,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Ionicons
-                      name={(on ? m.icon : 'lock-closed-outline') as keyof typeof Ionicons.glyphMap}
-                      size={26}
-                      color={on ? colors[m.tier] : colors.inkTertiary}
-                    />
-                  </View>
-                  <Text variant="bodyS" tone={on ? 'primary' : 'tertiary'} numberOfLines={2} align="center">
-                    {m.name}
-                  </Text>
-                </Pressable>
-              );
-            })}
-        </ScrollView>
+        {trophyRoom.loading ? (
+          <View style={{ paddingHorizontal: layout.gutter }}>
+            <Skeleton height={168} radius={0} />
+          </View>
+        ) : trophyRoom.error ? (
+          <ErrorState compact onRetry={trophyRoom.reload} />
+        ) : (
+          <>
+            {!!trophies.length && (
+              <Text
+                variant="bodyS"
+                tone="secondary"
+                style={{ paddingHorizontal: layout.gutter, marginBottom: 12 }}
+              >
+                {trophies.length} {trophies.length === 1 ? 'prêmio conquistado' : 'prêmios conquistados'}
+              </Text>
+            )}
+            <TrophyShelf
+              achievements={trophyRoom.data ?? []}
+              earnedOnly
+              onSelect={(goalId) => navigation.navigate('Gamification', { goalId })}
+            />
+          </>
+        )}
       </View>
 
       {/* Ídolos */}

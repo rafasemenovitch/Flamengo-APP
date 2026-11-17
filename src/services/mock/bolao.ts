@@ -293,6 +293,11 @@ export function bolaoSeasonPoints() {
   return yourTotals().points;
 }
 
+/** Acertos reais do estado demonstrativo, sem contar o mesmo jogo por bolão. */
+export function bolaoExactScores() {
+  return yourTotals().exact;
+}
+
 export function createMockBolaoService(): BolaoService {
   return {
     async getSummary() {
