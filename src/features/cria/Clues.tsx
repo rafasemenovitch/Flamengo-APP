@@ -8,6 +8,7 @@ import { useReduceMotion } from '@/hooks/useReduceMotion';
 
 import { ATTRIBUTE_ORDER, clueSpeech, type Clue, type ClueStatus } from './compare';
 import { MAX_GUESSES } from './constants';
+import { useHighContrast } from './contrast';
 import { COUNTRY_NAME, Flag } from './Flag';
 
 /**
@@ -41,9 +42,12 @@ const GAP = 4;
 
 export function useClueColors(status: ClueStatus) {
   const { colors } = useTheme();
+  const contrast = useHighContrast();
   // Texto sobre verde e amarelo: a cor do fundo da tela (escura no tema escuro, clara no claro).
-  if (status === 'exact') return { bg: colors.success, fg: colors.bgCanvas };
-  if (status === 'close') return { bg: colors.warning, fg: colors.bgCanvas };
+  if (status === 'exact')
+    return { bg: contrast ? colors.contrastExact : colors.success, fg: colors.bgCanvas };
+  if (status === 'close')
+    return { bg: contrast ? colors.contrastClose : colors.warning, fg: colors.bgCanvas };
   return { bg: colors.bgRaised2, fg: colors.inkPrimary };
 }
 
@@ -96,12 +100,18 @@ export function ClueCell({ clue, size }: { clue: Clue; size: number }) {
           <View style={{ borderRadius: 2, overflow: 'hidden' }}>
             <Flag code={String(clue.value)} width={22} />
           </View>
-          <Text variant="labelTab" style={{ color: fg }}>
+          <Text variant="labelTab" style={{ color: fg }} maxFontSizeMultiplier={1.15}>
             {String(clue.value)}
           </Text>
         </View>
       ) : (
-        <Text variant="numericTable" style={{ color: fg, fontSize: 16 }} numberOfLines={1}>
+        <Text
+          variant="numericTable"
+          style={{ color: fg, fontSize: 16 }}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          maxFontSizeMultiplier={1.2}
+        >
           {displayValue(clue)}
         </Text>
       )}

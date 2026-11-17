@@ -6,7 +6,7 @@
  * 2. npx tsx map/tools/app-shots.ts <pasta> <saída> [tema] nome=query[|passo|passo] ...
  *    ex.: npx tsx map/tools/app-shots.ts /tmp/web docs/x dark inicio= maracana=rota=StadiumMode
  *    Passos depois de abrir: `toque:Texto` (toca no texto visível), `rotulo:Rótulo` (toca pelo
- *    rótulo de acessibilidade), `segura:Texto` (toque longo), `clica:x,y` (toque na tela), `digita:texto`, `espera:ms`.
+ *    rótulo de acessibilidade), `segura:Texto` (toque longo), `clica:x,y` (toque na tela), `rola:x,y,dy` (rola a lista sob o ponto), `digita:texto`, `espera:ms`.
  *    GPS falso: GEO="lat,lng,precisão" (permissão concedida). Sem internet para o mapa: OFFLINE=1.
  *
  * As boas-vindas são puladas (visitante). `rota=` abre a tela direto (só na web,
@@ -104,6 +104,12 @@ async function main() {
           if (kind === 'segura') await page.getByText(arg, { exact: true }).first().click({ delay: 900 });
           if (kind === 'digita') await page.keyboard.type(arg, { delay: 40 });
           if (kind === 'espera') await page.waitForTimeout(Number(arg));
+          // rola:x,y,dy: rola a lista que está sob o ponto (x, y) em dy pixels
+          if (kind === 'rola') {
+            const [x, y, dy] = arg.split(',').map(Number);
+            await page.mouse.move(x!, y!);
+            await page.mouse.wheel(0, dy!);
+          }
         } catch {
           console.log(`  [${name}] passo falhou: ${step}`);
         }

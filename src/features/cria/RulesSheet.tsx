@@ -1,10 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import type { ReactNode } from 'react';
-import { Modal, Pressable, View } from 'react-native';
+import { Modal, Pressable, Switch, View } from 'react-native';
 
 import { Text, useTheme } from '@/design-system';
 
 import { ClueCell } from './Clues';
+import { setHighContrast, useHighContrast } from './contrast';
 import type { Clue } from './compare';
 
 /**
@@ -23,17 +24,21 @@ const EXAMPLES: { clue: Clue; text: ReactNode }[] = [
 
 export function RulesSheet({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const { colors, radius } = useTheme();
+  const contrast = useHighContrast();
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      {/* Tocar fora fecha; para o leitor de tela, quem fecha é o X (o fundo não é botão, senão
+          o VoiceOver junta a janela inteira num elemento só). */}
       <Pressable
         onPress={onClose}
-        accessibilityRole="button"
-        accessibilityLabel="Fechar regras"
+        accessible={false}
+        importantForAccessibility="no"
         style={{ flex: 1, backgroundColor: colors.scrim, justifyContent: 'center', padding: 20 }}
       >
         <Pressable
           onPress={() => undefined}
           accessible={false}
+          accessibilityViewIsModal
           style={{
             backgroundColor: colors.bgRaised,
             borderRadius: radius.l,
@@ -72,6 +77,31 @@ export function RulesSheet({ visible, onClose }: { visible: boolean; onClose: ()
           <Text variant="bodyS" tone="secondary">
             Gols e jogos contam amistosos. Um Cria novo à meia-noite.
           </Text>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 12,
+              paddingTop: 16,
+              borderTopWidth: 1,
+              borderColor: colors.lineHairline,
+            }}
+          >
+            <View style={{ flex: 1 }}>
+              <Text variant="titleS">Alto contraste</Text>
+              <Text variant="bodyS" tone="secondary">
+                Laranja e azul no lugar de verde e amarelo.
+              </Text>
+            </View>
+            <Switch
+              value={contrast}
+              onValueChange={(v) => setHighContrast(v)}
+              accessibilityLabel="Alto contraste"
+              trackColor={{ true: colors.accent, false: colors.bgRaised2 }}
+              thumbColor={colors.inkOnRed}
+            />
+          </View>
         </Pressable>
       </Pressable>
     </Modal>

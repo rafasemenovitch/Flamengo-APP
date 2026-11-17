@@ -62,6 +62,10 @@ interface IdentityTokens {
   gold: string;
   silver: string;
   bronze: string;
+  /** Alto contraste dos jogos (Quem é o Cria?): substitui o verde de "igual". */
+  contrastExact: string;
+  /** Alto contraste dos jogos: substitui o amarelo de "perto". */
+  contrastClose: string;
 }
 
 /**
@@ -161,6 +165,8 @@ export const darkColors: ThemeColors = withLegacy({
   gold: palette.gold,
   silver: palette.silver,
   bronze: palette.bronze,
+  contrastExact: '#F5793A',
+  contrastClose: '#85C0F9',
 });
 
 /**
@@ -192,6 +198,8 @@ export const lightColors: ThemeColors = withLegacy({
   gold: '#A77F12',
   silver: '#6F7782',
   bronze: '#8E5A33',
+  contrastExact: '#B4461A',
+  contrastClose: '#1F5FA8',
 });
 
 /** Aplica alpha (0–1) a uma cor #RRGGBB. */

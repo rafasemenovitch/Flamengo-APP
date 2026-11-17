@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { Modal, Pressable, ScrollView, View } from 'react-native';
+import { Modal, Pressable, ScrollView, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LiveIndicator, Monogram, Text, useTheme } from '@/design-system';
@@ -121,6 +121,7 @@ export function DemoControlsSheet({
   onClose: () => void;
 }) {
   const { colors, radius, layout } = useTheme();
+  const { height: windowHeight } = useWindowDimensions();
   if (!IS_DEMO) return null;
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
@@ -129,7 +130,7 @@ export function DemoControlsSheet({
         onPress={onClose}
         accessible={false}
       >
-        <Pressable onPress={() => undefined} accessible={false} style={{ maxHeight: '90%' }}>
+        <Pressable onPress={() => undefined} accessible={false}>
           <SafeAreaView
             edges={['bottom']}
             style={{
@@ -138,7 +139,11 @@ export function DemoControlsSheet({
               borderTopRightRadius: radius.l,
             }}
           >
-            <ScrollView contentContainerStyle={{ padding: layout.gutter, gap: 12 }}>
+            {/* Altura limitada à tela: com todos os controles, o painel passa do tamanho dela. */}
+            <ScrollView
+              style={{ maxHeight: windowHeight * 0.85 }}
+              contentContainerStyle={{ padding: layout.gutter, gap: 12 }}
+            >
               <View
                 style={{
                   alignSelf: 'center',

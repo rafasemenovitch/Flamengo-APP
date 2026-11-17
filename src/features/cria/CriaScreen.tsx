@@ -22,6 +22,7 @@ import { PlayerSearch } from './PlayerSearch';
 import { ResultBlock } from './ResultBlock';
 import { RulesSheet } from './RulesSheet';
 import { useCriaGame } from './useCriaGame';
+import { useHighContrast } from './contrast';
 
 const RULES_SEEN_KEY = '@flamengo/cria-regras-vistas';
 
@@ -31,6 +32,7 @@ export function CriaScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'Cria'>>();
   const { colors, layout, radius } = useTheme();
   const { game, guess, newDay, openNewDay } = useCriaGame(params);
+  const contrast = useHighContrast();
   const guesses = useMemo(() => game?.rows ?? [], [game]);
   const won = game?.status === 'venceu';
   const over = !!game && game.status !== 'jogando';
@@ -145,7 +147,9 @@ export function CriaScreen() {
                       backgroundColor:
                         i < guesses.length
                           ? won && i === guesses.length - 1
-                            ? colors.success
+                            ? contrast
+                              ? colors.contrastExact
+                              : colors.success
                             : colors.inkPrimary
                           : colors.bgRaised2,
                     }}

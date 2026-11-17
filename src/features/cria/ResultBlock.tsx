@@ -7,6 +7,7 @@ import { pad2 } from '@/utils/format';
 import { haptic } from '@/utils/haptics';
 
 import { GuessRow } from './Clues';
+import { useHighContrast } from './contrast';
 import { challengeNumber, nextResetAt } from './dates';
 import { shareText } from './share';
 
@@ -49,10 +50,11 @@ export function ResultBlock({
   const { colors, radius } = useTheme();
   const won = game.status === 'venceu';
   const n = game.rows.length;
+  const contrast = useHighContrast();
 
   const share = async () => {
     haptic.select();
-    await Share.share({ message: shareText(game) }).catch(() => undefined);
+    await Share.share({ message: shareText(game, contrast ? 'contraste' : 'normal') }).catch(() => undefined);
   };
 
   return (
