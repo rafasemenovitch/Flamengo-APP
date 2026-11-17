@@ -18,7 +18,7 @@ import type { CriaPlayer } from '@/data/cria/types';
 import type { RootStackParamList } from '@/navigation/types';
 import { haptic } from '@/utils/haptics';
 
-import { GuessBlocks, MAX_GUESSES, MysteryBlock, REVEAL_TOTAL_MS, type GuessView } from './Clues';
+import { GuessGrid, MAX_GUESSES, REVEAL_TOTAL_MS, type GuessView } from './Clues';
 import { compare, isWin, toAttributes } from './compare';
 import { challengeNumber, dayKey, shortDate } from './dates';
 import { PlayerSearch } from './PlayerSearch';
@@ -177,8 +177,7 @@ export function CriaScreen() {
             </View>
           </View>
 
-          {guesses.length === 0 && <MysteryBlock />}
-          <GuessBlocks guesses={guesses} animateLast={justGuessed} />
+          <GuessGrid guesses={guesses} animateLast={justGuessed} showEmpty={!over} />
 
           {showResult && <ResultBlock won={won} guesses={guesses.length} secret={secretView} />}
         </ScrollView>

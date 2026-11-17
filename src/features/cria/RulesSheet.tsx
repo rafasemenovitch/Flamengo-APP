@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Text, useTheme } from '@/design-system';
 import { CRIA_PLAYERS } from '@/data/cria/players';
 
-import { Arrow, GuessBlock, useClueColors, type GuessView } from './Clues';
+import { Arrow, GuessRow, useClueColors, type GuessView } from './Clues';
 import {
   ATTRIBUTE_LABEL,
   ATTRIBUTE_ORDER,
@@ -112,7 +112,7 @@ export function RulesSheet({ visible, onClose }: { visible: boolean; onClose: ()
                   <Text variant="overline" tone="secondary">
                     Exemplo: o Cria é o Gabigol
                   </Text>
-                  <GuessBlock guess={ex} title="Palpite" />
+                  <GuessRow guess={ex} title="Palpite" />
                   <Text variant="bodyS" tone="secondary">
                     Mesma posição e mesmo país. Bebeto marcou menos gols, mas perto; jogou mais, também perto;
                     chegou bem antes e ganhou bem menos títulos.

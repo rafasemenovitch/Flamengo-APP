@@ -4,7 +4,7 @@ import { Mascot, Text, useTheme } from '@/design-system';
 import { useCountdown } from '@/hooks/useCountdown';
 import { pad2 } from '@/utils/format';
 
-import { GuessBlock, type GuessView } from './Clues';
+import { GuessRow, type GuessView } from './Clues';
 import { nextResetAt } from './dates';
 
 /** Frase da vitória pelo número de palpites: curta, de arquibancada. */
@@ -61,7 +61,7 @@ export function ResultBlock({
 
       {!won && (
         <View style={{ padding: 16, borderRadius: radius.l, backgroundColor: colors.bgRaised }}>
-          <GuessBlock guess={secret} title="O Cria" />
+          <GuessRow guess={secret} title="O Cria" />
         </View>
       )}
 
