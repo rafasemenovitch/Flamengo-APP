@@ -1,2 +1,3 @@
 # Gerado por tools/cria/build.ts (um jogador por linha)
 src/data/cria/players.ts
+src/data/cria/schedule.generated.ts
