@@ -62,7 +62,9 @@ export function decodeId(hex: string, date: string) {
 
 /** Id do secreto de uma data, ou null fora da agenda. */
 export function secretIdFor(schedule: { start: string; days: string[] }, date: string) {
-  const i = Math.round((Date.parse(`${date}T00:00:00Z`) - Date.parse(`${schedule.start}T00:00:00Z`)) / 86_400_000);
+  const i = Math.round(
+    (Date.parse(`${date}T00:00:00Z`) - Date.parse(`${schedule.start}T00:00:00Z`)) / 86_400_000
+  );
   const code = schedule.days[i];
   return code ? decodeId(code, date) : null;
 }
@@ -118,7 +120,8 @@ export function generateSchedule(players: CriaPlayer[], opts: ScheduleOptions) {
     const date = addDays(opts.start, i);
     const pinned = opts.pins?.[date] ?? opts.pins?.[date.slice(5)];
     let pick: CriaPlayer | undefined = pinned ? byId.get(pinned) : undefined;
-    if (pinned && !pick) throw new Error(`data fixada ${date} aponta para "${pinned}", que não pode ser resposta`);
+    if (pinned && !pick)
+      throw new Error(`data fixada ${date} aponta para "${pinned}", que não pode ser resposta`);
 
     if (!pick) {
       const free = eligible.filter((p) => i - (lastUsed.get(p.id) ?? -Infinity) >= gap);

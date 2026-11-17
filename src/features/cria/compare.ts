@@ -60,12 +60,20 @@ export const RULES_TEXT: Record<CriaAttribute, string> = {
   titles: 'Títulos oficiais com o Flamengo. Amarelo até 2 de diferença.',
 };
 
-export const ATTRIBUTE_ORDER: CriaAttribute[] = ['position', 'nationality', 'arrivalYear', 'goals', 'matches', 'titles'];
+export const ATTRIBUTE_ORDER: CriaAttribute[] = [
+  'position',
+  'nationality',
+  'arrivalYear',
+  'goals',
+  'matches',
+  'titles',
+];
 
 function numeric(attr: 'arrivalYear' | 'goals' | 'matches' | 'titles', guess: number, secret: number): Clue {
   const diff = secret - guess;
   const arrow: ClueArrow = diff > 0 ? 'up' : diff < 0 ? 'down' : null;
-  const status: ClueStatus = diff === 0 ? 'exact' : Math.abs(diff) <= TOLERANCE[attr](secret) ? 'close' : 'far';
+  const status: ClueStatus =
+    diff === 0 ? 'exact' : Math.abs(diff) <= TOLERANCE[attr](secret) ? 'close' : 'far';
   return { attr, status, arrow, value: guess };
 }
 

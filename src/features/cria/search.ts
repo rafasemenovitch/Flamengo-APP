@@ -65,7 +65,12 @@ export function searchPlayers(
       }
     }
     if (!best) continue;
-    hits.push({ player, used: usedIds.has(player.id), matchedAlias: byName ? undefined : matchedAlias, rank: best });
+    hits.push({
+      player,
+      used: usedIds.has(player.id),
+      matchedAlias: byName ? undefined : matchedAlias,
+      rank: best,
+    });
   }
   return hits
     .sort(
