@@ -157,7 +157,7 @@ export function createMockGamificationService(): GamificationService {
     async getTrophyRoom() {
       // Histórico do mesmo torcedor demonstrativo usado no restante da Nação.
       // Eventos únicos mantêm as datas já registradas; visitar a sala não libera nada.
-      const legacy = {
+      const legacy: Record<string, string> = {
         classico: 'md12',
         'rota-certa': 'md13',
         america: 'md16',
@@ -165,14 +165,11 @@ export function createMockGamificationService(): GamificationService {
         historiador: 'md7',
         embaixador: 'md9',
         'manto-sagrado': 'md21',
-        'noite-de-final': 'md10',
-        'parabens-mengao': 'md26',
-        'ate-o-fim': 'md27',
       };
       const completed = Object.fromEntries(
-        Object.entries(legacy).flatMap(([id, oldId]) => {
-          const medal = MEDALS.find((m) => m.id === oldId);
-          return medal?.unlockedAt ? [[id, { at: medal.unlockedAt }]] : [];
+        TROPHY_GOALS.flatMap((goal) => {
+          const medal = MEDALS.find((m) => m.id === (legacy[goal.id] ?? goal.id));
+          return medal?.unlockedAt ? [[goal.id, { at: medal.unlockedAt }]] : [];
         })
       );
       return delay(

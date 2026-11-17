@@ -5,6 +5,13 @@ import type { TrophyProgress } from '@/types/trophies';
 import { awardLabel, earnedTrophies, goalAwards, resolveTrophyRoom } from '@/utils/trophies';
 
 const empty: TrophyProgress = { counters: {}, completed: {} };
+const momentIds = [
+  'eu-vi-levantar-a-taca',
+  'goleada-historica',
+  'virada-inesquecivel',
+  'ate-o-fim',
+  'haja-coracao',
+];
 const presence = (matches: number) =>
   resolveTrophyRoom(TROPHY_GOALS, { ...empty, counters: { matches } }).find(
     (goal) => goal.id === 'sempre-presente'
@@ -48,7 +55,7 @@ describe('evolução da Sala de Troféus', () => {
   });
 
   it('eventos únicos só liberam o prêmio registrado, com taças apenas em Momentos especiais', () => {
-    for (const id of ['manto-sagrado', 'ate-o-fim']) {
+    for (const id of ['manto-sagrado', ...momentIds]) {
       const definition = TROPHY_GOALS.find((goal) => goal.id === id)!;
       const kind = definition.group === 'especiais' ? 'trophy' : 'medal';
       expect(goalAwards(definition)).toEqual([{ kind, tier: 'gold', target: 1 }]);
@@ -99,6 +106,23 @@ describe('evolução da Sala de Troféus', () => {
 
 describe('fonte demonstrativa da sala', () => {
   const service = createMockGamificationService();
+  it('mostra apenas os cinco novos momentos, sem desbloquear troféus ao substituir os antigos', async () => {
+    const room = (await service.getTrophyRoom()).filter((goal) => goal.group === 'especiais');
+    expect(room.map((goal) => goal.id)).toEqual(momentIds);
+    expect(room.map((goal) => goal.name)).toEqual([
+      'Eu vi levantar a taça',
+      'Goleada histórica',
+      'Virada inesquecível',
+      'Até o fim',
+      'Haja coração',
+    ]);
+    expect(room.every((goal) => !goal.earned && goal.current === undefined)).toBe(true);
+    const oldService = (await service.getMedals()).filter((goal) => goal.group === 'especiais');
+    expect(oldService.map((goal) => ({ id: goal.id, description: goal.description }))).toEqual(
+      room.map((goal) => ({ id: goal.id, description: goal.description }))
+    );
+    expect(room.every((goal) => goalAwards(goal)[0]?.kind === 'trophy')).toBe(true);
+  });
   it('usa os mesmos placares exatos do Bolão; consultar a sala não soma pontos', async () => {
     const before = await service.getProgress();
     const [room, summary] = await Promise.all([

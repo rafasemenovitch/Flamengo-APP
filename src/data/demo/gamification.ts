@@ -1,4 +1,5 @@
 import type { CommunityGroup, Medal, PassportStamp, Poll, PredictionPool } from '@/types/gamification';
+import { TROPHY_GOALS } from '@/data/trophies';
 import { demoDate } from './clock';
 
 export const MEDALS: Medal[] = [
@@ -200,33 +201,16 @@ export const MEDALS: Medal[] = [
     icon: 'medal',
     unlockedAt: demoDate(-940),
   },
-  {
-    id: 'md10',
-    name: 'Noite de final',
-    description: 'Esteja no estádio numa final.',
-    group: 'especiais',
+  // Mesmos cinco momentos da Sala: nenhum evento demonstrativo foi registrado como concluído.
+  ...TROPHY_GOALS.filter((goal) => goal.group === 'especiais').map((goal): Medal => ({
+    id: goal.id,
+    name: goal.name,
+    description: goal.description,
+    group: goal.group,
     tier: 'gold',
-    icon: 'star',
+    icon: 'trophy',
     progress: 0,
-  },
-  {
-    id: 'md26',
-    name: 'Parabéns, Mengão',
-    description: 'Abra o app no aniversário do clube, 15 de novembro.',
-    group: 'especiais',
-    tier: 'silver',
-    icon: 'gift',
-    progress: 0,
-  },
-  {
-    id: 'md27',
-    name: 'Até o fim',
-    description: 'Esteja no estádio num gol da vitória depois dos 45 do 2º tempo.',
-    group: 'especiais',
-    tier: 'gold',
-    icon: 'stopwatch',
-    progress: 0,
-  },
+  })),
 ];
 
 export const POOLS: PredictionPool[] = [

@@ -35,7 +35,7 @@ describe('prateleira de prêmios', () => {
       );
     });
     const pieces = screen.root.findAllByType(PressableScale);
-    expect(pieces).toHaveLength(13);
+    expect(pieces).toHaveLength(15);
     const presence = pieces.find((piece) => piece.props.accessibilityLabel.startsWith('Sempre presente.'))!;
     expect(presence.props.accessibilityLabel).toContain('Medalha de prata.');
     expect(
@@ -50,13 +50,13 @@ describe('prateleira de prêmios', () => {
     expect(medals.every((piece) => piece.props.hanging)).toBe(true);
     expect(medals.filter((piece) => piece.props.locked)).toHaveLength(8);
     expect(screen.root.findAllByType(ScrollView)).toHaveLength(0);
-    expect(screen.root.findAllByType(Image)).toHaveLength(13);
+    expect(screen.root.findAllByType(Image)).toHaveLength(15);
     await act(async () => {
       presence.props.onPress();
     });
     expect(select).toHaveBeenCalledWith('sempre-presente');
   });
-  it('sem conquistas mostra as três taças e dez medalhas penduradas bloqueadas', async () => {
+  it('sem conquistas mostra cinco taças e dez medalhas penduradas bloqueadas', async () => {
     const empty = resolveTrophyRoom(TROPHY_GOALS, { counters: {}, completed: {} });
     await act(async () => {
       screen = create(
@@ -66,7 +66,7 @@ describe('prateleira de prêmios', () => {
       );
     });
     const art = screen.root.findAllByType(TrophyArt);
-    expect(art).toHaveLength(13);
+    expect(art).toHaveLength(15);
     expect(art.every((piece) => piece.props.locked)).toBe(true);
     expect(art.filter((piece) => piece.props.hanging && piece.props.award.kind === 'medal')).toHaveLength(10);
     expect(

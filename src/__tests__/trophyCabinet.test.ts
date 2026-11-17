@@ -10,12 +10,14 @@ describe('estante fixa do perfil', () => {
     [0, 0],
     [1, 0],
     [3, 0],
+    [5, 0],
     [0, 1],
     [1, 4],
     [1, 8],
     [3, 10],
     [2, 15],
     [3, 18],
+    [5, 18],
   ])('%i taças desbloqueadas e %i medalhas cabem na mesma estante', (unlockedCups, medals) => {
     const list = trophyCabinetScenario(medals, unlockedCups);
     for (const width of [280, 350, 560]) {
@@ -49,12 +51,12 @@ describe('estante fixa do perfil', () => {
       }
     }
   });
-  it('sem conquistas mantém as três taças e dez medalhas bloqueadas, ligadas a objetivos reais', () => {
+  it('sem conquistas mantém cinco taças e dez medalhas bloqueadas, ligadas a objetivos reais', () => {
     const room = resolveTrophyRoom(TROPHY_GOALS, { counters: {}, completed: {} });
     const pieces = arrangeTrophyCabinet(room, 350).pieces;
-    expect(pieces).toHaveLength(13);
+    expect(pieces).toHaveLength(15);
     expect(pieces.every((piece) => !piece.achievement.earned)).toBe(true);
-    expect(new Set(pieces.map((piece) => piece.achievement.id)).size).toBe(13);
+    expect(new Set(pieces.map((piece) => piece.achievement.id)).size).toBe(15);
     expect(pieces.every((piece) => TROPHY_GOALS.some((goal) => goal.id === piece.achievement.id))).toBe(true);
   });
 
