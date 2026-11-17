@@ -47,6 +47,12 @@ Plano completo e critérios de aceite: `docs/maracana/`. Trabalho em fases; cada
 - `src/services/stadium/` é genérico (serve ao Morumbis também): nada de "Maracanã" na lógica, só nos dados.
 - No Modo Maracanã: sem mascote, sem QR Code de ingresso (acesso é por biometria facial), sem exigir ingresso, sem ícone ou texto de bebida alcoólica.
 
+## Quem é o Cria? (jogo diário da Nação)
+
+- A base de jogadores (`src/data/cria/players.ts`) é **gerada** por `npm run cria:data` (`tools/cria/`): Wikipédia (API) + imprensa + curadoria. Não editar à mão; mudar a curadoria (`tools/cria/curation.ts`) ou a imprensa (`tools/cria/press.ts`) e gerar de novo.
+- Critérios, confiança e quem pode ser resposta: `src/data/cria/SOURCES.md`, conferidos por `src/__tests__/criaData.test.ts`. Nunca inventar número: o que não tem fonte fica fora.
+- Não coletar do Flaestatística nem do Transfermarkt: os dois bloqueiam robôs de IA no `robots.txt`.
+
 ## API de futebol (API-Football, plano gratuito)
 
 Limites: 100 chamadas/dia (zera 00:00 UTC) e 10 chamadas/minuto. Estourar pode bloquear a chave.
